@@ -1,0 +1,12 @@
+"base": 10 # Base value for the cost of the disenchantment
+
+# This multiplication is applied to the base value
+# ---
+# It is calculated by the following:
+#   base + (level * multiply)
+# ---
+# Example: base = 10, sharpness = 5, knockback = 1, multiply = 0.25
+#   10 + (5 * 1) = 15
+#   15 + (1 * 1.25) = 16.25
+#   16.25
+"multiply": 0.25 # Multiplication value from 0 to infinity (0.25 = 25%) for the cost of the disenchantment
