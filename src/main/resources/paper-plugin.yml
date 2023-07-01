@@ -1,7 +1,0 @@
-name: Disenchantment
-version: '${version}'
-main: cz.kominekjan.disenchantment.Disenchantment
-api-version: '1.20'
-authors: [HonzaKOMI]
-description: Don't lose your enchantments!
-website: https://kominekjan.cz

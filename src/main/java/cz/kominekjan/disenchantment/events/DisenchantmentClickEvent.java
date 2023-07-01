@@ -9,11 +9,14 @@ import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.AnvilInventory;
 import org.bukkit.inventory.ItemStack;
 
+import static cz.kominekjan.disenchantment.Disenchantment.enabled;
 import static cz.kominekjan.disenchantment.events.DisenchantmentEvent.isValid;
 
 public class DisenchantmentClickEvent implements Listener {
     @EventHandler
     public void onDisenchantmentClickEvent(InventoryClickEvent e) {
+        if (!enabled) return;
+
         if (e.getInventory().getType() != InventoryType.ANVIL) return;
 
         AnvilInventory ai = (AnvilInventory) e.getInventory();

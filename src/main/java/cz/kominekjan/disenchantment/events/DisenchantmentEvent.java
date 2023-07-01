@@ -15,8 +15,9 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static cz.kominekjan.disenchantment.Disenchantment.config;
-import static cz.kominekjan.disenchantment.Disenchantment.logger;
+import static cz.kominekjan.disenchantment.Disenchantment.enabled;
 
+@SuppressWarnings("BooleanMethodIsAlwaysInverted")
 public class DisenchantmentEvent implements Listener {
     public static boolean isValid(ItemStack firstItem, ItemStack secondItem) {
         if (secondItem.getType() != Material.BOOK) return false;
@@ -28,6 +29,8 @@ public class DisenchantmentEvent implements Listener {
 
     @EventHandler
     public void onDisenchantmentEvent(PrepareAnvilEvent e) {
+        if (!enabled) return;
+
         if (e.getInventory().getFirstItem() == null) return;
         if (e.getInventory().getSecondItem() == null) return;
 

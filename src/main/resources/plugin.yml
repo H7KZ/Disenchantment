@@ -1,0 +1,33 @@
+name: Disenchantment
+version: '1.1'
+main: cz.kominekjan.disenchantment.Disenchantment
+api-version: '1.20'
+authors:
+  - HonzaKOMI
+description: Don't lose your enchantments!
+website: 'https://kominekjan.cz'
+commands:
+  disenchantment:
+    description: 'Disenchantment command.'
+    aliases:
+      - disenchant
+      - disench
+    usage: '/<command>'
+    permission: disenchantment.use
+    permission-message: You don't have permission to use this command.
+permissions:
+  disenchantment.use:
+    description: Allows you to use the disenchantment command.
+    default: op
+  disenchantment.toggle:
+    description: Allows you to toggle disenchantment.
+    default: op
+  disenchantment.config:
+    description: Allows you to change config file.
+    default: op
+  disenchantment.status:
+    description: Allows you to check if disenchantment is on/off.
+    default: op
+  disenchantment.help:
+    description: Allows you to check disenchantment help.
+    default: op
