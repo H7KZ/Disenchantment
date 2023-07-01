@@ -36,3 +36,6 @@ Put enchanted Item into the first slot in anvil, then a book to the second slot 
 
 ### TODO in future:
 - [ ] multiworld support
+- [ ] auto version checker
+- [ ] bstats
+- [ ] multi language support
