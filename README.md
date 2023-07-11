@@ -25,7 +25,7 @@ Put enchanted Item into the first slot in anvil, then a book to the second slot 
 
   - disenchantment.use Allows you to use the disenchantment command
   
-  - disenchantment.toggle Allows you to toggle disenchantment
+  - disenchantment.toggle Allows you to toggle disenchantment and toggle specific worlds
   
   - disenchantment.config Allows you to change config file
   
@@ -35,7 +35,7 @@ Put enchanted Item into the first slot in anvil, then a book to the second slot 
 
 
 ### TODO in future:
-- [ ] multiworld support
-- [ ] auto version checker
-- [ ] bstats
+- [x] multiworld support
+- [x] auto version checker
+- [x] bstats
 - [ ] multi language support

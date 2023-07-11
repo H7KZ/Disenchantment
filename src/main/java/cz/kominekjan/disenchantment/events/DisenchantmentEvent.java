@@ -2,6 +2,7 @@ package cz.kominekjan.disenchantment.events;
 
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.PrepareAnvilEvent;
@@ -32,7 +33,11 @@ public class DisenchantmentEvent implements Listener {
 
     @EventHandler
     public void onDisenchantmentEvent(PrepareAnvilEvent e) {
-        if (!enabled) return;
+        if (!(e.getView().getPlayer() instanceof Player)) return;
+
+        Player p = (Player) e.getView().getPlayer();
+
+        if (!enabled || config.getStringList("disabled-worlds").contains(p.getWorld().getName())) return;
 
         if (!isValid(e.getInventory().getItem(0), e.getInventory().getItem(1))) return;
 

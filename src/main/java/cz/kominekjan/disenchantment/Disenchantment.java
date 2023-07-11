@@ -1,14 +1,19 @@
 package cz.kominekjan.disenchantment;
 
+import cz.kominekjan.disenchantment.bstats.Metrics;
+import cz.kominekjan.disenchantment.checkers.UpdateChecker;
 import cz.kominekjan.disenchantment.commands.CommandCompleter;
 import cz.kominekjan.disenchantment.commands.CommandRegister;
 import cz.kominekjan.disenchantment.events.DisenchantmentClickEvent;
 import cz.kominekjan.disenchantment.events.DisenchantmentEvent;
+import cz.kominekjan.disenchantment.updaters.config.ConfigUpdater;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Objects;
 import java.util.logging.Logger;
 
@@ -28,9 +33,19 @@ public final class Disenchantment extends JavaPlugin {
         plugin = this;
 
         // Config
-        config = getConfig();
-        config.options().copyDefaults(true);
         saveDefaultConfig();
+        //The config needs to exist before using the updater
+        File configFile = new File(getDataFolder(), "config.yml");
+
+        try {
+            ConfigUpdater.update(plugin, "config.yml", configFile);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        reloadConfig();
+
+        config = getConfig();
 
         enabled = config.getBoolean("enabled");
 
@@ -44,6 +59,18 @@ public final class Disenchantment extends JavaPlugin {
         // Register commands
         Objects.requireNonNull(getCommand("disenchantment")).setExecutor(new CommandRegister());
         Objects.requireNonNull(getCommand("disenchantment")).setTabCompleter(new CommandCompleter());
+
+        // bStats
+        new Metrics(this, 19058);
+
+        // Update checker
+        new UpdateChecker(this, 110741).getVersion(version -> {
+            if (this.getDescription().getVersion().equals(version)) {
+                logger.info("There is not a new update available.");
+            } else {
+                logger.info("There is a new update available.");
+            }
+        });
 
         logger.info("Disenchantment enabled!");
     }

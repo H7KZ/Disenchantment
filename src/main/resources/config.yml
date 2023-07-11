@@ -1,6 +1,11 @@
-"enabled": true # Enable or disable the plugin
+# Enable or disable the plugin
+"enabled": true
 
-"base": 10 # Base value for the cost of the disenchantment
+# List of worlds where the plugin is disabled
+"disabled-worlds": [ ]
+
+# Base value for the cost of the disenchantment
+"base": 10
 
 # This multiplication is applied to the base value
 # ---
@@ -12,4 +17,5 @@
 #   10 + (1 * 1) = 11
 #   15 + (5 * 1.25) = 17.25
 #   17.25
-"multiply": 0.25 # Multiplication value from 0 to infinity (0.25 = 25%) for the cost of the disenchantment
+# Multiplication value from 0 to infinity (0.25 = 25%) for the cost of the disenchantment
+"multiply": 0.25

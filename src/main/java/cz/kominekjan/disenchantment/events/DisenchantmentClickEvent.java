@@ -9,13 +9,18 @@ import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.AnvilInventory;
 import org.bukkit.inventory.ItemStack;
 
+import static cz.kominekjan.disenchantment.Disenchantment.config;
 import static cz.kominekjan.disenchantment.Disenchantment.enabled;
 import static cz.kominekjan.disenchantment.events.DisenchantmentEvent.isValid;
 
 public class DisenchantmentClickEvent implements Listener {
     @EventHandler
     public void onDisenchantmentClickEvent(InventoryClickEvent e) {
-        if (!enabled) return;
+        if (!(e.getWhoClicked() instanceof Player)) return;
+
+        Player p = (Player) e.getWhoClicked();
+
+        if (!enabled || config.getStringList("disabled-worlds").contains(p.getWorld().getName())) return;
 
         if (e.getInventory().getType() != InventoryType.ANVIL) return;
 
@@ -31,17 +36,15 @@ public class DisenchantmentClickEvent implements Listener {
 
         if (!isValid(ai.getItem(0), ai.getItem(1))) return;
 
-        Player p = (Player) e.getWhoClicked();
-
         if (ai.getRepairCost() > p.getLevel() && p.getGameMode() != org.bukkit.GameMode.CREATIVE) {
             e.setCancelled(true);
             return;
         }
 
+        int exp = p.getLevel() - ai.getRepairCost();
+
         ItemStack firstItem = ai.getItem(0);
         ItemStack secondItem = ai.getItem(1);
-
-        if (!(e.getWhoClicked() instanceof Player)) return;
 
         ItemStack item = firstItem.clone();
 
@@ -56,5 +59,8 @@ public class DisenchantmentClickEvent implements Listener {
         }
 
         p.setItemOnCursor(result);
+
+        if (p.getGameMode() != org.bukkit.GameMode.CREATIVE)
+            p.setLevel(exp);
     }
 }
