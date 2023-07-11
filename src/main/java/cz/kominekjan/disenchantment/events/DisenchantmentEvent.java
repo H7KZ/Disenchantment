@@ -20,6 +20,9 @@ import static cz.kominekjan.disenchantment.Disenchantment.enabled;
 @SuppressWarnings("BooleanMethodIsAlwaysInverted")
 public class DisenchantmentEvent implements Listener {
     public static boolean isValid(ItemStack firstItem, ItemStack secondItem) {
+        if (firstItem == null) return false;
+        if (secondItem == null) return false;
+
         if (secondItem.getType() != Material.BOOK) return false;
 
         if (secondItem.getEnchantments().size() > 0) return false;
@@ -31,13 +34,9 @@ public class DisenchantmentEvent implements Listener {
     public void onDisenchantmentEvent(PrepareAnvilEvent e) {
         if (!enabled) return;
 
-        if (e.getInventory().getFirstItem() == null) return;
-        if (e.getInventory().getSecondItem() == null) return;
+        if (!isValid(e.getInventory().getItem(0), e.getInventory().getItem(1))) return;
 
-        ItemStack firstItem = e.getInventory().getFirstItem();
-        ItemStack secondItem = e.getInventory().getSecondItem();
-
-        if (!isValid(firstItem, secondItem)) return;
+        ItemStack firstItem = e.getInventory().getItem(0);
 
         Map<Enchantment, Integer> enchantments = firstItem.getEnchantments();
 

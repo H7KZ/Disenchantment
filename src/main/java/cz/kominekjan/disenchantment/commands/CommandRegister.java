@@ -3,17 +3,20 @@ package cz.kominekjan.disenchantment.commands;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import org.jetbrains.annotations.NotNull;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public class CommandRegister implements CommandExecutor {
-    public final static Map<String, CommandUnit> commands = Map.ofEntries(
-            Map.entry("help", Help.unit),
-            Map.entry("status", Status.unit),
-            Map.entry("toggle", Toggle.unit),
-            Map.entry("config", Config.unit)
-    );
+    public final static Map<String, CommandUnit> commands;
+
+    static {
+        commands = new HashMap<>();
+        commands.put("help", Help.unit);
+        commands.put("status", Status.unit);
+        commands.put("toggle", Toggle.unit);
+        commands.put("config", Config.unit);
+    }
 
     private boolean executeCommand(String n, CommandSender s, String[] a) {
         return getCommand(n).execute(s, a);
@@ -24,7 +27,7 @@ public class CommandRegister implements CommandExecutor {
     }
 
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
+    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (args.length == 0) return executeCommand("help", sender, args);
 
         return executeCommand(args[0], sender, args);

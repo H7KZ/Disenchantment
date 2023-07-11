@@ -23,32 +23,36 @@ public class DisenchantmentClickEvent implements Listener {
 
         if (e.getSlot() != 2) return;
 
-        if (ai.getResult() == null) return;
+        if (ai.getItem(2) == null) return;
 
-        ItemStack result = ai.getResult();
+        ItemStack result = ai.getItem(2);
 
         if (result.getType() != Material.ENCHANTED_BOOK) return;
 
-        if (ai.getFirstItem() == null) return;
-        if (ai.getSecondItem() == null) return;
+        if (!isValid(ai.getItem(0), ai.getItem(1))) return;
 
-        ItemStack firstItem = ai.getFirstItem();
-        ItemStack secondItem = ai.getSecondItem();
+        Player p = (Player) e.getWhoClicked();
 
-        if (!isValid(firstItem, secondItem)) return;
+        if (ai.getRepairCost() > p.getLevel() && p.getGameMode() != org.bukkit.GameMode.CREATIVE) {
+            e.setCancelled(true);
+            return;
+        }
 
-        if (!(e.getWhoClicked() instanceof Player p)) return;
+        ItemStack firstItem = ai.getItem(0);
+        ItemStack secondItem = ai.getItem(1);
+
+        if (!(e.getWhoClicked() instanceof Player)) return;
 
         ItemStack item = firstItem.clone();
 
         item.getEnchantments().forEach((en, l) -> item.removeEnchantment(en));
 
-        ai.setFirstItem(item);
+        ai.setItem(0, item);
 
         if (secondItem.getAmount() > 1) {
             secondItem.setAmount(secondItem.getAmount() - 1);
         } else {
-            ai.setSecondItem(null);
+            ai.setItem(1, null);
         }
 
         p.setItemOnCursor(result);

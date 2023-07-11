@@ -4,5 +4,5 @@ import org.bukkit.command.CommandSender;
 
 @FunctionalInterface
 interface CommandExecutor {
-    boolean execute(CommandSender s, String[] args);
+    void execute(CommandSender s, String[] args);
 }

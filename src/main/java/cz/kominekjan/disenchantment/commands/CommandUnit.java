@@ -27,7 +27,10 @@ public class CommandUnit {
             return true;
         }
 
-        if (this.args.length == 0 || !reqArgs) return executor.execute(s, args);
+        if (this.args.length == 0 || !reqArgs) {
+            executor.execute(s, args);
+            return true;
+        }
 
         boolean isArg = true;
 
@@ -42,6 +45,8 @@ public class CommandUnit {
             return true;
         }
 
-        return executor.execute(s, args);
+        executor.execute(s, args);
+
+        return true;
     }
 }
