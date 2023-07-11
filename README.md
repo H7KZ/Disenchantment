@@ -15,6 +15,8 @@ Put enchanted Item into the first slot in anvil, then a book to the second slot 
   - /disench status - Show current status of the plugin.
   
   - /disench toggle - Toggle the plugin on/off.
+
+  - /disench toggle [ world ] - Toggle specific world on/off.
   
   - /disench config - Show current configuration of the plugin.
   
