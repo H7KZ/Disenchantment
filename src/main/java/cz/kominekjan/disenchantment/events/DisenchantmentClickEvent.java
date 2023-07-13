@@ -1,6 +1,7 @@
 package cz.kominekjan.disenchantment.events;
 
 import org.bukkit.Material;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -8,6 +9,9 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.AnvilInventory;
 import org.bukkit.inventory.ItemStack;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import static cz.kominekjan.disenchantment.Disenchantment.config;
 import static cz.kominekjan.disenchantment.Disenchantment.enabled;
@@ -48,8 +52,21 @@ public class DisenchantmentClickEvent implements Listener {
 
         ItemStack item = firstItem.clone();
 
-        item.getEnchantments().forEach((en, l) -> item.removeEnchantment(en));
+        Map<Enchantment, Integer> enchantmentsCopy = new LinkedHashMap<>(firstItem.getEnchantments());
 
+        for (Map<?, ?> entry : config.getMapList("disabled-enchantments")) {
+            String enchantment = (String) entry.get("enchantment");
+            if (enchantment == null) continue;
+
+            for (Map.Entry<Enchantment, Integer> en : firstItem.getEnchantments().entrySet()) {
+                if (en.getKey().getName().equalsIgnoreCase(enchantment)) continue;
+
+                enchantmentsCopy.remove(en.getKey());
+            }
+        }
+
+        item.getEnchantments().forEach((en, l) -> item.removeEnchantment(en));
+        item.addUnsafeEnchantments(enchantmentsCopy);
         ai.setItem(0, item);
 
         if (secondItem.getAmount() > 1) {

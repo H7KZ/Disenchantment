@@ -4,6 +4,12 @@
 # List of worlds where the plugin is disabled
 "disabled-worlds": [ ]
 
+# List of items that are not allowed to be disenchanted
+"disabled-items": [ ]
+
+# List of enchantments that are not allowed to be disenchanted
+"disabled-enchantments": [ ]
+
 # Base value for the cost of the disenchantment
 "base": 10
 

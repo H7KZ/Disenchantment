@@ -33,9 +33,9 @@ public final class Disenchantment extends JavaPlugin {
         plugin = this;
 
         // Config
-        saveDefaultConfig();
+        plugin.saveDefaultConfig();
         //The config needs to exist before using the updater
-        File configFile = new File(getDataFolder(), "config.yml");
+        File configFile = new File(plugin.getDataFolder(), "config.yml");
 
         try {
             ConfigUpdater.update(plugin, "config.yml", configFile);
@@ -43,7 +43,7 @@ public final class Disenchantment extends JavaPlugin {
             e.printStackTrace();
         }
 
-        reloadConfig();
+        plugin.reloadConfig();
 
         config = getConfig();
 
