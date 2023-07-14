@@ -45,6 +45,11 @@ public class DisenchantmentClickEvent implements Listener {
             return;
         }
 
+        if (e.getClick().isShiftClick()) {
+            e.setCancelled(true);
+            return;
+        }
+
         int exp = p.getLevel() - ai.getRepairCost();
 
         ItemStack firstItem = ai.getItem(0);
@@ -54,19 +59,24 @@ public class DisenchantmentClickEvent implements Listener {
 
         Map<Enchantment, Integer> enchantmentsCopy = new LinkedHashMap<>(firstItem.getEnchantments());
 
-        for (Map<?, ?> entry : config.getMapList("disabled-enchantments")) {
-            String enchantment = (String) entry.get("enchantment");
-            if (enchantment == null) continue;
+        if (!config.getMapList("disabled-enchantments").isEmpty()) {
+            for (Map<?, ?> entry : config.getMapList("disabled-enchantments")) {
+                String enchantment = (String) entry.get("enchantment");
+                if (enchantment == null) continue;
 
-            for (Map.Entry<Enchantment, Integer> en : firstItem.getEnchantments().entrySet()) {
-                if (en.getKey().getName().equalsIgnoreCase(enchantment)) continue;
+                for (Map.Entry<Enchantment, Integer> en : firstItem.getEnchantments().entrySet()) {
+                    if (en.getKey().getName().equalsIgnoreCase(enchantment)) continue;
 
-                enchantmentsCopy.remove(en.getKey());
+                    enchantmentsCopy.remove(en.getKey());
+                }
             }
+
+            item.getEnchantments().forEach((en, l) -> item.removeEnchantment(en));
+            item.addUnsafeEnchantments(enchantmentsCopy);
+        } else {
+            item.getEnchantments().forEach((en, l) -> item.removeEnchantment(en));
         }
 
-        item.getEnchantments().forEach((en, l) -> item.removeEnchantment(en));
-        item.addUnsafeEnchantments(enchantmentsCopy);
         ai.setItem(0, item);
 
         if (secondItem.getAmount() > 1) {

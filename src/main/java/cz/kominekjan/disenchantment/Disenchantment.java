@@ -65,9 +65,7 @@ public final class Disenchantment extends JavaPlugin {
 
         // Update checker
         new UpdateChecker(this, 110741).getVersion(version -> {
-            if (this.getDescription().getVersion().equals(version)) {
-                logger.info("There is not a new update available.");
-            } else {
+            if (!this.getDescription().getVersion().equals(version)) {
                 logger.info("There is a new update available.");
             }
         });
