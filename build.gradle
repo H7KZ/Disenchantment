@@ -3,9 +3,10 @@ plugins {
 }
 
 group = 'cz.kominekjan'
-version = '1.0-SNAPSHOT'
+version = '2.0.0'
 
 repositories {
+//    mavenLocal()
     mavenCentral()
     maven {
         name = "papermc-repo"
@@ -15,11 +16,19 @@ repositories {
         name = "sonatype"
         url = "https://oss.sonatype.org/content/groups/public/"
     }
+    maven {
+        name = "auxilor-repo"
+        url = "https://repo.auxilor.io/repository/maven-public/"
+    }
 }
 
 dependencies {
     compileOnly "com.destroystokyo.paper:paper-api:1.12-R0.1-SNAPSHOT"
+    compileOnly "com.willfp:EcoEnchants:10.48.0"
+    compileOnly "com.willfp:eco:6.66.1"
+    implementation files('libs/ExcellentEnchants-3.6.4.jar')
 }
+
 
 def targetJavaVersion = 8
 java {

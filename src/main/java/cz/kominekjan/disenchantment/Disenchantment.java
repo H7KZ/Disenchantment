@@ -25,6 +25,38 @@ public final class Disenchantment extends JavaPlugin {
 
     public static boolean enabled = true;
 
+    /**
+     * Toggle the plugin on/off
+     */
+    public static void toggle() {
+        enabled = !enabled;
+        config.set("enabled", enabled);
+        plugin.saveConfig();
+    }
+
+    /**
+     * Send a message to a CommandSender
+     * with a custom ChatColor
+     *
+     * @param s CommandSender
+     * @param m String
+     * @param c ChatColor
+     */
+    public static void sendMessage(CommandSender s, String m, ChatColor c) {
+        s.sendMessage(ChatColor.LIGHT_PURPLE + "Disenchantment: " + c + m);
+    }
+
+    /**
+     * Send a message to a CommandSender
+     * with a default ChatColor of RED
+     *
+     * @param s CommandSender
+     * @param m String
+     */
+    public static void sendMessage(CommandSender s, String m) {
+        s.sendMessage(ChatColor.LIGHT_PURPLE + "Disenchantment: " + ChatColor.RED + m);
+    }
+
     @Override
     public void onEnable() {
         // Plugin startup logic
@@ -77,37 +109,5 @@ public final class Disenchantment extends JavaPlugin {
     public void onDisable() {
         // Plugin shutdown logic
         logger.info("Disenchantment disabled!");
-    }
-
-    /**
-     * Toggle the plugin on/off
-     */
-    public static void toggle() {
-        enabled = !enabled;
-        config.set("enabled", enabled);
-        plugin.saveConfig();
-    }
-
-    /**
-     * Send a message to a CommandSender
-     * with a custom ChatColor
-     *
-     * @param s CommandSender
-     * @param m String
-     * @param c ChatColor
-     */
-    public static void sendMessage(CommandSender s, String m, ChatColor c) {
-        s.sendMessage(ChatColor.LIGHT_PURPLE + "Disenchantment: " + c + m);
-    }
-
-    /**
-     * Send a message to a CommandSender
-     * with a default ChatColor of RED
-     *
-     * @param s CommandSender
-     * @param m String
-     */
-    public static void sendMessage(CommandSender s, String m) {
-        s.sendMessage(ChatColor.LIGHT_PURPLE + "Disenchantment: " + ChatColor.RED + m);
     }
 }

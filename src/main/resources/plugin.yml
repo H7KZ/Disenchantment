@@ -6,6 +6,7 @@ authors:
   - HonzaKOMI
 description: Don't lose your enchantments!
 website: 'https://kominekjan.cz'
+softdepend: [ ExcellentEnchants, EcoEnchants, eco ]
 commands:
   disenchantment:
     description: 'Disenchantment command.'
