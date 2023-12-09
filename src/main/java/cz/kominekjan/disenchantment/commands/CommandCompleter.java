@@ -31,8 +31,35 @@ public class CommandCompleter implements TabCompleter {
 
         if (args.length == 2) {
             switch (args[0].toLowerCase()) {
-                case "config":
-                    for (String arg : commands.get("config").args) {
+                case "help":
+                    for (String arg : commands.get("help").args) {
+                        if (arg.toLowerCase().startsWith(args[1].toLowerCase())) {
+                            result.add(arg);
+                        }
+                    }
+                case "repair":
+                    for (String arg : commands.get("repair").args) {
+                        if (arg.toLowerCase().startsWith(args[1].toLowerCase())) {
+                            result.add(arg);
+                        }
+                    }
+                    return result;
+                case "sound":
+                    for (String arg : commands.get("sound").args) {
+                        if (arg.toLowerCase().startsWith(args[1].toLowerCase())) {
+                            result.add(arg);
+                        }
+                    }
+                    return result;
+                case "enchantments":
+                    for (String arg : Arrays.stream(Enchantment.values()).map(Enchantment::getName).toArray(String[]::new)) {
+                        if (arg.toLowerCase().startsWith(args[1].toLowerCase())) {
+                            result.add(arg);
+                        }
+                    }
+                    return result;
+                case "items":
+                    for (String arg : Arrays.stream(Material.values()).map(Material::name).toArray(String[]::new)) {
                         if (arg.toLowerCase().startsWith(args[1].toLowerCase())) {
                             result.add(arg);
                         }
@@ -41,27 +68,6 @@ public class CommandCompleter implements TabCompleter {
                 case "toggle":
                     for (String arg : plugin.getServer().getWorlds().stream().map(World::getName).toArray(String[]::new)) {
                         if (arg.toLowerCase().startsWith(args[1].toLowerCase())) {
-                            result.add(arg);
-                        }
-                    }
-                    return result;
-            }
-        }
-
-        if (args.length == 3) {
-            if (!args[0].equalsIgnoreCase("config")) return null;
-
-            switch (args[1].toLowerCase()) {
-                case "enchantments":
-                    for (String arg : Arrays.stream(Enchantment.values()).map(Enchantment::getName).toArray(String[]::new)) {
-                        if (arg.toLowerCase().startsWith(args[2].toLowerCase())) {
-                            result.add(arg);
-                        }
-                    }
-                    return result;
-                case "items":
-                    for (String arg : Arrays.stream(Material.values()).map(Material::name).toArray(String[]::new)) {
-                        if (arg.toLowerCase().startsWith(args[2].toLowerCase())) {
                             result.add(arg);
                         }
                     }

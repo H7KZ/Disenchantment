@@ -1,5 +1,5 @@
 name: Disenchantment
-version: '1.4.1'
+version: '2.0.1'
 main: cz.kominekjan.disenchantment.Disenchantment
 api-version: '1.13'
 authors:
@@ -23,11 +23,20 @@ permissions:
   disenchantment.toggle:
     description: Allows you to toggle disenchantment. And also disable specific worlds.
     default: op
-  disenchantment.config:
-    description: Allows you to change config file.
-    default: op
   disenchantment.status:
     description: Allows you to check if disenchantment is on/off.
+    default: op
+  disenchantment.repair:
+    description: Allows you to configure disenchantment repair.
+    default: op
+  disenchantment.sound:
+    description: Allows you to configure disenchantment sound.
+    default: op
+  disenchantment.enchantments:
+    description: Allows you to configure disenchantment enchantments.
+    default: op
+  disenchantment.items:
+    description: Allows you to configure disenchantment items.
     default: op
   disenchantment.help:
     description: Allows you to check disenchantment help.

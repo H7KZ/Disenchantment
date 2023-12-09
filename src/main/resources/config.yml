@@ -10,6 +10,16 @@
 # List of enchantments that are not allowed to be disenchanted
 "disabled-enchantments": [ ]
 
+# Enable or disable the anvil sound
+"enable-anvil-sound": true
+
+# Edit the volume and pitch of the anvil sound
+"anvil-volume": 1.0
+"anvil-pitch": 1.0
+
+# Enable or disable the repair cost
+"enable-repair-cost": true
+
 # Base value for the cost of the disenchantment
 "base": 10
 

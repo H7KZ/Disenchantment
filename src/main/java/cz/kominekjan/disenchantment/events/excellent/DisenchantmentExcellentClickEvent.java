@@ -1,5 +1,6 @@
 package cz.kominekjan.disenchantment.events.excellent;
 
+import org.bukkit.Sound;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -9,6 +10,7 @@ import su.nightexpress.excellentenchants.enchantment.util.EnchantUtils;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static cz.kominekjan.disenchantment.Disenchantment.config;
 
@@ -59,7 +61,14 @@ public class DisenchantmentExcellentClickEvent {
 
         p.setItemOnCursor(result);
 
-        p.playSound(p.getLocation(), org.bukkit.Sound.BLOCK_ANVIL_USE, 1, 1);
+        AtomicReference<Boolean> enableAnvilSound = new AtomicReference<>(config.getBoolean("enable-anvil-sound"));
+
+        if (enableAnvilSound.get()) {
+            AtomicReference<Double> anvilVolume = new AtomicReference<>(config.getDouble("anvil-volume"));
+            AtomicReference<Double> anvilPitch = new AtomicReference<>(config.getDouble("anvil-pitch"));
+
+            p.playSound(p.getLocation(), Sound.BLOCK_ANVIL_USE, anvilVolume.get().floatValue(), anvilPitch.get().floatValue());
+        }
 
         if (p.getGameMode() != org.bukkit.GameMode.CREATIVE)
             p.setLevel(exp);

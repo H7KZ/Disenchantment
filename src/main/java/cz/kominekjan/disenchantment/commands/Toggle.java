@@ -14,7 +14,7 @@ public class Toggle {
     public static void command(CommandSender s, String[] args) {
         if (args.length == 1) {
             Disenchantment.toggle();
-            sendMessage(s, "now " + (Disenchantment.enabled ? "enabled" : "disabled"), ChatColor.DARK_GREEN);
+            sendMessage(s, "Switched to " + (Disenchantment.enabled ? "enabled" : "disabled"), ChatColor.GREEN);
             return;
         }
 
@@ -28,7 +28,7 @@ public class Toggle {
             config.set("disabled-worlds", disabledWorlds);
             plugin.saveConfig();
 
-            sendMessage(s, "enabled in world " + world, ChatColor.GREEN);
+            sendMessage(s, "Enabled in world \"" + world + "\"", ChatColor.GREEN);
         } else {
             if (!plugin.getServer().getWorlds().contains(plugin.getServer().getWorld(world))) {
                 sendMessage(s, "world " + world + " does not exist!", ChatColor.RED);
@@ -42,7 +42,7 @@ public class Toggle {
             config.set("disabled-worlds", disabledWorlds);
             plugin.saveConfig();
 
-            sendMessage(s, "disabled in world " + world, ChatColor.GREEN);
+            sendMessage(s, "Disabled in world \"" + world + "\"", ChatColor.GREEN);
         }
     }
 }

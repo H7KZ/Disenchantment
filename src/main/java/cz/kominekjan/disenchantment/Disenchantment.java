@@ -43,7 +43,7 @@ public final class Disenchantment extends JavaPlugin {
      * @param c ChatColor
      */
     public static void sendMessage(CommandSender s, String m, ChatColor c) {
-        s.sendMessage(ChatColor.LIGHT_PURPLE + "Disenchantment: " + c + m);
+        s.sendMessage(ChatColor.DARK_GRAY + "Disenchantment:  " + ChatColor.RESET + c + m);
     }
 
     /**
@@ -54,7 +54,7 @@ public final class Disenchantment extends JavaPlugin {
      * @param m String
      */
     public static void sendMessage(CommandSender s, String m) {
-        s.sendMessage(ChatColor.LIGHT_PURPLE + "Disenchantment: " + ChatColor.RED + m);
+        sendMessage(s, m, ChatColor.RED);
     }
 
     @Override

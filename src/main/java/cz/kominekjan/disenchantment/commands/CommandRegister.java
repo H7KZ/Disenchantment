@@ -15,7 +15,10 @@ public class CommandRegister implements CommandExecutor {
         commands.put("help", Help.unit);
         commands.put("status", Status.unit);
         commands.put("toggle", Toggle.unit);
-        commands.put("config", Config.unit);
+        commands.put("repair", Repair.unit);
+        commands.put("sound", Sound.unit);
+        commands.put("items", Items.unit);
+        commands.put("enchantments", Enchantments.unit);
     }
 
     private boolean executeCommand(String n, CommandSender s, String[] a) {

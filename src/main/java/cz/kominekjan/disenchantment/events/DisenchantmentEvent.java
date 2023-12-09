@@ -58,6 +58,10 @@ public class DisenchantmentEvent implements Listener {
     }
 
     public static int countAnvilCost(Map<Enchantment, Integer> enchantments) {
+        AtomicReference<Boolean> enableRepairCost = new AtomicReference<>(config.getBoolean("enable-repair-cost"));
+
+        if (!enableRepairCost.get()) return 0;
+
         AtomicReference<Integer> enchantmentCost = new AtomicReference<>(config.getInt("base"));
         AtomicReference<Double> baseMultiplier = new AtomicReference<>(1 - config.getDouble("multiply"));
 
