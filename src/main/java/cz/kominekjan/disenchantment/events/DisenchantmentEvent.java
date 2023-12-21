@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import cz.kominekjan.disenchantment.events.eco.DisenchantmentEcoEvent;
 import cz.kominekjan.disenchantment.events.excellent.DisenchantmentExcellentEvent;
 import cz.kominekjan.disenchantment.events.normal.DisenchantmentNormalEvent;
+import cz.kominekjan.disenchantment.nbteditor.NBTEditor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
@@ -75,6 +76,10 @@ public class DisenchantmentEvent implements Listener {
         });
 
         return enchantmentCost.get();
+    }
+
+    public static ItemStack setNBTRepairCost(ItemStack item, int repairCost) {
+        return NBTEditor.set(item, repairCost, "RepairCost");
     }
 
     @EventHandler

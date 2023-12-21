@@ -1,4 +1,4 @@
-package cz.kominekjan.disenchantment.updaters.config;
+package cz.kominekjan.disenchantment.config;
 
 public class KeyUtils {
 

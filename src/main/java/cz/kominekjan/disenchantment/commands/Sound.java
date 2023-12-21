@@ -18,7 +18,7 @@ public class Sound {
             return;
         }
 
-        switch (args[1]) {
+        switch (args[1].toLowerCase()) {
             case "enable": {
                 config.set("enable-anvil-sound", true);
                 plugin.saveConfig();

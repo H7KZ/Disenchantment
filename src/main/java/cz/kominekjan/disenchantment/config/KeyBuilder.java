@@ -1,4 +1,4 @@
-package cz.kominekjan.disenchantment.updaters.config;
+package cz.kominekjan.disenchantment.config;
 
 import org.bukkit.configuration.file.FileConfiguration;
 

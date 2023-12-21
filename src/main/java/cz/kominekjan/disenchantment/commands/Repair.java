@@ -18,7 +18,7 @@ public class Repair {
             return;
         }
 
-        switch (args[1]) {
+        switch (args[1].toLowerCase()) {
             case "enable": {
                 config.set("enable-repair-cost", true);
                 plugin.saveConfig();
@@ -29,6 +29,26 @@ public class Repair {
                 config.set("enable-repair-cost", false);
                 plugin.saveConfig();
                 sendMessage(s, "Repair cost disabled", ChatColor.GREEN);
+                break;
+            }
+            case "reset": {
+                if (args.length == 2) {
+                    sendMessage(s, "You must specify a value");
+                    break;
+                }
+
+                if (args[2].equalsIgnoreCase("enable")) {
+                    config.set("enable-repair-reset", true);
+                    plugin.saveConfig();
+                    sendMessage(s, "Repair cost reset enabled", ChatColor.GREEN);
+                } else if (args[2].equalsIgnoreCase("disable")) {
+                    config.set("enable-repair-reset", false);
+                    plugin.saveConfig();
+                    sendMessage(s, "Repair cost reset disabled", ChatColor.GREEN);
+                } else {
+                    sendMessage(s, "Unknown argument!");
+                }
+
                 break;
             }
             case "base": {

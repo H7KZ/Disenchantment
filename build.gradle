@@ -3,7 +3,7 @@ plugins {
 }
 
 group = 'cz.kominekjan'
-version = '2.0.2'
+version = '2.0.3'
 
 repositories {
 //    mavenLocal()

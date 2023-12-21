@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static cz.kominekjan.disenchantment.Disenchantment.config;
+import static cz.kominekjan.disenchantment.events.DisenchantmentEvent.setNBTRepairCost;
 
 public class DisenchantmentEcoClickEvent {
     public static void onDisenchantmentClickEvent(InventoryClickEvent e) {
@@ -81,6 +82,12 @@ public class DisenchantmentEcoClickEvent {
             });
 
             item.setItemMeta(meta);
+        }
+
+        AtomicReference<Boolean> enableRepairReset = new AtomicReference<>(config.getBoolean("enable-repair-reset"));
+
+        if (enableRepairReset.get()) {
+            item = setNBTRepairCost(item, 0);
         }
 
         anvilInventory.setItem(0, item);

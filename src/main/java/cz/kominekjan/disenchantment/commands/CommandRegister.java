@@ -33,6 +33,6 @@ public class CommandRegister implements CommandExecutor {
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (args.length == 0) return executeCommand("help", sender, args);
 
-        return executeCommand(args[0], sender, args);
+        return executeCommand(args[0].toLowerCase(), sender, args);
     }
 }

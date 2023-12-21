@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static cz.kominekjan.disenchantment.Disenchantment.config;
+import static cz.kominekjan.disenchantment.events.DisenchantmentEvent.setNBTRepairCost;
 
 public class DisenchantmentExcellentClickEvent {
     public static void onDisenchantmentClickEvent(InventoryClickEvent e) {
@@ -43,10 +44,19 @@ public class DisenchantmentExcellentClickEvent {
                 }
             }
 
-            item.getEnchantments().forEach((en, l) -> EnchantUtils.remove(item, en));
-            enchantmentsCopy.forEach((en, l) -> EnchantUtils.add(item, en, l, true));
+            ItemStack finalItem = item;
+            item.getEnchantments().forEach((en, l) -> EnchantUtils.remove(finalItem, en));
+            ItemStack finalItem1 = item;
+            enchantmentsCopy.forEach((en, l) -> EnchantUtils.add(finalItem1, en, l, true));
         } else {
-            item.getEnchantments().forEach((en, l) -> EnchantUtils.remove(item, en));
+            ItemStack finalItem = item;
+            item.getEnchantments().forEach((en, l) -> EnchantUtils.remove(finalItem, en));
+        }
+
+        AtomicReference<Boolean> enableRepairReset = new AtomicReference<>(config.getBoolean("enable-repair-reset"));
+
+        if (enableRepairReset.get()) {
+            item = setNBTRepairCost(item, 0);
         }
 
         EnchantUtils.updateDisplay(item);

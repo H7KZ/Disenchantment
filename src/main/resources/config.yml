@@ -17,6 +17,9 @@
 "anvil-volume": 1.0
 "anvil-pitch": 1.0
 
+# Enable or disable the repair cost reset back to 0 when the item is disenchanted
+"enable-repair-reset": false
+
 # Enable or disable the repair cost
 "enable-repair-cost": true
 

@@ -1,5 +1,6 @@
 package cz.kominekjan.disenchantment.events.normal;
 
+import cz.kominekjan.disenchantment.nbteditor.NBTEditor;
 import org.bukkit.Sound;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
@@ -12,6 +13,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static cz.kominekjan.disenchantment.Disenchantment.config;
+import static cz.kominekjan.disenchantment.events.DisenchantmentEvent.setNBTRepairCost;
 
 public class DisenchantmentNormalClickEvent {
     public static void onDisenchantmentClickEvent(InventoryClickEvent e) {
@@ -42,10 +44,18 @@ public class DisenchantmentNormalClickEvent {
                 }
             }
 
-            item.getEnchantments().forEach((en, l) -> item.removeEnchantment(en));
+            ItemStack finalItem = item;
+            item.getEnchantments().forEach((en, l) -> finalItem.removeEnchantment(en));
             item.addUnsafeEnchantments(enchantmentsCopy);
         } else {
-            item.getEnchantments().forEach((en, l) -> item.removeEnchantment(en));
+            ItemStack finalItem = item;
+            item.getEnchantments().forEach((en, l) -> finalItem.removeEnchantment(en));
+        }
+
+        AtomicReference<Boolean> enableRepairReset = new AtomicReference<>(config.getBoolean("enable-repair-reset"));
+
+        if (enableRepairReset.get()) {
+            item = setNBTRepairCost(item, 0);
         }
 
         anvilInventory.setItem(0, item);
