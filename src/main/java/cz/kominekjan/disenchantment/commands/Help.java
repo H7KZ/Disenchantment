@@ -19,6 +19,7 @@ public class Help {
                 s.sendMessage(ChatColor.DARK_GRAY + "|");
                 s.sendMessage(ChatColor.DARK_GRAY + "| /disench repair" + ChatColor.RESET + " - " + ChatColor.GRAY + "Show current configuration of repair cost.");
                 s.sendMessage(ChatColor.DARK_GRAY + "| /disench repair [ enable or disable ]" + ChatColor.RESET + " - " + ChatColor.GRAY + "Enable/disable the repair cost.");
+                s.sendMessage(ChatColor.DARK_GRAY + "| /disench repair reset [ enable or disable ]" + ChatColor.RESET + " - " + ChatColor.GRAY + "Enable/disable the reset of repair cost to 0 after disenchanting.");
                 s.sendMessage(ChatColor.DARK_GRAY + "| /disench repair base [ int ]" + ChatColor.RESET + " - " + ChatColor.GRAY + "Change the value of base repair cost.");
                 s.sendMessage(ChatColor.DARK_GRAY + "| /disench repair multiply [ float ]" + ChatColor.RESET + " - " + ChatColor.GRAY + "Change the value of multiplication of repair cost based on the enchantment level and number of enchantments.");
                 break;

@@ -6,7 +6,7 @@ import org.bukkit.command.CommandSender;
 import static cz.kominekjan.disenchantment.Disenchantment.*;
 
 public class Repair {
-    public static final CommandUnit unit = new CommandUnit("repair", "disenchantment.repair", "You don't have permission to use this command.", new String[]{"enable", "disable", "base", "multiply"}, false, Repair::command);
+    public static final CommandUnit unit = new CommandUnit("repair", "disenchantment.repair", "You don't have permission to use this command.", new String[]{"enable", "disable", "reset", "base", "multiply"}, false, Repair::command);
 
     public static void command(CommandSender s, String[] args) {
         if (args.length == 1) {
