@@ -1,5 +1,5 @@
 name: Disenchantment
-version: '2.0.1'
+version: '2.0.5'
 main: cz.kominekjan.disenchantment.Disenchantment
 api-version: '1.13'
 authors:
@@ -17,6 +17,9 @@ commands:
     permission: disenchantment.use
     permission-message: You don't have permission to use this command.
 permissions:
+  disenchantment.anvil:
+    description: Allows you to use disenchant in an anvil.
+    default: op
   disenchantment.use:
     description: Allows you to use the disenchantment command.
     default: op

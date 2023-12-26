@@ -24,6 +24,8 @@ public class DisenchantmentClickEvent implements Listener {
 
         Player p = (Player) e.getWhoClicked();
 
+        if (!p.hasPermission("disenchantment.anvil")) return;
+
         if (!enabled || config.getStringList("disabled-worlds").contains(p.getWorld().getName())) return;
 
         if (e.getInventory().getType() != InventoryType.ANVIL) return;

@@ -88,6 +88,8 @@ public class DisenchantmentEvent implements Listener {
 
         Player p = (Player) e.getView().getPlayer();
 
+        if (!p.hasPermission("disenchantment.anvil")) return;
+
         if (!enabled || config.getStringList("disabled-worlds").contains(p.getWorld().getName())) return;
 
         if (!isValid(e.getInventory().getItem(0), e.getInventory().getItem(1))) return;

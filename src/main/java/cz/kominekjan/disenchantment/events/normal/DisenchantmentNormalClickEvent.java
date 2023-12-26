@@ -1,6 +1,5 @@
 package cz.kominekjan.disenchantment.events.normal;
 
-import cz.kominekjan.disenchantment.nbteditor.NBTEditor;
 import org.bukkit.Sound;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
