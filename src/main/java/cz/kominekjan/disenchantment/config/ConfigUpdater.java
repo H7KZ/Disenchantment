@@ -144,7 +144,7 @@ public class ConfigUpdater {
         options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
         Yaml yaml = new Yaml(new YamlConstructor(), new YamlRepresenter(), options);
 
-        Map<Object, Object> root = (Map<Object, Object>) yaml.load(new FileReader(toUpdate));
+        Map<Object, Object> root = yaml.load(new FileReader(toUpdate));
         ignoredSections.forEach(section -> {
             String[] split = section.split("[" + SEPARATOR + "]");
             String key = split[split.length - 1];

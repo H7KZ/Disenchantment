@@ -20,9 +20,7 @@ import static cz.kominekjan.disenchantment.events.DisenchantmentEvent.isValid;
 public class DisenchantmentClickEvent implements Listener {
     @EventHandler
     public void onDisenchantmentClickEvent(InventoryClickEvent e) {
-        if (!(e.getWhoClicked() instanceof Player)) return;
-
-        Player p = (Player) e.getWhoClicked();
+        if (!(e.getWhoClicked() instanceof Player p)) return;
 
         if (!p.hasPermission("disenchantment.anvil")) return;
 

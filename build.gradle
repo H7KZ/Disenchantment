@@ -3,7 +3,7 @@ plugins {
 }
 
 group = 'cz.kominekjan'
-version = '2.0.5'
+version = '3.0.0'
 
 repositories {
 //    mavenLocal()
@@ -23,18 +23,18 @@ repositories {
 }
 
 dependencies {
-    compileOnly "com.destroystokyo.paper:paper-api:1.12-R0.1-SNAPSHOT"
+    compileOnly "io.papermc.paper:paper-api:1.20.6-R0.1-SNAPSHOT"
     compileOnly "com.willfp:EcoEnchants:10.48.0"
     compileOnly "com.willfp:eco:6.66.1"
-    implementation files('libs/ExcellentEnchants-3.6.4.jar')
+    implementation files('libs/ExcellentEnchants-4.0.5.jar')
 }
 
 
-def targetJavaVersion = 8
+def targetJavaVersion = 21
 java {
     def javaVersion = JavaVersion.toVersion(targetJavaVersion)
-    sourceCompatibility = 1.9
-    targetCompatibility = 1.9
+    sourceCompatibility = 1.17
+    targetCompatibility = 1.17
     if (JavaVersion.current() < javaVersion) {
         toolchain.languageVersion = JavaLanguageVersion.of(targetJavaVersion)
     }

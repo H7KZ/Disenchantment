@@ -84,9 +84,7 @@ public class DisenchantmentEvent implements Listener {
 
     @EventHandler
     public void onDisenchantmentEvent(PrepareAnvilEvent e) {
-        if (!(e.getView().getPlayer() instanceof Player)) return;
-
-        Player p = (Player) e.getView().getPlayer();
+        if (!(e.getView().getPlayer() instanceof Player p)) return;
 
         if (!p.hasPermission("disenchantment.anvil")) return;
 
