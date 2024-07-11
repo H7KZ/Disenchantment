@@ -3,7 +3,7 @@ plugins {
 }
 
 group = 'cz.kominekjan'
-version = '3.0.0'
+version = '3.1.0'
 
 repositories {
 //    mavenLocal()
@@ -23,12 +23,15 @@ repositories {
 }
 
 dependencies {
-    compileOnly "io.papermc.paper:paper-api:1.20.6-R0.1-SNAPSHOT"
-    compileOnly "com.willfp:EcoEnchants:10.48.0"
-    compileOnly "com.willfp:eco:6.66.1"
-    implementation files('libs/ExcellentEnchants-4.0.5.jar')
-}
+    compileOnly "org.spigotmc:spigot-api:1.20.6-R0.1-SNAPSHOT"
 
+    compileOnly "com.willfp:EcoEnchants:12.12.0"
+    compileOnly "com.willfp:eco:6.71.4"
+
+    implementation files('libs/ExcellentEnchants-4.0.5.jar')
+
+    implementation files('libs/AdvancedEnchantments-9.9.2.jar')
+}
 
 def targetJavaVersion = 21
 java {

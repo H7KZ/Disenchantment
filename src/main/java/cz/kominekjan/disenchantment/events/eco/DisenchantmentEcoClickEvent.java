@@ -1,7 +1,7 @@
 package cz.kominekjan.disenchantment.events.eco;
 
 import com.willfp.eco.core.items.builder.ItemStackBuilder;
-import com.willfp.ecoenchants.enchants.EcoEnchants;
+import com.willfp.ecoenchants.enchant.EcoEnchants;
 import org.bukkit.Sound;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
@@ -13,6 +13,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static cz.kominekjan.disenchantment.Disenchantment.config;
@@ -31,6 +32,7 @@ public class DisenchantmentEcoClickEvent {
         ItemStack firstItem = anvilInventory.getItem(0);
         ItemStack secondItem = anvilInventory.getItem(1);
 
+        assert firstItem != null;
         ItemStack item = firstItem.clone();
 
         Map<Enchantment, Integer> enchantmentsCopy = new LinkedHashMap<>(firstItem.getEnchantments());
@@ -41,7 +43,7 @@ public class DisenchantmentEcoClickEvent {
                 if (enchantment == null) continue;
 
                 for (Map.Entry<Enchantment, Integer> en : firstItem.getEnchantments().entrySet()) {
-                    if (en.getKey().getName().equalsIgnoreCase(enchantment)) continue;
+                    if (en.getKey().getKey().toString().equalsIgnoreCase(enchantment)) continue;
 
                     enchantmentsCopy.remove(en.getKey());
                 }
@@ -62,8 +64,8 @@ public class DisenchantmentEcoClickEvent {
             ItemStackBuilder builder = new ItemStackBuilder(item);
 
             enchantmentsCopy.forEach((en, l) -> {
-                if (EcoEnchants.getByID(en.getName().toLowerCase()) != null) {
-                    builder.addEnchantment(EcoEnchants.getByID(en.getName().toLowerCase()), l);
+                if (EcoEnchants.INSTANCE.getByID(en.getKey().toString()) != null) {
+                    builder.addEnchantment((Enchantment) Objects.requireNonNull(EcoEnchants.INSTANCE.getByID(en.getKey().toString())), l);
                 } else {
                     builder.addEnchantment(en, l);
                 }
@@ -92,6 +94,7 @@ public class DisenchantmentEcoClickEvent {
 
         anvilInventory.setItem(0, item);
 
+        assert secondItem != null;
         if (secondItem.getAmount() > 1) {
             secondItem.setAmount(secondItem.getAmount() - 1);
         } else {

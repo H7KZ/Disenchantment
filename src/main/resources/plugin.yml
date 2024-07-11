@@ -1,12 +1,12 @@
 name: Disenchantment
-version: '2.0.5'
+version: '3.1.0'
 main: cz.kominekjan.disenchantment.Disenchantment
-api-version: '1.13'
+api-version: '1.17'
 authors:
   - HonzaKOMI
 description: Don't lose your enchantments!
 website: 'https://kominekjan.cz'
-softdepend: [ ExcellentEnchants, EcoEnchants, eco ]
+softdepend: [ ExcellentEnchants, EcoEnchants, eco, AdvancedEnchantments ]
 commands:
   disenchantment:
     description: 'Disenchantment command.'

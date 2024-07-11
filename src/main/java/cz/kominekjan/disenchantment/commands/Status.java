@@ -5,23 +5,33 @@ import org.bukkit.command.CommandSender;
 
 import java.util.List;
 
-import static cz.kominekjan.disenchantment.Disenchantment.*;
+import static cz.kominekjan.disenchantment.Disenchantment.config;
+import static cz.kominekjan.disenchantment.Disenchantment.enabled;
 
 public class Status {
     public static final CommandUnit unit = new CommandUnit("status", "disenchantment.status", "You don't have permission to use this command.", new String[]{}, false, Status::command);
 
     public static void command(CommandSender s, String[] ignoredArgs) {
-        sendMessage(s, "Globally " + (enabled ? "Enabled" : "Disabled"), enabled ? ChatColor.GREEN : ChatColor.RED);
+        String builder = "";
+        builder += ChatColor.GRAY + "Plugin is globally ";
+        builder += enabled ? ChatColor.GREEN + "Enabled" : ChatColor.RED + "Disabled";
+        s.sendMessage(builder);
 
         List<String> disabledWorlds = config.getStringList("disabled-worlds");
 
         if (disabledWorlds.isEmpty()) {
-            sendMessage(s, "No worlds are disabled", ChatColor.GRAY);
+            s.sendMessage(ChatColor.GRAY + "No worlds are disabled");
             return;
         }
 
-        sendMessage(s, "Disabled worlds", ChatColor.GRAY);
-        s.sendMessage(ChatColor.GRAY + "|");
-        disabledWorlds.forEach(world -> s.sendMessage(ChatColor.RED + "[X] \"" + world + "\""));
+        s.sendMessage(ChatColor.GRAY + "Disabled worlds:");
+        s.sendMessage("");
+
+        for (String world : disabledWorlds) {
+            builder = "";
+            builder += ChatColor.RED + "[X] ";
+            builder += ChatColor.GRAY + "\"" + world + "\"";
+            s.sendMessage(builder);
+        }
     }
 }

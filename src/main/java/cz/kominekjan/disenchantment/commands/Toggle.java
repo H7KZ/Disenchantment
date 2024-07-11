@@ -6,7 +6,10 @@ import org.bukkit.command.CommandSender;
 
 import java.util.List;
 
-import static cz.kominekjan.disenchantment.Disenchantment.*;
+import static cz.kominekjan.disenchantment.Disenchantment.config;
+import static cz.kominekjan.disenchantment.Disenchantment.plugin;
+import static cz.kominekjan.disenchantment.utils.TextUtil.TextWithPrefixError;
+import static cz.kominekjan.disenchantment.utils.TextUtil.TextWithPrefixSuccess;
 
 public class Toggle {
     public static final CommandUnit unit = new CommandUnit("toggle", "disenchantment.toggle", "You don't have permission to use this command.", new String[]{}, false, Toggle::command);
@@ -14,7 +17,10 @@ public class Toggle {
     public static void command(CommandSender s, String[] args) {
         if (args.length == 1) {
             Disenchantment.toggle();
-            sendMessage(s, "Switched to " + (Disenchantment.enabled ? "enabled" : "disabled"), ChatColor.GREEN);
+            String builder = "";
+            builder += ChatColor.GRAY + "Plugin is ";
+            builder += Disenchantment.enabled ? ChatColor.GREEN + "Enabled" : ChatColor.RED + "Disabled";
+            s.sendMessage(builder);
             return;
         }
 
@@ -28,10 +34,10 @@ public class Toggle {
             config.set("disabled-worlds", disabledWorlds);
             plugin.saveConfig();
 
-            sendMessage(s, "Enabled in world \"" + world + "\"", ChatColor.GREEN);
+            s.sendMessage(TextWithPrefixSuccess("Enabled in world \"" + world + "\""));
         } else {
             if (!plugin.getServer().getWorlds().contains(plugin.getServer().getWorld(world))) {
-                sendMessage(s, "world " + world + " does not exist!", ChatColor.RED);
+                s.sendMessage(TextWithPrefixError("World \"" + world + "\" does not exist!"));
                 return;
             }
 
@@ -42,7 +48,7 @@ public class Toggle {
             config.set("disabled-worlds", disabledWorlds);
             plugin.saveConfig();
 
-            sendMessage(s, "Disabled in world \"" + world + "\"", ChatColor.GREEN);
+            s.sendMessage(TextWithPrefixSuccess("Disabled in world \"" + world + "\""));
         }
     }
 }

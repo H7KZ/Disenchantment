@@ -3,18 +3,23 @@ package cz.kominekjan.disenchantment.commands;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 
-import static cz.kominekjan.disenchantment.Disenchantment.*;
+import static cz.kominekjan.disenchantment.Disenchantment.config;
+import static cz.kominekjan.disenchantment.Disenchantment.plugin;
+import static cz.kominekjan.disenchantment.utils.TextUtil.*;
 
 public class Sound {
     public static final CommandUnit unit = new CommandUnit("sound", "disenchantment.sound", "You don't have permission to use this command.", new String[]{"enable", "disable", "volume", "pitch"}, false, Sound::command);
 
     public static void command(CommandSender s, String[] args) {
         if (args.length == 1) {
-            sendMessage(s, "Anvil sound configuration", ChatColor.GRAY);
-            s.sendMessage(ChatColor.GRAY + "|");
-            s.sendMessage(ChatColor.GRAY + "| Anvil sound is " + (config.getBoolean("enable-anvil-sound") ? ChatColor.GREEN : ChatColor.RED) + (config.getBoolean("enable-anvil-sound") ? "Enabled" : "Disabled"));
-            s.sendMessage(ChatColor.GRAY + "| Anvil volume: " + config.getInt("anvil-volume"));
-            s.sendMessage(ChatColor.GRAY + "| Anvil pitch: " + config.getDouble("anvil-pitch"));
+            s.sendMessage(TextWithPrefix("Anvil sound configuration"));
+            s.sendMessage("");
+            String builder = "";
+            builder += ChatColor.GRAY + "Anvil sound is ";
+            builder += config.getBoolean("enable-anvil-sound") ? ChatColor.GREEN + "Enabled" : ChatColor.RED + "Disabled";
+            s.sendMessage(builder);
+            s.sendMessage(ChatColor.GRAY + "Anvil volume: " + config.getInt("anvil-volume"));
+            s.sendMessage(ChatColor.GRAY + "Anvil pitch: " + config.getDouble("anvil-pitch"));
             return;
         }
 
@@ -22,45 +27,45 @@ public class Sound {
             case "enable": {
                 config.set("enable-anvil-sound", true);
                 plugin.saveConfig();
-                sendMessage(s, "Anvil sound enabled", ChatColor.GREEN);
+                s.sendMessage(TextWithPrefixSuccess("Anvil sound enabled"));
                 break;
             }
             case "disable": {
                 config.set("enable-anvil-sound", false);
                 plugin.saveConfig();
-                sendMessage(s, "Anvil sound disabled", ChatColor.GREEN);
+                s.sendMessage(TextWithPrefixSuccess("Anvil sound disabled"));
                 break;
             }
             case "volume": {
                 if (args.length == 2) {
-                    sendMessage(s, "You must specify a value");
+                    s.sendMessage(TextWithPrefixError("You must specify a value"));
                     break;
                 }
 
                 try {
                     config.set("anvil-volume", Double.parseDouble(args[2]));
                     plugin.saveConfig();
-                    sendMessage(s, "Anvil volume set to " + args[2], ChatColor.GREEN);
+                    s.sendMessage(TextWithPrefixSuccess("Anvil volume set to " + args[2]));
                 } catch (NumberFormatException e) {
-                    sendMessage(s, "You must specify a valid double");
+                    s.sendMessage(TextWithPrefixError("You must specify a valid number"));
                 }
             }
             case "pitch": {
                 if (args.length == 2) {
-                    sendMessage(s, "You must specify a value");
+                    s.sendMessage(TextWithPrefixError("You must specify a value"));
                     break;
                 }
 
                 try {
                     config.set("anvil-pitch", Double.parseDouble(args[2]));
                     plugin.saveConfig();
-                    sendMessage(s, "Anvil pitch set to " + args[2], ChatColor.GREEN);
+                    s.sendMessage(TextWithPrefixSuccess("Anvil pitch set to " + args[2]));
                 } catch (NumberFormatException e) {
-                    sendMessage(s, "You must specify a valid double");
+                    s.sendMessage(TextWithPrefixError("You must specify a valid number"));
                 }
             }
             default: {
-                sendMessage(s, "Unknown argument!");
+                s.sendMessage(TextWithPrefixError("Unknown argument!"));
             }
         }
     }

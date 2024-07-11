@@ -1,5 +1,6 @@
 package cz.kominekjan.disenchantment.events;
 
+import cz.kominekjan.disenchantment.events.advanced.DisenchantmentAdvancedClickEvent;
 import cz.kominekjan.disenchantment.events.eco.DisenchantmentEcoClickEvent;
 import cz.kominekjan.disenchantment.events.excellent.DisenchantmentExcellentClickEvent;
 import cz.kominekjan.disenchantment.events.normal.DisenchantmentNormalClickEvent;
@@ -36,6 +37,7 @@ public class DisenchantmentClickEvent implements Listener {
 
         ItemStack result = anvilInventory.getItem(2);
 
+        assert result != null;
         if (result.getType() != Material.ENCHANTED_BOOK) return;
 
         if (!isValid(anvilInventory.getItem(0), anvilInventory.getItem(1))) return;
@@ -54,6 +56,8 @@ public class DisenchantmentClickEvent implements Listener {
             DisenchantmentExcellentClickEvent.onDisenchantmentClickEvent(e);
         } else if (Bukkit.getServer().getPluginManager().getPlugin("EcoEnchants") != null && Bukkit.getServer().getPluginManager().getPlugin("eco") != null) {
             DisenchantmentEcoClickEvent.onDisenchantmentClickEvent(e);
+        } else if (Bukkit.getServer().getPluginManager().getPlugin("AdvancedEnchantments") != null) {
+            DisenchantmentAdvancedClickEvent.onDisenchantmentClickEvent(e);
         } else {
             DisenchantmentNormalClickEvent.onDisenchantmentClickEvent(e);
         }

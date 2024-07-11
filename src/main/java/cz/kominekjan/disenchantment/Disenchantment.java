@@ -7,8 +7,6 @@ import cz.kominekjan.disenchantment.commands.CommandRegister;
 import cz.kominekjan.disenchantment.config.ConfigUpdater;
 import cz.kominekjan.disenchantment.events.DisenchantmentClickEvent;
 import cz.kominekjan.disenchantment.events.DisenchantmentEvent;
-import org.bukkit.ChatColor;
-import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -32,29 +30,6 @@ public final class Disenchantment extends JavaPlugin {
         enabled = !enabled;
         config.set("enabled", enabled);
         plugin.saveConfig();
-    }
-
-    /**
-     * Send a message to a CommandSender
-     * with a custom ChatColor
-     *
-     * @param s CommandSender
-     * @param m String
-     * @param c ChatColor
-     */
-    public static void sendMessage(CommandSender s, String m, ChatColor c) {
-        s.sendMessage(ChatColor.DARK_GRAY + "Disenchantment:  " + ChatColor.RESET + c + m);
-    }
-
-    /**
-     * Send a message to a CommandSender
-     * with a default ChatColor of RED
-     *
-     * @param s CommandSender
-     * @param m String
-     */
-    public static void sendMessage(CommandSender s, String m) {
-        sendMessage(s, m, ChatColor.RED);
     }
 
     @Override
@@ -81,7 +56,6 @@ public final class Disenchantment extends JavaPlugin {
 
         enabled = config.getBoolean("enabled");
 
-        // Logger
         logger = getLogger();
 
         // Register events
@@ -95,7 +69,6 @@ public final class Disenchantment extends JavaPlugin {
         // bStats
         new Metrics(this, 19058);
 
-        // Update checker
         new UpdateChecker(this, 110741).getVersion(version -> {
             if (!this.getDescription().getVersion().equals(version)) {
                 logger.info("There is a new update available.");

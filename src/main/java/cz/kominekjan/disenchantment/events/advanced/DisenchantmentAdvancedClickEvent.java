@@ -1,12 +1,12 @@
-package cz.kominekjan.disenchantment.events.excellent;
+package cz.kominekjan.disenchantment.events.advanced;
 
+import net.advancedplugins.ae.api.AEAPI;
 import org.bukkit.Sound;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.AnvilInventory;
 import org.bukkit.inventory.ItemStack;
-import su.nightexpress.excellentenchants.enchantment.util.EnchantUtils;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -15,7 +15,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import static cz.kominekjan.disenchantment.Disenchantment.config;
 import static cz.kominekjan.disenchantment.events.DisenchantmentEvent.setNBTRepairCost;
 
-public class DisenchantmentExcellentClickEvent {
+public class DisenchantmentAdvancedClickEvent {
     public static void onDisenchantmentClickEvent(InventoryClickEvent e) {
         Player p = (Player) e.getWhoClicked();
 
@@ -46,12 +46,12 @@ public class DisenchantmentExcellentClickEvent {
             }
 
             ItemStack finalItem = item;
-            item.getEnchantments().forEach((en, l) -> EnchantUtils.remove(finalItem, en));
+            item.getEnchantments().forEach((en, l) -> AEAPI.removeEnchantment(finalItem, String.valueOf(en.getKey())));
             ItemStack finalItem1 = item;
-            enchantmentsCopy.forEach((en, l) -> EnchantUtils.add(finalItem1, en, l, true));
+            enchantmentsCopy.forEach((en, l) -> AEAPI.applyEnchant(en.getKey().toString(), l, finalItem1, true));
         } else {
             ItemStack finalItem = item;
-            item.getEnchantments().forEach((en, l) -> EnchantUtils.remove(finalItem, en));
+            item.getEnchantments().forEach((en, l) -> AEAPI.removeEnchantment(finalItem, en.getKey().toString()));
         }
 
         AtomicReference<Boolean> enableRepairReset = new AtomicReference<>(config.getBoolean("enable-repair-reset"));
@@ -59,8 +59,6 @@ public class DisenchantmentExcellentClickEvent {
         if (enableRepairReset.get()) {
             item = setNBTRepairCost(item, 0);
         }
-
-        EnchantUtils.updateDisplay(item);
 
         anvilInventory.setItem(0, item);
 

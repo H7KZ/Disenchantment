@@ -3,18 +3,23 @@ package cz.kominekjan.disenchantment.commands;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 
-import static cz.kominekjan.disenchantment.Disenchantment.*;
+import static cz.kominekjan.disenchantment.Disenchantment.config;
+import static cz.kominekjan.disenchantment.Disenchantment.plugin;
+import static cz.kominekjan.disenchantment.utils.TextUtil.*;
 
 public class Repair {
     public static final CommandUnit unit = new CommandUnit("repair", "disenchantment.repair", "You don't have permission to use this command.", new String[]{"enable", "disable", "reset", "base", "multiply"}, false, Repair::command);
 
     public static void command(CommandSender s, String[] args) {
         if (args.length == 1) {
-            sendMessage(s, "Repair cost configuration", ChatColor.GRAY);
-            s.sendMessage(ChatColor.GRAY + "|");
-            s.sendMessage(ChatColor.GRAY + "| Repair cost is " + (config.getBoolean("enable-repair-cost") ? ChatColor.GREEN : ChatColor.RED) + (config.getBoolean("enable-repair-cost") ? "Enabled" : "Disabled"));
-            s.sendMessage(ChatColor.GRAY + "| Base value: " + config.getInt("base"));
-            s.sendMessage(ChatColor.GRAY + "| Multiply value: " + config.getDouble("multiply"));
+            s.sendMessage(TextWithPrefix("Repair cost configuration"));
+            s.sendMessage("");
+            String builder = "";
+            builder += ChatColor.GRAY + "Repair cost is ";
+            builder += config.getBoolean("enable-repair-cost") ? ChatColor.GREEN + "Enabled" : ChatColor.RED + "Disabled";
+            s.sendMessage(builder);
+            s.sendMessage(ChatColor.GRAY + "Base value: " + config.getInt("base"));
+            s.sendMessage(ChatColor.GRAY + "Multiply value: " + config.getDouble("multiply"));
             return;
         }
 
@@ -22,65 +27,65 @@ public class Repair {
             case "enable": {
                 config.set("enable-repair-cost", true);
                 plugin.saveConfig();
-                sendMessage(s, "Repair cost enabled", ChatColor.GREEN);
+                s.sendMessage(TextWithPrefixSuccess("Repair cost enabled"));
                 break;
             }
             case "disable": {
                 config.set("enable-repair-cost", false);
                 plugin.saveConfig();
-                sendMessage(s, "Repair cost disabled", ChatColor.GREEN);
+                s.sendMessage(TextWithPrefixSuccess("Repair cost disabled"));
                 break;
             }
             case "reset": {
                 if (args.length == 2) {
-                    sendMessage(s, "You must specify a value");
+                    s.sendMessage(TextWithPrefixError("You must specify a value"));
                     break;
                 }
 
                 if (args[2].equalsIgnoreCase("enable")) {
                     config.set("enable-repair-reset", true);
                     plugin.saveConfig();
-                    sendMessage(s, "Repair cost reset enabled", ChatColor.GREEN);
+                    s.sendMessage(TextWithPrefixSuccess("Repair cost reset enabled"));
                 } else if (args[2].equalsIgnoreCase("disable")) {
                     config.set("enable-repair-reset", false);
                     plugin.saveConfig();
-                    sendMessage(s, "Repair cost reset disabled", ChatColor.GREEN);
+                    s.sendMessage(TextWithPrefixSuccess("Repair cost reset disabled"));
                 } else {
-                    sendMessage(s, "Unknown argument!");
+                    s.sendMessage(TextWithPrefixError("You must specify 'enable' or 'disable'"));
                 }
 
                 break;
             }
             case "base": {
                 if (args.length == 2) {
-                    sendMessage(s, "You must specify a value");
+                    s.sendMessage(TextWithPrefixError("You must specify a value"));
                     break;
                 }
 
                 try {
                     config.set("base", Integer.parseInt(args[2]));
                     plugin.saveConfig();
-                    sendMessage(s, "Base value set to " + args[2], ChatColor.GREEN);
+                    s.sendMessage(TextWithPrefixSuccess("Base value set to " + args[2]));
                 } catch (NumberFormatException e) {
-                    sendMessage(s, "You must specify a valid integer");
+                    s.sendMessage(TextWithPrefixError("You must specify a valid number"));
                 }
             }
             case "multiply": {
                 if (args.length == 2) {
-                    sendMessage(s, "You must specify a value");
+                    s.sendMessage(TextWithPrefixError("You must specify a value"));
                     break;
                 }
 
                 try {
                     config.set("multiply", Double.parseDouble(args[2]));
                     plugin.saveConfig();
-                    sendMessage(s, "Multiply value set to " + args[2], ChatColor.GREEN);
+                    s.sendMessage(TextWithPrefixSuccess("Multiply value set to " + args[2]));
                 } catch (NumberFormatException e) {
-                    sendMessage(s, "You must specify a valid double");
+                    s.sendMessage(TextWithPrefixError("You must specify a valid number"));
                 }
             }
             default: {
-                sendMessage(s, "Unknown argument!");
+                s.sendMessage(TextWithPrefixError("Unknown argument"));
             }
         }
     }

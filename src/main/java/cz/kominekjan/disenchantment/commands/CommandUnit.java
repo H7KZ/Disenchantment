@@ -2,7 +2,7 @@ package cz.kominekjan.disenchantment.commands;
 
 import org.bukkit.command.CommandSender;
 
-import static cz.kominekjan.disenchantment.Disenchantment.sendMessage;
+import static cz.kominekjan.disenchantment.utils.TextUtil.TextWithPrefixError;
 
 public class CommandUnit {
     public final String name;
@@ -23,7 +23,7 @@ public class CommandUnit {
 
     public boolean execute(CommandSender s, String[] args) {
         if (!s.hasPermission(permission)) {
-            sendMessage(s, permissionMessage);
+            s.sendMessage(TextWithPrefixError(permissionMessage));
             return true;
         }
 
@@ -41,7 +41,7 @@ public class CommandUnit {
             }
 
         if (isArg) {
-            sendMessage(s, "Invalid argument!");
+            s.sendMessage(TextWithPrefixError("Invalid argument!"));
             return true;
         }
 

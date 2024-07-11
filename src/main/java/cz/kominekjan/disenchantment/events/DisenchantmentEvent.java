@@ -1,6 +1,7 @@
 package cz.kominekjan.disenchantment.events;
 
 import com.google.common.collect.ImmutableMap;
+import cz.kominekjan.disenchantment.events.advanced.DisenchantmentAdvancedEvent;
 import cz.kominekjan.disenchantment.events.eco.DisenchantmentEcoEvent;
 import cz.kominekjan.disenchantment.events.excellent.DisenchantmentExcellentEvent;
 import cz.kominekjan.disenchantment.events.normal.DisenchantmentNormalEvent;
@@ -29,7 +30,7 @@ public class DisenchantmentEvent implements Listener {
             String enchantment = (String) entry.get("enchantment");
             if (enchantment == null) continue;
 
-            if (item.getEnchantments().keySet().stream().map(Enchantment::getName).anyMatch(m -> m.equalsIgnoreCase(enchantment))) {
+            if (item.getEnchantments().keySet().stream().map(Enchantment::getKey).anyMatch(m -> m.toString().equalsIgnoreCase(enchantment))) {
                 Boolean keep = (Boolean) entry.get("keep");
                 if (keep == null) continue;
 
@@ -94,6 +95,7 @@ public class DisenchantmentEvent implements Listener {
 
         ItemStack firstItem = e.getInventory().getItem(0);
 
+        assert firstItem != null;
         Map<Enchantment, Integer> enchantmentsCopy = new LinkedHashMap<>(firstItem.getEnchantments());
 
         for (Map<?, ?> entry : config.getMapList("disabled-enchantments")) {
@@ -101,7 +103,7 @@ public class DisenchantmentEvent implements Listener {
             if (enchantment == null) continue;
 
             for (Map.Entry<Enchantment, Integer> en : firstItem.getEnchantments().entrySet()) {
-                if (!en.getKey().getName().equalsIgnoreCase(enchantment)) continue;
+                if (!en.getKey().getKey().toString().equalsIgnoreCase(enchantment)) continue;
 
                 Boolean keep = (Boolean) entry.get("keep");
                 if (keep == null) continue;
@@ -122,6 +124,8 @@ public class DisenchantmentEvent implements Listener {
             DisenchantmentExcellentEvent.onDisenchantmentEvent(e, enchantments);
         } else if (Bukkit.getServer().getPluginManager().getPlugin("EcoEnchants") != null && Bukkit.getServer().getPluginManager().getPlugin("eco") != null) {
             DisenchantmentEcoEvent.onDisenchantmentEvent(e, enchantments);
+        } else if (Bukkit.getServer().getPluginManager().getPlugin("AdvancedEnchantments") != null) {
+            DisenchantmentAdvancedEvent.onDisenchantmentEvent(e, enchantments);
         } else {
             DisenchantmentNormalEvent.onDisenchantmentEvent(e, enchantments);
         }

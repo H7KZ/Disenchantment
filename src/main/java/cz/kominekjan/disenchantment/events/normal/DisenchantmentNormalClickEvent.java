@@ -27,28 +27,29 @@ public class DisenchantmentNormalClickEvent {
         ItemStack firstItem = anvilInventory.getItem(0);
         ItemStack secondItem = anvilInventory.getItem(1);
 
+        assert firstItem != null;
         ItemStack item = firstItem.clone();
 
-        Map<Enchantment, Integer> enchantmentsCopy = new LinkedHashMap<>(firstItem.getEnchantments());
+        if (config.getMapList("disabled-enchantments").isEmpty()) {
+            System.out.println("HMMMM");
+            item.removeEnchantments();
+        } else {
+            System.out.println("HAHA");
+            Map<Enchantment, Integer> enchantmentsCopy = new LinkedHashMap<>(firstItem.getEnchantments());
 
-        if (!config.getMapList("disabled-enchantments").isEmpty()) {
             for (Map<?, ?> entry : config.getMapList("disabled-enchantments")) {
                 String enchantment = (String) entry.get("enchantment");
                 if (enchantment == null) continue;
 
                 for (Map.Entry<Enchantment, Integer> en : firstItem.getEnchantments().entrySet()) {
-                    if (en.getKey().getName().equalsIgnoreCase(enchantment)) continue;
+                    if (en.getKey().getKey().toString().equalsIgnoreCase(enchantment)) continue;
 
                     enchantmentsCopy.remove(en.getKey());
                 }
             }
 
-            ItemStack finalItem = item;
-            item.getEnchantments().forEach((en, l) -> finalItem.removeEnchantment(en));
+            item.removeEnchantments();
             item.addUnsafeEnchantments(enchantmentsCopy);
-        } else {
-            ItemStack finalItem = item;
-            item.getEnchantments().forEach((en, l) -> finalItem.removeEnchantment(en));
         }
 
         AtomicReference<Boolean> enableRepairReset = new AtomicReference<>(config.getBoolean("enable-repair-reset"));
@@ -59,6 +60,9 @@ public class DisenchantmentNormalClickEvent {
 
         anvilInventory.setItem(0, item);
 
+        System.out.println(item);
+
+        assert secondItem != null;
         if (secondItem.getAmount() > 1) {
             secondItem.setAmount(secondItem.getAmount() - 1);
         } else {

@@ -5,24 +5,33 @@ import org.bukkit.command.CommandSender;
 
 import java.util.List;
 
-import static cz.kominekjan.disenchantment.Disenchantment.*;
+import static cz.kominekjan.disenchantment.Disenchantment.config;
+import static cz.kominekjan.disenchantment.Disenchantment.plugin;
+import static cz.kominekjan.disenchantment.utils.TextUtil.TextWithPrefix;
+import static cz.kominekjan.disenchantment.utils.TextUtil.TextWithPrefixSuccess;
 
 public class Items {
     public static final CommandUnit unit = new CommandUnit("items", "disenchantment.items", "You don't have permission to use this command.", new String[]{}, false, Items::command);
 
     public static void command(CommandSender s, String[] args) {
         if (args.length == 1) {
-            sendMessage(s, "Disabled items", ChatColor.GRAY);
-            s.sendMessage(ChatColor.GRAY + "|");
+            s.sendMessage(TextWithPrefix("Disabled items"));
+            s.sendMessage("");
 
             List<String> list = config.getStringList("disabled-items");
 
             if (list.isEmpty()) {
-                s.sendMessage(ChatColor.GRAY + "| No items are disabled");
+                s.sendMessage(ChatColor.GRAY + "No items are disabled");
                 return;
             }
 
-            config.getStringList("disabled-items").forEach(item -> s.sendMessage(ChatColor.RED + "[X]" + ChatColor.GRAY + "\"" + item + "\""));
+            for (String item : list) {
+                String builder = "";
+                builder += ChatColor.RED + "[X] ";
+                builder += ChatColor.GRAY + item;
+                s.sendMessage(builder);
+            }
+
             return;
         }
 
@@ -36,7 +45,7 @@ public class Items {
             config.set("disabled-items", list);
             plugin.saveConfig();
 
-            sendMessage(s, "Item enabled", ChatColor.GREEN);
+            s.sendMessage(TextWithPrefixSuccess("Item enabled"));
             return;
         }
 
@@ -45,6 +54,6 @@ public class Items {
         config.set("disabled-items", list);
         plugin.saveConfig();
 
-        sendMessage(s, "Item disabled", ChatColor.GREEN);
+        s.sendMessage(TextWithPrefixSuccess("Item disabled"));
     }
 }
