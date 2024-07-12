@@ -1,11 +1,17 @@
 # Enable or disable the plugin
 "enabled": true
 
+# Enable or disable the log
+"enable-logging": true
+
+# Logging level: INFO, DEBUG
+"logging-level": "INFO"
+
 # List of worlds where the plugin is disabled
 "disabled-worlds": [ ]
 
-# List of items that are not allowed to be disenchanted
-"disabled-items": [ ]
+# List of materials that are not allowed to be disenchanted
+"disabled-materials": [ ]
 
 # List of enchantments that are not allowed to be disenchanted
 "disabled-enchantments": [ ]

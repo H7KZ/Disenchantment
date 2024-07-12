@@ -7,12 +7,11 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.AnvilInventory;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicReference;
 
-import static cz.kominekjan.disenchantment.Disenchantment.config;
-import static cz.kominekjan.disenchantment.events.DisenchantmentEvent.setNBTRepairCost;
+import static cz.kominekjan.disenchantment.config.Config.*;
+import static cz.kominekjan.disenchantment.nbteditor.NBT.setNBTRepairCost;
+import static cz.kominekjan.disenchantment.utils.RemoveEnchantmentUtils.removeEnchantment;
 
 public class DisenchantmentNormalClickEvent {
     public static void onDisenchantmentClickEvent(InventoryClickEvent e) {
@@ -20,47 +19,27 @@ public class DisenchantmentNormalClickEvent {
 
         AnvilInventory anvilInventory = (AnvilInventory) e.getInventory();
 
-        ItemStack result = anvilInventory.getItem(2);
-
         int exp = p.getLevel() - anvilInventory.getRepairCost();
 
         ItemStack firstItem = anvilInventory.getItem(0);
         ItemStack secondItem = anvilInventory.getItem(1);
+        ItemStack result = anvilInventory.getItem(2);
 
         assert firstItem != null;
         ItemStack item = firstItem.clone();
 
-        if (config.getMapList("disabled-enchantments").isEmpty()) {
-            System.out.println("HMMMM");
-            item.removeEnchantments();
-        } else {
-            System.out.println("HAHA");
-            Map<Enchantment, Integer> enchantmentsCopy = new LinkedHashMap<>(firstItem.getEnchantments());
+        for (Map.Entry<Enchantment, Integer> entry : firstItem.getEnchantments().entrySet()) {
+            Enchantment enchantment = entry.getKey();
 
-            for (Map<?, ?> entry : config.getMapList("disabled-enchantments")) {
-                String enchantment = (String) entry.get("enchantment");
-                if (enchantment == null) continue;
+            if (getDisabledEnchantments().stream().anyMatch(m -> m.getEnchantmentKey().equalsIgnoreCase(enchantment.getKey().getKey())))
+                continue;
 
-                for (Map.Entry<Enchantment, Integer> en : firstItem.getEnchantments().entrySet()) {
-                    if (en.getKey().getKey().toString().equalsIgnoreCase(enchantment)) continue;
-
-                    enchantmentsCopy.remove(en.getKey());
-                }
-            }
-
-            item.removeEnchantments();
-            item.addUnsafeEnchantments(enchantmentsCopy);
+            removeEnchantment(item, enchantment);
         }
 
-        AtomicReference<Boolean> enableRepairReset = new AtomicReference<>(config.getBoolean("enable-repair-reset"));
-
-        if (enableRepairReset.get()) {
-            item = setNBTRepairCost(item, 0);
-        }
+        if (getEnableRepairReset()) item = setNBTRepairCost(item, 0);
 
         anvilInventory.setItem(0, item);
-
-        System.out.println(item);
 
         assert secondItem != null;
         if (secondItem.getAmount() > 1) {
@@ -71,16 +50,9 @@ public class DisenchantmentNormalClickEvent {
 
         p.setItemOnCursor(result);
 
-        AtomicReference<Boolean> enableAnvilSound = new AtomicReference<>(config.getBoolean("enable-anvil-sound"));
+        if (getEnableAnvilSound())
+            p.playSound(p.getLocation(), Sound.BLOCK_ANVIL_USE, getAnvilSoundVolume(), getAnvilSoundPitch());
 
-        if (enableAnvilSound.get()) {
-            AtomicReference<Double> anvilVolume = new AtomicReference<>(config.getDouble("anvil-volume"));
-            AtomicReference<Double> anvilPitch = new AtomicReference<>(config.getDouble("anvil-pitch"));
-
-            p.playSound(p.getLocation(), Sound.BLOCK_ANVIL_USE, anvilVolume.get().floatValue(), anvilPitch.get().floatValue());
-        }
-
-        if (p.getGameMode() != org.bukkit.GameMode.CREATIVE)
-            p.setLevel(exp);
+        if (p.getGameMode() != org.bukkit.GameMode.CREATIVE) p.setLevel(exp);
     }
 }

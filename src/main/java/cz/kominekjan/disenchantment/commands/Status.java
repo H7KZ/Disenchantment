@@ -5,8 +5,8 @@ import org.bukkit.command.CommandSender;
 
 import java.util.List;
 
-import static cz.kominekjan.disenchantment.Disenchantment.config;
 import static cz.kominekjan.disenchantment.Disenchantment.enabled;
+import static cz.kominekjan.disenchantment.config.Config.getDisabledWorlds;
 
 public class Status {
     public static final CommandUnit unit = new CommandUnit("status", "disenchantment.status", "You don't have permission to use this command.", new String[]{}, false, Status::command);
@@ -17,7 +17,7 @@ public class Status {
         builder += enabled ? ChatColor.GREEN + "Enabled" : ChatColor.RED + "Disabled";
         s.sendMessage(builder);
 
-        List<String> disabledWorlds = config.getStringList("disabled-worlds");
+        List<String> disabledWorlds = getDisabledWorlds();
 
         if (disabledWorlds.isEmpty()) {
             s.sendMessage(ChatColor.GRAY + "No worlds are disabled");

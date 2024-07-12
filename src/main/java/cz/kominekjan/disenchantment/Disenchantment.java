@@ -15,6 +15,8 @@ import java.io.IOException;
 import java.util.Objects;
 import java.util.logging.Logger;
 
+import static cz.kominekjan.disenchantment.config.Config.setPluginEnabled;
+
 public final class Disenchantment extends JavaPlugin {
 
     public static Disenchantment plugin;
@@ -23,25 +25,17 @@ public final class Disenchantment extends JavaPlugin {
 
     public static boolean enabled = true;
 
-    /**
-     * Toggle the plugin on/off
-     */
     public static void toggle() {
         enabled = !enabled;
-        config.set("enabled", enabled);
-        plugin.saveConfig();
+        setPluginEnabled(enabled);
     }
 
     @Override
     public void onEnable() {
-        // Plugin startup logic
-
-        // Plugin instance
         plugin = this;
 
-        // Config
         plugin.saveDefaultConfig();
-        //The config needs to exist before using the updater
+
         File configFile = new File(plugin.getDataFolder(), "config.yml");
 
         try {
@@ -58,11 +52,9 @@ public final class Disenchantment extends JavaPlugin {
 
         logger = getLogger();
 
-        // Register events
         getServer().getPluginManager().registerEvents(new DisenchantmentEvent(), this);
         getServer().getPluginManager().registerEvents(new DisenchantmentClickEvent(), this);
 
-        // Register commands
         Objects.requireNonNull(getCommand("disenchantment")).setExecutor(new CommandRegister());
         Objects.requireNonNull(getCommand("disenchantment")).setTabCompleter(new CommandCompleter());
 
@@ -80,7 +72,8 @@ public final class Disenchantment extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        // Plugin shutdown logic
+        getServer().getScheduler().cancelTasks(this);
+
         logger.info("Disenchantment disabled!");
     }
 }

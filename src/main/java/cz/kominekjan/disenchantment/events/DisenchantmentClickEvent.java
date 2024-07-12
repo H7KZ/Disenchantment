@@ -14,9 +14,10 @@ import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.AnvilInventory;
 import org.bukkit.inventory.ItemStack;
 
-import static cz.kominekjan.disenchantment.Disenchantment.config;
 import static cz.kominekjan.disenchantment.Disenchantment.enabled;
-import static cz.kominekjan.disenchantment.events.DisenchantmentEvent.isValid;
+import static cz.kominekjan.disenchantment.Disenchantment.logger;
+import static cz.kominekjan.disenchantment.config.Config.*;
+import static cz.kominekjan.disenchantment.utils.EventCheckUtils.isEventValidDisenchantment;
 
 public class DisenchantmentClickEvent implements Listener {
     @EventHandler
@@ -25,7 +26,7 @@ public class DisenchantmentClickEvent implements Listener {
 
         if (!p.hasPermission("disenchantment.anvil")) return;
 
-        if (!enabled || config.getStringList("disabled-worlds").contains(p.getWorld().getName())) return;
+        if (!enabled || getDisabledWorlds().contains(p.getWorld().getName())) return;
 
         if (e.getInventory().getType() != InventoryType.ANVIL) return;
 
@@ -40,7 +41,9 @@ public class DisenchantmentClickEvent implements Listener {
         assert result != null;
         if (result.getType() != Material.ENCHANTED_BOOK) return;
 
-        if (!isValid(anvilInventory.getItem(0), anvilInventory.getItem(1))) return;
+        ItemStack firstItem = anvilInventory.getItem(0);
+
+        if (!isEventValidDisenchantment(firstItem, anvilInventory.getItem(1))) return;
 
         if (anvilInventory.getRepairCost() > p.getLevel() && p.getGameMode() != org.bukkit.GameMode.CREATIVE) {
             e.setCancelled(true);
@@ -52,14 +55,39 @@ public class DisenchantmentClickEvent implements Listener {
             return;
         }
 
+        if (getEnableLogging() && (getLoggingLevel().equals(LoggingLevels.INFO) || getLoggingLevel().equals(LoggingLevels.DEBUG)))
+            logger.info(
+                    p.getName() + " has disenchanted " +
+                            firstItem.getType().name() + " with " +
+                            firstItem.getEnchantments().keySet() + " in " +
+                            p.getWorld().getName() + " at " +
+                            p.getLocation().getBlockX() + " " +
+                            p.getLocation().getBlockY() + " " +
+                            p.getLocation().getBlockZ() + "."
+            );
+
+        if (getEnableLogging() && getLoggingLevel().equals(LoggingLevels.DEBUG))
+            logger.info(
+                    firstItem + " " +
+                            anvilInventory.getItem(1) + " " +
+                            anvilInventory.getItem(2) + " "
+            );
+
         if (Bukkit.getServer().getPluginManager().getPlugin("ExcellentEnchants") != null) {
             DisenchantmentExcellentClickEvent.onDisenchantmentClickEvent(e);
-        } else if (Bukkit.getServer().getPluginManager().getPlugin("EcoEnchants") != null && Bukkit.getServer().getPluginManager().getPlugin("eco") != null) {
-            DisenchantmentEcoClickEvent.onDisenchantmentClickEvent(e);
-        } else if (Bukkit.getServer().getPluginManager().getPlugin("AdvancedEnchantments") != null) {
-            DisenchantmentAdvancedClickEvent.onDisenchantmentClickEvent(e);
-        } else {
-            DisenchantmentNormalClickEvent.onDisenchantmentClickEvent(e);
+            return;
         }
+
+        if (Bukkit.getServer().getPluginManager().getPlugin("EcoEnchants") != null && Bukkit.getServer().getPluginManager().getPlugin("eco") != null) {
+            DisenchantmentEcoClickEvent.onDisenchantmentClickEvent(e);
+            return;
+        }
+
+        if (Bukkit.getServer().getPluginManager().getPlugin("AdvancedEnchantments") != null) {
+            DisenchantmentAdvancedClickEvent.onDisenchantmentClickEvent(e);
+            return;
+        }
+
+        DisenchantmentNormalClickEvent.onDisenchantmentClickEvent(e);
     }
 }

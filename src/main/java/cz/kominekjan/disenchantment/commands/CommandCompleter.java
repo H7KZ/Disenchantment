@@ -53,15 +53,15 @@ public class CommandCompleter implements TabCompleter {
                     return result;
                 case "enchantments":
                     for (Enchantment enchantment : Registry.ENCHANTMENT) {
-                        if (enchantment.getKey().toString().toLowerCase().startsWith(args[1].toLowerCase())) {
-                            result.add(enchantment.getKey().toString());
+                        if (enchantment.getKey().getKey().toLowerCase().startsWith(args[1].toLowerCase())) {
+                            result.add(enchantment.getKey().getKey());
                         }
                     }
                     return result;
-                case "items":
+                case "materials":
                     for (Material material : Registry.MATERIAL) {
-                        if (material.getKey().toString().toLowerCase().startsWith(args[1].toLowerCase())) {
-                            result.add(material.getKey().toString());
+                        if (material.getKey().getKey().toLowerCase().startsWith(args[1].toLowerCase())) {
+                            result.add(material.getKey().getKey());
                         }
                     }
                     return result;

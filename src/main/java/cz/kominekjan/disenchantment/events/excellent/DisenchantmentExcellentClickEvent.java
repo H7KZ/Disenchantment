@@ -8,12 +8,10 @@ import org.bukkit.inventory.AnvilInventory;
 import org.bukkit.inventory.ItemStack;
 import su.nightexpress.excellentenchants.enchantment.util.EnchantUtils;
 
-import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicReference;
 
-import static cz.kominekjan.disenchantment.Disenchantment.config;
-import static cz.kominekjan.disenchantment.events.DisenchantmentEvent.setNBTRepairCost;
+import static cz.kominekjan.disenchantment.config.Config.*;
+import static cz.kominekjan.disenchantment.nbteditor.NBT.setNBTRepairCost;
 
 public class DisenchantmentExcellentClickEvent {
     public static void onDisenchantmentClickEvent(InventoryClickEvent e) {
@@ -21,48 +19,27 @@ public class DisenchantmentExcellentClickEvent {
 
         AnvilInventory anvilInventory = (AnvilInventory) e.getInventory();
 
-        ItemStack result = anvilInventory.getItem(2);
-
         int exp = p.getLevel() - anvilInventory.getRepairCost();
 
         ItemStack firstItem = anvilInventory.getItem(0);
         ItemStack secondItem = anvilInventory.getItem(1);
+        ItemStack result = anvilInventory.getItem(2);
 
         assert firstItem != null;
         ItemStack item = firstItem.clone();
 
-        Map<Enchantment, Integer> enchantmentsCopy = new LinkedHashMap<>(firstItem.getEnchantments());
+        for (Map.Entry<Enchantment, Integer> entry : firstItem.getEnchantments().entrySet()) {
+            Enchantment enchantment = entry.getKey();
 
-        if (!config.getMapList("disabled-enchantments").isEmpty()) {
-            for (Map<?, ?> entry : config.getMapList("disabled-enchantments")) {
-                String enchantment = (String) entry.get("enchantment");
-                if (enchantment == null) continue;
+            if (getDisabledEnchantments().stream().anyMatch(m -> m.getEnchantmentKey().equalsIgnoreCase(enchantment.getKey().getKey())))
+                continue;
 
-                for (Map.Entry<Enchantment, Integer> en : firstItem.getEnchantments().entrySet()) {
-                    if (en.getKey().getKey().toString().equalsIgnoreCase(enchantment)) continue;
-
-                    enchantmentsCopy.remove(en.getKey());
-                }
-            }
-
-            ItemStack finalItem = item;
-            item.getEnchantments().forEach((en, l) -> EnchantUtils.remove(finalItem, en));
-            ItemStack finalItem1 = item;
-            enchantmentsCopy.forEach((en, l) -> EnchantUtils.add(finalItem1, en, l, true));
-        } else {
-            ItemStack finalItem = item;
-            item.getEnchantments().forEach((en, l) -> EnchantUtils.remove(finalItem, en));
+            EnchantUtils.remove(item, enchantment);
         }
 
-        AtomicReference<Boolean> enableRepairReset = new AtomicReference<>(config.getBoolean("enable-repair-reset"));
-
-        if (enableRepairReset.get()) {
-            item = setNBTRepairCost(item, 0);
-        }
+        if (getEnableRepairReset()) item = setNBTRepairCost(item, 0);
 
         EnchantUtils.updateDisplay(item);
-
-        anvilInventory.setItem(0, item);
 
         assert secondItem != null;
         if (secondItem.getAmount() > 1) {
@@ -73,16 +50,9 @@ public class DisenchantmentExcellentClickEvent {
 
         p.setItemOnCursor(result);
 
-        AtomicReference<Boolean> enableAnvilSound = new AtomicReference<>(config.getBoolean("enable-anvil-sound"));
+        if (getEnableAnvilSound())
+            p.playSound(p.getLocation(), Sound.BLOCK_ANVIL_USE, getAnvilSoundVolume(), getAnvilSoundPitch());
 
-        if (enableAnvilSound.get()) {
-            AtomicReference<Double> anvilVolume = new AtomicReference<>(config.getDouble("anvil-volume"));
-            AtomicReference<Double> anvilPitch = new AtomicReference<>(config.getDouble("anvil-pitch"));
-
-            p.playSound(p.getLocation(), Sound.BLOCK_ANVIL_USE, anvilVolume.get().floatValue(), anvilPitch.get().floatValue());
-        }
-
-        if (p.getGameMode() != org.bukkit.GameMode.CREATIVE)
-            p.setLevel(exp);
+        if (p.getGameMode() != org.bukkit.GameMode.CREATIVE) p.setLevel(exp);
     }
 }

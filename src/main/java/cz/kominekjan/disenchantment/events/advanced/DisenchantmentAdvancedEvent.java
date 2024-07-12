@@ -8,14 +8,14 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.Map;
 
-import static cz.kominekjan.disenchantment.events.DisenchantmentEvent.countAnvilCost;
+import static cz.kominekjan.disenchantment.utils.AnvilCostUtils.countAnvilCost;
 
 public class DisenchantmentAdvancedEvent {
     public static void onDisenchantmentEvent(PrepareAnvilEvent e, Map<Enchantment, Integer> enchantments) {
         ItemStack book = new ItemStack(Material.ENCHANTED_BOOK);
 
         enchantments.forEach((en, l) -> {
-            AEAPI.applyEnchant(en.getKey().toString(), l, book, true);
+            AEAPI.applyEnchant(en.getKey().getKey(), l, book, true);
         });
 
         e.setResult(book);

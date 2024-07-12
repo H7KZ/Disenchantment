@@ -8,7 +8,7 @@ import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 
 import java.util.Map;
 
-import static cz.kominekjan.disenchantment.events.DisenchantmentEvent.countAnvilCost;
+import static cz.kominekjan.disenchantment.utils.AnvilCostUtils.countAnvilCost;
 
 public class DisenchantmentNormalEvent {
 
@@ -17,7 +17,10 @@ public class DisenchantmentNormalEvent {
 
         EnchantmentStorageMeta esm = (EnchantmentStorageMeta) book.getItemMeta();
 
-        enchantments.forEach((en, l) -> esm.addStoredEnchant(en, l, true));
+        enchantments.forEach((en, l) -> {
+            assert esm != null;
+            esm.addStoredEnchant(en, l, true);
+        });
 
         book.setItemMeta(esm);
 

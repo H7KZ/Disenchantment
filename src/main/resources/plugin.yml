@@ -1,7 +1,7 @@
 name: Disenchantment
-version: '3.1.0'
+version: '4.0.0'
 main: cz.kominekjan.disenchantment.Disenchantment
-api-version: '1.17'
+api-version: '1.21'
 authors:
   - HonzaKOMI
 description: Don't lose your enchantments!
@@ -11,6 +11,7 @@ commands:
   disenchantment:
     description: 'Disenchantment command.'
     aliases:
+      - disenchantment
       - disenchant
       - disench
     usage: '/<command>'
@@ -38,8 +39,8 @@ permissions:
   disenchantment.enchantments:
     description: Allows you to configure disenchantment enchantments.
     default: op
-  disenchantment.items:
-    description: Allows you to configure disenchantment items.
+  disenchantment.materials:
+    description: Allows you to configure disenchantment materials.
     default: op
   disenchantment.help:
     description: Allows you to check disenchantment help.
