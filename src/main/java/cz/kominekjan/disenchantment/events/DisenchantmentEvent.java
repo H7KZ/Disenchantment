@@ -9,6 +9,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.PrepareAnvilEvent;
 import org.bukkit.inventory.ItemStack;
@@ -23,7 +24,7 @@ import static cz.kominekjan.disenchantment.utils.EventCheckUtils.isEventValidDis
 
 public class DisenchantmentEvent implements Listener {
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onDisenchantmentEvent(PrepareAnvilEvent e) {
         if (!(e.getView().getPlayer() instanceof Player p)) return;
 

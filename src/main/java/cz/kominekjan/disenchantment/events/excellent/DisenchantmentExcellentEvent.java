@@ -14,10 +14,7 @@ public class DisenchantmentExcellentEvent {
     public static void onDisenchantmentEvent(PrepareAnvilEvent e, Map<Enchantment, Integer> enchantments) {
         ItemStack book = new ItemStack(Material.ENCHANTED_BOOK);
 
-        enchantments.forEach((en, l) -> {
-            EnchantUtils.add(book, en, l, true);
-            EnchantUtils.updateDisplay(book);
-        });
+        enchantments.forEach((en, l) -> EnchantUtils.add(book, en, l, true));
 
         e.setResult(book);
 

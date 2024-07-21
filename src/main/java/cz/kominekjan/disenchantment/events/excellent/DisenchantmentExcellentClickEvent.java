@@ -39,7 +39,7 @@ public class DisenchantmentExcellentClickEvent {
 
         if (getEnableRepairReset()) item = setNBTRepairCost(item, 0);
 
-        EnchantUtils.updateDisplay(item);
+        anvilInventory.setItem(0, item);
 
         assert secondItem != null;
         if (secondItem.getAmount() > 1) {
