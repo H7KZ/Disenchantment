@@ -1,4 +1,4 @@
-package cz.kominekjan.disenchantment.nbteditor;
+package cz.kominekjan.disenchantment.libs.nbteditor;
 
 import org.bukkit.inventory.ItemStack;
 

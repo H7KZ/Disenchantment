@@ -10,7 +10,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import static cz.kominekjan.disenchantment.config.Config.*;
 
-public class AnvilCostUtils {
+public class AnvilCostUtil {
     public static int countAnvilCost(Map<Enchantment, Integer> enchantments) {
         if (!getEnableRepairCost()) return 0;
 

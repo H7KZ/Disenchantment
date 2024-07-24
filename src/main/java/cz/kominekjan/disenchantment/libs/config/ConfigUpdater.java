@@ -1,4 +1,4 @@
-package cz.kominekjan.disenchantment.config;
+package cz.kominekjan.disenchantment.libs.config;
 
 import com.google.common.base.Preconditions;
 import org.bukkit.configuration.ConfigurationSection;

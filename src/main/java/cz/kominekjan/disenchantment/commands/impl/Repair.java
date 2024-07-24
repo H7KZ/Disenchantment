@@ -1,15 +1,16 @@
-package cz.kominekjan.disenchantment.commands;
+package cz.kominekjan.disenchantment.commands.impl;
 
+import cz.kominekjan.disenchantment.commands.Command;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 
 import static cz.kominekjan.disenchantment.config.Config.*;
-import static cz.kominekjan.disenchantment.utils.TextUtils.*;
+import static cz.kominekjan.disenchantment.utils.TextUtil.*;
 
 public class Repair {
-    public static final CommandUnit unit = new CommandUnit("repair", "disenchantment.repair", "You don't have permission to use this command.", new String[]{"enable", "disable", "reset", "base", "multiply"}, false, Repair::command);
+    public static final Command command = new Command("repair", "disenchantment.repair", "You don't have permission to use this command.", new String[]{"enable", "disable", "reset", "base", "multiply"}, false, Repair::execute);
 
-    public static void command(CommandSender s, String[] args) {
+    public static void execute(CommandSender s, String[] args) {
         if (args.length == 1) {
             s.sendMessage(textWithPrefix("Repair cost configuration"));
             s.sendMessage("");

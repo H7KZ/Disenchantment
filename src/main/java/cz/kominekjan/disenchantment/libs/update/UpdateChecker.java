@@ -1,4 +1,4 @@
-package cz.kominekjan.disenchantment.checkers;
+package cz.kominekjan.disenchantment.libs.update;
 
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;

@@ -1,6 +1,5 @@
 package cz.kominekjan.disenchantment.config;
 
-import cz.kominekjan.disenchantment.types.DisabledEnchantment;
 import org.bukkit.Material;
 
 import java.util.List;
@@ -31,9 +30,9 @@ public class Config {
         return config.getStringList(ConfigKeys.DISABLED_ITEMS.getKey()).stream().map(Material::getMaterial).toList();
     }
 
-    public static List<DisabledEnchantment> getDisabledEnchantments() {
+    public static List<DisabledConfigEnchantment> getDisabledEnchantments() {
         List<Map<?, ?>> list = config.getMapList(ConfigKeys.DISABLED_ENCHANTMENTS.getKey());
-        return list.stream().map(m -> new DisabledEnchantment((String) m.get("enchantment"), (Boolean) m.get("keep"))).toList();
+        return list.stream().map(m -> new DisabledConfigEnchantment((String) m.get("enchantment"), (Boolean) m.get("keep"))).toList();
     }
 
     public static Boolean getEnableAnvilSound() {
@@ -85,7 +84,7 @@ public class Config {
         return getDisabledMaterials().equals(materials);
     }
 
-    public static Boolean setDisabledEnchantments(List<DisabledEnchantment> enchantments) {
+    public static Boolean setDisabledEnchantments(List<DisabledConfigEnchantment> enchantments) {
         config.set(ConfigKeys.DISABLED_ENCHANTMENTS.getKey(), enchantments.stream().map(e -> Map.of("enchantment", e.getEnchantmentKey(), "keep", e.doKeep())).toList());
         plugin.saveConfig();
 

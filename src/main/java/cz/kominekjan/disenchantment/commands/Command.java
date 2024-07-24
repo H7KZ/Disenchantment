@@ -2,23 +2,23 @@ package cz.kominekjan.disenchantment.commands;
 
 import org.bukkit.command.CommandSender;
 
-import static cz.kominekjan.disenchantment.utils.TextUtils.textWithPrefixError;
+import static cz.kominekjan.disenchantment.utils.TextUtil.textWithPrefixError;
 
-public class CommandUnit {
+public class Command {
     public final String name;
     public final String permission;
     public final String permissionMessage;
     public final String[] args;
     public final Boolean reqArgs;
-    public final CommandExecutor executor;
+    public final ICommandExecutor executor;
 
-    public CommandUnit(String n, String p, String pm, String[] a, Boolean r, CommandExecutor e) {
-        this.name = n;
-        this.permission = p;
-        this.permissionMessage = pm;
-        this.args = a;
-        this.reqArgs = r;
-        this.executor = e;
+    public Command(String name, String permission, String permissionMessage, String[] args, Boolean reqArgs, ICommandExecutor executor) {
+        this.name = name;
+        this.permission = permission;
+        this.permissionMessage = permissionMessage;
+        this.args = args;
+        this.reqArgs = reqArgs;
+        this.executor = executor;
     }
 
     public boolean execute(CommandSender s, String[] args) {

@@ -2,7 +2,7 @@ package cz.kominekjan.disenchantment.utils;
 
 import org.bukkit.ChatColor;
 
-public class TextUtils {
+public class TextUtil {
     public static String textWithPrefix(String text, ChatColor color) {
         String builder = "";
         builder += ChatColor.DARK_GRAY + "[Disenchantment] ";

@@ -1,11 +1,10 @@
 package cz.kominekjan.disenchantment.events;
 
+import cz.kominekjan.disenchantment.config.DisabledConfigEnchantment;
 import cz.kominekjan.disenchantment.events.advanced.DisenchantmentAdvancedEvent;
 import cz.kominekjan.disenchantment.events.eco.DisenchantmentEcoEvent;
 import cz.kominekjan.disenchantment.events.excellent.DisenchantmentExcellentEvent;
 import cz.kominekjan.disenchantment.events.normal.DisenchantmentNormalEvent;
-import cz.kominekjan.disenchantment.types.DisabledEnchantment;
-import org.bukkit.Bukkit;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -17,10 +16,11 @@ import org.bukkit.inventory.ItemStack;
 import java.util.HashMap;
 import java.util.Optional;
 
+import static cz.kominekjan.disenchantment.Disenchantment.activatedPlugins;
 import static cz.kominekjan.disenchantment.Disenchantment.enabled;
 import static cz.kominekjan.disenchantment.config.Config.getDisabledEnchantments;
 import static cz.kominekjan.disenchantment.config.Config.getDisabledWorlds;
-import static cz.kominekjan.disenchantment.utils.EventCheckUtils.isEventValidDisenchantment;
+import static cz.kominekjan.disenchantment.utils.EventCheckUtil.isEventValidDisenchantment;
 
 public class DisenchantmentEvent implements Listener {
 
@@ -40,11 +40,11 @@ public class DisenchantmentEvent implements Listener {
 
         HashMap<Enchantment, Integer> enchantments = new HashMap<>(firstItem.getEnchantments());
 
-        for (DisabledEnchantment disabledEnchantment : getDisabledEnchantments()) {
-            if (!disabledEnchantment.doKeep()) continue;
+        for (DisabledConfigEnchantment disabledConfigEnchantment : getDisabledEnchantments()) {
+            if (!disabledConfigEnchantment.doKeep()) continue;
 
-            if (enchantments.keySet().stream().anyMatch(m -> m.getKey().getKey().equalsIgnoreCase(disabledEnchantment.getEnchantmentKey()))) {
-                Optional<Enchantment> enchantment = enchantments.keySet().stream().filter(m -> m.getKey().getKey().equalsIgnoreCase(disabledEnchantment.getEnchantmentKey())).findFirst();
+            if (enchantments.keySet().stream().anyMatch(m -> m.getKey().getKey().equalsIgnoreCase(disabledConfigEnchantment.getEnchantmentKey()))) {
+                Optional<Enchantment> enchantment = enchantments.keySet().stream().filter(m -> m.getKey().getKey().equalsIgnoreCase(disabledConfigEnchantment.getEnchantmentKey())).findFirst();
 
                 enchantment.ifPresent(enchantments::remove);
             }
@@ -52,21 +52,16 @@ public class DisenchantmentEvent implements Listener {
 
         if (enchantments.isEmpty()) return;
 
-        if (Bukkit.getServer().getPluginManager().getPlugin("ExcellentEnchants") != null) {
+        if (activatedPlugins.contains("ExcellentEnchants"))
             DisenchantmentExcellentEvent.onDisenchantmentEvent(e, enchantments);
-            return;
-        }
 
-        if (Bukkit.getServer().getPluginManager().getPlugin("EcoEnchants") != null && Bukkit.getServer().getPluginManager().getPlugin("eco") != null) {
+        else if (activatedPlugins.contains("EcoEnchants"))
             DisenchantmentEcoEvent.onDisenchantmentEvent(e, enchantments);
-            return;
-        }
 
-        if (Bukkit.getServer().getPluginManager().getPlugin("AdvancedEnchantments") != null) {
+        else if (activatedPlugins.contains("AdvancedEnchantments"))
             DisenchantmentAdvancedEvent.onDisenchantmentEvent(e, enchantments);
-            return;
-        }
 
-        DisenchantmentNormalEvent.onDisenchantmentEvent(e, enchantments);
+        else
+            DisenchantmentNormalEvent.onDisenchantmentEvent(e, enchantments);
     }
 }

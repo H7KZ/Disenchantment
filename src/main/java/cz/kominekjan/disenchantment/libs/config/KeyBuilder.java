@@ -1,4 +1,4 @@
-package cz.kominekjan.disenchantment.config;
+package cz.kominekjan.disenchantment.libs.config;
 
 import org.bukkit.configuration.file.FileConfiguration;
 

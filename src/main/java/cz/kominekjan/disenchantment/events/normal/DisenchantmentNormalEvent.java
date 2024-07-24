@@ -8,7 +8,7 @@ import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 
 import java.util.Map;
 
-import static cz.kominekjan.disenchantment.utils.AnvilCostUtils.countAnvilCost;
+import static cz.kominekjan.disenchantment.utils.AnvilCostUtil.countAnvilCost;
 
 public class DisenchantmentNormalEvent {
 

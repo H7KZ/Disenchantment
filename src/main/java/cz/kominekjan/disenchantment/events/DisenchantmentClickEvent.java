@@ -4,7 +4,6 @@ import cz.kominekjan.disenchantment.events.advanced.DisenchantmentAdvancedClickE
 import cz.kominekjan.disenchantment.events.eco.DisenchantmentEcoClickEvent;
 import cz.kominekjan.disenchantment.events.excellent.DisenchantmentExcellentClickEvent;
 import cz.kominekjan.disenchantment.events.normal.DisenchantmentNormalClickEvent;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -15,10 +14,10 @@ import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.AnvilInventory;
 import org.bukkit.inventory.ItemStack;
 
-import static cz.kominekjan.disenchantment.Disenchantment.enabled;
-import static cz.kominekjan.disenchantment.Disenchantment.logger;
+import static cz.kominekjan.disenchantment.Disenchantment.*;
 import static cz.kominekjan.disenchantment.config.Config.*;
-import static cz.kominekjan.disenchantment.utils.EventCheckUtils.isEventValidDisenchantment;
+import static cz.kominekjan.disenchantment.utils.AnvilCostUtil.countAnvilCost;
+import static cz.kominekjan.disenchantment.utils.EventCheckUtil.isEventValidDisenchantment;
 
 public class DisenchantmentClickEvent implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -60,7 +59,9 @@ public class DisenchantmentClickEvent implements Listener {
             logger.info(
                     p.getName() + " has disenchanted " +
                             firstItem.getType().name() + " with " +
-                            firstItem.getEnchantments().keySet() + " in " +
+                            firstItem.getEnchantments().keySet() + " removed " +
+                            result.getEnchantments().keySet() + " for " +
+                            countAnvilCost(result.getEnchantments()) + "xp" + " in " +
                             p.getWorld().getName() + " at " +
                             p.getLocation().getBlockX() + " " +
                             p.getLocation().getBlockY() + " " +
@@ -74,21 +75,16 @@ public class DisenchantmentClickEvent implements Listener {
                             anvilInventory.getItem(2) + " "
             );
 
-        if (Bukkit.getServer().getPluginManager().getPlugin("ExcellentEnchants") != null) {
+        if (activatedPlugins.contains("ExcellentEnchants"))
             DisenchantmentExcellentClickEvent.onDisenchantmentClickEvent(e);
-            return;
-        }
 
-        if (Bukkit.getServer().getPluginManager().getPlugin("EcoEnchants") != null && Bukkit.getServer().getPluginManager().getPlugin("eco") != null) {
+        else if (activatedPlugins.contains("EcoEnchants"))
             DisenchantmentEcoClickEvent.onDisenchantmentClickEvent(e);
-            return;
-        }
 
-        if (Bukkit.getServer().getPluginManager().getPlugin("AdvancedEnchantments") != null) {
+        else if (activatedPlugins.contains("AdvancedEnchantments"))
             DisenchantmentAdvancedClickEvent.onDisenchantmentClickEvent(e);
-            return;
-        }
 
-        DisenchantmentNormalClickEvent.onDisenchantmentClickEvent(e);
+        else
+            DisenchantmentNormalClickEvent.onDisenchantmentClickEvent(e);
     }
 }

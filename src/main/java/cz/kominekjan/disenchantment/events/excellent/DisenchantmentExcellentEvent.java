@@ -8,7 +8,7 @@ import su.nightexpress.excellentenchants.enchantment.util.EnchantUtils;
 
 import java.util.Map;
 
-import static cz.kominekjan.disenchantment.utils.AnvilCostUtils.countAnvilCost;
+import static cz.kominekjan.disenchantment.utils.AnvilCostUtil.countAnvilCost;
 
 public class DisenchantmentExcellentEvent {
     public static void onDisenchantmentEvent(PrepareAnvilEvent e, Map<Enchantment, Integer> enchantments) {

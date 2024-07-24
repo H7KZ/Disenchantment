@@ -10,8 +10,8 @@ import org.bukkit.inventory.ItemStack;
 import java.util.Map;
 
 import static cz.kominekjan.disenchantment.config.Config.*;
-import static cz.kominekjan.disenchantment.nbteditor.NBT.setNBTRepairCost;
-import static cz.kominekjan.disenchantment.utils.RemoveEnchantmentUtils.removeEnchantment;
+import static cz.kominekjan.disenchantment.libs.nbteditor.NBT.setNBTRepairCost;
+import static cz.kominekjan.disenchantment.utils.RemoveEnchantmentUtil.removeEnchantment;
 
 public class DisenchantmentNormalClickEvent {
     public static void onDisenchantmentClickEvent(InventoryClickEvent e) {

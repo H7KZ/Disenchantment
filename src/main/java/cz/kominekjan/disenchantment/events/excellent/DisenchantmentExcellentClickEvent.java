@@ -11,7 +11,7 @@ import su.nightexpress.excellentenchants.enchantment.util.EnchantUtils;
 import java.util.Map;
 
 import static cz.kominekjan.disenchantment.config.Config.*;
-import static cz.kominekjan.disenchantment.nbteditor.NBT.setNBTRepairCost;
+import static cz.kominekjan.disenchantment.libs.nbteditor.NBT.setNBTRepairCost;
 
 public class DisenchantmentExcellentClickEvent {
     public static void onDisenchantmentClickEvent(InventoryClickEvent e) {

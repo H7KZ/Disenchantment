@@ -1,10 +1,10 @@
-package cz.kominekjan.disenchantment.types;
+package cz.kominekjan.disenchantment.config;
 
-public class DisabledEnchantment {
+public class DisabledConfigEnchantment {
     private final String enchantment;
     private final Boolean keep;
 
-    public DisabledEnchantment(String enchantment, Boolean keep) {
+    public DisabledConfigEnchantment(String enchantment, Boolean keep) {
         this.enchantment = enchantment;
         this.keep = keep;
     }

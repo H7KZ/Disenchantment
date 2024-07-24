@@ -1,6 +1,7 @@
-package cz.kominekjan.disenchantment.commands;
+package cz.kominekjan.disenchantment.commands.impl;
 
-import cz.kominekjan.disenchantment.types.DisabledEnchantment;
+import cz.kominekjan.disenchantment.commands.Command;
+import cz.kominekjan.disenchantment.config.DisabledConfigEnchantment;
 import org.bukkit.ChatColor;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Registry;
@@ -11,13 +12,13 @@ import java.util.List;
 
 import static cz.kominekjan.disenchantment.config.Config.getDisabledEnchantments;
 import static cz.kominekjan.disenchantment.config.Config.setDisabledEnchantments;
-import static cz.kominekjan.disenchantment.utils.TextUtils.*;
+import static cz.kominekjan.disenchantment.utils.TextUtil.*;
 
 public class Enchantments {
-    public static final CommandUnit unit = new CommandUnit("enchantments", "disenchantment.enchantments", "You don't have permission to use this command.", new String[]{}, false, Enchantments::command);
+    public static final Command command = new Command("enchantments", "disenchantment.enchantments", "You don't have permission to use this command.", new String[]{}, false, Enchantments::execute);
 
-    public static void command(CommandSender s, String[] args) {
-        List<DisabledEnchantment> enchantments = getDisabledEnchantments();
+    public static void execute(CommandSender s, String[] args) {
+        List<DisabledConfigEnchantment> enchantments = getDisabledEnchantments();
 
         if (args.length == 1) {
             s.sendMessage(textWithPrefix("Disabled enchantments"));
@@ -28,7 +29,7 @@ public class Enchantments {
                 return;
             }
 
-            for (DisabledEnchantment enchantment : enchantments) {
+            for (DisabledConfigEnchantment enchantment : enchantments) {
                 String builder = "";
                 builder += ChatColor.RED + "[" + (enchantment.doKeep() ? " keep " : "cancel") + "] ";
                 builder += ChatColor.GRAY + enchantment.getEnchantmentKey();
@@ -51,10 +52,10 @@ public class Enchantments {
             return;
         }
 
-        DisabledEnchantment disabledEnchantment = new DisabledEnchantment(enchantment.getKey().getKey(), keepOrCancel.equalsIgnoreCase("keep"));
+        DisabledConfigEnchantment disabledConfigEnchantment = new DisabledConfigEnchantment(enchantment.getKey().getKey(), keepOrCancel.equalsIgnoreCase("keep"));
 
-        if (enchantments.contains(disabledEnchantment)) {
-            enchantments.remove(disabledEnchantment);
+        if (enchantments.contains(disabledConfigEnchantment)) {
+            enchantments.remove(disabledConfigEnchantment);
 
             setDisabledEnchantments(enchantments);
 
@@ -62,7 +63,7 @@ public class Enchantments {
             return;
         }
 
-        enchantments.add(disabledEnchantment);
+        enchantments.add(disabledConfigEnchantment);
 
         setDisabledEnchantments(enchantments);
 

@@ -1,12 +1,13 @@
-package cz.kominekjan.disenchantment.commands;
+package cz.kominekjan.disenchantment.commands.impl;
 
+import cz.kominekjan.disenchantment.commands.Command;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 
 public class Help {
-    public static final CommandUnit unit = new CommandUnit("help", "disenchantment.help", "You don't have permission to use this command.", new String[]{"1", "2", "3", "4"}, false, Help::command);
+    public static final Command command = new Command("help", "disenchantment.help", "You don't have permission to use this command.", new String[]{"1", "2", "3", "4"}, false, Help::execute);
 
-    public static void command(CommandSender s, String[] args) {
+    public static void execute(CommandSender s, String[] args) {
         if (args.length == 0 || args.length == 1) {
             s.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + "Disenchantment Help page 1/4");
             defaultCommand(s);

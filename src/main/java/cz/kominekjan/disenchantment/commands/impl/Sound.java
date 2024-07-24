@@ -1,15 +1,16 @@
-package cz.kominekjan.disenchantment.commands;
+package cz.kominekjan.disenchantment.commands.impl;
 
+import cz.kominekjan.disenchantment.commands.Command;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 
 import static cz.kominekjan.disenchantment.config.Config.*;
-import static cz.kominekjan.disenchantment.utils.TextUtils.*;
+import static cz.kominekjan.disenchantment.utils.TextUtil.*;
 
 public class Sound {
-    public static final CommandUnit unit = new CommandUnit("sound", "disenchantment.sound", "You don't have permission to use this command.", new String[]{"enable", "disable", "volume", "pitch"}, false, Sound::command);
+    public static final Command command = new Command("sound", "disenchantment.sound", "You don't have permission to use this command.", new String[]{"enable", "disable", "volume", "pitch"}, false, Sound::execute);
 
-    public static void command(CommandSender s, String[] args) {
+    public static void execute(CommandSender s, String[] args) {
         if (args.length == 1) {
             s.sendMessage(textWithPrefix("Anvil sound configuration"));
             s.sendMessage("");

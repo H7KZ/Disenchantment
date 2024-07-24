@@ -8,7 +8,7 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.Map;
 
-import static cz.kominekjan.disenchantment.utils.AnvilCostUtils.countAnvilCost;
+import static cz.kominekjan.disenchantment.utils.AnvilCostUtil.countAnvilCost;
 
 public class DisenchantmentAdvancedEvent {
     public static void onDisenchantmentEvent(PrepareAnvilEvent e, Map<Enchantment, Integer> enchantments) {
