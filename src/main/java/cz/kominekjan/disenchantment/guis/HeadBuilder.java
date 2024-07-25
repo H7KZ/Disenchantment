@@ -1,0 +1,46 @@
+package cz.kominekjan.disenchantment.guis;
+
+import com.mojang.authlib.GameProfile;
+import com.mojang.authlib.properties.Property;
+import org.bukkit.Material;
+import org.bukkit.inventory.meta.SkullMeta;
+
+import java.lang.reflect.Field;
+import java.util.UUID;
+
+public class HeadBuilder extends ItemBuilder {
+    public HeadBuilder() {
+        super(Material.PLAYER_HEAD);
+    }
+
+    public HeadBuilder setTexture(String texture) {
+        GameProfile profile = new GameProfile(UUID.randomUUID(), "");
+
+        profile.getProperties().put("textures", new Property("textures", texture));
+
+        SkullMeta meta = (SkullMeta) this.stack.getItemMeta();
+
+        Field profileField;
+
+        try {
+            profileField = meta.getClass().getDeclaredField("profile");
+            profileField.setAccessible(true);
+            profileField.set(meta, profile);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        this.stack.setItemMeta(meta);
+
+        return this;
+    }
+
+    public SkullMeta getSkullMeta() {
+        return (SkullMeta) this.stack.getItemMeta();
+    }
+
+    public HeadBuilder setSkullMeta(SkullMeta meta) {
+        this.stack.setItemMeta(meta);
+        return this;
+    }
+}

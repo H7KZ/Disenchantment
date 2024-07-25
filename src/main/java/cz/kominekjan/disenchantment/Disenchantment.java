@@ -4,7 +4,7 @@ import cz.kominekjan.disenchantment.commands.CommandCompleter;
 import cz.kominekjan.disenchantment.commands.CommandRegister;
 import cz.kominekjan.disenchantment.events.DisenchantmentClickEvent;
 import cz.kominekjan.disenchantment.events.DisenchantmentEvent;
-import cz.kominekjan.disenchantment.guis.GUIDisenchantmentClickEvent;
+import cz.kominekjan.disenchantment.events.DisenchantmentGUIClickEvent;
 import cz.kominekjan.disenchantment.libs.bstats.Metrics;
 import cz.kominekjan.disenchantment.libs.config.ConfigUpdater;
 import cz.kominekjan.disenchantment.libs.update.UpdateChecker;
@@ -75,7 +75,7 @@ public final class Disenchantment extends JavaPlugin {
 
         getServer().getPluginManager().registerEvents(new DisenchantmentEvent(), this);
         getServer().getPluginManager().registerEvents(new DisenchantmentClickEvent(), this);
-        getServer().getPluginManager().registerEvents(new GUIDisenchantmentClickEvent(), this);
+        getServer().getPluginManager().registerEvents(new DisenchantmentGUIClickEvent(), this);
 
         Objects.requireNonNull(getCommand("disenchantment")).setExecutor(new CommandRegister());
         Objects.requireNonNull(getCommand("disenchantment")).setTabCompleter(new CommandCompleter());

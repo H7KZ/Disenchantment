@@ -25,6 +25,8 @@ repositories {
 dependencies {
     compileOnly "io.papermc.paper:paper-api:1.20.6-R0.1-SNAPSHOT"
 
+    compileOnly "com.mojang:authlib:3.11.50"
+
     compileOnly "com.willfp:EcoEnchants:12.16.0"
     compileOnly "com.willfp:eco:6.73.0"
 
