@@ -2,19 +2,31 @@ package cz.kominekjan.disenchantment.commands;
 
 import org.bukkit.command.CommandSender;
 
+import java.util.Arrays;
+
 import static cz.kominekjan.disenchantment.utils.TextUtil.textWithPrefixError;
 
 public class Command {
     public final String name;
-    public final String permission;
+    public final String[] permissions;
     public final String permissionMessage;
     public final String[] args;
     public final Boolean reqArgs;
     public final ICommandExecutor executor;
 
+
     public Command(String name, String permission, String permissionMessage, String[] args, Boolean reqArgs, ICommandExecutor executor) {
         this.name = name;
-        this.permission = permission;
+        this.permissions = new String[]{permission};
+        this.permissionMessage = permissionMessage;
+        this.args = args;
+        this.reqArgs = reqArgs;
+        this.executor = executor;
+    }
+
+    public Command(String name, String[] permissions, String permissionMessage, String[] args, Boolean reqArgs, ICommandExecutor executor) {
+        this.name = name;
+        this.permissions = permissions;
         this.permissionMessage = permissionMessage;
         this.args = args;
         this.reqArgs = reqArgs;
@@ -22,7 +34,7 @@ public class Command {
     }
 
     public boolean execute(CommandSender s, String[] args) {
-        if (!s.hasPermission(permission)) {
+        if (Arrays.stream(permissions).noneMatch(s::hasPermission)) {
             s.sendMessage(textWithPrefixError(permissionMessage));
             return true;
         }

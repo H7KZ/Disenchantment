@@ -1,15 +1,15 @@
 name: Disenchantment
-version: '4.1.0'
+version: '5.0.0'
 main: cz.kominekjan.disenchantment.Disenchantment
 api-version: '1.20.6'
 authors:
   - HonzaKOMI
-description: Don't lose your enchantments!
+description: Allows players to disenchant items and get the item's enchantments back
 website: 'https://kominekjan.cz'
 softdepend: [ ExcellentEnchants, EcoEnchants, eco, AdvancedEnchantments ]
 commands:
   disenchantment:
-    description: 'Disenchantment command.'
+    description: 'Disenchantment command'
     aliases:
       - disenchantment
       - disenchant
@@ -18,30 +18,51 @@ commands:
     permission: disenchantment.use
     permission-message: You don't have permission to use this command.
 permissions:
+  disenchantment.all:
+    description: Access to all permissions
+    default: op
   disenchantment.anvil:
-    description: Allows you to use disenchant in an anvil.
+    description: Allows the player to disenchant items
     default: op
-  disenchantment.use:
-    description: Allows you to use the disenchantment command.
+  disenchantment.command.gui:
+    description: GUI command
     default: op
-  disenchantment.toggle:
-    description: Allows you to toggle disenchantment. And also disable specific worlds.
+  disenchantment.command.help:
+    description: Help command
     default: op
-  disenchantment.status:
-    description: Allows you to check if disenchantment is on/off.
+  disenchantment.command.status:
+    description: Status command
     default: op
-  disenchantment.repair:
-    description: Allows you to configure disenchantment repair.
+  disenchantment.command.toggle:
+    description: Toggle command
     default: op
-  disenchantment.sound:
-    description: Allows you to configure disenchantment sound.
+  disenchantment.command.repair:
+    description: Repair command
     default: op
-  disenchantment.enchantments:
-    description: Allows you to configure disenchantment enchantments.
+  disenchantment.command.enchantments:
+    description: Enchantments command
     default: op
-  disenchantment.materials:
-    description: Allows you to configure disenchantment materials.
+  disenchantment.command.materials:
+    description: Materials command
     default: op
-  disenchantment.help:
-    description: Allows you to check disenchantment help.
+  disenchantment.command.sound:
+    description: Sound command
+    default: op
+  disenchantment.gui.status:
+    description: GUI Enable or disable the plugin
+    default: op
+  disenchantment.gui.toggle:
+    description: GUI Enable or disable the plugin in a specific world
+    default: op
+  disenchantment.gui.repair:
+    description: GUI Set the repair settings
+    default: op
+  disenchantment.gui.enchantments:
+    description: GUI Set the enchantments settings
+    default: op
+  disenchantment.gui.materials:
+    description: GUI Set the materials settings
+    default: op
+  disenchantment.gui.sound:
+    description: GUI Set the sound settings
     default: op

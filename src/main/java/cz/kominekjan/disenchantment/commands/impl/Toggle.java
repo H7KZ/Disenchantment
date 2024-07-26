@@ -2,19 +2,27 @@ package cz.kominekjan.disenchantment.commands.impl;
 
 import cz.kominekjan.disenchantment.Disenchantment;
 import cz.kominekjan.disenchantment.commands.Command;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 
 import java.util.List;
 
-import static cz.kominekjan.disenchantment.Disenchantment.plugin;
 import static cz.kominekjan.disenchantment.config.Config.getDisabledWorlds;
 import static cz.kominekjan.disenchantment.config.Config.setDisabledWorlds;
 import static cz.kominekjan.disenchantment.utils.TextUtil.textWithPrefixError;
 import static cz.kominekjan.disenchantment.utils.TextUtil.textWithPrefixSuccess;
 
 public class Toggle {
-    public static final Command command = new Command("toggle", "disenchantment.toggle", "You don't have permission to use this command.", new String[]{}, false, Toggle::execute);
+    public static final Command command = new Command(
+            "toggle",
+            new String[]{"disenchantment.all", "disenchantment.command.toggle"},
+            "You don't have permission to use this command.",
+            new String[]{},
+            false,
+            Toggle::execute
+    );
 
     public static void execute(CommandSender s, String[] args) {
         if (args.length == 1) {
@@ -26,9 +34,16 @@ public class Toggle {
             return;
         }
 
-        String world = args[1];
+        String wrl = args[1];
 
-        List<String> disabledWorlds = getDisabledWorlds();
+        World world = Bukkit.getWorld(wrl);
+
+        if (world == null) {
+            s.sendMessage(textWithPrefixError("World \"" + wrl + "\" does not exist!"));
+            return;
+        }
+
+        List<World> disabledWorlds = getDisabledWorlds();
 
         if (disabledWorlds.contains(world)) {
             disabledWorlds.remove(world);
@@ -37,11 +52,6 @@ public class Toggle {
 
             s.sendMessage(textWithPrefixSuccess("Enabled in world \"" + world + "\""));
         } else {
-            if (!plugin.getServer().getWorlds().contains(plugin.getServer().getWorld(world))) {
-                s.sendMessage(textWithPrefixError("World \"" + world + "\" does not exist!"));
-                return;
-            }
-
             disabledWorlds.add(world);
 
             setDisabledWorlds(disabledWorlds);

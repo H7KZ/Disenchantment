@@ -1,9 +1,16 @@
 package cz.kominekjan.disenchantment.config;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.Registry;
+import org.bukkit.World;
+import org.bukkit.enchantments.Enchantment;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 import static cz.kominekjan.disenchantment.Disenchantment.config;
 import static cz.kominekjan.disenchantment.Disenchantment.plugin;
@@ -22,29 +29,35 @@ public class Config {
         return LoggingLevels.valueOf(level);
     }
 
-    public static List<String> getDisabledWorlds() {
-        return config.getStringList(ConfigKeys.DISABLED_WORLDS.getKey());
+    public static List<World> getDisabledWorlds() {
+        return new ArrayList<>(config.getStringList(ConfigKeys.DISABLED_WORLDS.getKey()).stream().map(Bukkit::getWorld).toList());
     }
 
     public static List<Material> getDisabledMaterials() {
-        return config.getStringList(ConfigKeys.DISABLED_ITEMS.getKey()).stream().map(Material::getMaterial).toList();
+        return new ArrayList<>(config.getStringList(ConfigKeys.DISABLED_ITEMS.getKey()).stream().map(Material::getMaterial).toList());
     }
 
-    public static List<DisabledConfigEnchantment> getDisabledEnchantments() {
-        List<Map<?, ?>> list = config.getMapList(ConfigKeys.DISABLED_ENCHANTMENTS.getKey());
-        return list.stream().map(m -> new DisabledConfigEnchantment((String) m.get("enchantment"), (Boolean) m.get("keep"))).toList();
+    public static Map<Enchantment, Boolean> getDisabledEnchantments() {
+        List<String> list = config.getStringList(ConfigKeys.DISABLED_ENCHANTMENTS.getKey());
+        return list.stream().map(s -> {
+            String[] split = s.split(":");
+            return Map.entry(
+                    Objects.requireNonNull(Registry.ENCHANTMENT.stream().filter(e -> e.getKey().getKey().equals(split[0])).findFirst().orElse(null)),
+                    Boolean.parseBoolean(split[1])
+            );
+        }).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
     public static Boolean getEnableAnvilSound() {
         return config.getBoolean(ConfigKeys.ENABLE_ANVIL_SOUND.getKey());
     }
 
-    public static Integer getAnvilSoundVolume() {
-        return config.getInt(ConfigKeys.ANVIL_VOLUME.getKey());
+    public static Double getAnvilSoundVolume() {
+        return config.getDouble(ConfigKeys.ANVIL_VOLUME.getKey());
     }
 
-    public static Float getAnvilSoundPitch() {
-        return (float) config.getDouble(ConfigKeys.ANVIL_PITCH.getKey());
+    public static Double getAnvilSoundPitch() {
+        return config.getDouble(ConfigKeys.ANVIL_PITCH.getKey());
     }
 
     public static Boolean getEnableRepairReset() {
@@ -55,8 +68,8 @@ public class Config {
         return config.getBoolean(ConfigKeys.ENABLE_REPAIR_COST.getKey());
     }
 
-    public static Integer getBaseRepairCost() {
-        return config.getInt(ConfigKeys.BASE_REPAIR_COST.getKey());
+    public static Double getBaseRepairCost() {
+        return config.getDouble(ConfigKeys.BASE_REPAIR_COST.getKey());
     }
 
     public static Double getRepairCostMultiplier() {
@@ -70,8 +83,8 @@ public class Config {
         return getPluginEnabled() == enabled;
     }
 
-    public static Boolean setDisabledWorlds(List<String> worlds) {
-        config.set(ConfigKeys.DISABLED_WORLDS.getKey(), worlds);
+    public static Boolean setDisabledWorlds(List<World> worlds) {
+        config.set(ConfigKeys.DISABLED_WORLDS.getKey(), worlds.stream().map(World::getName).toList());
         plugin.saveConfig();
 
         return getDisabledWorlds().equals(worlds);
@@ -84,8 +97,8 @@ public class Config {
         return getDisabledMaterials().equals(materials);
     }
 
-    public static Boolean setDisabledEnchantments(List<DisabledConfigEnchantment> enchantments) {
-        config.set(ConfigKeys.DISABLED_ENCHANTMENTS.getKey(), enchantments.stream().map(e -> Map.of("enchantment", e.getEnchantmentKey(), "keep", e.doKeep())).toList());
+    public static Boolean setDisabledEnchantments(Map<Enchantment, Boolean> enchantments) {
+        config.set(ConfigKeys.DISABLED_ENCHANTMENTS.getKey(), enchantments.entrySet().stream().map(e -> e.getKey().getKey().getKey() + ":" + e.getValue()).toList());
         plugin.saveConfig();
 
         return getDisabledEnchantments().equals(enchantments);
@@ -98,14 +111,14 @@ public class Config {
         return getEnableAnvilSound() == enabled;
     }
 
-    public static Boolean setAnvilSoundVolume(Integer volume) {
+    public static Boolean setAnvilSoundVolume(Double volume) {
         config.set(ConfigKeys.ANVIL_VOLUME.getKey(), volume);
         plugin.saveConfig();
 
         return config.getDouble(ConfigKeys.ANVIL_VOLUME.getKey()) == volume;
     }
 
-    public static Boolean setAnvilSoundPitch(Float pitch) {
+    public static Boolean setAnvilSoundPitch(Double pitch) {
         config.set(ConfigKeys.ANVIL_PITCH.getKey(), pitch);
         plugin.saveConfig();
 
@@ -126,7 +139,7 @@ public class Config {
         return getEnableRepairCost() == enabled;
     }
 
-    public static Boolean setBaseRepairCost(Integer cost) {
+    public static Boolean setBaseRepairCost(Double cost) {
         config.set(ConfigKeys.BASE_REPAIR_COST.getKey(), cost);
         plugin.saveConfig();
 
@@ -145,7 +158,7 @@ public class Config {
         ENABLE_LOGGING("enable-logging"),
         LOGGING_LEVEL("logging-level"),
         DISABLED_WORLDS("disabled-worlds"),
-        DISABLED_ITEMS("disabled-items"),
+        DISABLED_ITEMS("disabled-materials"),
         DISABLED_ENCHANTMENTS("disabled-enchantments"),
         ENABLE_ANVIL_SOUND("enable-anvil-sound"),
         ANVIL_VOLUME("anvil-volume"),

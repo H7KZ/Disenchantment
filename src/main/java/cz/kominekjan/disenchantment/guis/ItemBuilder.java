@@ -1,5 +1,6 @@
 package cz.kominekjan.disenchantment.guis;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
@@ -21,7 +22,11 @@ public class ItemBuilder {
     }
 
     public ItemMeta getItemMeta() {
-        return this.stack.getItemMeta();
+        ItemMeta meta = this.stack.getItemMeta();
+
+        if (meta == null) meta = Bukkit.getItemFactory().getItemMeta(this.stack.getType());
+
+        return meta;
     }
 
     public ItemBuilder setItemMeta(ItemMeta meta) {
@@ -30,9 +35,9 @@ public class ItemBuilder {
     }
 
     public ItemBuilder setColor(Color color) {
-        LeatherArmorMeta meta = (LeatherArmorMeta) this.stack.getItemMeta();
+        LeatherArmorMeta meta = (LeatherArmorMeta) this.getItemMeta();
         meta.setColor(color);
-        setItemMeta(meta);
+        this.setItemMeta(meta);
         return this;
     }
 
@@ -41,7 +46,7 @@ public class ItemBuilder {
             this.addEnchantment(Enchantment.KNOCKBACK, 1);
             this.addItemFlag(ItemFlag.HIDE_ENCHANTS);
         } else {
-            ItemMeta meta = getItemMeta();
+            ItemMeta meta = this.getItemMeta();
             for (Enchantment enchantment : meta.getEnchants().keySet()) {
                 meta.removeEnchant(enchantment);
             }
@@ -50,9 +55,9 @@ public class ItemBuilder {
     }
 
     public ItemBuilder setUnbreakable(boolean unbreakable) {
-        ItemMeta meta = this.stack.getItemMeta();
+        ItemMeta meta = this.getItemMeta();
         meta.setUnbreakable(unbreakable);
-        this.stack.setItemMeta(meta);
+        this.setItemMeta(meta);
         return this;
     }
 
@@ -62,16 +67,16 @@ public class ItemBuilder {
     }
 
     public ItemBuilder setHead(String owner) {
-        SkullMeta meta = (SkullMeta) this.stack.getItemMeta();
+        SkullMeta meta = (SkullMeta) this.getItemMeta();
         meta.setOwner(owner);
-        setItemMeta(meta);
+        this.setItemMeta(meta);
         return this;
     }
 
     public ItemBuilder setDisplayName(String displayname) {
-        ItemMeta meta = getItemMeta();
+        ItemMeta meta = this.getItemMeta();
         meta.setDisplayName(displayname);
-        setItemMeta(meta);
+        this.setItemMeta(meta);
         return this;
     }
 
@@ -81,37 +86,37 @@ public class ItemBuilder {
     }
 
     public ItemBuilder setLore(ArrayList<String> lore) {
-        ItemMeta meta = getItemMeta();
+        ItemMeta meta = this.getItemMeta();
         meta.setLore(lore);
-        setItemMeta(meta);
+        this.setItemMeta(meta);
         return this;
     }
 
     public ItemBuilder setLore(String lore) {
         ArrayList<String> loreList = new ArrayList<>();
         loreList.add(lore);
-        ItemMeta meta = getItemMeta();
+        ItemMeta meta = this.getItemMeta();
         meta.setLore(loreList);
-        setItemMeta(meta);
+        this.setItemMeta(meta);
         return this;
     }
 
     public ItemBuilder addEnchantment(Enchantment enchantment, int level) {
-        ItemMeta meta = getItemMeta();
+        ItemMeta meta = this.getItemMeta();
         meta.addEnchant(enchantment, level, true);
-        setItemMeta(meta);
+        this.setItemMeta(meta);
         return this;
     }
 
     public ItemBuilder addItemFlag(ItemFlag flag) {
-        ItemMeta meta = getItemMeta();
+        ItemMeta meta = this.getItemMeta();
         meta.addItemFlags(flag);
-        setItemMeta(meta);
+        this.setItemMeta(meta);
         return this;
     }
 
     public ItemBuilder addAllFlags() {
-        ItemMeta meta = getItemMeta();
+        ItemMeta meta = this.getItemMeta();
         meta.addItemFlags(
                 HIDE_ENCHANTS,
                 HIDE_ATTRIBUTES,
@@ -123,7 +128,7 @@ public class ItemBuilder {
                 HIDE_ARMOR_TRIM,
                 HIDE_STORED_ENCHANTS
         );
-        setItemMeta(meta);
+        this.setItemMeta(meta);
         return this;
 
     }

@@ -1,6 +1,5 @@
 package cz.kominekjan.disenchantment.events;
 
-import cz.kominekjan.disenchantment.config.DisabledConfigEnchantment;
 import cz.kominekjan.disenchantment.events.advanced.DisenchantmentAdvancedEvent;
 import cz.kominekjan.disenchantment.events.eco.DisenchantmentEcoEvent;
 import cz.kominekjan.disenchantment.events.excellent.DisenchantmentExcellentEvent;
@@ -14,6 +13,7 @@ import org.bukkit.event.inventory.PrepareAnvilEvent;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 import static cz.kominekjan.disenchantment.Disenchantment.activatedPlugins;
@@ -28,23 +28,23 @@ public class DisenchantmentEvent implements Listener {
     public void onDisenchantmentEvent(PrepareAnvilEvent e) {
         if (!(e.getView().getPlayer() instanceof Player p)) return;
 
-        if (!p.hasPermission("disenchantment.anvil")) return;
+        if (!(p.hasPermission("disenchantment.all") || p.hasPermission("disenchantment.anvil"))) return;
 
-        if (!enabled || getDisabledWorlds().contains(p.getWorld().getName())) return;
+        if (!enabled || getDisabledWorlds().contains(p.getWorld())) return;
 
         if (!isEventValidDisenchantment(e.getInventory().getItem(0), e.getInventory().getItem(1))) return;
 
         ItemStack firstItem = e.getInventory().getItem(0);
 
-        assert firstItem != null;
+        if (firstItem == null) return;
 
         HashMap<Enchantment, Integer> enchantments = new HashMap<>(firstItem.getEnchantments());
 
-        for (DisabledConfigEnchantment disabledConfigEnchantment : getDisabledEnchantments()) {
-            if (!disabledConfigEnchantment.doKeep()) continue;
+        for (Map.Entry<Enchantment, Boolean> disabledEnchantment : getDisabledEnchantments().entrySet()) {
+            if (!disabledEnchantment.getValue()) continue;
 
-            if (enchantments.keySet().stream().anyMatch(m -> m.getKey().getKey().equalsIgnoreCase(disabledConfigEnchantment.getEnchantmentKey()))) {
-                Optional<Enchantment> enchantment = enchantments.keySet().stream().filter(m -> m.getKey().getKey().equalsIgnoreCase(disabledConfigEnchantment.getEnchantmentKey())).findFirst();
+            if (enchantments.keySet().stream().anyMatch(m -> m.equals(disabledEnchantment.getKey()))) {
+                Optional<Enchantment> enchantment = enchantments.keySet().stream().filter(m -> m.equals(disabledEnchantment.getKey())).findFirst();
 
                 enchantment.ifPresent(enchantments::remove);
             }

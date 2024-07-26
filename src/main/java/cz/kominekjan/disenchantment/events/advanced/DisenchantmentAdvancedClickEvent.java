@@ -31,7 +31,7 @@ public class DisenchantmentAdvancedClickEvent {
         for (Map.Entry<Enchantment, Integer> entry : firstItem.getEnchantments().entrySet()) {
             Enchantment enchantment = entry.getKey();
 
-            if (getDisabledEnchantments().stream().anyMatch(m -> m.getEnchantmentKey().equalsIgnoreCase(enchantment.getKey().getKey())))
+            if (getDisabledEnchantments().containsKey(enchantment))
                 continue;
 
             AEAPI.removeEnchantment(item, enchantment.getKey().getKey());
@@ -51,7 +51,7 @@ public class DisenchantmentAdvancedClickEvent {
         p.setItemOnCursor(result);
 
         if (getEnableAnvilSound())
-            p.playSound(p.getLocation(), Sound.BLOCK_ANVIL_USE, getAnvilSoundVolume(), getAnvilSoundPitch());
+            p.playSound(p.getLocation(), Sound.BLOCK_ANVIL_USE, Float.parseFloat(getAnvilSoundVolume().toString()), Float.parseFloat(getAnvilSoundPitch().toString()));
 
         if (p.getGameMode() != org.bukkit.GameMode.CREATIVE) p.setLevel(exp);
     }

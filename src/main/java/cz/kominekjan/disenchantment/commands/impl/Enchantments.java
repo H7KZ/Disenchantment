@@ -1,38 +1,44 @@
 package cz.kominekjan.disenchantment.commands.impl;
 
 import cz.kominekjan.disenchantment.commands.Command;
-import cz.kominekjan.disenchantment.config.DisabledConfigEnchantment;
 import org.bukkit.ChatColor;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Registry;
 import org.bukkit.command.CommandSender;
 import org.bukkit.enchantments.Enchantment;
 
-import java.util.List;
+import java.util.Map;
 
 import static cz.kominekjan.disenchantment.config.Config.getDisabledEnchantments;
 import static cz.kominekjan.disenchantment.config.Config.setDisabledEnchantments;
 import static cz.kominekjan.disenchantment.utils.TextUtil.*;
 
 public class Enchantments {
-    public static final Command command = new Command("enchantments", "disenchantment.enchantments", "You don't have permission to use this command.", new String[]{}, false, Enchantments::execute);
+    public static final Command command = new Command(
+            "enchantments",
+            new String[]{"disenchantment.all", "disenchantment.command.enchantments"},
+            "You don't have permission to use this command.",
+            new String[]{},
+            false,
+            Enchantments::execute
+    );
 
     public static void execute(CommandSender s, String[] args) {
-        List<DisabledConfigEnchantment> enchantments = getDisabledEnchantments();
+        Map<Enchantment, Boolean> disabledEnchantments = getDisabledEnchantments();
 
         if (args.length == 1) {
             s.sendMessage(textWithPrefix("Disabled enchantments"));
             s.sendMessage("");
 
-            if (enchantments.isEmpty()) {
+            if (disabledEnchantments.isEmpty()) {
                 s.sendMessage(ChatColor.GRAY + "No enchantments are disabled");
                 return;
             }
 
-            for (DisabledConfigEnchantment enchantment : enchantments) {
+            for (Map.Entry<Enchantment, Boolean> enchantment : disabledEnchantments.entrySet()) {
                 String builder = "";
-                builder += ChatColor.RED + "[" + (enchantment.doKeep() ? " keep " : "cancel") + "] ";
-                builder += ChatColor.GRAY + enchantment.getEnchantmentKey();
+                builder += ChatColor.RED + "[" + (enchantment.getValue() ? " keep " : "cancel") + "] ";
+                builder += ChatColor.GRAY + enchantment.getKey().getKey().getKey();
                 s.sendMessage(builder);
             }
             return;
@@ -52,20 +58,20 @@ public class Enchantments {
             return;
         }
 
-        DisabledConfigEnchantment disabledConfigEnchantment = new DisabledConfigEnchantment(enchantment.getKey().getKey(), keepOrCancel.equalsIgnoreCase("keep"));
+        Map.Entry<Enchantment, Boolean> disabledEnchantment = Map.entry(enchantment, keepOrCancel.equalsIgnoreCase("keep"));
 
-        if (enchantments.contains(disabledConfigEnchantment)) {
-            enchantments.remove(disabledConfigEnchantment);
+        if (disabledEnchantments.containsKey(disabledEnchantment.getKey())) {
+            disabledEnchantments.remove(disabledEnchantment.getKey());
 
-            setDisabledEnchantments(enchantments);
+            setDisabledEnchantments(disabledEnchantments);
 
             s.sendMessage(textWithPrefixSuccess("Enchantment removed"));
             return;
         }
 
-        enchantments.add(disabledConfigEnchantment);
+        disabledEnchantments.put(disabledEnchantment.getKey(), disabledEnchantment.getValue());
 
-        setDisabledEnchantments(enchantments);
+        setDisabledEnchantments(disabledEnchantments);
 
         s.sendMessage(textWithPrefixSuccess("Enchantment added"));
     }

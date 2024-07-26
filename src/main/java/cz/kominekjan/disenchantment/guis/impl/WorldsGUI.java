@@ -122,20 +122,20 @@ public class WorldsGUI implements InventoryHolder {
                     event -> {
                         event.setCancelled(true);
 
-                        List<String> disabledConfigWorlds = getDisabledWorlds();
+                        List<World> disabledWorlds = getDisabledWorlds();
 
-                        if (disabledConfigWorlds.contains(world.getName())) {
-                            disabledConfigWorlds.remove(world.getName());
+                        if (disabledWorlds.contains(world)) {
+                            disabledWorlds.remove(world);
                         } else {
-                            disabledConfigWorlds.add(world.getName());
+                            disabledWorlds.add(world);
                         }
 
-                        setDisabledWorlds(disabledConfigWorlds);
+                        setDisabledWorlds(disabledWorlds);
 
                         event.setCurrentItem(DefaultGUIElements.headWorldItem(
                                 ChatColor.GRAY + "" + ChatColor.BOLD + world.getName(),
                                 this.worldHeads.get(environment),
-                                disabledConfigWorlds.contains(world.getName()) ? ChatColor.RED + "Disabled" : ChatColor.GREEN + "Enabled"
+                                disabledWorlds.contains(world) ? ChatColor.RED + "Disabled" : ChatColor.GREEN + "Enabled"
                         ));
                     }
             );

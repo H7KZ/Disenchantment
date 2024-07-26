@@ -24,9 +24,9 @@ public class DisenchantmentClickEvent implements Listener {
     public void onDisenchantmentClickEvent(InventoryClickEvent e) {
         if (!(e.getWhoClicked() instanceof Player p)) return;
 
-        if (!p.hasPermission("disenchantment.anvil")) return;
+        if (!(p.hasPermission("disenchantment.all") || p.hasPermission("disenchantment.anvil"))) return;
 
-        if (!enabled || getDisabledWorlds().contains(p.getWorld().getName())) return;
+        if (!enabled || getDisabledWorlds().contains(p.getWorld())) return;
 
         if (e.getInventory().getType() != InventoryType.ANVIL) return;
 
@@ -34,11 +34,10 @@ public class DisenchantmentClickEvent implements Listener {
 
         if (e.getSlot() != 2) return;
 
-        if (anvilInventory.getItem(2) == null) return;
+        ItemStack result = anvilInventory.getResult();
 
-        ItemStack result = anvilInventory.getItem(2);
+        if (result == null) return;
 
-        assert result != null;
         if (result.getType() != Material.ENCHANTED_BOOK) return;
 
         ItemStack firstItem = anvilInventory.getItem(0);

@@ -18,6 +18,10 @@ public class DefaultGUIElements {
         event.setCancelled(true);
     }
 
+    public static GUIItem border(int slot) {
+        return new GUIItem(slot, borderItem(), DefaultGUIElements::cancelOnClick);
+    }
+
     public static GUIItem[] rowBorder(int start, int end, ItemStack item) {
         GUIItem[] border = new GUIItem[end - start + 1];
         for (int i = start; i <= end; i++) {
@@ -36,13 +40,11 @@ public class DefaultGUIElements {
 
     public static GUIItem[] border9x3(Integer[] remove) {
         GUIItem[] border = rowBorder(0, 8);
-        border = ArrayUtils.add(border, new GUIItem(9, borderItem(), DefaultGUIElements::cancelOnClick));
-        border = ArrayUtils.add(border, new GUIItem(17, borderItem(), DefaultGUIElements::cancelOnClick));
+        border = ArrayUtils.add(border, border(9));
+        border = ArrayUtils.add(border, border(17));
         border = ArrayUtils.addAll(border, rowBorder(18, 26));
 
-        for (int i = 0; i < remove.length; i++) {
-            border = ArrayUtils.remove(border, i);
-        }
+        border = new ArrayList<>(Arrays.asList(border)).stream().filter(item -> !ArrayUtils.contains(remove, item.getSlot())).toArray(GUIItem[]::new);
 
         return border;
     }
@@ -53,15 +55,13 @@ public class DefaultGUIElements {
 
     public static GUIItem[] border9x4(Integer[] remove) {
         GUIItem[] border = rowBorder(0, 8);
-        border = ArrayUtils.add(border, new GUIItem(9, borderItem(), DefaultGUIElements::cancelOnClick));
-        border = ArrayUtils.add(border, new GUIItem(17, borderItem(), DefaultGUIElements::cancelOnClick));
-        border = ArrayUtils.add(border, new GUIItem(18, borderItem(), DefaultGUIElements::cancelOnClick));
-        border = ArrayUtils.add(border, new GUIItem(26, borderItem(), DefaultGUIElements::cancelOnClick));
+        border = ArrayUtils.add(border, border(9));
+        border = ArrayUtils.add(border, border(17));
+        border = ArrayUtils.add(border, border(18));
+        border = ArrayUtils.add(border, border(26));
         border = ArrayUtils.addAll(border, rowBorder(27, 35));
 
-        for (int i = 0; i < remove.length; i++) {
-            border = ArrayUtils.remove(border, i);
-        }
+        border = new ArrayList<>(Arrays.asList(border)).stream().filter(item -> !ArrayUtils.contains(remove, item.getSlot())).toArray(GUIItem[]::new);
 
         return border;
     }
@@ -72,17 +72,15 @@ public class DefaultGUIElements {
 
     public static GUIItem[] border9x5(Integer[] remove) {
         GUIItem[] border = rowBorder(0, 8);
-        border = ArrayUtils.add(border, new GUIItem(9, borderItem(), DefaultGUIElements::cancelOnClick));
-        border = ArrayUtils.add(border, new GUIItem(17, borderItem(), DefaultGUIElements::cancelOnClick));
-        border = ArrayUtils.add(border, new GUIItem(18, borderItem(), DefaultGUIElements::cancelOnClick));
-        border = ArrayUtils.add(border, new GUIItem(26, borderItem(), DefaultGUIElements::cancelOnClick));
-        border = ArrayUtils.add(border, new GUIItem(27, borderItem(), DefaultGUIElements::cancelOnClick));
-        border = ArrayUtils.add(border, new GUIItem(35, borderItem(), DefaultGUIElements::cancelOnClick));
+        border = ArrayUtils.add(border, border(9));
+        border = ArrayUtils.add(border, border(17));
+        border = ArrayUtils.add(border, border(18));
+        border = ArrayUtils.add(border, border(26));
+        border = ArrayUtils.add(border, border(27));
+        border = ArrayUtils.add(border, border(35));
         border = ArrayUtils.addAll(border, rowBorder(36, 44));
 
-        for (int i = 0; i < remove.length; i++) {
-            border = ArrayUtils.remove(border, i);
-        }
+        border = new ArrayList<>(Arrays.asList(border)).stream().filter(item -> !ArrayUtils.contains(remove, item.getSlot())).toArray(GUIItem[]::new);
 
         return border;
     }
@@ -93,19 +91,17 @@ public class DefaultGUIElements {
 
     public static GUIItem[] border9x6(Integer[] remove) {
         GUIItem[] border = rowBorder(0, 8);
-        border = ArrayUtils.add(border, new GUIItem(9, borderItem(), DefaultGUIElements::cancelOnClick));
-        border = ArrayUtils.add(border, new GUIItem(17, borderItem(), DefaultGUIElements::cancelOnClick));
-        border = ArrayUtils.add(border, new GUIItem(18, borderItem(), DefaultGUIElements::cancelOnClick));
-        border = ArrayUtils.add(border, new GUIItem(26, borderItem(), DefaultGUIElements::cancelOnClick));
-        border = ArrayUtils.add(border, new GUIItem(27, borderItem(), DefaultGUIElements::cancelOnClick));
-        border = ArrayUtils.add(border, new GUIItem(35, borderItem(), DefaultGUIElements::cancelOnClick));
-        border = ArrayUtils.add(border, new GUIItem(36, borderItem(), DefaultGUIElements::cancelOnClick));
-        border = ArrayUtils.add(border, new GUIItem(44, borderItem(), DefaultGUIElements::cancelOnClick));
+        border = ArrayUtils.add(border, border(9));
+        border = ArrayUtils.add(border, border(17));
+        border = ArrayUtils.add(border, border(18));
+        border = ArrayUtils.add(border, border(26));
+        border = ArrayUtils.add(border, border(27));
+        border = ArrayUtils.add(border, border(35));
+        border = ArrayUtils.add(border, border(36));
+        border = ArrayUtils.add(border, border(44));
         border = ArrayUtils.addAll(border, rowBorder(45, 53));
 
-        for (int i = 0; i < remove.length; i++) {
-            border = ArrayUtils.remove(border, i);
-        }
+        border = new ArrayList<>(Arrays.asList(border)).stream().filter(item -> !ArrayUtils.contains(remove, item.getSlot())).toArray(GUIItem[]::new);
 
         return border;
     }
@@ -114,12 +110,40 @@ public class DefaultGUIElements {
         return new ItemBuilder(Material.GRAY_STAINED_GLASS_PANE).setDisplayName(" ").addAllFlags().build();
     }
 
+    public static ItemStack disabledItem(String name, ArrayList<String> lore) {
+        return new ItemBuilder(Material.RED_TERRACOTTA).setDisplayName(name).setLore(lore).addAllFlags().build();
+    }
+
+    public static ItemStack enabledItem(String name, ArrayList<String> lore) {
+        return new ItemBuilder(Material.LIME_TERRACOTTA).setDisplayName(name).setLore(lore).addAllFlags().build();
+    }
+
+    public static ItemStack disabledItem(String name, String lore) {
+        return disabledItem(name, new ArrayList<>(Collections.singletonList(lore)));
+    }
+
+    public static ItemStack enabledItem(String name, String lore) {
+        return enabledItem(name, new ArrayList<>(Collections.singletonList(lore)));
+    }
+
     public static ItemStack disabledPluginItem() {
-        return new ItemBuilder(Material.RED_TERRACOTTA).setDisplayName(ChatColor.RED + "" + ChatColor.BOLD + "Disabled").setLore(ChatColor.GRAY + "Click to enable the plugin").addAllFlags().build();
+        return disabledItem(
+                ChatColor.GRAY + "" + ChatColor.BOLD + "Plugin",
+                new ArrayList<>(Arrays.asList(
+                        ChatColor.RED + "Disabled",
+                        ChatColor.GRAY + "Click to enable the plugin"
+                ))
+        );
     }
 
     public static ItemStack enabledPluginItem() {
-        return new ItemBuilder(Material.LIME_TERRACOTTA).setDisplayName(ChatColor.GREEN + "" + ChatColor.BOLD + "Enabled").setLore(ChatColor.GRAY + "Click to disable the plugin").addAllFlags().build();
+        return enabledItem(
+                ChatColor.GRAY + "" + ChatColor.BOLD + "Plugin",
+                new ArrayList<>(Arrays.asList(
+                        ChatColor.GREEN + "Enabled",
+                        ChatColor.GRAY + "Click to disable the plugin"
+                ))
+        );
     }
 
     public static ItemStack worldsItem() {
@@ -131,7 +155,7 @@ public class DefaultGUIElements {
     }
 
     public static ItemStack enchantmentsItem() {
-        return new ItemBuilder(Material.ENCHANTING_TABLE).setDisplayName(ChatColor.AQUA + "" + ChatColor.BOLD + "Enchantments").setLore(ChatColor.GRAY + "Edit enchantments").addAllFlags().build();
+        return new ItemBuilder(Material.ENCHANTING_TABLE).setDisplayName(ChatColor.AQUA + "" + ChatColor.BOLD + "Enchantments").setLore(ChatColor.GRAY + "Edit enchantment behaviour").addAllFlags().build();
     }
 
     public static ItemStack materialsItem() {
@@ -148,6 +172,77 @@ public class DefaultGUIElements {
 
     public static ItemStack backItem() {
         return new ItemBuilder(Material.NETHERITE_UPGRADE_SMITHING_TEMPLATE).setDisplayName(ChatColor.YELLOW + "" + ChatColor.BOLD + "Back to navigation").addAllFlags().build();
+    }
+
+    public static ItemStack disabledRepairCostItem() {
+        return disabledItem(
+                ChatColor.GRAY + "" + ChatColor.BOLD + "Repair cost",
+                new ArrayList<>(Arrays.asList(
+                        ChatColor.RED + "Disabled",
+                        ChatColor.GRAY + "Click to enable repair cost"
+                ))
+        );
+    }
+
+    public static ItemStack enabledRepairCostItem() {
+        return enabledItem(
+                ChatColor.GRAY + "" + ChatColor.BOLD + "Repair cost",
+                new ArrayList<>(Arrays.asList(
+                        ChatColor.GREEN + "Enabled",
+                        ChatColor.GRAY + "Click to disable repair cost"
+                ))
+        );
+    }
+
+    public static ItemStack disabledRepairCostResetItem() {
+        return disabledItem(
+                ChatColor.GRAY + "" + ChatColor.BOLD + "Repair cost reset",
+                new ArrayList<>(Arrays.asList(
+                        ChatColor.RED + "Disabled",
+                        ChatColor.GRAY + "Click to enable repair cost reset"
+                ))
+        );
+    }
+
+    public static ItemStack enabledRepairCostResetItem() {
+        return enabledItem(
+                ChatColor.GRAY + "" + ChatColor.BOLD + "Repair cost reset",
+                new ArrayList<>(Arrays.asList(
+                        ChatColor.GREEN + "Enabled",
+                        ChatColor.GRAY + "Click to disable repair cost reset"
+                ))
+        );
+    }
+
+    public static ItemStack repairCostBaseItem(final int cost, final int amount) {
+        return new ItemBuilder(Material.EXPERIENCE_BOTTLE)
+                .setAmount(amount)
+                .setDisplayName(ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + "Base repair cost")
+                .setLore(
+                        new ArrayList<>(Arrays.asList(
+                                ChatColor.GRAY + "Current cost: " + ChatColor.WHITE + cost,
+                                ChatColor.GRAY + "LEFT CLICK to increase by 1",
+                                ChatColor.GRAY + "RIGHT CLICK to decrease by 1"
+                        ))
+                )
+                .addAllFlags()
+                .build();
+    }
+
+    public static ItemStack repairCostMultiplierItem(final double cost, final int amount) {
+        return new ItemBuilder(Material.DRAGON_BREATH)
+                .setAmount(amount)
+                .setDisplayName(ChatColor.GOLD + "" + ChatColor.BOLD + "Repair cost multiplier")
+                .setLore(
+                        new ArrayList<>(Arrays.asList(
+                                ChatColor.GRAY + "Current multiplier: " + ChatColor.WHITE + cost,
+                                ChatColor.GRAY + "LEFT CLICK to increase by 0.1",
+                                ChatColor.GRAY + "RIGHT CLICK to decrease by 0.1",
+                                ChatColor.GRAY + "Calculated by: [ base + (level * multiply) ]"
+                        ))
+                )
+                .addAllFlags()
+                .build();
     }
 
     public static ItemStack previousPageItem() {
@@ -180,5 +275,55 @@ public class DefaultGUIElements {
 
     public static ItemStack enchantmentItem(String name, String lore) {
         return enchantmentItem(name, new ArrayList<>(Collections.singletonList(lore)));
+    }
+
+    public static ItemStack disabledAnvilSoundItem() {
+        return disabledItem(
+                ChatColor.GRAY + "" + ChatColor.BOLD + "Anvil sound",
+                new ArrayList<>(Arrays.asList(
+                        ChatColor.RED + "Disabled",
+                        ChatColor.GRAY + "Click to enable anvil sound"
+                ))
+        );
+    }
+
+    public static ItemStack enabledAnvilSoundItem() {
+        return enabledItem(
+                ChatColor.GRAY + "" + ChatColor.BOLD + "Anvil sound",
+                new ArrayList<>(Arrays.asList(
+                        ChatColor.GREEN + "Enabled",
+                        ChatColor.GRAY + "Click to disable anvil sound"
+                ))
+        );
+    }
+
+    public static ItemStack anvilSoundVolumeItem(final double cost, final int amount) {
+        return new ItemBuilder(Material.FIRE_CHARGE)
+                .setAmount(amount)
+                .setDisplayName(ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + "Anvil sound volume")
+                .setLore(
+                        new ArrayList<>(Arrays.asList(
+                                ChatColor.GRAY + "Current volume: " + ChatColor.WHITE + cost,
+                                ChatColor.GRAY + "LEFT CLICK to increase by 0.1",
+                                ChatColor.GRAY + "RIGHT CLICK to decrease by 0.1"
+                        ))
+                )
+                .addAllFlags()
+                .build();
+    }
+
+    public static ItemStack anvilSoundPitchItem(final double cost, final int amount) {
+        return new ItemBuilder(Material.SLIME_BALL)
+                .setAmount(amount)
+                .setDisplayName(ChatColor.GOLD + "" + ChatColor.BOLD + "Anvil sound pitch")
+                .setLore(
+                        new ArrayList<>(Arrays.asList(
+                                ChatColor.GRAY + "Current pitch: " + ChatColor.WHITE + cost,
+                                ChatColor.GRAY + "LEFT CLICK to increase by 0.1",
+                                ChatColor.GRAY + "RIGHT CLICK to decrease by 0.1"
+                        ))
+                )
+                .addAllFlags()
+                .build();
     }
 }

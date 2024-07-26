@@ -18,7 +18,7 @@ public class HeadBuilder extends ItemBuilder {
 
         profile.getProperties().put("textures", new Property("textures", texture));
 
-        SkullMeta meta = (SkullMeta) this.stack.getItemMeta();
+        SkullMeta meta = (SkullMeta) this.getItemMeta();
 
         Field profileField;
 
@@ -30,17 +30,17 @@ public class HeadBuilder extends ItemBuilder {
             e.printStackTrace();
         }
 
-        this.stack.setItemMeta(meta);
+        this.setItemMeta(meta);
 
         return this;
     }
 
     public SkullMeta getSkullMeta() {
-        return (SkullMeta) this.stack.getItemMeta();
+        return (SkullMeta) this.getItemMeta();
     }
 
     public HeadBuilder setSkullMeta(SkullMeta meta) {
-        this.stack.setItemMeta(meta);
+        this.setItemMeta(meta);
         return this;
     }
 }

@@ -13,7 +13,14 @@ import static cz.kominekjan.disenchantment.utils.TextUtil.textWithPrefix;
 import static cz.kominekjan.disenchantment.utils.TextUtil.textWithPrefixSuccess;
 
 public class Materials {
-    public static final Command command = new Command("materials", "disenchantment.materials", "You don't have permission to use this command.", new String[]{}, false, Materials::execute);
+    public static final Command command = new Command(
+            "materials",
+            new String[]{"disenchantment.all", "disenchantment.command.materials"},
+            "You don't have permission to use this command.",
+            new String[]{},
+            false,
+            Materials::execute
+    );
 
     public static void execute(CommandSender s, String[] args) {
         List<Material> materials = getDisabledMaterials();

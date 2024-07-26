@@ -11,7 +11,7 @@ import java.util.Map;
 
 import static cz.kominekjan.disenchantment.config.Config.*;
 import static cz.kominekjan.disenchantment.libs.nbteditor.NBT.setNBTRepairCost;
-import static cz.kominekjan.disenchantment.utils.RemoveEnchantmentUtil.removeEnchantment;
+import static cz.kominekjan.disenchantment.utils.EnchantmentUtil.removeEnchantment;
 
 public class DisenchantmentNormalClickEvent {
     public static void onDisenchantmentClickEvent(InventoryClickEvent e) {
@@ -31,7 +31,7 @@ public class DisenchantmentNormalClickEvent {
         for (Map.Entry<Enchantment, Integer> entry : firstItem.getEnchantments().entrySet()) {
             Enchantment enchantment = entry.getKey();
 
-            if (getDisabledEnchantments().stream().anyMatch(m -> m.getEnchantmentKey().equalsIgnoreCase(enchantment.getKey().getKey())))
+            if (getDisabledEnchantments().containsKey(enchantment))
                 continue;
 
             removeEnchantment(item, enchantment);
@@ -51,7 +51,7 @@ public class DisenchantmentNormalClickEvent {
         p.setItemOnCursor(result);
 
         if (getEnableAnvilSound())
-            p.playSound(p.getLocation(), Sound.BLOCK_ANVIL_USE, getAnvilSoundVolume(), getAnvilSoundPitch());
+            p.playSound(p.getLocation(), Sound.BLOCK_ANVIL_USE, Float.parseFloat(getAnvilSoundVolume().toString()), Float.parseFloat(getAnvilSoundPitch().toString()));
 
         if (p.getGameMode() != org.bukkit.GameMode.CREATIVE) p.setLevel(exp);
     }

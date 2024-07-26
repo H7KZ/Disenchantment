@@ -5,7 +5,14 @@ import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 
 public class Help {
-    public static final Command command = new Command("help", "disenchantment.help", "You don't have permission to use this command.", new String[]{"1", "2", "3", "4"}, false, Help::execute);
+    public static final Command command = new Command(
+            "help",
+            new String[]{"disenchantment.all", "disenchantment.command.help"},
+            "You don't have permission to use this command.",
+            new String[]{"1", "2", "3", "4"},
+            false,
+            Help::execute
+    );
 
     public static void execute(CommandSender s, String[] args) {
         if (args.length == 0 || args.length == 1) {
@@ -30,8 +37,8 @@ public class Help {
                 s.sendMessage("");
                 s.sendMessage(CreateHelpTextComponent("/disench enchantments", "Show current list of the disabled enchantments."));
                 s.sendMessage(CreateHelpTextComponent("/disench enchantments [enchantment name] [keep or cancel]", "Change configuration of disabled enchantments. Keep - for keeping the enchantment on the item x Cancel - for canceling the operation of disenchanting. To enable the enchantment, run the same command."));
-                s.sendMessage(CreateHelpTextComponent("/disench items", "Show current list of the disabled items."));
-                s.sendMessage(CreateHelpTextComponent("/disench items [material]", "Change the list of disabled items. To enable the item, run the same command."));
+                s.sendMessage(CreateHelpTextComponent("/disench materials", "Show current list of the disabled materials."));
+                s.sendMessage(CreateHelpTextComponent("/disench materials [material]", "Change the list of disabled materials. To enable the material, run the same command."));
                 break;
             }
             case "4": {

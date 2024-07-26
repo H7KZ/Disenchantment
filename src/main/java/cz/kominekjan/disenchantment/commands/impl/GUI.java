@@ -6,7 +6,14 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 public class GUI {
-    public static final Command command = new Command("gui", "disenchantment.gui", "You don't have permission to use this command.", new String[]{}, false, GUI::execute);
+    public static final Command command = new Command(
+            "gui",
+            new String[]{"disenchantment.all", "disenchantment.command.gui"},
+            "You don't have permission to use this command.",
+            new String[]{},
+            false,
+            GUI::execute
+    );
 
     public static void execute(CommandSender s, String[] args) {
         NavigationGUI navigationGUI = new NavigationGUI();

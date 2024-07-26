@@ -8,7 +8,14 @@ import static cz.kominekjan.disenchantment.config.Config.*;
 import static cz.kominekjan.disenchantment.utils.TextUtil.*;
 
 public class Sound {
-    public static final Command command = new Command("sound", "disenchantment.sound", "You don't have permission to use this command.", new String[]{"enable", "disable", "volume", "pitch"}, false, Sound::execute);
+    public static final Command command = new Command(
+            "sound",
+            new String[]{"disenchantment.all", "disenchantment.command.sound"},
+            "You don't have permission to use this command.",
+            new String[]{"enable", "disable", "volume", "pitch"},
+            false,
+            Sound::execute
+    );
 
     public static void execute(CommandSender s, String[] args) {
         if (args.length == 1) {
@@ -41,7 +48,7 @@ public class Sound {
                 }
 
                 try {
-                    setAnvilSoundVolume(Integer.parseInt(args[2]));
+                    setAnvilSoundVolume(Double.parseDouble(args[2]));
                     s.sendMessage(textWithPrefixSuccess("Anvil volume set to " + args[2]));
                 } catch (NumberFormatException e) {
                     s.sendMessage(textWithPrefixError("You must specify a valid number"));
@@ -54,7 +61,7 @@ public class Sound {
                 }
 
                 try {
-                    setAnvilSoundPitch(Float.parseFloat(args[2]));
+                    setAnvilSoundPitch(Double.parseDouble(args[2]));
                     s.sendMessage(textWithPrefixSuccess("Anvil pitch set to " + args[2]));
                 } catch (NumberFormatException e) {
                     s.sendMessage(textWithPrefixError("You must specify a valid number"));

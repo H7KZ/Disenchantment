@@ -1,12 +1,11 @@
 package cz.kominekjan.disenchantment.utils;
 
-import cz.kominekjan.disenchantment.config.DisabledConfigEnchantment;
 import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.List;
+import java.util.Map;
 
 import static cz.kominekjan.disenchantment.config.Config.getDisabledEnchantments;
 import static cz.kominekjan.disenchantment.config.Config.getDisabledMaterials;
@@ -18,12 +17,12 @@ public class EventCheckUtil {
 
         boolean cancel = false;
 
-        for (DisabledConfigEnchantment disabledConfigEnchantment : getDisabledEnchantments()) {
-            if (disabledConfigEnchantment.doKeep()) continue;
+        for (Map.Entry<Enchantment, Boolean> disabledEnchantment : getDisabledEnchantments().entrySet()) {
+            if (disabledEnchantment.getValue()) continue;
 
-            List<String> itemEnchantments = item.getEnchantments().keySet().stream().map(Enchantment::getKey).map(NamespacedKey::getKey).toList();
+            List<Enchantment> itemEnchantments = item.getEnchantments().keySet().stream().toList();
 
-            if (itemEnchantments.stream().anyMatch(m -> m.equalsIgnoreCase(disabledConfigEnchantment.getEnchantmentKey()))) {
+            if (itemEnchantments.contains(disabledEnchantment.getKey())) {
                 cancel = true;
                 break;
             }

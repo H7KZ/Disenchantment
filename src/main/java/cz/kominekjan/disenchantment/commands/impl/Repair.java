@@ -8,7 +8,14 @@ import static cz.kominekjan.disenchantment.config.Config.*;
 import static cz.kominekjan.disenchantment.utils.TextUtil.*;
 
 public class Repair {
-    public static final Command command = new Command("repair", "disenchantment.repair", "You don't have permission to use this command.", new String[]{"enable", "disable", "reset", "base", "multiply"}, false, Repair::execute);
+    public static final Command command = new Command(
+            "repair",
+            new String[]{"disenchantment.all", "disenchantment.command.repair"},
+            "You don't have permission to use this command.",
+            new String[]{"enable", "disable", "reset", "base", "multiply"},
+            false,
+            Repair::execute
+    );
 
     public static void execute(CommandSender s, String[] args) {
         if (args.length == 1) {
@@ -62,7 +69,7 @@ public class Repair {
                 }
 
                 try {
-                    setBaseRepairCost(Integer.parseInt(args[2]));
+                    setBaseRepairCost(Double.parseDouble(args[2]));
                     s.sendMessage(textWithPrefixSuccess("Base value set to " + args[2]));
                 } catch (NumberFormatException e) {
                     s.sendMessage(textWithPrefixError("You must specify a valid number"));

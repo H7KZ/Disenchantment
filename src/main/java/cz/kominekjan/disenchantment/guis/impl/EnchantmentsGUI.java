@@ -1,6 +1,5 @@
 package cz.kominekjan.disenchantment.guis.impl;
 
-import cz.kominekjan.disenchantment.config.DisabledConfigEnchantment;
 import cz.kominekjan.disenchantment.guis.GUIItem;
 import cz.kominekjan.disenchantment.guis.InventoryBuilder;
 import org.apache.commons.lang3.ArrayUtils;
@@ -13,9 +12,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 import static cz.kominekjan.disenchantment.config.Config.getDisabledEnchantments;
 import static cz.kominekjan.disenchantment.config.Config.setDisabledEnchantments;
@@ -54,7 +51,7 @@ public class EnchantmentsGUI implements InventoryHolder {
     private Inventory inventory;
 
     public EnchantmentsGUI(int page) {
-        List<Enchantment> enchantments = Registry.ENCHANTMENT.stream().toList();
+        List<Enchantment> enchantments = Registry.ENCHANTMENT.stream().sorted(Comparator.comparing(e -> e.getKey().getKey())).toList();
 
         this.page = page;
         this.title = "Enchantments " + (page + 1) + "/" + (enchantments.size() / 28 + 1);
@@ -104,14 +101,11 @@ public class EnchantmentsGUI implements InventoryHolder {
 
             if (enchantment == null) continue;
 
-            List<DisabledConfigEnchantment> disabledEnchantments = getDisabledEnchantments();
             String lore = "";
 
-            for (int j = 0; j < disabledEnchantments.size(); j++) {
-                DisabledConfigEnchantment disabledConfigEnchantment = disabledEnchantments.get(j);
-
-                if (disabledConfigEnchantment.getEnchantmentKey().equals(enchantment.getKey().getKey())) {
-                    lore = disabledConfigEnchantment.doKeep() ? ChatColor.GOLD + "Keep" : ChatColor.RED + "Cancel";
+            for (Map.Entry<Enchantment, Boolean> disabledEnchantment : getDisabledEnchantments().entrySet()) {
+                if (disabledEnchantment.getKey().equals(enchantment.getKey().getKey())) {
+                    lore = disabledEnchantment.getValue() ? ChatColor.GOLD + "Keep" : ChatColor.RED + "Cancel";
                     break;
                 }
             }
@@ -124,25 +118,25 @@ public class EnchantmentsGUI implements InventoryHolder {
                     event -> {
                         event.setCancelled(true);
 
-                        List<DisabledConfigEnchantment> disabledConfigEnchantments = getDisabledEnchantments();
-                        DisabledConfigEnchantment disabledConfigEnchantment = disabledConfigEnchantments.stream().filter(e -> e.getEnchantmentKey().equals(enchantment.getKey().getKey())).findFirst().orElse(null);
+                        Map<Enchantment, Boolean> disabledEnchantments = getDisabledEnchantments();
+                        Map.Entry<Enchantment, Boolean> disabledEnchantment = disabledEnchantments.entrySet().stream().filter(e -> e.getKey().equals(enchantment)).findFirst().orElse(null);
                         String newLore = "";
 
-                        if (disabledConfigEnchantment != null) {
-                            if (disabledConfigEnchantment.doKeep()) {
-                                disabledConfigEnchantments.remove(disabledConfigEnchantment);
-                                disabledConfigEnchantments.add(new DisabledConfigEnchantment(enchantment.getKey().getKey(), false));
+                        if (disabledEnchantment != null) {
+                            if (disabledEnchantment.getValue()) {
+                                disabledEnchantments.remove(disabledEnchantment.getKey());
+                                disabledEnchantments.put(enchantment, false);
                             } else {
-                                disabledConfigEnchantments.remove(disabledConfigEnchantment);
+                                disabledEnchantments.remove(disabledEnchantment.getKey());
                             }
 
-                            newLore = disabledConfigEnchantment.doKeep() ? ChatColor.GOLD + "Keep" : ChatColor.RED + "Cancel";
+                            newLore = disabledEnchantment.getValue() ? ChatColor.RED + "Cancel" : ChatColor.GREEN + "Enabled";
                         } else {
-                            disabledConfigEnchantments.add(new DisabledConfigEnchantment(enchantment.getKey().getKey(), true));
-                            newLore = ChatColor.GREEN + "Enabled";
+                            disabledEnchantments.put(enchantment, true);
+                            newLore = ChatColor.GOLD + "Keep";
                         }
 
-                        setDisabledEnchantments(disabledConfigEnchantments);
+                        setDisabledEnchantments(disabledEnchantments);
 
                         event.setCurrentItem(DefaultGUIElements.enchantmentItem(ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + enchantment.getKey().getKey(), newLore));
                     }
