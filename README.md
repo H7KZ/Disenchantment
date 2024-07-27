@@ -14,9 +14,10 @@ This plugin allows players to disenchant items and get the item's enchantments b
   - `AdvancedEnchantments`
 
 To be done:
-- [ ] Add support for more custom enchantment plugins (UberEnchant, Enchants Squared, Crazy Enchantments)
-- [ ] ?? Add support for more minecraft versions (1.19) ??
-- [ ] API for developers (events, guis, etc.)
+- [ ] HIGH Also support grindstone disenchantment
+- [ ] HIGH Add support for more custom enchantment plugins (UberEnchant, Enchants Squared, Crazy Enchantments)
+- [ ] LOW ?? Add support for more minecraft versions (1.19) ??
+- [ ] LOW API for developers (events, guis, etc.)
 
 
 ## Commands
