@@ -113,10 +113,6 @@ To be done:
 ![help3.png](assets/help3.png)
 ![help4.png](assets/help4.png)
 
-
-![Stats](https://bstats.org/signatures/bukkit/Disenchantment.svg)
-
-
 <br />
 <br />
 
