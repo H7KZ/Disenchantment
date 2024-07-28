@@ -4,6 +4,8 @@ import cz.kominekjan.disenchantment.events.advanced.DisenchantmentAdvancedEvent;
 import cz.kominekjan.disenchantment.events.eco.DisenchantmentEcoEvent;
 import cz.kominekjan.disenchantment.events.excellent.DisenchantmentExcellentEvent;
 import cz.kominekjan.disenchantment.events.normal.DisenchantmentNormalEvent;
+import cz.kominekjan.disenchantment.events.squared.DisenchantmentSquaredEvent;
+import cz.kominekjan.disenchantment.events.uber.DisenchantmentUberEvent;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -60,6 +62,12 @@ public class DisenchantmentEvent implements Listener {
 
         else if (activatedPlugins.contains("AdvancedEnchantments"))
             DisenchantmentAdvancedEvent.onDisenchantmentEvent(e, enchantments);
+
+        else if (activatedPlugins.contains("UberEnchant"))
+            DisenchantmentUberEvent.onDisenchantmentEvent(e, enchantments);
+
+        else if (activatedPlugins.contains("EnchantsSquared"))
+            DisenchantmentSquaredEvent.onDisenchantmentEvent(e, enchantments);
 
         else
             DisenchantmentNormalEvent.onDisenchantmentEvent(e, enchantments);

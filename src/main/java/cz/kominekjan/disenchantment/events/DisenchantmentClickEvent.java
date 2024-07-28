@@ -4,6 +4,8 @@ import cz.kominekjan.disenchantment.events.advanced.DisenchantmentAdvancedClickE
 import cz.kominekjan.disenchantment.events.eco.DisenchantmentEcoClickEvent;
 import cz.kominekjan.disenchantment.events.excellent.DisenchantmentExcellentClickEvent;
 import cz.kominekjan.disenchantment.events.normal.DisenchantmentNormalClickEvent;
+import cz.kominekjan.disenchantment.events.squared.DisenchantmentSquaredClickEvent;
+import cz.kominekjan.disenchantment.events.uber.DisenchantmentUberClickEvent;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -58,8 +60,7 @@ public class DisenchantmentClickEvent implements Listener {
             logger.info(
                     p.getName() + " has disenchanted " +
                             firstItem.getType().name() + " with " +
-                            firstItem.getEnchantments().keySet() + " removed " +
-                            result.getEnchantments().keySet() + " for " +
+                            firstItem.getEnchantments().keySet() + " for " +
                             countAnvilCost(result.getEnchantments()) + "xp" + " in " +
                             p.getWorld().getName() + " at " +
                             p.getLocation().getBlockX() + " " +
@@ -82,6 +83,12 @@ public class DisenchantmentClickEvent implements Listener {
 
         else if (activatedPlugins.contains("AdvancedEnchantments"))
             DisenchantmentAdvancedClickEvent.onDisenchantmentClickEvent(e);
+
+        else if (activatedPlugins.contains("UberEnchant"))
+            DisenchantmentUberClickEvent.onDisenchantmentClickEvent(e);
+
+        else if (activatedPlugins.contains("EnchantsSquared"))
+            DisenchantmentSquaredClickEvent.onDisenchantmentClickEvent(e);
 
         else
             DisenchantmentNormalClickEvent.onDisenchantmentClickEvent(e);

@@ -3,7 +3,7 @@ plugins {
 }
 
 group = 'cz.kominekjan'
-version = findProperty("version") ?: "1.0-SNAPSHOT"
+version = "5.1.0"
 
 repositories {
 //    mavenLocal()
@@ -23,16 +23,18 @@ repositories {
 }
 
 dependencies {
-    compileOnly "io.papermc.paper:paper-api:1.20.6-R0.1-SNAPSHOT"
+    compileOnly "io.papermc.paper:paper-api:1.21-R0.1-SNAPSHOT"
 
     compileOnly "com.mojang:authlib:3.11.50"
 
+
+    // Custom Enchants
     compileOnly "com.willfp:EcoEnchants:12.16.0"
     compileOnly "com.willfp:eco:6.73.0"
-
     implementation files('libs/ExcellentEnchants-4.1.0.jar')
-
     implementation files('libs/AdvancedEnchantments-8.7.4.jar')
+    implementation files('libs/UberEnchant-8.11.5.jar')
+    implementation files('libs/EnchantsSquared-2.5.12.jar')
 }
 
 def targetJavaVersion = 21

@@ -9,31 +9,29 @@ public class Help {
             "help",
             new String[]{"disenchantment.all", "disenchantment.command.help"},
             "You don't have permission to use this command.",
-            new String[]{"1", "2", "3", "4"},
+            new String[]{"1", "2", "3", "4", "5"},
             false,
             Help::execute
     );
 
     public static void execute(CommandSender s, String[] args) {
         if (args.length == 0 || args.length == 1) {
-            s.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + "Disenchantment Help page 1/4");
+            s.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + "Disenchantment Help page 1/5");
             defaultCommand(s);
             return;
         }
 
         switch (args[1]) {
             case "2": {
-                s.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + "Disenchantment Help page 2/4");
+                s.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + "Disenchantment Help page 2/5");
                 s.sendMessage("");
-                s.sendMessage(CreateHelpTextComponent("/disench repair", "Show current configuration of repair cost."));
-                s.sendMessage(CreateHelpTextComponent("/disench repair [enable or disable]", "Enable/disable the repair cost."));
-                s.sendMessage(CreateHelpTextComponent("/disench repair reset [enable or disable]", "Enable/disable the reset of repair cost to 0 after disenchanting."));
-                s.sendMessage(CreateHelpTextComponent("/disench repair base [int]", "Change the value of base repair cost."));
-                s.sendMessage(CreateHelpTextComponent("/disench repair multiply [float]", "Change the value of multiplication of repair cost based on the enchantment level and number of enchantments."));
+                s.sendMessage(CreateHelpTextComponent("/disench status", "Show where the plugin is enabled or disabled."));
+                s.sendMessage(CreateHelpTextComponent("/disench toggle", "Toggle the plugin on/off."));
+                s.sendMessage(CreateHelpTextComponent("/disench toggle [world]", "Toggle specific world on/off."));
                 break;
             }
             case "3": {
-                s.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + "Disenchantment Help page 3/4");
+                s.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + "Disenchantment Help page 3/5");
                 s.sendMessage("");
                 s.sendMessage(CreateHelpTextComponent("/disench enchantments", "Show current list of the disabled enchantments."));
                 s.sendMessage(CreateHelpTextComponent("/disench enchantments [enchantment name] [keep or cancel]", "Change configuration of disabled enchantments. Keep - for keeping the enchantment on the item x Cancel - for canceling the operation of disenchanting. To enable the enchantment, run the same command."));
@@ -42,7 +40,17 @@ public class Help {
                 break;
             }
             case "4": {
-                s.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + "Disenchantment Help page 4/4");
+                s.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + "Disenchantment Help page 4/5");
+                s.sendMessage("");
+                s.sendMessage(CreateHelpTextComponent("/disench repair", "Show current configuration of repair cost."));
+                s.sendMessage(CreateHelpTextComponent("/disench repair [enable or disable]", "Enable/disable the repair cost."));
+                s.sendMessage(CreateHelpTextComponent("/disench repair reset [enable or disable]", "Enable/disable the reset of repair cost to 0 after disenchanting."));
+                s.sendMessage(CreateHelpTextComponent("/disench repair base [int]", "Change the value of base repair cost."));
+                s.sendMessage(CreateHelpTextComponent("/disench repair multiply [float]", "Change the value of multiplication of repair cost based on the enchantment level and number of enchantments."));
+                break;
+            }
+            case "5": {
+                s.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + "Disenchantment Help page 5/5");
                 s.sendMessage("");
                 s.sendMessage(CreateHelpTextComponent("/disench sound", "Show current configuration of anvil sound."));
                 s.sendMessage(CreateHelpTextComponent("/disench sound [enable or disable]", "Enable/disable the repair cost."));
@@ -61,9 +69,7 @@ public class Help {
         s.sendMessage(ChatColor.WHITE + "" + ChatColor.BOLD + "[ /disenchantment, /disenchant, /disench ]");
         s.sendMessage("");
         s.sendMessage(CreateHelpTextComponent("/disench help [page]", "Show this help message."));
-        s.sendMessage(CreateHelpTextComponent("/disench status", "Show where the plugin is enabled or disabled."));
-        s.sendMessage(CreateHelpTextComponent("/disench toggle", "Toggle the plugin on/off."));
-        s.sendMessage(CreateHelpTextComponent("/disench toggle [world]", "Toggle specific world on/off."));
+        s.sendMessage(CreateHelpTextComponent("/disench gui", "Open the GUI for configuration."));
     }
 
     private static String CreateHelpTextComponent(String command, String description) {

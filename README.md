@@ -6,19 +6,20 @@ New mechanics for minecraft vanilla gameplay.
 This plugin allows players to disenchant items and get the item's enchantments back.
 
 - Tested minecraft versions:
-  - `1.21`
-  - `1.20.6`
+    - `1.21`
 - Tested custom enchantment plugins:
-  - `ExcellentEnchants`
-  - `EcoEnchants` (partially, you need to build the plugin from the source code with changes here: [EcoEnchants PR](https://github.com/Auxilor/EcoEnchants/pull/397))
-  - `AdvancedEnchantments`
+    - `ExcellentEnchants`
+    - `EcoEnchants` (partially, you need to build the plugin from the source code with changes
+      here: [EcoEnchants PR](https://github.com/Auxilor/EcoEnchants/pull/397))
+    - `AdvancedEnchantments`
 
 To be done:
-- [ ] HIGH Also support grindstone disenchantment
-- [ ] HIGH Add support for more custom enchantment plugins (UberEnchant, Enchants Squared, Crazy Enchantments)
-- [ ] LOW ?? Add support for more minecraft versions (1.19) ??
-- [ ] LOW API for developers (events, guis, etc.)
 
+- [ ] ~~HIGH Also support grindstone disenchantment~~ (not possible due to spigot API limitations)
+- [ ] HIGH Add support for more custom enchantment plugins (UberEnchant, Enchants Squared, Crazy Enchantments)
+- [ ] ~~LOW ?? Add support for more minecraft versions (1.19) ??~~ (not possible due to support for custom enchantment
+  plugins)
+- [ ] LOW API for developers (events, guis, etc.)
 
 ## Commands
 
@@ -35,7 +36,8 @@ To be done:
 > - `' '` - Text
 > - `< >` - Type
 > - Types:
->   - `number` - Any number in format `12` or `14.3`
+    >
+- `number` - Any number in format `12` or `14.3`
 >   - `enchantment name` - Enchantment key (e.g. `flame`)
 >   - `world name` - World name (e.g. `world_the_end`)
 >   - `material name` - Material key (e.g. `diamond_sword`)
@@ -54,18 +56,19 @@ To be done:
 - `/disenchantment repair base [<number>]` - Set the base cost of disenchanting items
 - `/disenchantment repair multiply [<number>]` - Set the multiplier when disenchanting items with multiple enchantments
 - `/disenchantment enchantments` - Get the enchantments settings
-- `/disenchantment enchantments [enchantment name] ('keep' or 'cancel')` - Set which enchantments are allowed to be removed
-  - Enchantment command examples:
-  - `/disenchantment enchantments [enchantment name]` - Remove the enchantment from the list
-  - `/disenchantment enchantments [enchantment name] keep` - Enchantment will be kept on an item when disenchanting
-  - `/disenchantment enchantments [enchantment name] cancel` - Entire disenchanting process will be canceled if item has this enchantment
+- `/disenchantment enchantments [enchantment name] ('keep' or 'cancel')` - Set which enchantments are allowed to be
+  removed
+    - Enchantment command examples:
+    - `/disenchantment enchantments [enchantment name]` - Remove the enchantment from the list
+    - `/disenchantment enchantments [enchantment name] keep` - Enchantment will be kept on an item when disenchanting
+    - `/disenchantment enchantments [enchantment name] cancel` - Entire disenchanting process will be canceled if item
+      has this enchantment
 - `/disenchantment materials` - Get the materials settings
 - `/disenchantment materials [<material name>]` - Set which materials are not allowed to be disenchanted
 - `/disenchantment sound` - Get the sound settings
 - `/disenchantment sound ['enable' | 'disable']` - Enable or disable the anvil sound
 - `/disenchantment sound volume [<number>]` - Set the anvil sound volume
 - `/disenchantment sound pitch [<number>]` - Set the anvil sound pitch
-
 
 ## Permissions
 
@@ -86,7 +89,6 @@ To be done:
 - `disenchantment.gui.materials` - GUI Set the materials settings
 - `disenchantment.gui.sound` - GUI Set the sound settings
 
-
 ## Features
 
 - GUI for settings
@@ -102,12 +104,12 @@ To be done:
 - Set the anvil sound pitch
 - Enable or disable console logging (INFO or DEBUG)
 
-
 ## How to disenchant items
+
 ![anvil.gif](assets/anvil.gif)
 
-
 ## Help pages
+
 ![help1.png](assets/help1.png)
 ![help2.png](assets/help2.png)
 ![help3.png](assets/help3.png)
@@ -117,6 +119,7 @@ To be done:
 <br />
 
 #### Links
+
 - [SpigotMC](https://www.spigotmc.org/resources/110741)
 - [bStats](https://bstats.org/plugin/bukkit/Disenchantment/19058)
 - [GitHub](https://github.com/H7KZ/Disenchantment)

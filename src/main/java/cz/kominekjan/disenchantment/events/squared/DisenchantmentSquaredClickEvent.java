@@ -1,5 +1,6 @@
-package cz.kominekjan.disenchantment.events.normal;
+package cz.kominekjan.disenchantment.events.squared;
 
+import me.athlaeos.enchantssquared.managers.CustomEnchantManager;
 import org.bukkit.Sound;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
@@ -11,9 +12,8 @@ import java.util.Map;
 
 import static cz.kominekjan.disenchantment.config.Config.*;
 import static cz.kominekjan.disenchantment.libs.nbteditor.NBT.setNBTRepairCost;
-import static cz.kominekjan.disenchantment.utils.DisenchantmentUtils.removeStoredEnchantment;
 
-public class DisenchantmentNormalClickEvent {
+public class DisenchantmentSquaredClickEvent {
     public static void onDisenchantmentClickEvent(InventoryClickEvent e) {
         Player p = (Player) e.getWhoClicked();
 
@@ -34,7 +34,7 @@ public class DisenchantmentNormalClickEvent {
             if (getDisabledEnchantments().containsKey(enchantment))
                 continue;
 
-            removeStoredEnchantment(item, enchantment);
+            CustomEnchantManager.getInstance().removeEnchant(item, enchantment.getKey().getKey());
         }
 
         if (getEnableRepairReset()) item = setNBTRepairCost(item, 0);

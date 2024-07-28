@@ -1,6 +1,6 @@
-package cz.kominekjan.disenchantment.events.normal;
+package cz.kominekjan.disenchantment.events.uber;
 
-import cz.kominekjan.disenchantment.utils.DisenchantmentUtils;
+import me.sciguymjm.uberenchant.utils.EnchantmentUtils;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.event.inventory.PrepareAnvilEvent;
@@ -10,12 +10,11 @@ import java.util.Map;
 
 import static cz.kominekjan.disenchantment.utils.AnvilCostUtil.countAnvilCost;
 
-public class DisenchantmentNormalEvent {
-
+public class DisenchantmentUberEvent {
     public static void onDisenchantmentEvent(PrepareAnvilEvent e, Map<Enchantment, Integer> enchantments) {
         ItemStack book = new ItemStack(Material.ENCHANTED_BOOK);
 
-        enchantments.forEach((en, l) -> DisenchantmentUtils.addStoredEnchantment(book, en, l));
+        enchantments.forEach((en, l) -> EnchantmentUtils.setEnchantment(en, book, l));
 
         e.setResult(book);
 

@@ -3,7 +3,7 @@ package cz.kominekjan.disenchantment.guis.impl;
 import cz.kominekjan.disenchantment.guis.GUIItem;
 import cz.kominekjan.disenchantment.guis.InventoryBuilder;
 import cz.kominekjan.disenchantment.guis.ItemBuilder;
-import cz.kominekjan.disenchantment.utils.EnchantmentUtil;
+import cz.kominekjan.disenchantment.utils.DisenchantmentUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -63,7 +63,7 @@ public class MaterialsGUI implements InventoryHolder {
                 .filter(m -> !m.isEmpty())
                 .filter(m -> !m.isAir())
                 .filter(m -> !m.isAir())
-                .filter(EnchantmentUtil::canBeEnchanted)
+                .filter(DisenchantmentUtils::canBeEnchanted)
                 .sorted(Comparator.comparing(m -> m.getKey().getKey()))
                 .toList();
 

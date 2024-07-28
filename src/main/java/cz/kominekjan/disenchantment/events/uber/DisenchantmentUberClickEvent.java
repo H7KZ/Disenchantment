@@ -1,5 +1,6 @@
-package cz.kominekjan.disenchantment.events.normal;
+package cz.kominekjan.disenchantment.events.uber;
 
+import me.sciguymjm.uberenchant.utils.EnchantmentUtils;
 import org.bukkit.Sound;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
@@ -11,9 +12,8 @@ import java.util.Map;
 
 import static cz.kominekjan.disenchantment.config.Config.*;
 import static cz.kominekjan.disenchantment.libs.nbteditor.NBT.setNBTRepairCost;
-import static cz.kominekjan.disenchantment.utils.DisenchantmentUtils.removeStoredEnchantment;
 
-public class DisenchantmentNormalClickEvent {
+public class DisenchantmentUberClickEvent {
     public static void onDisenchantmentClickEvent(InventoryClickEvent e) {
         Player p = (Player) e.getWhoClicked();
 
@@ -34,7 +34,7 @@ public class DisenchantmentNormalClickEvent {
             if (getDisabledEnchantments().containsKey(enchantment))
                 continue;
 
-            removeStoredEnchantment(item, enchantment);
+            EnchantmentUtils.removeEnchantment(enchantment, item);
         }
 
         if (getEnableRepairReset()) item = setNBTRepairCost(item, 0);

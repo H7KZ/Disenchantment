@@ -1,12 +1,12 @@
 name: Disenchantment
-version: '5.0.0'
+version: '5.1.0'
 main: cz.kominekjan.disenchantment.Disenchantment
-api-version: '1.20.6'
+api-version: '1.21'
 authors:
   - HonzaKOMI
 description: Allows players to disenchant items and get the item's enchantments back
 website: 'https://kominekjan.cz'
-softdepend: [ ExcellentEnchants, EcoEnchants, eco, AdvancedEnchantments ]
+softdepend: [ ExcellentEnchants, EcoEnchants, eco, AdvancedEnchantments, UberEnchant, EnchantsSquared ]
 commands:
   disenchantment:
     description: 'Disenchantment command'

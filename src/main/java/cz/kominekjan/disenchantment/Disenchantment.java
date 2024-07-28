@@ -26,7 +26,7 @@ import static cz.kominekjan.disenchantment.config.Config.setPluginEnabled;
 
 public final class Disenchantment extends JavaPlugin {
 
-    private static final String[] supportedPlugins = {"AdvancedEnchantments", "EcoEnchants", "ExcellentEnchants"};
+    private static final String[] supportedPlugins = {"AdvancedEnchantments", "EcoEnchants", "ExcellentEnchants", "UberEnchant", "EnchantsSquared"};
     public static Disenchantment plugin;
     public static BukkitScheduler scheduler;
     public static FileConfiguration config;
