@@ -33,14 +33,14 @@
 "base": 10
 
 # This multiplication is applied to the base value
+# The enchantments are sorted by level in descending order, so the more enchantments you have, the more expensive it is
+# Multiplication value from 0 to infinity (0.25 = 25%)
 # ---
 # It is calculated by the following:
 #   base + (level * multiply)
 # ---
-# Example: base = 10, sharpness = 5, knockback = 1, multiply = 0.25
-# The enchantments are sorted by level in descending order, so the more enchantments you have, the more expensive it is.
-#   10 + (1 * 1) = 11
-#   15 + (5 * 1.25) = 17.25
-#   17.25
-# Multiplication value from 0 to infinity (0.25 = 25%) for the cost of the disenchantment
+# Example: base = 10, sharpness = 5, knockback = 1, multiplier = 0.25
+#
+#   10 + (1 * 1) = 11  ->  11 + (5 * 1.25) = 17.25  ->  17.25
+#
 "multiply": 0.25

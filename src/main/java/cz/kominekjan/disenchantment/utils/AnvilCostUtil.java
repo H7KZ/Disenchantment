@@ -14,18 +14,14 @@ public class AnvilCostUtil {
     public static int countAnvilCost(Map<Enchantment, Integer> enchantments) {
         if (!getEnableRepairCost()) return 0;
 
-        AtomicReference<Double> enchantmentCost = new AtomicReference<>(getBaseRepairCost());
-        AtomicReference<Double> baseMultiplier = new AtomicReference<>(1 - getRepairCostMultiplier());
+        double enchantmentCost = getBaseRepairCost();
+        double baseMultiplier = 1;
 
-        List<Map.Entry<Enchantment, Integer>> enchantmentsListed = new ArrayList<>(enchantments.entrySet());
+        for (Map.Entry<Enchantment, Integer> entry : enchantments.entrySet().stream().sorted(Map.Entry.comparingByValue(Comparator.reverseOrder())).toList()) {
+            enchantmentCost += entry.getValue() * baseMultiplier;
+            baseMultiplier += getRepairCostMultiplier();
+        }
 
-        enchantmentsListed.sort(Map.Entry.comparingByValue(Comparator.reverseOrder()));
-
-        enchantmentsListed.forEach((entry) -> {
-            baseMultiplier.updateAndGet(v -> v + getRepairCostMultiplier());
-            enchantmentCost.updateAndGet(v -> v + entry.getValue() * baseMultiplier.get());
-        });
-
-        return (int) Math.round(enchantmentCost.get());
+        return (int) Math.round(enchantmentCost);
     }
 }
