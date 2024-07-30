@@ -10,7 +10,7 @@ import java.util.Map;
 import static cz.kominekjan.disenchantment.config.Config.getDisabledEnchantments;
 import static cz.kominekjan.disenchantment.config.Config.getDisabledMaterials;
 
-public class EventCheckUtil {
+public class EventCheckUtils {
     public static boolean checkForDisabled(ItemStack item) {
         if (getDisabledMaterials().stream().anyMatch(m -> m.getKey().getKey().equalsIgnoreCase(item.getType().getKey().getKey())))
             return true;

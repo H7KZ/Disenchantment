@@ -1,11 +1,9 @@
 package cz.kominekjan.disenchantment.events;
 
-import cz.kominekjan.disenchantment.events.advanced.DisenchantmentAdvancedEvent;
-import cz.kominekjan.disenchantment.events.eco.DisenchantmentEcoEvent;
-import cz.kominekjan.disenchantment.events.excellent.DisenchantmentExcellentEvent;
-import cz.kominekjan.disenchantment.events.normal.DisenchantmentNormalEvent;
-import cz.kominekjan.disenchantment.events.squared.DisenchantmentSquaredEvent;
-import cz.kominekjan.disenchantment.events.uber.DisenchantmentUberEvent;
+import cz.kominekjan.disenchantment.plugins.DisenchantmentPluginManager;
+import cz.kominekjan.disenchantment.plugins.IDisenchantmentPlugin;
+import cz.kominekjan.disenchantment.plugins.impl.VanillaPlugin;
+import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -18,11 +16,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-import static cz.kominekjan.disenchantment.Disenchantment.activatedPlugins;
 import static cz.kominekjan.disenchantment.Disenchantment.enabled;
 import static cz.kominekjan.disenchantment.config.Config.getDisabledEnchantments;
 import static cz.kominekjan.disenchantment.config.Config.getDisabledWorlds;
-import static cz.kominekjan.disenchantment.utils.EventCheckUtil.isEventValidDisenchantment;
+import static cz.kominekjan.disenchantment.utils.AnvilCostUtils.countAnvilCost;
+import static cz.kominekjan.disenchantment.utils.EventCheckUtils.isEventValidDisenchantment;
 
 public class DisenchantmentEvent implements Listener {
 
@@ -54,22 +52,27 @@ public class DisenchantmentEvent implements Listener {
 
         if (enchantments.isEmpty()) return;
 
-        if (activatedPlugins.contains("ExcellentEnchants"))
-            DisenchantmentExcellentEvent.onDisenchantmentEvent(e, enchantments);
+        // ----------------------------------------------------------------------------------------------------
+        // Disenchantment plugins
 
-        else if (activatedPlugins.contains("EcoEnchants"))
-            DisenchantmentEcoEvent.onDisenchantmentEvent(e, enchantments);
+        ItemStack book = new ItemStack(Material.ENCHANTED_BOOK);
 
-        else if (activatedPlugins.contains("AdvancedEnchantments"))
-            DisenchantmentAdvancedEvent.onDisenchantmentEvent(e, enchantments);
+        HashMap<String, IDisenchantmentPlugin> activatedPlugins = DisenchantmentPluginManager.getActivatedPlugins();
 
-        else if (activatedPlugins.contains("UberEnchant"))
-            DisenchantmentUberEvent.onDisenchantmentEvent(e, enchantments);
+        boolean atLeastOnePluginEnabled = false;
 
-        else if (activatedPlugins.contains("EnchantsSquared"))
-            DisenchantmentSquaredEvent.onDisenchantmentEvent(e, enchantments);
+        for (IDisenchantmentPlugin plugin : activatedPlugins.values()) {
+            book = plugin.createEnchantedBook(enchantments);
+            atLeastOnePluginEnabled = true;
+        }
 
-        else
-            DisenchantmentNormalEvent.onDisenchantmentEvent(e, enchantments);
+        if (!atLeastOnePluginEnabled) book = VanillaPlugin.createEnchantedBook(enchantments);
+
+        // Disenchantment plugins
+        // ----------------------------------------------------------------------------------------------------
+
+        e.setResult(book);
+
+        e.getInventory().setRepairCost(countAnvilCost(enchantments));
     }
 }

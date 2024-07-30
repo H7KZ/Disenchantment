@@ -11,7 +11,7 @@ import java.util.Map;
 
 import static cz.kominekjan.disenchantment.config.Config.getDisabledEnchantments;
 import static cz.kominekjan.disenchantment.config.Config.setDisabledEnchantments;
-import static cz.kominekjan.disenchantment.utils.TextUtil.*;
+import static cz.kominekjan.disenchantment.utils.TextUtils.*;
 
 public class Enchantments {
     public static final Command command = new Command(

@@ -9,8 +9,8 @@ import java.util.List;
 
 import static cz.kominekjan.disenchantment.config.Config.getDisabledMaterials;
 import static cz.kominekjan.disenchantment.config.Config.setDisabledMaterials;
-import static cz.kominekjan.disenchantment.utils.TextUtil.textWithPrefix;
-import static cz.kominekjan.disenchantment.utils.TextUtil.textWithPrefixSuccess;
+import static cz.kominekjan.disenchantment.utils.TextUtils.textWithPrefix;
+import static cz.kominekjan.disenchantment.utils.TextUtils.textWithPrefixSuccess;
 
 public class Materials {
     public static final Command command = new Command(

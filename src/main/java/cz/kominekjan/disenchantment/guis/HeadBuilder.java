@@ -6,7 +6,10 @@ import org.bukkit.Material;
 import org.bukkit.inventory.meta.SkullMeta;
 
 import java.lang.reflect.Field;
+import java.util.Arrays;
 import java.util.UUID;
+
+import static cz.kominekjan.disenchantment.Disenchantment.logger;
 
 public class HeadBuilder extends ItemBuilder {
     public HeadBuilder() {
@@ -27,7 +30,7 @@ public class HeadBuilder extends ItemBuilder {
             profileField.setAccessible(true);
             profileField.set(meta, profile);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.warning(Arrays.toString(e.getStackTrace()));
         }
 
         this.setItemMeta(meta);

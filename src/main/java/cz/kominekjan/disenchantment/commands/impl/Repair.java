@@ -5,7 +5,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 
 import static cz.kominekjan.disenchantment.config.Config.*;
-import static cz.kominekjan.disenchantment.utils.TextUtil.*;
+import static cz.kominekjan.disenchantment.utils.TextUtils.*;
 
 public class Repair {
     public static final Command command = new Command(

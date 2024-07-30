@@ -11,8 +11,8 @@ import java.util.List;
 
 import static cz.kominekjan.disenchantment.config.Config.getDisabledWorlds;
 import static cz.kominekjan.disenchantment.config.Config.setDisabledWorlds;
-import static cz.kominekjan.disenchantment.utils.TextUtil.textWithPrefixError;
-import static cz.kominekjan.disenchantment.utils.TextUtil.textWithPrefixSuccess;
+import static cz.kominekjan.disenchantment.utils.TextUtils.textWithPrefixError;
+import static cz.kominekjan.disenchantment.utils.TextUtils.textWithPrefixSuccess;
 
 public class Toggle {
     public static final Command command = new Command(

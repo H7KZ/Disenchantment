@@ -12,6 +12,8 @@ This plugin allows players to disenchant items and get the item's enchantments b
     - `EcoEnchants` (partially, you need to build the plugin from the source code with changes
       here: [EcoEnchants PR](https://github.com/Auxilor/EcoEnchants/pull/397))
     - `AdvancedEnchantments`
+    - `UberEnchant`
+    - `EnchantsSquared`
 
 To be done:
 
@@ -126,4 +128,5 @@ To be done:
 - [ExcellentEnchants](https://www.spigotmc.org/resources/61693)
 - [EcoEnchants](https://www.spigotmc.org/resources/79573)
 - [AdvancedEnchantments](https://www.spigotmc.org/resources/43058)
-
+- [UberEnchant](https://www.spigotmc.org/resources/19448)
+- [EnchantsSquared](https://www.spigotmc.org/resources/86747)

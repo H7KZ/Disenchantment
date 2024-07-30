@@ -2,7 +2,7 @@ package cz.kominekjan.disenchantment.guis.impl;
 
 import cz.kominekjan.disenchantment.guis.GUIItem;
 import cz.kominekjan.disenchantment.guis.InventoryBuilder;
-import cz.kominekjan.disenchantment.utils.PrecisionUtil;
+import cz.kominekjan.disenchantment.utils.PrecisionUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.event.inventory.ClickType;
@@ -39,9 +39,9 @@ public class SoundGUI implements InventoryHolder {
                 ClickType clickType = event.getClick();
 
                 if (clickType.isLeftClick()) {
-                    setAnvilSoundVolume(PrecisionUtil.round(getAnvilSoundVolume() + 0.1, 1));
+                    setAnvilSoundVolume(PrecisionUtils.round(getAnvilSoundVolume() + 0.1, 1));
                 } else if (clickType.isRightClick()) {
-                    setAnvilSoundVolume(PrecisionUtil.round(getAnvilSoundVolume() - 0.1, 1));
+                    setAnvilSoundVolume(PrecisionUtils.round(getAnvilSoundVolume() - 0.1, 1));
                 }
 
                 event.setCurrentItem(DefaultGUIElements.anvilSoundVolumeItem(getAnvilSoundVolume(), Math.min((int) (getAnvilSoundVolume() * 10), 64)));
@@ -52,9 +52,9 @@ public class SoundGUI implements InventoryHolder {
                 ClickType clickType = event.getClick();
 
                 if (clickType.isLeftClick()) {
-                    setAnvilSoundPitch(PrecisionUtil.round(getAnvilSoundPitch() + 0.1, 1));
+                    setAnvilSoundPitch(PrecisionUtils.round(getAnvilSoundPitch() + 0.1, 1));
                 } else if (clickType.isRightClick()) {
-                    setAnvilSoundPitch(PrecisionUtil.round(getAnvilSoundPitch() - 0.1, 1));
+                    setAnvilSoundPitch(PrecisionUtils.round(getAnvilSoundPitch() - 0.1, 1));
                 }
 
                 event.setCurrentItem(DefaultGUIElements.anvilSoundPitchItem(getAnvilSoundPitch(), Math.min((int) (getAnvilSoundPitch() * 10), 64)));

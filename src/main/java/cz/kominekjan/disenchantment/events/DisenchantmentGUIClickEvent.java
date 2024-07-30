@@ -6,7 +6,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.InventoryHolder;
 
-import static cz.kominekjan.disenchantment.utils.TextUtil.textWithPrefixError;
+import static cz.kominekjan.disenchantment.utils.TextUtils.textWithPrefixError;
 
 public class DisenchantmentGUIClickEvent implements Listener {
     @EventHandler

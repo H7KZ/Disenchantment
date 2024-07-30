@@ -2,7 +2,7 @@ package cz.kominekjan.disenchantment.guis.impl;
 
 import cz.kominekjan.disenchantment.guis.GUIItem;
 import cz.kominekjan.disenchantment.guis.InventoryBuilder;
-import cz.kominekjan.disenchantment.utils.PrecisionUtil;
+import cz.kominekjan.disenchantment.utils.PrecisionUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.event.inventory.ClickType;
@@ -47,9 +47,9 @@ public class RepairGUI implements InventoryHolder {
                 ClickType clickType = event.getClick();
 
                 if (clickType.isLeftClick()) {
-                    setBaseRepairCost(PrecisionUtil.round(getBaseRepairCost() + 1, 1));
+                    setBaseRepairCost(PrecisionUtils.round(getBaseRepairCost() + 1, 1));
                 } else if (clickType.isRightClick()) {
-                    setBaseRepairCost(PrecisionUtil.round(getBaseRepairCost() - 1, 1));
+                    setBaseRepairCost(PrecisionUtils.round(getBaseRepairCost() - 1, 1));
                 }
 
                 event.setCurrentItem(DefaultGUIElements.repairCostBaseItem((int) Math.round(getBaseRepairCost()), Math.min((int) Math.round(getBaseRepairCost()), 64)));
@@ -60,9 +60,9 @@ public class RepairGUI implements InventoryHolder {
                 ClickType clickType = event.getClick();
 
                 if (clickType.isLeftClick()) {
-                    setRepairCostMultiplier(PrecisionUtil.round(getRepairCostMultiplier() + 0.1, 1));
+                    setRepairCostMultiplier(PrecisionUtils.round(getRepairCostMultiplier() + 0.1, 1));
                 } else if (clickType.isRightClick()) {
-                    setRepairCostMultiplier(PrecisionUtil.round(getRepairCostMultiplier() - 0.1, 1));
+                    setRepairCostMultiplier(PrecisionUtils.round(getRepairCostMultiplier() - 0.1, 1));
                 }
 
                 event.setCurrentItem(DefaultGUIElements.repairCostMultiplierItem(getRepairCostMultiplier(), Math.min((int) (getRepairCostMultiplier() * 10), 64)));

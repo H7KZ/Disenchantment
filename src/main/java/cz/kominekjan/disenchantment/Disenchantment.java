@@ -8,16 +8,16 @@ import cz.kominekjan.disenchantment.events.DisenchantmentGUIClickEvent;
 import cz.kominekjan.disenchantment.libs.bstats.BStatsMetrics;
 import cz.kominekjan.disenchantment.libs.config.ConfigUpdater;
 import cz.kominekjan.disenchantment.libs.update.UpdateChecker;
+import cz.kominekjan.disenchantment.plugins.DisenchantmentPluginManager;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitScheduler;
 import org.bukkit.scheduler.BukkitTask;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.logging.Logger;
@@ -25,13 +25,10 @@ import java.util.logging.Logger;
 import static cz.kominekjan.disenchantment.config.Config.setPluginEnabled;
 
 public final class Disenchantment extends JavaPlugin {
-
-    private static final String[] supportedPlugins = {"AdvancedEnchantments", "EcoEnchants", "ExcellentEnchants", "UberEnchant", "EnchantsSquared"};
     public static Disenchantment plugin;
     public static BukkitScheduler scheduler;
     public static FileConfiguration config;
     public static Logger logger;
-    public static List<String> activatedPlugins = new ArrayList<>(supportedPlugins.length);
 
     public static boolean enabled = true;
 
@@ -46,17 +43,13 @@ public final class Disenchantment extends JavaPlugin {
     public void onEnable() {
         plugin = this;
 
+        logger = getLogger();
+
         scheduler = getServer().getScheduler();
 
-        @NotNull Plugin[] pluginList = getServer().getPluginManager().getPlugins();
+        List<String> activatedPlugins = Arrays.stream(getServer().getPluginManager().getPlugins()).toList().stream().map(Plugin::getName).toList();
 
-        for (Plugin plugin : pluginList) {
-            for (String supportedPlugin : supportedPlugins) {
-                if (plugin.getName().equalsIgnoreCase(supportedPlugin)) {
-                    activatedPlugins.add(supportedPlugin);
-                }
-            }
-        }
+        DisenchantmentPluginManager.setActivatedPlugins(activatedPlugins);
 
         plugin.saveDefaultConfig();
 
@@ -65,7 +58,7 @@ public final class Disenchantment extends JavaPlugin {
         try {
             ConfigUpdater.update(plugin, "config.yml", configFile);
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.warning(Arrays.toString(e.getStackTrace()));
         }
 
         plugin.reloadConfig();
@@ -73,8 +66,6 @@ public final class Disenchantment extends JavaPlugin {
         config = getConfig();
 
         enabled = config.getBoolean("enabled");
-
-        logger = getLogger();
 
         getServer().getPluginManager().registerEvents(new DisenchantmentEvent(), this);
         getServer().getPluginManager().registerEvents(new DisenchantmentClickEvent(), this);

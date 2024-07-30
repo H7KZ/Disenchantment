@@ -2,15 +2,12 @@ package cz.kominekjan.disenchantment.utils;
 
 import org.bukkit.enchantments.Enchantment;
 
-import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicReference;
 
 import static cz.kominekjan.disenchantment.config.Config.*;
 
-public class AnvilCostUtil {
+public class AnvilCostUtils {
     public static int countAnvilCost(Map<Enchantment, Integer> enchantments) {
         if (!getEnableRepairCost()) return 0;
 

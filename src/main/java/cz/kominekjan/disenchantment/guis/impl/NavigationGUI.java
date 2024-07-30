@@ -11,7 +11,7 @@ import org.jetbrains.annotations.NotNull;
 
 import static cz.kominekjan.disenchantment.config.Config.getPluginEnabled;
 import static cz.kominekjan.disenchantment.config.Config.setPluginEnabled;
-import static cz.kominekjan.disenchantment.utils.TextUtil.textWithPrefixError;
+import static cz.kominekjan.disenchantment.utils.TextUtils.textWithPrefixError;
 
 public class NavigationGUI implements InventoryHolder {
     private final GUIItem[] items = ArrayUtils.addAll(

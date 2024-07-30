@@ -4,7 +4,7 @@ import org.bukkit.command.CommandSender;
 
 import java.util.Arrays;
 
-import static cz.kominekjan.disenchantment.utils.TextUtil.textWithPrefixError;
+import static cz.kominekjan.disenchantment.utils.TextUtils.textWithPrefixError;
 
 public class Command {
     public final String name;
