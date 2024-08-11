@@ -7,25 +7,25 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class DisenchantmentPluginManager {
-    private static final Map<String, IDisenchantmentPlugin> supportedPlugins = Map.of(
+public class PluginManager {
+    private static final Map<String, IPlugin> supportedPlugins = Map.of(
             AdvancedPlugin.name, new AdvancedPlugin(),
             EcoPlugin.name, new EcoPlugin(),
             ExcellentPlugin.name, new ExcellentPlugin(),
             UberPlugin.name, new UberPlugin(),
             SquaredPlugin.name, new SquaredPlugin()
     );
-    private static final HashMap<String, IDisenchantmentPlugin> activatedPlugins = new HashMap<>();
+    private static final HashMap<String, IPlugin> activatedPlugins = new HashMap<>();
 
-    public static Map<String, IDisenchantmentPlugin> getSupportedPlugins() {
+    public static Map<String, IPlugin> getSupportedPlugins() {
         return supportedPlugins;
     }
 
-    public static List<IDisenchantmentPlugin> getPlugins() {
+    public static List<IPlugin> getPlugins() {
         return new ArrayList<>(supportedPlugins.values());
     }
 
-    public static IDisenchantmentPlugin getPlugin(String pluginName) {
+    public static IPlugin getPlugin(String pluginName) {
         return supportedPlugins.get(pluginName);
     }
 
@@ -37,7 +37,7 @@ public class DisenchantmentPluginManager {
         return supportedPlugins.containsKey(pluginName);
     }
 
-    public static HashMap<String, IDisenchantmentPlugin> getActivatedPlugins() {
+    public static HashMap<String, IPlugin> getActivatedPlugins() {
         return activatedPlugins;
     }
 

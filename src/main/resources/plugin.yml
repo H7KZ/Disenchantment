@@ -1,5 +1,5 @@
 name: Disenchantment
-version: '5.1.1'
+version: '5.2.0'
 main: cz.kominekjan.disenchantment.Disenchantment
 api-version: '1.20.6'
 authors:
@@ -22,7 +22,13 @@ permissions:
     description: Access to all permissions
     default: op
   disenchantment.anvil:
+    description: Allows the player to disenchant items and split enchantments from books
+    default: op
+  disenchantment.anvil.item:
     description: Allows the player to disenchant items
+    default: op
+  disenchantment.anvil.split_book:
+    description: Allows the player to split enchantments from books
     default: op
   disenchantment.command.gui:
     description: GUI command

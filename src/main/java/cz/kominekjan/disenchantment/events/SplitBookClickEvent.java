@@ -1,7 +1,7 @@
 package cz.kominekjan.disenchantment.events;
 
-import cz.kominekjan.disenchantment.plugins.DisenchantmentPluginManager;
-import cz.kominekjan.disenchantment.plugins.IDisenchantmentPlugin;
+import cz.kominekjan.disenchantment.plugins.IPlugin;
+import cz.kominekjan.disenchantment.plugins.PluginManager;
 import cz.kominekjan.disenchantment.plugins.impl.VanillaPlugin;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -13,6 +13,7 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.AnvilInventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 
 import java.util.HashMap;
 
@@ -20,16 +21,18 @@ import static cz.kominekjan.disenchantment.Disenchantment.enabled;
 import static cz.kominekjan.disenchantment.Disenchantment.logger;
 import static cz.kominekjan.disenchantment.config.Config.*;
 import static cz.kominekjan.disenchantment.libs.nbteditor.NBT.setNBTRepairCost;
-import static cz.kominekjan.disenchantment.utils.EventCheckUtils.isEventValidDisenchantment;
+import static cz.kominekjan.disenchantment.utils.EventCheckUtils.isEventValidDisenchantSplitBook;
 
-public class DisenchantmentClickEvent implements Listener {
+public class SplitBookClickEvent implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onDisenchantmentClickEvent(InventoryClickEvent e) {
         if (!(e.getWhoClicked() instanceof Player p)) return;
 
-        if (!(p.hasPermission("disenchantment.all") || p.hasPermission("disenchantment.anvil"))) return;
+        if (!enabled || getDisabledWorlds().contains(p.getWorld()) || getDisableBookSplitting() || getDisabledBookSplittingWorlds().contains(p.getWorld()))
+            return;
 
-        if (!enabled || getDisabledWorlds().contains(p.getWorld())) return;
+        if (!(p.hasPermission("disenchantment.all") || p.hasPermission("disenchantment.anvil") || p.hasPermission("disenchantment.anvil.split_book")))
+            return;
 
         if (e.getInventory().getType() != InventoryType.ANVIL) return;
 
@@ -41,11 +44,14 @@ public class DisenchantmentClickEvent implements Listener {
 
         if (result == null) return;
 
+        EnchantmentStorageMeta resultItemMeta = (EnchantmentStorageMeta) result.getItemMeta();
+
         if (result.getType() != Material.ENCHANTED_BOOK) return;
 
         ItemStack firstItem = anvilInventory.getItem(0);
+        ItemStack secondItem = anvilInventory.getItem(1);
 
-        if (!isEventValidDisenchantment(firstItem, anvilInventory.getItem(1))) return;
+        if (!isEventValidDisenchantSplitBook(firstItem, secondItem)) return;
 
         if (anvilInventory.getRepairCost() > p.getLevel() && p.getGameMode() != org.bukkit.GameMode.CREATIVE) {
             e.setCancelled(true);
@@ -57,13 +63,15 @@ public class DisenchantmentClickEvent implements Listener {
             return;
         }
 
+        int exp = p.getLevel() - anvilInventory.getRepairCost();
+
         if (getEnableLogging()) {
             if (getLoggingLevel().equals(LoggingLevels.INFO) || getLoggingLevel().equals(LoggingLevels.DEBUG))
                 logger.info(
-                        p.getName() + " has disenchanted " +
+                        p.getName() + " has split a book " +
                                 firstItem.getType().name() + " with " +
                                 firstItem.getEnchantments().keySet() + " for " +
-                                (((AnvilInventory) e.getInventory()).getRepairCost()) + "xp" + " in " +
+                                anvilInventory.getRepairCost() + "xp" + " in " +
                                 p.getWorld().getName() + " at " +
                                 p.getLocation().getBlockX() + " " +
                                 p.getLocation().getBlockY() + " " +
@@ -78,24 +86,22 @@ public class DisenchantmentClickEvent implements Listener {
                 );
         }
 
-        int exp = p.getLevel() - anvilInventory.getRepairCost();
-        ItemStack secondItem = anvilInventory.getItem(1);
-
         // ----------------------------------------------------------------------------------------------------
         // Disenchantment plugins
 
         ItemStack item = firstItem.clone();
 
-        HashMap<String, IDisenchantmentPlugin> activatedPlugins = DisenchantmentPluginManager.getActivatedPlugins();
+        HashMap<String, IPlugin> activatedPlugins = PluginManager.getActivatedPlugins();
 
         boolean atLeastOnePluginEnabled = false;
 
-        for (IDisenchantmentPlugin plugin : activatedPlugins.values()) {
-            item = plugin.removeItemEnchantments(firstItem);
+        for (IPlugin plugin : activatedPlugins.values()) {
+            item = plugin.removeEnchantments(firstItem, resultItemMeta.getStoredEnchants());
             atLeastOnePluginEnabled = true;
         }
 
-        if (!atLeastOnePluginEnabled) item = VanillaPlugin.removeItemEnchantments(firstItem);
+        if (!atLeastOnePluginEnabled)
+            item = VanillaPlugin.removeEnchantments(firstItem, resultItemMeta.getStoredEnchants());
 
         // Disenchantment plugins
         // ----------------------------------------------------------------------------------------------------
@@ -103,8 +109,6 @@ public class DisenchantmentClickEvent implements Listener {
         if (getEnableRepairReset()) item = setNBTRepairCost(item, 0);
 
         anvilInventory.setItem(0, item);
-
-        if (secondItem == null) return;
 
         if (secondItem.getAmount() > 1) {
             secondItem.setAmount(secondItem.getAmount() - 1);

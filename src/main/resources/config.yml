@@ -7,6 +7,12 @@
 # Logging level: INFO, DEBUG
 "logging-level": "INFO"
 
+
+# ----------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------
+
+
 # List of worlds where the plugin is disabled
 "disabled-worlds": [ ]
 
@@ -16,12 +22,39 @@
 # List of enchantments that are not allowed to be disenchanted
 "disabled-enchantments": [ ]
 
+
+# ----------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------
+
+
+# Enable or disable the book splitting
+"disable-book-splitting": false
+
+# List of worlds where the book splitting is disabled
+"disabled-book-splitting-worlds": [ ]
+
+# List of enchantments that are not allowed to be split
+"disabled-book-splitting-enchantments": [ ]
+
+
+# ----------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------
+
+
 # Enable or disable the anvil sound
 "enable-anvil-sound": true
 
 # Edit the volume and pitch of the anvil sound
 "anvil-volume": 1.0
 "anvil-pitch": 1.0
+
+
+# ----------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------
+
 
 # Enable or disable the repair cost reset back to 0 when the item is disenchanted
 "enable-repair-reset": false

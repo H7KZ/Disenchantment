@@ -1,16 +1,16 @@
 package cz.kominekjan.disenchantment.plugins.impl;
 
 import com.willfp.eco.core.items.builder.EnchantedBookBuilder;
-import cz.kominekjan.disenchantment.plugins.IDisenchantmentPlugin;
+import cz.kominekjan.disenchantment.plugins.IPlugin;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.Map;
 
 import static cz.kominekjan.disenchantment.config.Config.getDisabledEnchantments;
-import static cz.kominekjan.disenchantment.utils.DisenchantmentUtils.removeStoredEnchantment;
+import static cz.kominekjan.disenchantment.utils.DisenchantUtils.removeStoredEnchantment;
 
-public class EcoPlugin implements IDisenchantmentPlugin {
+public class EcoPlugin implements IPlugin {
     public static final String name = "EcoEnchants";
 
     public ItemStack createEnchantedBook(Map<Enchantment, Integer> enchantments) {
@@ -25,10 +25,10 @@ public class EcoPlugin implements IDisenchantmentPlugin {
         return book;
     }
 
-    public ItemStack removeItemEnchantments(ItemStack firstItem) {
+    public ItemStack removeEnchantments(ItemStack firstItem, Map<Enchantment, Integer> enchantments) {
         ItemStack item = firstItem.clone();
 
-        for (Map.Entry<Enchantment, Integer> entry : firstItem.getEnchantments().entrySet()) {
+        for (Map.Entry<Enchantment, Integer> entry : enchantments.entrySet()) {
             Enchantment enchantment = entry.getKey();
 
             if (getDisabledEnchantments().containsKey(enchantment))
@@ -38,5 +38,9 @@ public class EcoPlugin implements IDisenchantmentPlugin {
         }
 
         return item;
+    }
+
+    public ItemStack removeAllEnchantments(ItemStack firstItem) {
+        return this.removeEnchantments(firstItem, firstItem.getEnchantments());
     }
 }

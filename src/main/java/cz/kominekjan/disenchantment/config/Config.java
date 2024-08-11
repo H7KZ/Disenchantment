@@ -48,6 +48,25 @@ public class Config {
         }).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
+    public static Boolean getDisableBookSplitting() {
+        return config.getBoolean(ConfigKeys.DISABLE_BOOK_SPLITTING.getKey());
+    }
+
+    public static List<World> getDisabledBookSplittingWorlds() {
+        return new ArrayList<>(config.getStringList(ConfigKeys.DISABLED_WORLDS.getKey()).stream().map(Bukkit::getWorld).toList());
+    }
+
+    public static Map<Enchantment, Boolean> getDisabledBookSplittingEnchantments() {
+        List<String> list = config.getStringList(ConfigKeys.DISABLED_BOOK_SPLITTING_ENCHANTMENTS.getKey());
+        return list.stream().map(s -> {
+            String[] split = s.split(":");
+            return Map.entry(
+                    Objects.requireNonNull(Registry.ENCHANTMENT.stream().filter(e -> e.getKey().getKey().equals(split[0])).findFirst().orElse(null)),
+                    Boolean.parseBoolean(split[1])
+            );
+        }).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+    }
+
     public static Boolean getEnableAnvilSound() {
         return config.getBoolean(ConfigKeys.ENABLE_ANVIL_SOUND.getKey());
     }
@@ -160,6 +179,9 @@ public class Config {
         DISABLED_WORLDS("disabled-worlds"),
         DISABLED_ITEMS("disabled-materials"),
         DISABLED_ENCHANTMENTS("disabled-enchantments"),
+        DISABLE_BOOK_SPLITTING("disable-book-splitting"),
+        DISABLED_BOOK_SPLITTING_WORLDS("disabled-book-splitting-worlds"),
+        DISABLED_BOOK_SPLITTING_ENCHANTMENTS("disabled-book-splitting-enchantments"),
         ENABLE_ANVIL_SOUND("enable-anvil-sound"),
         ANVIL_VOLUME("anvil-volume"),
         ANVIL_PITCH("anvil-pitch"),

@@ -1,6 +1,6 @@
 package cz.kominekjan.disenchantment.plugins.impl;
 
-import cz.kominekjan.disenchantment.plugins.IDisenchantmentPlugin;
+import cz.kominekjan.disenchantment.plugins.IPlugin;
 import me.sciguymjm.uberenchant.utils.EnchantmentUtils;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
@@ -10,7 +10,7 @@ import java.util.Map;
 
 import static cz.kominekjan.disenchantment.config.Config.getDisabledEnchantments;
 
-public class UberPlugin implements IDisenchantmentPlugin {
+public class UberPlugin implements IPlugin {
     public static final String name = "UberEnchant";
 
     public ItemStack createEnchantedBook(Map<Enchantment, Integer> enchantments) {
@@ -21,10 +21,10 @@ public class UberPlugin implements IDisenchantmentPlugin {
         return book;
     }
 
-    public ItemStack removeItemEnchantments(ItemStack firstItem) {
+    public ItemStack removeEnchantments(ItemStack firstItem, Map<Enchantment, Integer> enchantments) {
         ItemStack item = firstItem.clone();
 
-        for (Map.Entry<Enchantment, Integer> entry : firstItem.getEnchantments().entrySet()) {
+        for (Map.Entry<Enchantment, Integer> entry : enchantments.entrySet()) {
             Enchantment enchantment = entry.getKey();
 
             if (getDisabledEnchantments().containsKey(enchantment))
@@ -34,5 +34,9 @@ public class UberPlugin implements IDisenchantmentPlugin {
         }
 
         return item;
+    }
+
+    public ItemStack removeAllEnchantments(ItemStack firstItem) {
+        return this.removeEnchantments(firstItem, firstItem.getEnchantments());
     }
 }

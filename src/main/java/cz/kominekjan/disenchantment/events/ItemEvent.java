@@ -1,7 +1,7 @@
 package cz.kominekjan.disenchantment.events;
 
-import cz.kominekjan.disenchantment.plugins.DisenchantmentPluginManager;
-import cz.kominekjan.disenchantment.plugins.IDisenchantmentPlugin;
+import cz.kominekjan.disenchantment.plugins.IPlugin;
+import cz.kominekjan.disenchantment.plugins.PluginManager;
 import cz.kominekjan.disenchantment.plugins.impl.VanillaPlugin;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
@@ -20,19 +20,20 @@ import static cz.kominekjan.disenchantment.Disenchantment.enabled;
 import static cz.kominekjan.disenchantment.config.Config.getDisabledEnchantments;
 import static cz.kominekjan.disenchantment.config.Config.getDisabledWorlds;
 import static cz.kominekjan.disenchantment.utils.AnvilCostUtils.countAnvilCost;
-import static cz.kominekjan.disenchantment.utils.EventCheckUtils.isEventValidDisenchantment;
+import static cz.kominekjan.disenchantment.utils.EventCheckUtils.isEventValidDisenchantItem;
 
-public class DisenchantmentEvent implements Listener {
+public class ItemEvent implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onDisenchantmentEvent(PrepareAnvilEvent e) {
         if (!(e.getView().getPlayer() instanceof Player p)) return;
 
-        if (!(p.hasPermission("disenchantment.all") || p.hasPermission("disenchantment.anvil"))) return;
-
         if (!enabled || getDisabledWorlds().contains(p.getWorld())) return;
 
-        if (!isEventValidDisenchantment(e.getInventory().getItem(0), e.getInventory().getItem(1))) return;
+        if (!(p.hasPermission("disenchantment.all") || p.hasPermission("disenchantment.anvil") || p.hasPermission("disenchantment.anvil.item")))
+            return;
+
+        if (!isEventValidDisenchantItem(e.getInventory().getItem(0), e.getInventory().getItem(1))) return;
 
         ItemStack firstItem = e.getInventory().getItem(0);
 
@@ -57,11 +58,11 @@ public class DisenchantmentEvent implements Listener {
 
         ItemStack book = new ItemStack(Material.ENCHANTED_BOOK);
 
-        HashMap<String, IDisenchantmentPlugin> activatedPlugins = DisenchantmentPluginManager.getActivatedPlugins();
+        HashMap<String, IPlugin> activatedPlugins = PluginManager.getActivatedPlugins();
 
         boolean atLeastOnePluginEnabled = false;
 
-        for (IDisenchantmentPlugin plugin : activatedPlugins.values()) {
+        for (IPlugin plugin : activatedPlugins.values()) {
             book = plugin.createEnchantedBook(enchantments);
             atLeastOnePluginEnabled = true;
         }

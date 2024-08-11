@@ -8,7 +8,7 @@ import org.bukkit.inventory.InventoryHolder;
 
 import static cz.kominekjan.disenchantment.utils.TextUtils.textWithPrefixError;
 
-public class DisenchantmentGUIClickEvent implements Listener {
+public class GUIClickEvent implements Listener {
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
         if (event.getClickedInventory() == null) return;

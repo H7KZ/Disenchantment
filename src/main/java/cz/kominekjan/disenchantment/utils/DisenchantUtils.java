@@ -8,7 +8,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.Arrays;
 
-public class DisenchantmentUtils {
+public class DisenchantUtils {
     private static final Enchantment[] enchantmentCheck = {
             Enchantment.BINDING_CURSE,
             Enchantment.UNBREAKING,

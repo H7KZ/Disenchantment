@@ -2,13 +2,11 @@ package cz.kominekjan.disenchantment;
 
 import cz.kominekjan.disenchantment.commands.CommandCompleter;
 import cz.kominekjan.disenchantment.commands.CommandRegister;
-import cz.kominekjan.disenchantment.events.DisenchantmentClickEvent;
-import cz.kominekjan.disenchantment.events.DisenchantmentEvent;
-import cz.kominekjan.disenchantment.events.DisenchantmentGUIClickEvent;
+import cz.kominekjan.disenchantment.events.*;
 import cz.kominekjan.disenchantment.libs.bstats.BStatsMetrics;
 import cz.kominekjan.disenchantment.libs.config.ConfigUpdater;
 import cz.kominekjan.disenchantment.libs.update.UpdateChecker;
-import cz.kominekjan.disenchantment.plugins.DisenchantmentPluginManager;
+import cz.kominekjan.disenchantment.plugins.PluginManager;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -49,7 +47,7 @@ public final class Disenchantment extends JavaPlugin {
 
         List<String> activatedPlugins = Arrays.stream(getServer().getPluginManager().getPlugins()).toList().stream().map(Plugin::getName).toList();
 
-        DisenchantmentPluginManager.setActivatedPlugins(activatedPlugins);
+        PluginManager.setActivatedPlugins(activatedPlugins);
 
         plugin.saveDefaultConfig();
 
@@ -67,9 +65,11 @@ public final class Disenchantment extends JavaPlugin {
 
         enabled = config.getBoolean("enabled");
 
-        getServer().getPluginManager().registerEvents(new DisenchantmentEvent(), this);
-        getServer().getPluginManager().registerEvents(new DisenchantmentClickEvent(), this);
-        getServer().getPluginManager().registerEvents(new DisenchantmentGUIClickEvent(), this);
+        getServer().getPluginManager().registerEvents(new ItemEvent(), this);
+        getServer().getPluginManager().registerEvents(new ItemClickEvent(), this);
+        getServer().getPluginManager().registerEvents(new SplitBookEvent(), this);
+        getServer().getPluginManager().registerEvents(new SplitBookClickEvent(), this);
+        getServer().getPluginManager().registerEvents(new GUIClickEvent(), this);
 
         Objects.requireNonNull(getCommand("disenchantment")).setExecutor(new CommandRegister());
         Objects.requireNonNull(getCommand("disenchantment")).setTabCompleter(new CommandCompleter());
