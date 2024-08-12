@@ -1,7 +1,7 @@
 name: Disenchantment
-version: '5.2.0'
+version: '5.3.0'
 main: cz.kominekjan.disenchantment.Disenchantment
-api-version: '1.20.6'
+api-version: '1.21.1'
 authors:
   - Jan Komínek
 description: Allows players to disenchant items and get the item's enchantments back

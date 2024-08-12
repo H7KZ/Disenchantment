@@ -12,6 +12,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.PrepareAnvilEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
+import org.bukkit.inventory.view.AnvilView;
 
 import java.util.*;
 
@@ -24,7 +25,9 @@ public class SplitBookEvent implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onDisenchantmentEvent(PrepareAnvilEvent e) {
-        if (!(e.getView().getPlayer() instanceof Player p)) return;
+        AnvilView anvilView = e.getView();
+
+        if (!(anvilView.getPlayer() instanceof Player p)) return;
 
         if (!enabled || getDisabledWorlds().contains(p.getWorld()) || getDisableBookSplitting() || getDisabledBookSplittingWorlds().contains(p.getWorld()))
             return;
@@ -85,6 +88,6 @@ public class SplitBookEvent implements Listener {
 
         e.setResult(book);
 
-        e.getInventory().setRepairCost(countAnvilCost(enchantments));
+        anvilView.setRepairCost(countAnvilCost(enchantments));
     }
 }

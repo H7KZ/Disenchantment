@@ -14,6 +14,7 @@ import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.AnvilInventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
+import org.bukkit.inventory.view.AnvilView;
 
 import java.util.HashMap;
 
@@ -51,9 +52,11 @@ public class SplitBookClickEvent implements Listener {
 
         if (!isEventValidDisenchantSplitBook(firstItem, secondItem)) return;
 
+        AnvilView anvilView = (AnvilView) e.getView();
+
         EnchantmentStorageMeta resultItemMeta = (EnchantmentStorageMeta) result.getItemMeta();
 
-        if (anvilInventory.getRepairCost() > p.getLevel() && p.getGameMode() != org.bukkit.GameMode.CREATIVE) {
+        if (anvilView.getRepairCost() > p.getLevel() && p.getGameMode() != org.bukkit.GameMode.CREATIVE) {
             e.setCancelled(true);
             return;
         }
@@ -63,7 +66,7 @@ public class SplitBookClickEvent implements Listener {
             return;
         }
 
-        int exp = p.getLevel() - anvilInventory.getRepairCost();
+        int exp = p.getLevel() - anvilView.getRepairCost();
 
         if (getEnableLogging()) {
             if (getLoggingLevel().equals(LoggingLevels.INFO) || getLoggingLevel().equals(LoggingLevels.DEBUG))
@@ -71,7 +74,7 @@ public class SplitBookClickEvent implements Listener {
                         p.getName() + " has split a book " +
                                 firstItem.getType().name() + " with " +
                                 firstItem.getEnchantments().keySet() + " for " +
-                                anvilInventory.getRepairCost() + "xp" + " in " +
+                                anvilView.getRepairCost() + "xp" + " in " +
                                 p.getWorld().getName() + " at " +
                                 p.getLocation().getBlockX() + " " +
                                 p.getLocation().getBlockY() + " " +

@@ -13,6 +13,7 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.AnvilInventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.view.AnvilView;
 
 import java.util.HashMap;
 
@@ -49,7 +50,9 @@ public class ItemClickEvent implements Listener {
 
         if (!isEventValidDisenchantItem(firstItem, secondItem)) return;
 
-        if (anvilInventory.getRepairCost() > p.getLevel() && p.getGameMode() != org.bukkit.GameMode.CREATIVE) {
+        AnvilView anvilView = (AnvilView) e.getView();
+
+        if (anvilView.getRepairCost() > p.getLevel() && p.getGameMode() != org.bukkit.GameMode.CREATIVE) {
             e.setCancelled(true);
             return;
         }
@@ -59,7 +62,7 @@ public class ItemClickEvent implements Listener {
             return;
         }
 
-        int exp = p.getLevel() - anvilInventory.getRepairCost();
+        int exp = p.getLevel() - anvilView.getRepairCost();
 
         if (getEnableLogging()) {
             if (getLoggingLevel().equals(LoggingLevels.INFO) || getLoggingLevel().equals(LoggingLevels.DEBUG))
@@ -67,7 +70,7 @@ public class ItemClickEvent implements Listener {
                         p.getName() + " has disenchanted " +
                                 firstItem.getType().name() + " with " +
                                 firstItem.getEnchantments().keySet() + " for " +
-                                anvilInventory.getRepairCost() + "xp" + " in " +
+                                anvilView.getRepairCost() + "xp" + " in " +
                                 p.getWorld().getName() + " at " +
                                 p.getLocation().getBlockX() + " " +
                                 p.getLocation().getBlockY() + " " +
