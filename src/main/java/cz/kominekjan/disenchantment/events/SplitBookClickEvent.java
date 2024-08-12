@@ -44,14 +44,14 @@ public class SplitBookClickEvent implements Listener {
 
         if (result == null) return;
 
-        EnchantmentStorageMeta resultItemMeta = (EnchantmentStorageMeta) result.getItemMeta();
-
         if (result.getType() != Material.ENCHANTED_BOOK) return;
 
         ItemStack firstItem = anvilInventory.getItem(0);
         ItemStack secondItem = anvilInventory.getItem(1);
 
         if (!isEventValidDisenchantSplitBook(firstItem, secondItem)) return;
+
+        EnchantmentStorageMeta resultItemMeta = (EnchantmentStorageMeta) result.getItemMeta();
 
         if (anvilInventory.getRepairCost() > p.getLevel() && p.getGameMode() != org.bukkit.GameMode.CREATIVE) {
             e.setCancelled(true);
