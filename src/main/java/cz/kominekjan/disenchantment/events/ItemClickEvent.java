@@ -39,7 +39,8 @@ public class ItemClickEvent implements Listener {
 
         AnvilInventory anvilInventory = (AnvilInventory) e.getInventory();
 
-        ItemStack result = anvilInventory.getResult();
+        // do not use "anvilInventory.getResult();" as not present on current spigot.
+        ItemStack result = anvilInventory.getItem(2);
 
         if (result == null) return;
 
