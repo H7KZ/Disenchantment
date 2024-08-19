@@ -117,17 +117,7 @@ public class ItemBuilder {
 
     public ItemBuilder addAllFlags() {
         ItemMeta meta = this.getItemMeta();
-        meta.addItemFlags(
-                HIDE_ENCHANTS,
-                HIDE_ATTRIBUTES,
-                HIDE_UNBREAKABLE,
-                HIDE_DESTROYS,
-                HIDE_PLACED_ON,
-                HIDE_ADDITIONAL_TOOLTIP,
-                HIDE_DYE,
-                HIDE_ARMOR_TRIM,
-                HIDE_STORED_ENCHANTS
-        );
+        meta.addItemFlags(ItemFlag.values());
         this.setItemMeta(meta);
         return this;
 
