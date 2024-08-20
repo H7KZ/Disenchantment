@@ -39,6 +39,9 @@ public class SplitBookClickEvent implements Listener {
 
         if (e.getSlot() != 2) return;
 
+        // We do not want to continue if the player has an item in cursor as it would delete it.
+        if(!p.getItemOnCursor().getType().isAir()) return;
+
         AnvilInventory anvilInventory = (AnvilInventory) e.getInventory();
 
         // do not use "anvilInventory.getResult();" as not present on current spigot.
