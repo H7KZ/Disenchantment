@@ -13,6 +13,7 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.AnvilInventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.Repairable;
 import org.bukkit.inventory.view.AnvilView;
 
 import java.util.HashMap;
@@ -20,7 +21,6 @@ import java.util.HashMap;
 import static cz.kominekjan.disenchantment.Disenchantment.enabled;
 import static cz.kominekjan.disenchantment.Disenchantment.logger;
 import static cz.kominekjan.disenchantment.config.Config.*;
-import static cz.kominekjan.disenchantment.libs.nbteditor.NBT.setNBTRepairCost;
 import static cz.kominekjan.disenchantment.utils.EventCheckUtils.isEventValidDisenchantItem;
 
 public class ItemClickEvent implements Listener {
@@ -105,7 +105,10 @@ public class ItemClickEvent implements Listener {
         // Disenchantment plugins
         // ----------------------------------------------------------------------------------------------------
 
-        if (getEnableRepairReset()) item = setNBTRepairCost(item, 0);
+        if (getEnableRepairReset() && (item.getItemMeta() instanceof Repairable meta)) {
+            meta.setRepairCost(0);
+            item.setItemMeta(meta);
+        }
 
         anvilInventory.setItem(0, item);
 
