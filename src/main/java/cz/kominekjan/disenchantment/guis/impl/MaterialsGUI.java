@@ -60,8 +60,6 @@ public class MaterialsGUI implements InventoryHolder {
         List<Material> materials = Registry.MATERIAL
                 .stream()
                 .filter(Material::isItem)
-                .filter(m -> !m.isEmpty())
-                .filter(m -> !m.isAir())
                 .filter(m -> !m.isAir())
                 .filter(DisenchantUtils::canBeEnchanted)
                 .sorted(Comparator.comparing(m -> m.getKey().getKey()))
