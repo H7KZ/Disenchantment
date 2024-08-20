@@ -18,7 +18,6 @@ public class SoundGUI implements InventoryHolder {
             DefaultGUIElements.border9x3(new Integer[]{0}),
             new GUIItem(0, DefaultGUIElements.backItem(), event -> {
                 event.setCancelled(true);
-                event.getWhoClicked().closeInventory();
                 event.getWhoClicked().openInventory(new NavigationGUI().getInventory());
             }),
             DefaultGUIElements.border(10),

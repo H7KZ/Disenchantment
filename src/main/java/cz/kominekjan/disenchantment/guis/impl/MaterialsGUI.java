@@ -36,7 +36,6 @@ public class MaterialsGUI implements InventoryHolder {
             DefaultGUIElements.border9x6(new Integer[]{0, 49}),
             new GUIItem(0, DefaultGUIElements.backItem(), event -> {
                 event.setCancelled(true);
-                event.getWhoClicked().closeInventory();
                 event.getWhoClicked().openInventory(new NavigationGUI().getInventory());
             }),
             new GUIItem(
@@ -84,7 +83,6 @@ public class MaterialsGUI implements InventoryHolder {
 
                         if (this.page == 0) return;
 
-                        event.getWhoClicked().closeInventory();
                         event.getWhoClicked().openInventory(new MaterialsGUI(this.page - 1).getInventory());
                     }),
                     new GUIItem(51, DefaultGUIElements.nextPageItem(), event -> {
@@ -92,7 +90,6 @@ public class MaterialsGUI implements InventoryHolder {
 
                         if (this.page == materials.size() / 28) return;
 
-                        event.getWhoClicked().closeInventory();
                         event.getWhoClicked().openInventory(new MaterialsGUI(this.page + 1).getInventory());
                     })
             );

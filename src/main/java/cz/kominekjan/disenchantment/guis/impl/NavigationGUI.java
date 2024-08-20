@@ -38,7 +38,6 @@ public class NavigationGUI implements InventoryHolder {
                     return;
                 }
 
-                event.getWhoClicked().closeInventory();
                 event.getWhoClicked().openInventory(new WorldsGUI(0).getInventory());
             }),
             new GUIItem(12, DefaultGUIElements.repairItem(), event -> {
@@ -49,7 +48,6 @@ public class NavigationGUI implements InventoryHolder {
                     return;
                 }
 
-                event.getWhoClicked().closeInventory();
                 event.getWhoClicked().openInventory(new RepairGUI().getInventory());
             }),
             new GUIItem(13, DefaultGUIElements.enchantmentsItem(), event -> {
@@ -60,7 +58,6 @@ public class NavigationGUI implements InventoryHolder {
                     return;
                 }
 
-                event.getWhoClicked().closeInventory();
                 event.getWhoClicked().openInventory(new EnchantmentsGUI(0).getInventory());
             }),
             new GUIItem(14, DefaultGUIElements.materialsItem(), event -> {
@@ -71,7 +68,6 @@ public class NavigationGUI implements InventoryHolder {
                     return;
                 }
 
-                event.getWhoClicked().closeInventory();
                 event.getWhoClicked().openInventory(new MaterialsGUI(0).getInventory());
             }),
             new GUIItem(15, DefaultGUIElements.soundItem(), event -> {
@@ -82,7 +78,6 @@ public class NavigationGUI implements InventoryHolder {
                     return;
                 }
 
-                event.getWhoClicked().closeInventory();
                 event.getWhoClicked().openInventory(new SoundGUI().getInventory());
             }),
             new GUIItem(16, DefaultGUIElements.spigotItem(), event -> {
