@@ -89,7 +89,7 @@ public class NavigationGUI implements InventoryHolder {
                 event.setCancelled(true);
 
                 event.getWhoClicked().sendMessage("https://www.spigotmc.org/resources/110741/");
-                event.getInventory().close();
+                event.getWhoClicked().closeInventory();
             })
     );
     private final Integer size = 27;
