@@ -1,8 +1,10 @@
 package cz.kominekjan.disenchantment.events;
 
+import cz.kominekjan.disenchantment.Disenchantment;
 import cz.kominekjan.disenchantment.plugins.IPlugin;
 import cz.kominekjan.disenchantment.plugins.PluginManager;
 import cz.kominekjan.disenchantment.plugins.impl.VanillaPlugin;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
@@ -89,5 +91,12 @@ public class SplitBookEvent implements Listener {
         e.setResult(book);
 
         anvilView.setRepairCost(countAnvilCost(enchantments));
+        Bukkit.getScheduler().runTask(Disenchantment.plugin, ()->{
+            // sadly, Spigot like to reset the changed price when vanilla do not expect it to be successful.
+            anvilView.setRepairCost(countAnvilCost(enchantments));
+
+            // Allow player to see the price even after writing in the rename textbox (fix it for spigot and paper)
+            p.updateInventory();
+        });
     }
 }
