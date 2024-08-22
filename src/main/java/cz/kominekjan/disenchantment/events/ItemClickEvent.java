@@ -5,7 +5,6 @@ import cz.kominekjan.disenchantment.plugins.PluginManager;
 import cz.kominekjan.disenchantment.plugins.impl.VanillaPlugin;
 import org.bukkit.Material;
 import org.bukkit.Sound;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -19,7 +18,6 @@ import org.bukkit.inventory.meta.Repairable;
 import org.bukkit.inventory.view.AnvilView;
 
 import java.util.HashMap;
-import java.util.Map;
 
 import static cz.kominekjan.disenchantment.Disenchantment.enabled;
 import static cz.kominekjan.disenchantment.Disenchantment.logger;

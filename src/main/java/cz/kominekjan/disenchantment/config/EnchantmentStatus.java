@@ -1,6 +1,5 @@
 package cz.kominekjan.disenchantment.config;
 
-import cz.kominekjan.disenchantment.Disenchantment;
 import org.bukkit.ChatColor;
 import org.jetbrains.annotations.NotNull;
 

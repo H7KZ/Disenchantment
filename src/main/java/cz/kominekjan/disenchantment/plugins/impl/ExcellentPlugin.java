@@ -8,8 +8,6 @@ import su.nightexpress.excellentenchants.enchantment.util.EnchantUtils;
 
 import java.util.Map;
 
-import static cz.kominekjan.disenchantment.config.Config.getDisabledEnchantments;
-
 public class ExcellentPlugin implements IPlugin {
     public static final String name = "ExcellentEnchants";
 

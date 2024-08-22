@@ -12,8 +12,6 @@ import org.bukkit.inventory.meta.SkullMeta;
 
 import java.util.ArrayList;
 
-import static org.bukkit.inventory.ItemFlag.*;
-
 public class ItemBuilder {
     protected ItemStack stack;
 

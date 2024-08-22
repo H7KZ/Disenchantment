@@ -8,8 +8,6 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.Map;
 
-import static cz.kominekjan.disenchantment.config.Config.getDisabledEnchantments;
-
 public class UberPlugin implements IPlugin {
     public static final String name = "UberEnchant";
 
