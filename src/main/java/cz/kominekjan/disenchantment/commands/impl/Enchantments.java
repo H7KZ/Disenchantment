@@ -63,12 +63,12 @@ public class Enchantments {
             return;
         }
 
-        if(args.length == 2){
+        if(args.length == 2) {
             s.sendMessage(textWithPrefixError("You must specify if you want to enable/keep/cancel this enchantment"));
             return;
         }
 
-        EnchantmentStatus selectedStatus = switch (args[2].toLowerCase()){
+        EnchantmentStatus selectedStatus = switch (args[2].toLowerCase()) {
             case "enable" -> EnchantmentStatus.ENABLED;
             case "keep" -> EnchantmentStatus.KEEP;
             case "cancel" -> EnchantmentStatus.DISABLED;

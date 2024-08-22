@@ -100,15 +100,15 @@ public class SplitBookClickEvent implements Listener {
 
         HashMap<String, IPlugin> activatedPlugins = PluginManager.getActivatedPlugins();
 
-        boolean atLeastOnePluginEnabled = false;
+        if(activatedPlugins.isEmpty()) {
+            item = VanillaPlugin.removeEnchantments(item, resultItemMeta.getStoredEnchants());
 
-        for (IPlugin plugin : activatedPlugins.values()) {
-            item = plugin.removeEnchantments(firstItem, resultItemMeta.getStoredEnchants());
-            atLeastOnePluginEnabled = true;
+        } else {
+            for (IPlugin plugin : activatedPlugins.values()) {
+                item = plugin.removeEnchantments(item, resultItemMeta.getStoredEnchants());
+            }
+
         }
-
-        if (!atLeastOnePluginEnabled)
-            item = VanillaPlugin.removeEnchantments(firstItem, resultItemMeta.getStoredEnchants());
 
         // Disenchantment plugins
         // ----------------------------------------------------------------------------------------------------

@@ -36,17 +36,18 @@ public class Config {
         return new ArrayList<>(config.getStringList(ConfigKeys.DISABLED_ITEMS.getKey()).stream().map(Material::getMaterial).toList());
     }
 
-    public static Map<Enchantment, EnchantmentStatus> getBookSplittingEnchantmentsStatus(){
+    public static Map<Enchantment, EnchantmentStatus> getBookSplittingEnchantmentsStatus() {
         return getGeneralEnchantmentStatus(ConfigKeys.BOOK_SPLITTING_ENCHANTMENTS_STATUS, ConfigKeys.DISABLED_BOOK_SPLITTING_ENCHANTMENTS);
     }
 
-    public static Map<Enchantment, EnchantmentStatus> getEnchantmentsStatus(){
+    public static Map<Enchantment, EnchantmentStatus> getEnchantmentsStatus() {
         return getGeneralEnchantmentStatus(ConfigKeys.ENCHANTMENTS_STATUS, ConfigKeys.DISABLED_ENCHANTMENTS);
     }
 
-    private static Map<Enchantment, EnchantmentStatus> getGeneralEnchantmentStatus(ConfigKeys newKey, ConfigKeys legacyKey){
+    private static Map<Enchantment, EnchantmentStatus> getGeneralEnchantmentStatus(ConfigKeys newKey, ConfigKeys legacyKey) {
         Map<Enchantment, EnchantmentStatus> statuses = new HashMap<>();
         ConfigurationSection section = config.getConfigurationSection(newKey.getKey());
+
         if(section == null) {
             fillLegacyStatus(legacyKey, statuses);
             return statuses;
@@ -56,6 +57,7 @@ public class Config {
             if(!section.isString(enchantmentKey)) continue;
 
             EnchantmentStatus status = EnchantmentStatus.getStatusByName(section.getString(enchantmentKey));
+
             if(status == null) continue;
 
             Registry.ENCHANTMENT
@@ -72,14 +74,15 @@ public class Config {
     // legacy (disabled-enchantment) compatibility
     private static void fillLegacyStatus(ConfigKeys legacyKey, Map<Enchantment, EnchantmentStatus> statuses) {
         ConfigurationSection legacySection = config.getConfigurationSection(legacyKey.getKey());
+
         if (legacySection == null) return;
 
         for (String enchantmentKey : legacySection.getKeys(false)) {
             EnchantmentStatus status;
-            if(!legacySection.isBoolean(enchantmentKey)){
+            if(!legacySection.isBoolean(enchantmentKey)) {
                 // Not "false" or "true". we default to enabled
                 status = EnchantmentStatus.ENABLED;
-            }else{
+            } else {
                 status = config.getBoolean(enchantmentKey) ? EnchantmentStatus.DISABLED : EnchantmentStatus.KEEP;
             }
 
@@ -92,34 +95,38 @@ public class Config {
         }
     }
 
-    public static EnchantmentStatus getBookSplittingEnchantmentStatus(@NotNull Enchantment enchantment){
+    public static EnchantmentStatus getBookSplittingEnchantmentStatus(@NotNull Enchantment enchantment) {
         return getGeneralEnchantmentStatus(ConfigKeys.BOOK_SPLITTING_ENCHANTMENTS_STATUS, ConfigKeys.DISABLED_BOOK_SPLITTING_ENCHANTMENTS, enchantment);
     }
 
-    public static EnchantmentStatus getEnchantmentStatus(@NotNull Enchantment enchantment){
+    public static EnchantmentStatus getEnchantmentStatus(@NotNull Enchantment enchantment) {
         return getGeneralEnchantmentStatus(ConfigKeys.ENCHANTMENTS_STATUS, ConfigKeys.DISABLED_ENCHANTMENTS, enchantment);
     }
 
-    private static EnchantmentStatus getGeneralEnchantmentStatus(ConfigKeys newKey, ConfigKeys legacyKey, Enchantment enchantment){
+    private static EnchantmentStatus getGeneralEnchantmentStatus(ConfigKeys newKey, ConfigKeys legacyKey, Enchantment enchantment) {
         ConfigurationSection section = config.getConfigurationSection(newKey.getKey());
+
         if (section == null) return getLegacyStatus(legacyKey, enchantment);
 
         String toFind = enchantment.getKey().getKey();
         String key = section.getKeys(false).stream().filter(toFind::equalsIgnoreCase).findFirst().orElse(null);
 
         if(key != null) return EnchantmentStatus.getStatusByName(section.getString(key));
+
         return getLegacyStatus(legacyKey, enchantment);
     }
 
     // legacy (disabled-enchantment) compatibility
     private static EnchantmentStatus getLegacyStatus(ConfigKeys legacyKey, Enchantment enchantment) {
         ConfigurationSection legacySection = config.getConfigurationSection(legacyKey.getKey());
+
         if (legacySection == null) return EnchantmentStatus.ENABLED;
 
         String toFind = enchantment.getKey().getKey();
         String key = legacySection.getKeys(false).stream().filter(toFind::equalsIgnoreCase).findFirst().orElse(null);
 
         if((key == null) || (!legacySection.isBoolean(key))) return EnchantmentStatus.ENABLED;
+
         return legacySection.getBoolean(key) ? EnchantmentStatus.DISABLED : EnchantmentStatus.KEEP;
     }
 
@@ -144,7 +151,7 @@ public class Config {
     private static void setGeneralEnchantmentStatus(@NotNull ConfigKeys configKey, @NotNull Enchantment enchantment, @NotNull EnchantmentStatus status){
         String configPath = configKey.getKey()+"."+enchantment.getKey().getKey();
 
-        if(EnchantmentStatus.ENABLED == status){
+        if(EnchantmentStatus.ENABLED == status) {
             if(!config.isString(configPath))
                 // Already absent. no need to write
                 return;
@@ -153,7 +160,7 @@ public class Config {
             config.set(configPath, null);
         }
         else {
-            if(status.getConfigName().equalsIgnoreCase(config.getString(configPath))){
+            if(status.getConfigName().equalsIgnoreCase(config.getString(configPath))) {
                 // Same as previous value. we do not continue
                 return;
             }

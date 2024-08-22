@@ -59,14 +59,15 @@ public class ItemEvent implements Listener {
 
         HashMap<String, IPlugin> activatedPlugins = PluginManager.getActivatedPlugins();
 
-        boolean atLeastOnePluginEnabled = false;
+        if(activatedPlugins.isEmpty()) {
+            book = VanillaPlugin.createEnchantedBook(enchantments);
 
-        for (IPlugin plugin : activatedPlugins.values()) {
-            book = plugin.createEnchantedBook(enchantments);
-            atLeastOnePluginEnabled = true;
+        } else {
+            for (IPlugin plugin : activatedPlugins.values()) {
+                book = plugin.createEnchantedBook(enchantments);
+            }
+
         }
-
-        if (!atLeastOnePluginEnabled) book = VanillaPlugin.createEnchantedBook(enchantments);
 
         // Disenchantment plugins
         // ----------------------------------------------------------------------------------------------------

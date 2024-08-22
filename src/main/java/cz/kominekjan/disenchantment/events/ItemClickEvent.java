@@ -99,14 +99,15 @@ public class ItemClickEvent implements Listener {
 
         HashMap<String, IPlugin> activatedPlugins = PluginManager.getActivatedPlugins();
 
-        boolean atLeastOnePluginEnabled = false;
+        if(activatedPlugins.isEmpty()) {
+            item = VanillaPlugin.removeEnchantments(item, resultItemMeta.getStoredEnchants());
 
-        for (IPlugin plugin : activatedPlugins.values()) {
-            item = plugin.removeEnchantments(item, resultItemMeta.getStoredEnchants());
-            atLeastOnePluginEnabled = true;
+        } else {
+            for (IPlugin plugin : activatedPlugins.values()) {
+                item = plugin.removeEnchantments(item, resultItemMeta.getStoredEnchants());
+            }
+
         }
-
-        if (!atLeastOnePluginEnabled) item = VanillaPlugin.removeEnchantments(item, resultItemMeta.getStoredEnchants());
 
         // Disenchantment plugins
         // ----------------------------------------------------------------------------------------------------

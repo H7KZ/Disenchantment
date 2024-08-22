@@ -127,12 +127,14 @@ public class EnchantmentsGUI implements InventoryHolder {
                         String newLore  = newStatus.getDisplayName() + " " + ChatColor.GRAY + "for " + ChatColor.LIGHT_PURPLE + ChatColor.BOLD + "Disenchantment";
                         String newLore2 = bookNewStatus.getDisplayName() + " " + ChatColor.GRAY + "for " + ChatColor.LIGHT_PURPLE + ChatColor.BOLD + "Book Splitting";
 
-                        if(bookSplitting){
+                        if(bookSplitting) {
                             setBookSplittingEnchantmentsStatus(enchantment, bookNewStatus);
                             oldBookStatus.set(bookNewStatus);
-                        }else{
+
+                        } else {
                             setEnchantmentsStatus(enchantment, newStatus);
                             oldBookStatus.set(newStatus);
+
                         }
 
                         event.setCurrentItem(DefaultGUIElements.enchantmentItem(ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + enchantment.getKey().getKey(), newLore, newLore2));
