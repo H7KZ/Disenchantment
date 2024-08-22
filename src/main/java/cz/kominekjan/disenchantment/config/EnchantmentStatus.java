@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 import javax.annotation.Nullable;
 
 public enum EnchantmentStatus {
-    ENABLED(ChatColor.GREEN + "Enabled", "enabled"),
+    ENABLED(ChatColor.GREEN + "Enabled", null),
     KEEP(ChatColor.GOLD + "Keep", "keep"),
     DISABLED(ChatColor.RED + "Disabled", "disabled"),
     ;

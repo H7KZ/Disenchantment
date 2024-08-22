@@ -14,6 +14,7 @@ import org.bukkit.inventory.InventoryHolder;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static cz.kominekjan.disenchantment.config.Config.*;
 
@@ -107,29 +108,31 @@ public class EnchantmentsGUI implements InventoryHolder {
             EnchantmentStatus bookStatus = bookSplitStatuses.getOrDefault(enchantment, EnchantmentStatus.ENABLED);
 
             String lore  = status.getDisplayName() + " " + ChatColor.GRAY + "for " + ChatColor.LIGHT_PURPLE + ChatColor.BOLD + "Disenchantment";
-            String lore2 = bookStatus.getDisplayName() + " " + ChatColor.GRAY + "for " + ChatColor.LIGHT_PURPLE + ChatColor.BOLD + "Book Splitting";
+            String bookLore = bookStatus.getDisplayName() + " " + ChatColor.GRAY + "for " + ChatColor.LIGHT_PURPLE + ChatColor.BOLD + "Book Splitting";
+
+            AtomicReference<EnchantmentStatus> oldStatus = new AtomicReference<>(status);
+            AtomicReference<EnchantmentStatus> oldBookStatus = new AtomicReference<>(bookStatus);
 
             worldItems[i] = new GUIItem(
                     freeSlots[i],
-                    DefaultGUIElements.enchantmentItem(ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + enchantment.getKey().getKey(), lore, lore2),
+                    DefaultGUIElements.enchantmentItem(ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + enchantment.getKey().getKey(), lore, bookLore),
                     event -> {
                         event.setCancelled(true);
 
                         boolean bookSplitting = event.isRightClick();
 
-                        EnchantmentStatus oldStatus = getEnchantmentStatus(enchantment);
-                        EnchantmentStatus oldBookStatus = getBookSplittingEnchantmentStatus(enchantment);
-
-                        EnchantmentStatus newStatus = bookSplitting ? oldStatus : EnchantmentStatus.getNextStatus(oldStatus);
-                        EnchantmentStatus bookNewStatus = bookSplitting ? EnchantmentStatus.getNextStatus(oldBookStatus) : oldBookStatus;
+                        EnchantmentStatus newStatus = bookSplitting ? oldStatus.get() : EnchantmentStatus.getNextStatus(oldStatus.get());
+                        EnchantmentStatus bookNewStatus = bookSplitting ? EnchantmentStatus.getNextStatus(oldBookStatus.get()) : oldBookStatus.get();
 
                         String newLore  = newStatus.getDisplayName() + " " + ChatColor.GRAY + "for " + ChatColor.LIGHT_PURPLE + ChatColor.BOLD + "Disenchantment";
                         String newLore2 = bookNewStatus.getDisplayName() + " " + ChatColor.GRAY + "for " + ChatColor.LIGHT_PURPLE + ChatColor.BOLD + "Book Splitting";
 
                         if(bookSplitting){
                             setBookSplittingEnchantmentsStatus(enchantment, bookNewStatus);
+                            oldBookStatus.set(bookNewStatus);
                         }else{
                             setEnchantmentsStatus(enchantment, newStatus);
+                            oldBookStatus.set(newStatus);
                         }
 
                         event.setCurrentItem(DefaultGUIElements.enchantmentItem(ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + enchantment.getKey().getKey(), newLore, newLore2));

@@ -129,8 +129,7 @@ public class Config {
      * @param status Enchantment status to be set to.
      */
     public static void setEnchantmentsStatus(@NotNull Enchantment enchantment, @NotNull EnchantmentStatus status) {
-        config.set(ConfigKeys.ENCHANTMENTS_STATUS.getKey()+"."+enchantment.getKey().getKey(), status.getConfigName());
-        plugin.saveConfig();
+        setGeneralEnchantmentStatus(ConfigKeys.ENCHANTMENTS_STATUS, enchantment, status);
     }
 
     /**
@@ -139,9 +138,32 @@ public class Config {
      * @param status Enchantment status to be set to.
      */
     public static void setBookSplittingEnchantmentsStatus(@NotNull Enchantment enchantment, @NotNull EnchantmentStatus status) {
-        config.set(ConfigKeys.BOOK_SPLITTING_ENCHANTMENTS_STATUS.getKey()+"."+enchantment.getKey().getKey(), status.getConfigName());
+        setGeneralEnchantmentStatus(ConfigKeys.BOOK_SPLITTING_ENCHANTMENTS_STATUS, enchantment, status);
+    }
+
+    private static void setGeneralEnchantmentStatus(@NotNull ConfigKeys configKey, @NotNull Enchantment enchantment, @NotNull EnchantmentStatus status){
+        String configPath = configKey.getKey()+"."+enchantment.getKey().getKey();
+
+        if(EnchantmentStatus.ENABLED == status){
+            if(!config.isString(configPath))
+                // Already absent. no need to write
+                return;
+
+            // Remove from config
+            config.set(configPath, null);
+        }
+        else {
+            if(status.getConfigName().equalsIgnoreCase(config.getString(configPath))){
+                // Same as previous value. we do not continue
+                return;
+            }
+
+            config.set(configPath, status.getConfigName());
+        }
+
         plugin.saveConfig();
     }
+
 
     public static Boolean getDisableBookSplitting() {
         return config.getBoolean(ConfigKeys.DISABLE_BOOK_SPLITTING.getKey());

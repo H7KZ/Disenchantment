@@ -33,7 +33,6 @@ public class GUIItem {
             event.setCancelled(true);
             return;
         }
-        Disenchantment.logger.info("test: "+lastClick+" "+timeMilli);
         lastClick = timeMilli;
 
         this.onClick.onClick(event);

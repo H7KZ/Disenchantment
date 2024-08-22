@@ -23,7 +23,8 @@ disabled-materials: [ ]
 enchantments-status:
   # Here is example of how it should look like.
   # enchantments can take value "enabled", "keep" and "disabled"
-  sharpness: enabled
+  # for example:
+  #sharpness: enabled
 
 
 # ----------------------------------------------------------------------------------------
@@ -41,7 +42,8 @@ disabled-book-splitting-worlds: [ ]
 book-splitting-enchantments-status:
   # Here is example of how it should look like.
   # enchantments can take value "enabled", "keep" and "disabled"
-  sharpness: enabled
+  # for example:
+  #sharpness: enabled
 
 
 # ----------------------------------------------------------------------------------------

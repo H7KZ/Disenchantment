@@ -20,13 +20,8 @@ public class EventCheckUtils {
         for (Enchantment enchantment : enchantments) {
             EnchantmentStatus status = statuses.getOrDefault(enchantment, EnchantmentStatus.ENABLED);
 
-            Disenchantment.logger.info("checking "+enchantment);
-
-            if(status == EnchantmentStatus.DISABLED) {
-
-                Disenchantment.logger.info("disabled");
+            if(status == EnchantmentStatus.DISABLED)
                 return true;
-            }
         }
 
         return false;

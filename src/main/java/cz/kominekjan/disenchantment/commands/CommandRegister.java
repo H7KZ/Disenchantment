@@ -19,8 +19,8 @@ public class CommandRegister implements CommandExecutor {
         commands.put("repair", Repair.command);
         commands.put("sound", Sound.command);
         commands.put("materials", Materials.command);
-        commands.put("enchantments", Enchantments.disenchantCommand);
-        commands.put("split-enchantments", Enchantments.bookSplittingCommand);
+        commands.put("enchantments", Enchantments.command);
+        commands.put("book_split_enchantments", BookSplitEnchantments.command);
         commands.put("gui", GUI.command);
     }
 

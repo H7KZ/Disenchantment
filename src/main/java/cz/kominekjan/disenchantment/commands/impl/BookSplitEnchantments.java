@@ -14,21 +14,22 @@ import java.util.Map;
 
 import static cz.kominekjan.disenchantment.utils.TextUtils.*;
 
-public class Enchantments {
+public class BookSplitEnchantments {
+
     public static final Command command = new Command(
-            "enchantments",
+            "book_split_enchantments",
             new String[]{"disenchantment.all", "disenchantment.command.enchantments"},
             "You don't have permission to use this command.",
             new String[]{},
             false,
-            Enchantments::execute
+            BookSplitEnchantments::execute
     );
 
     public static void execute(CommandSender s, String[] args) {
-        Map<Enchantment, EnchantmentStatus> enchantmentStatus = Config.getEnchantmentsStatus();
+        Map<Enchantment, EnchantmentStatus> enchantmentStatus = Config.getBookSplittingEnchantmentsStatus();
 
         if (args.length == 1) {
-            s.sendMessage(textWithPrefix("Disabled enchantments for disenchanting"));
+            s.sendMessage(textWithPrefix("Disabled enchantments for book splitting"));
             s.sendMessage("");
 
             List<Enchantment> nonEnabledEnchantments = enchantmentStatus.entrySet().stream()
@@ -36,7 +37,7 @@ public class Enchantments {
                     .map(Map.Entry::getKey).toList();
 
             if (nonEnabledEnchantments.isEmpty()) {
-                s.sendMessage(ChatColor.GRAY + "No enchantments are disabled or set to being kept for disenchanting");
+                s.sendMessage(ChatColor.GRAY + "No enchantments are disabled or set to being kept for book splitting ");
                 return;
             }
 
@@ -80,9 +81,9 @@ public class Enchantments {
             return;
         }
 
-        s.sendMessage(textWithPrefixSuccess("Enchantment status set to " + selectedStatus.getDisplayName() + " for disenchantment"));
+        s.sendMessage(textWithPrefixSuccess("Enchantment status set to " + selectedStatus.getDisplayName() + " for book splitting"));
 
-        Config.setEnchantmentsStatus(enchantment, selectedStatus);
+        Config.setBookSplittingEnchantmentsStatus(enchantment, selectedStatus);
 
     }
 
