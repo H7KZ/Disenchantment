@@ -1,6 +1,7 @@
 package cz.kominekjan.disenchantment.commands.impl;
 
 import cz.kominekjan.disenchantment.commands.Command;
+import cz.kominekjan.disenchantment.commands.ICommandExecutor;
 import cz.kominekjan.disenchantment.config.Config;
 import cz.kominekjan.disenchantment.config.EnchantmentStatus;
 import org.bukkit.ChatColor;
@@ -11,21 +12,48 @@ import org.bukkit.enchantments.Enchantment;
 
 import java.util.Map;
 
-import static cz.kominekjan.disenchantment.config.Config.setEnchantmentsStatus;
 import static cz.kominekjan.disenchantment.utils.TextUtils.*;
 
-public class Enchantments {
-    public static final Command command = new Command(
+public abstract class Enchantments implements ICommandExecutor {
+    public static final Command disenchantCommand = new Command(
             "enchantments",
             new String[]{"disenchantment.all", "disenchantment.command.enchantments"},
             "You don't have permission to use this command.",
             new String[]{},
             false,
-            Enchantments::execute
+            new Enchantments() {
+                @Override
+                public Map<Enchantment, EnchantmentStatus> getEnchantmentsStatus() {
+                    return Config.getEnchantmentsStatus();
+                }
+
+                @Override
+                public void setEnchantmentsStatus(Enchantment enchantment, EnchantmentStatus status) {
+                    Config.setEnchantmentsStatus(enchantment, status);
+                }
+            }
+    );
+    public static final Command bookSplittingCommand = new Command(
+            "split-enchantments",
+            new String[]{"disenchantment.all", "disenchantment.command.enchantments"},
+            "You don't have permission to use this command.",
+            new String[]{},
+            false,
+            new Enchantments() {
+                @Override
+                public Map<Enchantment, EnchantmentStatus> getEnchantmentsStatus() {
+                    return Config.getBookSplittingEnchantmentsStatus();
+                }
+
+                @Override
+                public void setEnchantmentsStatus(Enchantment enchantment, EnchantmentStatus status) {
+                    Config.setBookSplittingEnchantmentsStatus(enchantment, status);
+                }
+            }
     );
 
-    public static void execute(CommandSender s, String[] args) {
-        Map<Enchantment, EnchantmentStatus> enchantmentStatus = Config.getEnchantmentsStatus();
+    public void execute(CommandSender s, String[] args) {
+        Map<Enchantment, EnchantmentStatus> enchantmentStatus = getEnchantmentsStatus();
 
         if (args.length == 1) {
             s.sendMessage(textWithPrefix("Disabled enchantments"));
@@ -80,4 +108,9 @@ public class Enchantments {
         setEnchantmentsStatus(enchantment, selectedStatus);
 
     }
+
+    public abstract Map<Enchantment, EnchantmentStatus> getEnchantmentsStatus();
+
+    public abstract void setEnchantmentsStatus(Enchantment enchantment, EnchantmentStatus status);
+
 }

@@ -39,6 +39,8 @@ public class EnchantmentsGUI implements InventoryHolder {
                             ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + "Help",
                             new ArrayList<>(Arrays.asList(
                                     ChatColor.GRAY + "Click on an enchantment to change its behavior",
+                                    ChatColor.GRAY + "Left click for " + ChatColor.LIGHT_PURPLE + "disenchantment",
+                                    ChatColor.GRAY + "Right click for " + ChatColor.LIGHT_PURPLE + "book splitting",
                                     ChatColor.GREEN + "Enabled" + ChatColor.GRAY + " = Enchantment can be removed from items",
                                     ChatColor.GOLD + "Keep" + ChatColor.GRAY + " = Enchantment stays on items",
                                     ChatColor.RED + "Cancel" + ChatColor.GRAY + " = Cancels the entire disenchantment process"
@@ -92,6 +94,7 @@ public class EnchantmentsGUI implements InventoryHolder {
         GUIItem[] worldItems = new GUIItem[pageSize];
 
         Map<Enchantment, EnchantmentStatus> statuses = getEnchantmentsStatus();
+        Map<Enchantment, EnchantmentStatus> bookSplitStatuses = getBookSplittingEnchantmentsStatus();
 
         for (int i = 0; i < pageSize; i++) {
             int slot = i + this.page * 28;
@@ -101,22 +104,35 @@ public class EnchantmentsGUI implements InventoryHolder {
             if (enchantment == null) continue;
 
             EnchantmentStatus status = statuses.getOrDefault(enchantment, EnchantmentStatus.ENABLED);
+            EnchantmentStatus bookStatus = bookSplitStatuses.getOrDefault(enchantment, EnchantmentStatus.ENABLED);
 
-            String lore = status.getDisplayName();
+            String lore  = status.getDisplayName() + " " + ChatColor.GRAY + "for " + ChatColor.LIGHT_PURPLE + ChatColor.BOLD + "Disenchantment";
+            String lore2 = bookStatus.getDisplayName() + " " + ChatColor.GRAY + "for " + ChatColor.LIGHT_PURPLE + ChatColor.BOLD + "Book Splitting";
 
             worldItems[i] = new GUIItem(
                     freeSlots[i],
-                    DefaultGUIElements.enchantmentItem(ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + enchantment.getKey().getKey(), lore),
+                    DefaultGUIElements.enchantmentItem(ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + enchantment.getKey().getKey(), lore, lore2),
                     event -> {
                         event.setCancelled(true);
 
+                        boolean bookSplitting = event.isRightClick();
+
                         EnchantmentStatus oldStatus = getEnchantmentStatus(enchantment);
-                        EnchantmentStatus newStatus = EnchantmentStatus.getNextStatus(oldStatus);
+                        EnchantmentStatus oldBookStatus = getBookSplittingEnchantmentStatus(enchantment);
 
-                        String newLore = newStatus.getDisplayName();
-                        setEnchantmentsStatus(enchantment, newStatus);
+                        EnchantmentStatus newStatus = bookSplitting ? oldStatus : EnchantmentStatus.getNextStatus(oldStatus);
+                        EnchantmentStatus bookNewStatus = bookSplitting ? EnchantmentStatus.getNextStatus(oldBookStatus) : oldBookStatus;
 
-                        event.setCurrentItem(DefaultGUIElements.enchantmentItem(ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + enchantment.getKey().getKey(), newLore));
+                        String newLore  = newStatus.getDisplayName() + " " + ChatColor.GRAY + "for " + ChatColor.LIGHT_PURPLE + ChatColor.BOLD + "Disenchantment";
+                        String newLore2 = bookNewStatus.getDisplayName() + " " + ChatColor.GRAY + "for " + ChatColor.LIGHT_PURPLE + ChatColor.BOLD + "Book Splitting";
+
+                        if(bookSplitting){
+                            setBookSplittingEnchantmentsStatus(enchantment, bookNewStatus);
+                        }else{
+                            setEnchantmentsStatus(enchantment, newStatus);
+                        }
+
+                        event.setCurrentItem(DefaultGUIElements.enchantmentItem(ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + enchantment.getKey().getKey(), newLore, newLore2));
                     }
             );
         }

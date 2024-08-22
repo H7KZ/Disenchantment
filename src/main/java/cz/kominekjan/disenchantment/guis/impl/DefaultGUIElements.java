@@ -12,6 +12,7 @@ import org.bukkit.inventory.ItemStack;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 public class DefaultGUIElements {
     public static void cancelOnClick(InventoryClickEvent event) {
@@ -269,12 +270,12 @@ public class DefaultGUIElements {
         return headWorldItem(name, texture, new ArrayList<>(Collections.singletonList(lore)));
     }
 
-    public static ItemStack enchantmentItem(String name, ArrayList<String> lore) {
+    public static ItemStack enchantmentItem(String name, List<String> lore) {
         return new ItemBuilder(Material.ENCHANTED_BOOK).setDisplayName(name).setLore(lore).addAllFlags().build();
     }
 
-    public static ItemStack enchantmentItem(String name, String lore) {
-        return enchantmentItem(name, new ArrayList<>(Collections.singletonList(lore)));
+    public static ItemStack enchantmentItem(String name, String... lore) {
+        return enchantmentItem(name, List.of(lore));
     }
 
     public static ItemStack disabledAnvilSoundItem() {
