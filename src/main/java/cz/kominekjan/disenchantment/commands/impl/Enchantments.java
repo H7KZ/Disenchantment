@@ -1,6 +1,7 @@
 package cz.kominekjan.disenchantment.commands.impl;
 
 import cz.kominekjan.disenchantment.commands.Command;
+import cz.kominekjan.disenchantment.config.Config;
 import cz.kominekjan.disenchantment.config.EnchantmentStatus;
 import org.bukkit.ChatColor;
 import org.bukkit.NamespacedKey;
@@ -10,7 +11,6 @@ import org.bukkit.enchantments.Enchantment;
 
 import java.util.Map;
 
-import static cz.kominekjan.disenchantment.config.Config.getEnchantmentStatus;
 import static cz.kominekjan.disenchantment.config.Config.setEnchantmentsStatus;
 import static cz.kominekjan.disenchantment.utils.TextUtils.*;
 
@@ -25,7 +25,7 @@ public class Enchantments {
     );
 
     public static void execute(CommandSender s, String[] args) {
-        Map<Enchantment, EnchantmentStatus> enchantmentStatus = getEnchantmentStatus();
+        Map<Enchantment, EnchantmentStatus> enchantmentStatus = Config.getEnchantmentsStatus();
 
         if (args.length == 1) {
             s.sendMessage(textWithPrefix("Disabled enchantments"));
@@ -50,7 +50,7 @@ public class Enchantments {
 
                 }
 
-                builder.append(ChatColor.GRAY + enchantment.getKey().getKey().getKey());
+                builder.append(ChatColor.GRAY).append(enchantment.getKey().getKey().getKey());
                 s.sendMessage(builder.toString());
             }
             return;

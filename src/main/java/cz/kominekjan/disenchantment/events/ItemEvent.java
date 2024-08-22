@@ -1,6 +1,7 @@
 package cz.kominekjan.disenchantment.events;
 
 import cz.kominekjan.disenchantment.Disenchantment;
+import cz.kominekjan.disenchantment.config.Config;
 import cz.kominekjan.disenchantment.config.EnchantmentStatus;
 import cz.kominekjan.disenchantment.plugins.IPlugin;
 import cz.kominekjan.disenchantment.plugins.PluginManager;
@@ -20,7 +21,6 @@ import java.util.HashMap;
 
 import static cz.kominekjan.disenchantment.Disenchantment.enabled;
 import static cz.kominekjan.disenchantment.config.Config.getDisabledWorlds;
-import static cz.kominekjan.disenchantment.config.Config.getEnchantmentStatus;
 import static cz.kominekjan.disenchantment.utils.AnvilCostUtils.countAnvilCost;
 import static cz.kominekjan.disenchantment.utils.EventCheckUtils.isEventValidDisenchantItem;
 
@@ -45,7 +45,7 @@ public class ItemEvent implements Listener {
         HashMap<Enchantment, Integer> enchantments = new HashMap<>(firstItem.getEnchantments());
 
         // Find enchantment to keep to remove them to result
-        getEnchantmentStatus().forEach((enchantment, status) ->{
+        Config.getEnchantmentsStatus().forEach((enchantment, status) ->{
             if(EnchantmentStatus.KEEP.equals(status))
                 enchantments.remove(enchantment);
         });

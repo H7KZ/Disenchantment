@@ -50,7 +50,7 @@ public class SplitBookEvent implements Listener {
 
         HashMap<Enchantment, Integer> enchantments = new HashMap<>(firstItemItemMeta.getStoredEnchants());
 
-        getBookSplittingEnchantmentStatus().forEach((enchantment, status) ->{
+        getBookSplittingEnchantmentsStatus().forEach((enchantment, status) ->{
             if(EnchantmentStatus.KEEP.equals(status))
                 enchantments.remove(enchantment);
         });

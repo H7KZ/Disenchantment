@@ -23,10 +23,10 @@ public class EventCheckUtils {
     }
 
     public static boolean itemCheckForDisabled(ItemStack item) {
-        if (getDisabledMaterials().stream().anyMatch(m -> m.getKey().getKey().equalsIgnoreCase(item.getType().getKey().getKey())))
+        if (getDisabledMaterials().stream().anyMatch(m -> m.equals(item.getType())))
             return true;
 
-        return checkForDisabledEnchantments(item, getEnchantmentStatus());
+        return checkForDisabledEnchantments(item, getEnchantmentsStatus());
     }
 
     public static boolean isEventValidDisenchantItem(ItemStack firstItem, ItemStack secondItem) {
@@ -42,7 +42,7 @@ public class EventCheckUtils {
     }
 
     public static boolean splitBookCheckForDisabled(ItemStack item) {
-        return checkForDisabledEnchantments(item, getBookSplittingEnchantmentStatus());
+        return checkForDisabledEnchantments(item, getBookSplittingEnchantmentsStatus());
     }
 
     public static boolean isEventValidDisenchantSplitBook(ItemStack firstItem, ItemStack secondItem) {

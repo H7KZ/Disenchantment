@@ -1,6 +1,5 @@
 package cz.kominekjan.disenchantment.guis.impl;
 
-import cz.kominekjan.disenchantment.Disenchantment;
 import cz.kominekjan.disenchantment.config.EnchantmentStatus;
 import cz.kominekjan.disenchantment.guis.GUIItem;
 import cz.kominekjan.disenchantment.guis.InventoryBuilder;
@@ -92,7 +91,7 @@ public class EnchantmentsGUI implements InventoryHolder {
 
         GUIItem[] worldItems = new GUIItem[pageSize];
 
-        Map<Enchantment, EnchantmentStatus> statuses = getEnchantmentStatus();
+        Map<Enchantment, EnchantmentStatus> statuses = getEnchantmentsStatus();
 
         for (int i = 0; i < pageSize; i++) {
             int slot = i + this.page * 28;
@@ -111,7 +110,7 @@ public class EnchantmentsGUI implements InventoryHolder {
                     event -> {
                         event.setCancelled(true);
 
-                        EnchantmentStatus oldStatus = getEnchantmentStatus().getOrDefault(enchantment, EnchantmentStatus.ENABLED);
+                        EnchantmentStatus oldStatus = getEnchantmentStatus(enchantment);
                         EnchantmentStatus newStatus = EnchantmentStatus.getNextStatus(oldStatus);
 
                         String newLore = newStatus.getDisplayName();
