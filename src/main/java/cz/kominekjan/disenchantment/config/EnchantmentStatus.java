@@ -1,6 +1,5 @@
 package cz.kominekjan.disenchantment.config;
 
-import com.google.errorprone.annotations.Keep;
 import org.bukkit.ChatColor;
 import org.jetbrains.annotations.NotNull;
 
