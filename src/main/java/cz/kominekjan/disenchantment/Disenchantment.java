@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static cz.kominekjan.disenchantment.config.Config.setPluginEnabled;
@@ -54,9 +55,13 @@ public final class Disenchantment extends JavaPlugin {
         File configFile = new File(plugin.getDataFolder(), "config.yml");
 
         try {
-            ConfigUpdater.update(plugin, "config.yml", configFile, "enchantments-status", "book-splitting-enchantments-status");
+            ConfigUpdater.update(plugin, "config.yml", configFile,
+                    "enchantments-status", "book-splitting-enchantments-status",
+                    "disabled-enchantments", "disabled-book-splitting-enchantments");
         } catch (IOException e) {
             logger.warning(Arrays.toString(e.getStackTrace()));
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "could not update configuration", e);
         }
 
         plugin.reloadConfig();
