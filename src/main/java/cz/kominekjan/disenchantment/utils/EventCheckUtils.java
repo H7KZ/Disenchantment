@@ -1,32 +1,42 @@
 package cz.kominekjan.disenchantment.utils;
 
+import cz.kominekjan.disenchantment.Disenchantment;
 import cz.kominekjan.disenchantment.config.EnchantmentStatus;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static cz.kominekjan.disenchantment.config.Config.*;
 
 public class EventCheckUtils {
 
-    public static boolean checkForDisabledEnchantments(ItemStack item, Map<Enchantment, EnchantmentStatus> statuses) {
-        for (Enchantment enchantment : item.getEnchantments().keySet()) {
+    public static boolean checkForDisabledEnchantments(Set<Enchantment> enchantments, Map<Enchantment, EnchantmentStatus> statuses) {
+        for (Enchantment enchantment : enchantments) {
             EnchantmentStatus status = statuses.getOrDefault(enchantment, EnchantmentStatus.ENABLED);
 
-            if(status == EnchantmentStatus.DISABLED) return true;
+            Disenchantment.logger.info("checking "+enchantment);
+
+            if(status == EnchantmentStatus.DISABLED) {
+
+                Disenchantment.logger.info("disabled");
+                return true;
+            }
         }
 
         return false;
     }
 
-    public static boolean itemCheckForDisabled(ItemStack item) {
+    private static boolean itemCheckForDisabled(ItemStack item) {
         if (getDisabledMaterials().stream().anyMatch(m -> m.equals(item.getType())))
             return true;
 
-        return checkForDisabledEnchantments(item, getEnchantmentsStatus());
+        return checkForDisabledEnchantments(item.getEnchantments().keySet(), getEnchantmentsStatus());
     }
 
     public static boolean isEventValidDisenchantItem(ItemStack firstItem, ItemStack secondItem) {
@@ -41,8 +51,11 @@ public class EventCheckUtils {
         return !firstItem.getEnchantments().isEmpty();
     }
 
-    public static boolean splitBookCheckForDisabled(ItemStack item) {
-        return checkForDisabledEnchantments(item, getBookSplittingEnchantmentsStatus());
+    private static boolean splitBookCheckForDisabled(ItemStack item) {
+        // Assume item is an enchanted book
+        EnchantmentStorageMeta meta = (EnchantmentStorageMeta) item.getItemMeta();
+
+        return checkForDisabledEnchantments(meta.getStoredEnchants().keySet(), getBookSplittingEnchantmentsStatus());
     }
 
     public static boolean isEventValidDisenchantSplitBook(ItemStack firstItem, ItemStack secondItem) {

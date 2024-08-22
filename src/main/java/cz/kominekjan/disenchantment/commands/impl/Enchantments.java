@@ -96,7 +96,12 @@ public abstract class Enchantments implements ICommandExecutor {
             return;
         }
 
-        EnchantmentStatus selectedStatus = EnchantmentStatus.getStatusByName(args[2]);
+        EnchantmentStatus selectedStatus = switch (args[2].toLowerCase()){
+            case "enable" -> EnchantmentStatus.ENABLED;
+            case "keep" -> EnchantmentStatus.KEEP;
+            case "cancel" -> EnchantmentStatus.DISABLED;
+            default -> null;
+        };
 
         if (selectedStatus == null) {
             s.sendMessage(textWithPrefixError("You must specify if you want to enable/keep/cancel this enchantment"));

@@ -36,17 +36,6 @@ public class Config {
         return new ArrayList<>(config.getStringList(ConfigKeys.DISABLED_ITEMS.getKey()).stream().map(Material::getMaterial).toList());
     }
 
-    public static Map<Enchantment, Boolean> getDisabledEnchantments() {
-        List<String> list = config.getStringList(ConfigKeys.DISABLED_ENCHANTMENTS.getKey());
-        return list.stream().map(s -> {
-            String[] split = s.split(":");
-            return Map.entry(
-                    Objects.requireNonNull(Registry.ENCHANTMENT.stream().filter(e -> e.getKey().getKey().equals(split[0])).findFirst().orElse(null)),
-                    Boolean.parseBoolean(split[1])
-            );
-        }).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-    }
-
     public static Map<Enchantment, EnchantmentStatus> getBookSplittingEnchantmentsStatus(){
         return getGeneralEnchantmentStatus(ConfigKeys.BOOK_SPLITTING_ENCHANTMENTS_STATUS, ConfigKeys.DISABLED_BOOK_SPLITTING_ENCHANTMENTS);
     }
@@ -122,6 +111,7 @@ public class Config {
         return getLegacyStatus(legacyKey, enchantment);
     }
 
+    // legacy (disabled-enchantment) compatibility
     private static EnchantmentStatus getLegacyStatus(ConfigKeys legacyKey, Enchantment enchantment) {
         ConfigurationSection legacySection = config.getConfigurationSection(legacyKey.getKey());
         if (legacySection == null) return EnchantmentStatus.ENABLED;

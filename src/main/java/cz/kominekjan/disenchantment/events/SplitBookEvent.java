@@ -49,13 +49,14 @@ public class SplitBookEvent implements Listener {
         EnchantmentStorageMeta firstItemItemMeta = (EnchantmentStorageMeta) firstItem.getItemMeta();
 
         HashMap<Enchantment, Integer> enchantments = new HashMap<>(firstItemItemMeta.getStoredEnchants());
+        if(enchantments.size() < 2) return;
 
         getBookSplittingEnchantmentsStatus().forEach((enchantment, status) ->{
             if(EnchantmentStatus.KEEP.equals(status))
                 enchantments.remove(enchantment);
         });
 
-        if (enchantments.isEmpty() || enchantments.size() == 1) return;
+        if (enchantments.isEmpty()) return;
 
         HashMap<Enchantment, Integer> randomEnchantmentSplit = new HashMap<>();
 
@@ -63,6 +64,7 @@ public class SplitBookEvent implements Listener {
         Collections.shuffle(keys); // Shuffle the keys to ensure randomness
 
         int halfSize = keys.size() / 2; // Calculate half of the size
+        if(halfSize == 0) halfSize = 1;
         for (int i = 0; i < halfSize; i++) {
             Enchantment key = keys.get(i);
             randomEnchantmentSplit.put(key, enchantments.get(key));

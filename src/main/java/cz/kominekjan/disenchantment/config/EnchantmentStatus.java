@@ -1,5 +1,6 @@
 package cz.kominekjan.disenchantment.config;
 
+import com.google.errorprone.annotations.Keep;
 import org.bukkit.ChatColor;
 import org.jetbrains.annotations.NotNull;
 
@@ -44,9 +45,9 @@ public enum EnchantmentStatus {
         if(lastStatus == null) return ENABLED;
 
         return switch (lastStatus){
-            case ENABLED -> DISABLED;
-            case DISABLED -> KEEP;
-            case KEEP -> ENABLED;
+            case ENABLED -> KEEP;
+            case KEEP -> DISABLED;
+            case DISABLED -> ENABLED;
         };
     }
 

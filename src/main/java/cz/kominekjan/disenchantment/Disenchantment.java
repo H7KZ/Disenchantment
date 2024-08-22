@@ -54,7 +54,7 @@ public final class Disenchantment extends JavaPlugin {
         File configFile = new File(plugin.getDataFolder(), "config.yml");
 
         try {
-            ConfigUpdater.update(plugin, "config.yml", configFile);
+            ConfigUpdater.update(plugin, "config.yml", configFile, "enchantments-status", "book-splitting-enchantments-status");
         } catch (IOException e) {
             logger.warning(Arrays.toString(e.getStackTrace()));
         }
