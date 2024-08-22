@@ -1,6 +1,7 @@
 package cz.kominekjan.disenchantment.commands.impl;
 
 import cz.kominekjan.disenchantment.commands.Command;
+import cz.kominekjan.disenchantment.config.EnchantmentStatus;
 import org.bukkit.ChatColor;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Registry;
@@ -9,8 +10,8 @@ import org.bukkit.enchantments.Enchantment;
 
 import java.util.Map;
 
-import static cz.kominekjan.disenchantment.config.Config.getDisabledEnchantments;
-import static cz.kominekjan.disenchantment.config.Config.setDisabledEnchantments;
+import static cz.kominekjan.disenchantment.config.Config.getEnchantmentStatus;
+import static cz.kominekjan.disenchantment.config.Config.setEnchantmentsStatus;
 import static cz.kominekjan.disenchantment.utils.TextUtils.*;
 
 public class Enchantments {
@@ -24,55 +25,59 @@ public class Enchantments {
     );
 
     public static void execute(CommandSender s, String[] args) {
-        Map<Enchantment, Boolean> disabledEnchantments = getDisabledEnchantments();
+        Map<Enchantment, EnchantmentStatus> enchantmentStatus = getEnchantmentStatus();
 
         if (args.length == 1) {
             s.sendMessage(textWithPrefix("Disabled enchantments"));
             s.sendMessage("");
 
-            if (disabledEnchantments.isEmpty()) {
-                s.sendMessage(ChatColor.GRAY + "No enchantments are disabled");
+            long nonEnabledCount = enchantmentStatus.values().stream().filter(status -> !EnchantmentStatus.ENABLED.equals(status)).count();
+
+            if (nonEnabledCount == 0) {
+                s.sendMessage(ChatColor.GRAY + "No enchantments are disabled or set to being kept");
                 return;
             }
 
-            for (Map.Entry<Enchantment, Boolean> enchantment : disabledEnchantments.entrySet()) {
-                String builder = "";
-                builder += ChatColor.RED + "[" + (enchantment.getValue() ? " keep " : "cancel") + "] ";
-                builder += ChatColor.GRAY + enchantment.getKey().getKey().getKey();
-                s.sendMessage(builder);
+            for (Map.Entry<Enchantment, EnchantmentStatus> enchantment : enchantmentStatus.entrySet()) {
+                EnchantmentStatus status = enchantment.getValue();
+                if(EnchantmentStatus.ENABLED.equals(status)) continue;
+
+                StringBuilder builder = new StringBuilder();
+
+                switch (status){
+                    case DISABLED -> builder.append(ChatColor.RED).append("[cancel] ");
+                    case KEEP -> builder.append(ChatColor.GOLD).append("[ keep ] ");
+
+                }
+
+                builder.append(ChatColor.GRAY + enchantment.getKey().getKey().getKey());
+                s.sendMessage(builder.toString());
             }
             return;
         }
 
-        Enchantment enchantment = Registry.ENCHANTMENT.get(NamespacedKey.minecraft(args[1]));
+        Enchantment enchantment = Registry.ENCHANTMENT.get(NamespacedKey.minecraft(args[1].toLowerCase()));
 
         if (enchantment == null) {
             s.sendMessage(textWithPrefixError("Unknown enchantment!"));
             return;
         }
 
-        String keepOrCancel = args[2];
-
-        if (!keepOrCancel.equalsIgnoreCase("keep") && !keepOrCancel.equalsIgnoreCase("cancel")) {
-            s.sendMessage(textWithPrefixError("You must specify a keep/cancel"));
+        if(args.length == 2){
+            s.sendMessage(textWithPrefixError("You must specify if you want to enable/keep/cancel this enchantment"));
             return;
         }
 
-        Map.Entry<Enchantment, Boolean> disabledEnchantment = Map.entry(enchantment, keepOrCancel.equalsIgnoreCase("keep"));
+        EnchantmentStatus selectedStatus = EnchantmentStatus.getStatusByName(args[2]);
 
-        if (disabledEnchantments.containsKey(disabledEnchantment.getKey())) {
-            disabledEnchantments.remove(disabledEnchantment.getKey());
-
-            setDisabledEnchantments(disabledEnchantments);
-
-            s.sendMessage(textWithPrefixSuccess("Enchantment removed"));
+        if (selectedStatus == null) {
+            s.sendMessage(textWithPrefixError("You must specify if you want to enable/keep/cancel this enchantment"));
             return;
         }
 
-        disabledEnchantments.put(disabledEnchantment.getKey(), disabledEnchantment.getValue());
+        s.sendMessage(textWithPrefixSuccess("Enchantment status set to " + selectedStatus.getDisplayName()));
 
-        setDisabledEnchantments(disabledEnchantments);
+        setEnchantmentsStatus(enchantment, selectedStatus);
 
-        s.sendMessage(textWithPrefixSuccess("Enchantment added"));
     }
 }

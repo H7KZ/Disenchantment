@@ -1,6 +1,7 @@
 package cz.kominekjan.disenchantment.events;
 
 import cz.kominekjan.disenchantment.Disenchantment;
+import cz.kominekjan.disenchantment.config.EnchantmentStatus;
 import cz.kominekjan.disenchantment.plugins.IPlugin;
 import cz.kominekjan.disenchantment.plugins.PluginManager;
 import cz.kominekjan.disenchantment.plugins.impl.VanillaPlugin;
@@ -16,7 +17,10 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import org.bukkit.inventory.view.AnvilView;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
 
 import static cz.kominekjan.disenchantment.Disenchantment.enabled;
 import static cz.kominekjan.disenchantment.config.Config.*;
@@ -46,15 +50,10 @@ public class SplitBookEvent implements Listener {
 
         HashMap<Enchantment, Integer> enchantments = new HashMap<>(firstItemItemMeta.getStoredEnchants());
 
-        for (Map.Entry<Enchantment, Boolean> disabledEnchantment : getDisabledBookSplittingEnchantments().entrySet()) {
-            if (!disabledEnchantment.getValue()) continue;
-
-            if (enchantments.keySet().stream().anyMatch(m -> m.equals(disabledEnchantment.getKey()))) {
-                Optional<Enchantment> enchantment = enchantments.keySet().stream().filter(m -> m.equals(disabledEnchantment.getKey())).findFirst();
-
-                enchantment.ifPresent(enchantments::remove);
-            }
-        }
+        getBookSplittingEnchantmentStatus().forEach((enchantment, status) ->{
+            if(EnchantmentStatus.KEEP.equals(status))
+                enchantments.remove(enchantment);
+        });
 
         if (enchantments.isEmpty() || enchantments.size() == 1) return;
 

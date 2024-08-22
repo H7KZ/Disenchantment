@@ -6,6 +6,7 @@ import org.bukkit.Registry;
 import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.enchantments.Enchantment;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -100,6 +101,25 @@ public class Config {
         }
     }
 
+    /**
+     * Set enchantment status and save config file.
+     * @param enchantment Enchantment to set the status to.
+     * @param status Enchantment status to be set to.
+     */
+    public static void setEnchantmentsStatus(@NotNull Enchantment enchantment, @NotNull EnchantmentStatus status) {
+        config.set(ConfigKeys.ENCHANTMENTS_STATUS.getKey()+"."+enchantment.getKey().getKey(), status.getConfigName());
+        plugin.saveConfig();
+    }
+
+    /**
+     * Set enchantment status for book splitting and save config file.
+     * @param enchantment Enchantment to set the status to.
+     * @param status Enchantment status to be set to.
+     */
+    public static void setBookSplittingEnchantmentsStatus(@NotNull Enchantment enchantment, @NotNull EnchantmentStatus status) {
+        config.set(ConfigKeys.BOOK_SPLITTING_ENCHANTMENTS_STATUS.getKey()+"."+enchantment.getKey().getKey(), status.getConfigName());
+        plugin.saveConfig();
+    }
 
     public static Boolean getDisableBookSplitting() {
         return config.getBoolean(ConfigKeys.DISABLE_BOOK_SPLITTING.getKey());
@@ -107,17 +127,6 @@ public class Config {
 
     public static List<World> getDisabledBookSplittingWorlds() {
         return new ArrayList<>(config.getStringList(ConfigKeys.DISABLED_WORLDS.getKey()).stream().map(Bukkit::getWorld).toList());
-    }
-
-    public static Map<Enchantment, Boolean> getDisabledBookSplittingEnchantments() {
-        List<String> list = config.getStringList(ConfigKeys.DISABLED_BOOK_SPLITTING_ENCHANTMENTS.getKey());
-        return list.stream().map(s -> {
-            String[] split = s.split(":");
-            return Map.entry(
-                    Objects.requireNonNull(Registry.ENCHANTMENT.stream().filter(e -> e.getKey().getKey().equals(split[0])).findFirst().orElse(null)),
-                    Boolean.parseBoolean(split[1])
-            );
-        }).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
     public static Boolean getEnableAnvilSound() {

@@ -1,6 +1,7 @@
 package cz.kominekjan.disenchantment.events;
 
 import cz.kominekjan.disenchantment.Disenchantment;
+import cz.kominekjan.disenchantment.config.EnchantmentStatus;
 import cz.kominekjan.disenchantment.plugins.IPlugin;
 import cz.kominekjan.disenchantment.plugins.PluginManager;
 import cz.kominekjan.disenchantment.plugins.impl.VanillaPlugin;
@@ -16,12 +17,10 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.view.AnvilView;
 
 import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
 
 import static cz.kominekjan.disenchantment.Disenchantment.enabled;
-import static cz.kominekjan.disenchantment.config.Config.getDisabledEnchantments;
 import static cz.kominekjan.disenchantment.config.Config.getDisabledWorlds;
+import static cz.kominekjan.disenchantment.config.Config.getEnchantmentStatus;
 import static cz.kominekjan.disenchantment.utils.AnvilCostUtils.countAnvilCost;
 import static cz.kominekjan.disenchantment.utils.EventCheckUtils.isEventValidDisenchantItem;
 
@@ -45,15 +44,11 @@ public class ItemEvent implements Listener {
 
         HashMap<Enchantment, Integer> enchantments = new HashMap<>(firstItem.getEnchantments());
 
-        for (Map.Entry<Enchantment, Boolean> disabledEnchantment : getDisabledEnchantments().entrySet()) {
-            if (!disabledEnchantment.getValue()) continue;
-
-            if (enchantments.keySet().stream().anyMatch(m -> m.equals(disabledEnchantment.getKey()))) {
-                Optional<Enchantment> enchantment = enchantments.keySet().stream().filter(m -> m.equals(disabledEnchantment.getKey())).findFirst();
-
-                enchantment.ifPresent(enchantments::remove);
-            }
-        }
+        // Find enchantment to keep to remove them to result
+        getEnchantmentStatus().forEach((enchantment, status) ->{
+            if(EnchantmentStatus.KEEP.equals(status))
+                enchantments.remove(enchantment);
+        });
 
         if (enchantments.isEmpty()) return;
 
