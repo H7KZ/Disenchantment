@@ -180,13 +180,6 @@ public class Config {
         return getDisabledMaterials().equals(materials);
     }
 
-    public static Boolean setDisabledEnchantments(Map<Enchantment, Boolean> enchantments) {
-        config.set(ConfigKeys.DISABLED_ENCHANTMENTS.getKey(), enchantments.entrySet().stream().map(e -> e.getKey().getKey().getKey() + ":" + e.getValue()).toList());
-        plugin.saveConfig();
-
-        return getDisabledEnchantments().equals(enchantments);
-    }
-
     public static Boolean setEnableAnvilSound(Boolean enabled) {
         config.set(ConfigKeys.ENABLE_ANVIL_SOUND.getKey(), enabled);
         plugin.saveConfig();

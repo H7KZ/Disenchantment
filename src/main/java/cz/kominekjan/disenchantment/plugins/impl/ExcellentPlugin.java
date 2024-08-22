@@ -26,17 +26,10 @@ public class ExcellentPlugin implements IPlugin {
 
         for (Map.Entry<Enchantment, Integer> entry : enchantments.entrySet()) {
             Enchantment enchantment = entry.getKey();
-
-            if (getDisabledEnchantments().containsKey(enchantment))
-                continue;
-
             EnchantUtils.remove(item, enchantment);
         }
 
         return item;
     }
 
-    public ItemStack removeAllEnchantments(ItemStack firstItem) {
-        return this.removeEnchantments(firstItem, firstItem.getEnchantments());
-    }
 }

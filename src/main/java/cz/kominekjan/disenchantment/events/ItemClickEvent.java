@@ -5,6 +5,7 @@ import cz.kominekjan.disenchantment.plugins.PluginManager;
 import cz.kominekjan.disenchantment.plugins.impl.VanillaPlugin;
 import org.bukkit.Material;
 import org.bukkit.Sound;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -13,10 +14,12 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.AnvilInventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import org.bukkit.inventory.meta.Repairable;
 import org.bukkit.inventory.view.AnvilView;
 
 import java.util.HashMap;
+import java.util.Map;
 
 import static cz.kominekjan.disenchantment.Disenchantment.enabled;
 import static cz.kominekjan.disenchantment.Disenchantment.logger;
@@ -55,6 +58,8 @@ public class ItemClickEvent implements Listener {
         if (!isEventValidDisenchantItem(firstItem, secondItem)) return;
 
         AnvilView anvilView = (AnvilView) e.getView();
+
+        EnchantmentStorageMeta resultItemMeta = (EnchantmentStorageMeta) result.getItemMeta();
 
         if (anvilView.getRepairCost() > p.getLevel() && p.getGameMode() != org.bukkit.GameMode.CREATIVE) {
             e.setCancelled(true);
@@ -99,11 +104,11 @@ public class ItemClickEvent implements Listener {
         boolean atLeastOnePluginEnabled = false;
 
         for (IPlugin plugin : activatedPlugins.values()) {
-            item = plugin.removeAllEnchantments(firstItem);
+            item = plugin.removeEnchantments(item, resultItemMeta.getStoredEnchants());
             atLeastOnePluginEnabled = true;
         }
 
-        if (!atLeastOnePluginEnabled) item = VanillaPlugin.removeAllEnchantments(firstItem);
+        if (!atLeastOnePluginEnabled) item = VanillaPlugin.removeEnchantments(item, resultItemMeta.getStoredEnchants());
 
         // Disenchantment plugins
         // ----------------------------------------------------------------------------------------------------
@@ -114,8 +119,6 @@ public class ItemClickEvent implements Listener {
         }
 
         anvilInventory.setItem(0, item);
-
-        if (secondItem == null) return;
 
         if (secondItem.getAmount() > 1) {
             secondItem.setAmount(secondItem.getAmount() - 1);

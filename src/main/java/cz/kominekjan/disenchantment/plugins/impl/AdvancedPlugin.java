@@ -27,17 +27,10 @@ public class AdvancedPlugin implements IPlugin {
 
         for (Map.Entry<Enchantment, Integer> entry : enchantments.entrySet()) {
             Enchantment enchantment = entry.getKey();
-
-            if (getDisabledEnchantments().containsKey(enchantment))
-                continue;
-
             AEAPI.removeEnchantment(item, enchantment.getKey().getKey());
         }
 
         return item;
     }
 
-    public ItemStack removeAllEnchantments(ItemStack firstItem) {
-        return this.removeEnchantments(firstItem, firstItem.getEnchantments());
-    }
 }

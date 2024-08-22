@@ -24,17 +24,10 @@ public class VanillaPlugin {
 
         for (Map.Entry<Enchantment, Integer> entry : enchantments.entrySet()) {
             Enchantment enchantment = entry.getKey();
-
-            if (getDisabledEnchantments().containsKey(enchantment))
-                continue;
-
             removeStoredEnchantment(item, enchantment);
         }
 
         return item;
     }
 
-    public static ItemStack removeAllEnchantments(ItemStack firstItem) {
-        return removeEnchantments(firstItem, firstItem.getEnchantments());
-    }
 }

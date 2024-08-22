@@ -26,17 +26,10 @@ public class UberPlugin implements IPlugin {
 
         for (Map.Entry<Enchantment, Integer> entry : enchantments.entrySet()) {
             Enchantment enchantment = entry.getKey();
-
-            if (getDisabledEnchantments().containsKey(enchantment))
-                continue;
-
             EnchantmentUtils.removeEnchantment(enchantment, item);
         }
 
         return item;
     }
 
-    public ItemStack removeAllEnchantments(ItemStack firstItem) {
-        return this.removeEnchantments(firstItem, firstItem.getEnchantments());
-    }
 }
