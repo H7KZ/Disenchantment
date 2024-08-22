@@ -1,5 +1,7 @@
 package cz.kominekjan.disenchantment.guis.impl;
 
+import cz.kominekjan.disenchantment.Disenchantment;
+import cz.kominekjan.disenchantment.config.EnchantmentStatus;
 import cz.kominekjan.disenchantment.guis.GUIItem;
 import cz.kominekjan.disenchantment.guis.InventoryBuilder;
 import org.apache.commons.lang3.ArrayUtils;
@@ -14,8 +16,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
-import static cz.kominekjan.disenchantment.config.Config.getDisabledEnchantments;
-import static cz.kominekjan.disenchantment.config.Config.setDisabledEnchantments;
+import static cz.kominekjan.disenchantment.config.Config.*;
 
 public class EnchantmentsGUI implements InventoryHolder {
     private final Integer[] freeSlots = {
@@ -91,6 +92,8 @@ public class EnchantmentsGUI implements InventoryHolder {
 
         GUIItem[] worldItems = new GUIItem[pageSize];
 
+        Map<Enchantment, EnchantmentStatus> statuses = getEnchantmentStatus();
+
         for (int i = 0; i < pageSize; i++) {
             int slot = i + this.page * 28;
 
@@ -98,16 +101,9 @@ public class EnchantmentsGUI implements InventoryHolder {
 
             if (enchantment == null) continue;
 
-            String lore = "";
+            EnchantmentStatus status = statuses.getOrDefault(enchantment, EnchantmentStatus.ENABLED);
 
-            for (Map.Entry<Enchantment, Boolean> disabledEnchantment : getDisabledEnchantments().entrySet()) {
-                if (disabledEnchantment.getKey().equals(enchantment.getKey().getKey())) {
-                    lore = disabledEnchantment.getValue() ? ChatColor.GOLD + "Keep" : ChatColor.RED + "Cancel";
-                    break;
-                }
-            }
-
-            if (lore.isEmpty()) lore = ChatColor.GREEN + "Enabled";
+            String lore = status.getDisplayName();
 
             worldItems[i] = new GUIItem(
                     freeSlots[i],
@@ -115,25 +111,11 @@ public class EnchantmentsGUI implements InventoryHolder {
                     event -> {
                         event.setCancelled(true);
 
-                        Map<Enchantment, Boolean> disabledEnchantments = getDisabledEnchantments();
-                        Map.Entry<Enchantment, Boolean> disabledEnchantment = disabledEnchantments.entrySet().stream().filter(e -> e.getKey().equals(enchantment)).findFirst().orElse(null);
-                        String newLore = "";
+                        EnchantmentStatus oldStatus = getEnchantmentStatus().getOrDefault(enchantment, EnchantmentStatus.ENABLED);
+                        EnchantmentStatus newStatus = EnchantmentStatus.getNextStatus(oldStatus);
 
-                        if (disabledEnchantment != null) {
-                            if (disabledEnchantment.getValue()) {
-                                disabledEnchantments.remove(disabledEnchantment.getKey());
-                                disabledEnchantments.put(enchantment, false);
-                            } else {
-                                disabledEnchantments.remove(disabledEnchantment.getKey());
-                            }
-
-                            newLore = disabledEnchantment.getValue() ? ChatColor.RED + "Cancel" : ChatColor.GREEN + "Enabled";
-                        } else {
-                            disabledEnchantments.put(enchantment, true);
-                            newLore = ChatColor.GOLD + "Keep";
-                        }
-
-                        setDisabledEnchantments(disabledEnchantments);
+                        String newLore = newStatus.getDisplayName();
+                        setEnchantmentsStatus(enchantment, newStatus);
 
                         event.setCurrentItem(DefaultGUIElements.enchantmentItem(ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + enchantment.getKey().getKey(), newLore));
                     }

@@ -64,7 +64,9 @@ public class Config {
         }
 
         for (String enchantmentKey : section.getKeys(false)) {
-            EnchantmentStatus status = EnchantmentStatus.getStatusByName(enchantmentKey);
+            if(!section.isString(enchantmentKey)) continue;
+
+            EnchantmentStatus status = EnchantmentStatus.getStatusByName(section.getString(enchantmentKey));
             if(status == null) continue;
 
             Registry.ENCHANTMENT
