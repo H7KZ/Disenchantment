@@ -1,7 +1,7 @@
 package cz.kominekjan.disenchantment.config;
 
-import cz.kominekjan.disenchantment.config.types.EnchantmentState;
-import cz.kominekjan.disenchantment.config.types.LoggingLevel;
+import cz.kominekjan.disenchantment.types.EnchantmentState;
+import cz.kominekjan.disenchantment.types.LoggingLevel;
 import io.papermc.paper.registry.RegistryAccess;
 import io.papermc.paper.registry.RegistryKey;
 import org.bukkit.Bukkit;
@@ -206,15 +206,15 @@ public class Config {
     }
 
     public static class Shatterment {
-        public static Boolean isDisabled() {
+        public static Boolean isEnabled() {
             return config.getBoolean(ConfigKeys.SHATTERMENT_ENABLED.getKey());
         }
 
-        public static Boolean setDisabled(Boolean disabled) {
-            config.set(ConfigKeys.SHATTERMENT_ENABLED.getKey(), disabled);
+        public static Boolean setEnabled(Boolean enabled) {
+            config.set(ConfigKeys.SHATTERMENT_ENABLED.getKey(), enabled);
             plugin.saveConfig();
 
-            return isDisabled() == disabled;
+            return isEnabled() == enabled;
         }
 
         public static List<World> getDisabledWorlds() {
@@ -298,51 +298,51 @@ public class Config {
 
                     return getPitch().equals(pitch);
                 }
+            }
 
-                public static class Repair {
-                    public static Boolean isResetEnabled() {
-                        return config.getBoolean(ConfigKeys.SHATTERMENT_REPAIR_RESET_ENABLED.getKey());
-                    }
+            public static class Repair {
+                public static Boolean isResetEnabled() {
+                    return config.getBoolean(ConfigKeys.SHATTERMENT_REPAIR_RESET_ENABLED.getKey());
+                }
 
-                    public static Boolean setResetEnabled(Boolean enabled) {
-                        config.set(ConfigKeys.SHATTERMENT_REPAIR_RESET_ENABLED.getKey(), enabled);
-                        plugin.saveConfig();
+                public static Boolean setResetEnabled(Boolean enabled) {
+                    config.set(ConfigKeys.SHATTERMENT_REPAIR_RESET_ENABLED.getKey(), enabled);
+                    plugin.saveConfig();
 
-                        return isResetEnabled() == enabled;
-                    }
+                    return isResetEnabled() == enabled;
+                }
 
-                    public static Boolean isCostEnabled() {
-                        return config.getBoolean(ConfigKeys.SHATTERMENT_REPAIR_COST_ENABLED.getKey());
-                    }
+                public static Boolean isCostEnabled() {
+                    return config.getBoolean(ConfigKeys.SHATTERMENT_REPAIR_COST_ENABLED.getKey());
+                }
 
-                    public static Boolean setCostEnabled(Boolean enabled) {
-                        config.set(ConfigKeys.SHATTERMENT_REPAIR_COST_ENABLED.getKey(), enabled);
-                        plugin.saveConfig();
+                public static Boolean setCostEnabled(Boolean enabled) {
+                    config.set(ConfigKeys.SHATTERMENT_REPAIR_COST_ENABLED.getKey(), enabled);
+                    plugin.saveConfig();
 
-                        return isCostEnabled() == enabled;
-                    }
+                    return isCostEnabled() == enabled;
+                }
 
-                    public static Double getBaseCost() {
-                        return config.getDouble(ConfigKeys.SHATTERMENT_REPAIR_COST_BASE.getKey());
-                    }
+                public static Double getBaseCost() {
+                    return config.getDouble(ConfigKeys.SHATTERMENT_REPAIR_COST_BASE.getKey());
+                }
 
-                    public static Boolean setBaseCost(Double cost) {
-                        config.set(ConfigKeys.SHATTERMENT_REPAIR_COST_BASE.getKey(), cost);
-                        plugin.saveConfig();
+                public static Boolean setBaseCost(Double cost) {
+                    config.set(ConfigKeys.SHATTERMENT_REPAIR_COST_BASE.getKey(), cost);
+                    plugin.saveConfig();
 
-                        return getBaseCost().equals(cost);
-                    }
+                    return getBaseCost().equals(cost);
+                }
 
-                    public static Double getCostMultiplier() {
-                        return config.getDouble(ConfigKeys.SHATTERMENT_REPAIR_COST_MULTIPLIER.getKey());
-                    }
+                public static Double getCostMultiplier() {
+                    return config.getDouble(ConfigKeys.SHATTERMENT_REPAIR_COST_MULTIPLIER.getKey());
+                }
 
-                    public static Boolean setCostMultiplier(Double multiplier) {
-                        config.set(ConfigKeys.SHATTERMENT_REPAIR_COST_MULTIPLIER.getKey(), multiplier);
-                        plugin.saveConfig();
+                public static Boolean setCostMultiplier(Double multiplier) {
+                    config.set(ConfigKeys.SHATTERMENT_REPAIR_COST_MULTIPLIER.getKey(), multiplier);
+                    plugin.saveConfig();
 
-                        return getCostMultiplier().equals(multiplier);
-                    }
+                    return getCostMultiplier().equals(multiplier);
                 }
             }
         }

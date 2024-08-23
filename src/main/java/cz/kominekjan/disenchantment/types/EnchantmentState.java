@@ -1,4 +1,4 @@
-package cz.kominekjan.disenchantment.config.types;
+package cz.kominekjan.disenchantment.types;
 
 import org.bukkit.ChatColor;
 import org.jetbrains.annotations.NotNull;

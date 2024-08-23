@@ -270,8 +270,16 @@ public class DefaultGUIElements {
         return headWorldItem(name, texture, new ArrayList<>(Collections.singletonList(lore)));
     }
 
+    public static ItemStack headWorldItem(String name, String texture, String... lore) {
+        return headWorldItem(name, texture, (ArrayList<String>) List.of(lore));
+    }
+
     public static ItemStack enchantmentItem(String name, List<String> lore) {
         return new ItemBuilder(Material.ENCHANTED_BOOK).setDisplayName(name).setLore(lore).addAllFlags().build();
+    }
+
+    public static ItemStack enchantmentItem(String name, String lore) {
+        return enchantmentItem(name, new ArrayList<>(Collections.singletonList(lore)));
     }
 
     public static ItemStack enchantmentItem(String name, String... lore) {

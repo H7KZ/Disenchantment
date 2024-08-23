@@ -1,5 +1,7 @@
 package cz.kominekjan.disenchantment.guis.impl;
 
+import cz.kominekjan.disenchantment.Disenchantment;
+import cz.kominekjan.disenchantment.config.Config;
 import cz.kominekjan.disenchantment.guis.GUIItem;
 import cz.kominekjan.disenchantment.guis.InventoryBuilder;
 import org.apache.commons.lang3.ArrayUtils;
@@ -9,14 +11,12 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.jetbrains.annotations.NotNull;
 
-import static cz.kominekjan.disenchantment.config.Config.getPluginEnabled;
-import static cz.kominekjan.disenchantment.config.Config.setPluginEnabled;
 import static cz.kominekjan.disenchantment.utils.TextUtils.textWithPrefixError;
 
 public class NavigationGUI implements InventoryHolder {
     private final GUIItem[] items = ArrayUtils.addAll(
             DefaultGUIElements.border9x3(),
-            new GUIItem(10, getPluginEnabled() ? DefaultGUIElements.enabledPluginItem() : DefaultGUIElements.disabledPluginItem(), event -> {
+            new GUIItem(10, Config.isPluginEnabled() ? DefaultGUIElements.enabledPluginItem() : DefaultGUIElements.disabledPluginItem(), event -> {
                 event.setCancelled(true);
 
                 if (!event.getWhoClicked().hasPermission("disenchantment.gui.status")) {
@@ -24,16 +24,17 @@ public class NavigationGUI implements InventoryHolder {
                     return;
                 }
 
-                boolean pluginEnabled = !getPluginEnabled();
+                boolean pluginEnabled = !Config.isPluginEnabled();
 
-                setPluginEnabled(pluginEnabled);
+                Disenchantment.toggle(pluginEnabled);
+                Config.setPluginEnabled(pluginEnabled);
 
                 event.setCurrentItem(pluginEnabled ? DefaultGUIElements.enabledPluginItem() : DefaultGUIElements.disabledPluginItem());
             }),
             new GUIItem(11, DefaultGUIElements.worldsItem(), event -> {
                 event.setCancelled(true);
 
-                if (!event.getWhoClicked().hasPermission("disenchantment.gui.toggle")) {
+                if (!event.getWhoClicked().hasPermission("disenchantment.gui.worlds")) {
                     event.getWhoClicked().sendMessage(textWithPrefixError("You don't have permission to use this feature."));
                     return;
                 }
@@ -43,12 +44,12 @@ public class NavigationGUI implements InventoryHolder {
             new GUIItem(12, DefaultGUIElements.repairItem(), event -> {
                 event.setCancelled(true);
 
-                if (!event.getWhoClicked().hasPermission("disenchantment.gui.repair")) {
+                if (!event.getWhoClicked().hasPermission("disenchantment.gui.disenchant_repair")) {
                     event.getWhoClicked().sendMessage(textWithPrefixError("You don't have permission to use this feature."));
                     return;
                 }
 
-                event.getWhoClicked().openInventory(new RepairGUI().getInventory());
+                event.getWhoClicked().openInventory(new DisenchantmentRepairGUI().getInventory());
             }),
             new GUIItem(13, DefaultGUIElements.enchantmentsItem(), event -> {
                 event.setCancelled(true);
@@ -63,22 +64,22 @@ public class NavigationGUI implements InventoryHolder {
             new GUIItem(14, DefaultGUIElements.materialsItem(), event -> {
                 event.setCancelled(true);
 
-                if (!event.getWhoClicked().hasPermission("disenchantment.gui.materials")) {
+                if (!event.getWhoClicked().hasPermission("disenchantment.gui.disenchant_materials")) {
                     event.getWhoClicked().sendMessage(textWithPrefixError("You don't have permission to use this feature."));
                     return;
                 }
 
-                event.getWhoClicked().openInventory(new MaterialsGUI(0).getInventory());
+                event.getWhoClicked().openInventory(new DisenchantMaterialsGUI(0).getInventory());
             }),
             new GUIItem(15, DefaultGUIElements.soundItem(), event -> {
                 event.setCancelled(true);
 
-                if (!event.getWhoClicked().hasPermission("disenchantment.gui.sound")) {
+                if (!event.getWhoClicked().hasPermission("disenchantment.gui.disenchant_sound")) {
                     event.getWhoClicked().sendMessage(textWithPrefixError("You don't have permission to use this feature."));
                     return;
                 }
 
-                event.getWhoClicked().openInventory(new SoundGUI().getInventory());
+                event.getWhoClicked().openInventory(new DisenchantmentSoundGUI().getInventory());
             }),
             new GUIItem(16, DefaultGUIElements.spigotItem(), event -> {
                 event.setCancelled(true);
@@ -88,7 +89,7 @@ public class NavigationGUI implements InventoryHolder {
             })
     );
     private final Integer size = 27;
-    private final String title = "Disenchantment | Navigation";
+    private final String title = "Navigation";
     private final Inventory inventory;
 
     public NavigationGUI() {

@@ -1,5 +1,7 @@
 package cz.kominekjan.disenchantment.commands;
 
+import io.papermc.paper.registry.RegistryAccess;
+import io.papermc.paper.registry.RegistryKey;
 import org.bukkit.Material;
 import org.bukkit.Registry;
 import org.bukkit.World;
@@ -38,37 +40,52 @@ public class CommandCompleter implements TabCompleter {
                             result.add(arg);
                         }
                     }
-                case "repair":
-                    for (String arg : commands.get("repair").args) {
+                case "disenchant_worlds":
+                case "shatter_worlds":
+                    for (String arg : plugin.getServer().getWorlds().stream().map(World::getName).toArray(String[]::new)) {
                         if (arg.toLowerCase().startsWith(args[1].toLowerCase())) {
                             result.add(arg);
                         }
                     }
                     return result;
-                case "sound":
-                    for (String arg : commands.get("sound").args) {
-                        if (arg.toLowerCase().startsWith(args[1].toLowerCase())) {
-                            result.add(arg);
-                        }
-                    }
-                    return result;
-                case "enchantments":
-                case "split-enchantments":
-                    for (Enchantment enchantment : Registry.ENCHANTMENT) {
+                case "disenchant_enchantments":
+                case "shatter_enchantments":
+                    for (Enchantment enchantment : RegistryAccess.registryAccess().getRegistry(RegistryKey.ENCHANTMENT)) {
                         if (enchantment.getKey().getKey().toLowerCase().startsWith(args[1].toLowerCase())) {
                             result.add(enchantment.getKey().getKey());
                         }
                     }
                     return result;
-                case "materials":
+                case "disenchant_materials":
                     for (Material material : Registry.MATERIAL) {
                         if (material.getKey().getKey().toLowerCase().startsWith(args[1].toLowerCase())) {
                             result.add(material.getKey().getKey());
                         }
                     }
                     return result;
-                case "toggle":
-                    for (String arg : plugin.getServer().getWorlds().stream().map(World::getName).toArray(String[]::new)) {
+                case "disenchant_repair":
+                    for (String arg : commands.get("disenchant_repair").args) {
+                        if (arg.toLowerCase().startsWith(args[1].toLowerCase())) {
+                            result.add(arg);
+                        }
+                    }
+                    return result;
+                case "shatter_repair":
+                    for (String arg : commands.get("shatter_repair").args) {
+                        if (arg.toLowerCase().startsWith(args[1].toLowerCase())) {
+                            result.add(arg);
+                        }
+                    }
+                    return result;
+                case "disenchant_sound":
+                    for (String arg : commands.get("disenchant_sound").args) {
+                        if (arg.toLowerCase().startsWith(args[1].toLowerCase())) {
+                            result.add(arg);
+                        }
+                    }
+                    return result;
+                case "shatter_sound":
+                    for (String arg : commands.get("shatter_sound").args) {
                         if (arg.toLowerCase().startsWith(args[1].toLowerCase())) {
                             result.add(arg);
                         }

@@ -1,8 +1,11 @@
 package cz.kominekjan.disenchantment.events;
 
+import cz.kominekjan.disenchantment.config.Config;
 import cz.kominekjan.disenchantment.plugins.IPlugin;
 import cz.kominekjan.disenchantment.plugins.PluginManager;
 import cz.kominekjan.disenchantment.plugins.impl.VanillaPlugin;
+import cz.kominekjan.disenchantment.types.LoggingLevel;
+import cz.kominekjan.disenchantment.utils.EventCheckUtils;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -19,19 +22,17 @@ import org.bukkit.inventory.view.AnvilView;
 
 import java.util.HashMap;
 
-import static cz.kominekjan.disenchantment.Disenchantment.enabled;
 import static cz.kominekjan.disenchantment.Disenchantment.logger;
-import static cz.kominekjan.disenchantment.config.Config.getLoggingLevel;
-import static cz.kominekjan.disenchantment.utils.EventCheckUtils.isEventValidDisenchantItem;
 
-public class ItemClickEvent implements Listener {
+public class DisenchantClickEvent implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onDisenchantmentClickEvent(InventoryClickEvent e) {
         if (!(e.getWhoClicked() instanceof Player p)) return;
 
-        if (!enabled || getDisabledWorlds().contains(p.getWorld())) return;
+        if (!Config.isPluginEnabled() || Config.Disenchantment.isEnabled() || Config.Disenchantment.getDisabledWorlds().contains(p.getWorld()))
+            return;
 
-        if (!(p.hasPermission("disenchantment.all") || p.hasPermission("disenchantment.anvil") || p.hasPermission("disenchantment.anvil.item")))
+        if (!(p.hasPermission("disenchantment.all") || p.hasPermission("disenchantment.anvil") || p.hasPermission("disenchantment.anvil.disenchant")))
             return;
 
         if (e.getInventory().getType() != InventoryType.ANVIL) return;
@@ -53,7 +54,7 @@ public class ItemClickEvent implements Listener {
         ItemStack firstItem = anvilInventory.getItem(0);
         ItemStack secondItem = anvilInventory.getItem(1);
 
-        if (!isEventValidDisenchantItem(firstItem, secondItem)) return;
+        if (!EventCheckUtils.Disenchantment.isEventValid(firstItem, secondItem)) return;
 
         AnvilView anvilView = (AnvilView) e.getView();
 
@@ -71,8 +72,8 @@ public class ItemClickEvent implements Listener {
 
         int exp = p.getLevel() - anvilView.getRepairCost();
 
-        if (getEnableLogging()) {
-            if (getLoggingLevel().equals(LoggingLevels.INFO) || getLoggingLevel().equals(LoggingLevels.DEBUG))
+        if (Config.isLoggingEnabled()) {
+            if (Config.getLoggingLevel().equals(LoggingLevel.INFO) || Config.getLoggingLevel().equals(LoggingLevel.DEBUG))
                 logger.info(
                         p.getName() + " has disenchanted " +
                                 firstItem.getType().name() + " with " +
@@ -84,7 +85,7 @@ public class ItemClickEvent implements Listener {
                                 p.getLocation().getBlockZ() + "."
                 );
 
-            if (getLoggingLevel().equals(LoggingLevels.DEBUG))
+            if (Config.getLoggingLevel().equals(LoggingLevel.DEBUG))
                 logger.info(
                         firstItem + " " +
                                 anvilInventory.getItem(1) + " " +
@@ -101,18 +102,16 @@ public class ItemClickEvent implements Listener {
 
         if (activatedPlugins.isEmpty()) {
             item = VanillaPlugin.removeEnchantments(item, resultItemMeta.getStoredEnchants());
-
         } else {
             for (IPlugin plugin : activatedPlugins.values()) {
                 item = plugin.removeEnchantments(item, resultItemMeta.getStoredEnchants());
             }
-
         }
 
         // Disenchantment plugins
         // ----------------------------------------------------------------------------------------------------
 
-        if (getEnableRepairReset() && (item.getItemMeta() instanceof Repairable meta)) {
+        if (Config.Disenchantment.Anvil.Repair.isResetEnabled() && (item.getItemMeta() instanceof Repairable meta)) {
             meta.setRepairCost(0);
             item.setItemMeta(meta);
         }
@@ -125,8 +124,13 @@ public class ItemClickEvent implements Listener {
             anvilInventory.setItem(1, null);
         }
 
-        if (getEnableAnvilSound())
-            p.playSound(p.getLocation(), Sound.BLOCK_ANVIL_USE, Float.parseFloat(getAnvilSoundVolume().toString()), Float.parseFloat(getAnvilSoundPitch().toString()));
+        if (Config.Disenchantment.Anvil.Sound.isEnabled())
+            p.playSound(
+                    p.getLocation(),
+                    Sound.BLOCK_ANVIL_USE,
+                    Float.parseFloat(Config.Disenchantment.Anvil.Sound.getVolume().toString()),
+                    Float.parseFloat(Config.Disenchantment.Anvil.Sound.getPitch().toString())
+            );
 
         if (p.getGameMode() != org.bukkit.GameMode.CREATIVE) p.setLevel(exp);
 

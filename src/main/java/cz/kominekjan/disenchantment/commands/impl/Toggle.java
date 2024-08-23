@@ -2,17 +2,9 @@ package cz.kominekjan.disenchantment.commands.impl;
 
 import cz.kominekjan.disenchantment.Disenchantment;
 import cz.kominekjan.disenchantment.commands.Command;
-import org.bukkit.Bukkit;
+import cz.kominekjan.disenchantment.config.Config;
 import org.bukkit.ChatColor;
-import org.bukkit.World;
 import org.bukkit.command.CommandSender;
-
-import java.util.List;
-
-import static cz.kominekjan.disenchantment.config.Config.getDisabledWorlds;
-import static cz.kominekjan.disenchantment.config.Config.setDisabledWorlds;
-import static cz.kominekjan.disenchantment.utils.TextUtils.textWithPrefixError;
-import static cz.kominekjan.disenchantment.utils.TextUtils.textWithPrefixSuccess;
 
 public class Toggle {
     public static final Command command = new Command(
@@ -25,38 +17,16 @@ public class Toggle {
     );
 
     public static void execute(CommandSender s, String[] args) {
-        if (args.length == 1) {
-            Disenchantment.toggle();
-            String builder = "";
-            builder += ChatColor.GRAY + "Plugin is ";
-            builder += Disenchantment.enabled ? ChatColor.GREEN + "Enabled" : ChatColor.RED + "Disabled";
-            s.sendMessage(builder);
-            return;
-        }
+        boolean pluginEnabled = !Config.isPluginEnabled();
 
-        String wrl = args[1];
+        Disenchantment.toggle(pluginEnabled);
+        Config.setPluginEnabled(pluginEnabled);
 
-        World world = Bukkit.getWorld(wrl);
+        String builder = "";
 
-        if (world == null) {
-            s.sendMessage(textWithPrefixError("World \"" + wrl + "\" does not exist!"));
-            return;
-        }
+        builder += ChatColor.GRAY + "Plugin is ";
+        builder += Disenchantment.enabled ? ChatColor.GREEN + "Enabled" : ChatColor.RED + "Disabled";
 
-        List<World> disabledWorlds = getDisabledWorlds();
-
-        if (disabledWorlds.contains(world)) {
-            disabledWorlds.remove(world);
-
-            setDisabledWorlds(disabledWorlds);
-
-            s.sendMessage(textWithPrefixSuccess("Enabled in world \"" + world + "\""));
-        } else {
-            disabledWorlds.add(world);
-
-            setDisabledWorlds(disabledWorlds);
-
-            s.sendMessage(textWithPrefixSuccess("Disabled in world \"" + world + "\""));
-        }
+        s.sendMessage(builder);
     }
 }

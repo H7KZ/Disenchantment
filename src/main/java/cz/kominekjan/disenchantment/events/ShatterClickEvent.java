@@ -1,8 +1,11 @@
 package cz.kominekjan.disenchantment.events;
 
+import cz.kominekjan.disenchantment.config.Config;
 import cz.kominekjan.disenchantment.plugins.IPlugin;
 import cz.kominekjan.disenchantment.plugins.PluginManager;
 import cz.kominekjan.disenchantment.plugins.impl.VanillaPlugin;
+import cz.kominekjan.disenchantment.types.LoggingLevel;
+import cz.kominekjan.disenchantment.utils.EventCheckUtils;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -19,20 +22,17 @@ import org.bukkit.inventory.view.AnvilView;
 
 import java.util.HashMap;
 
-import static cz.kominekjan.disenchantment.Disenchantment.enabled;
 import static cz.kominekjan.disenchantment.Disenchantment.logger;
-import static cz.kominekjan.disenchantment.config.Config.getLoggingLevel;
-import static cz.kominekjan.disenchantment.utils.EventCheckUtils.isEventValidDisenchantSplitBook;
 
-public class SplitBookClickEvent implements Listener {
+public class ShatterClickEvent implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onDisenchantmentClickEvent(InventoryClickEvent e) {
         if (!(e.getWhoClicked() instanceof Player p)) return;
 
-        if (!enabled || getDisabledWorlds().contains(p.getWorld()) || getDisableBookSplitting() || getDisabledBookSplittingWorlds().contains(p.getWorld()))
+        if (!Config.isPluginEnabled() || Config.Shatterment.isEnabled() || Config.Shatterment.getDisabledWorlds().contains(p.getWorld()))
             return;
 
-        if (!(p.hasPermission("disenchantment.all") || p.hasPermission("disenchantment.anvil") || p.hasPermission("disenchantment.anvil.split_book")))
+        if (!(p.hasPermission("disenchantment.all") || p.hasPermission("disenchantment.anvil") || p.hasPermission("disenchantment.anvil.shatter")))
             return;
 
         if (e.getInventory().getType() != InventoryType.ANVIL) return;
@@ -44,7 +44,6 @@ public class SplitBookClickEvent implements Listener {
 
         AnvilInventory anvilInventory = (AnvilInventory) e.getInventory();
 
-        // do not use "anvilInventory.getResult();" as not present on current spigot.
         ItemStack result = anvilInventory.getItem(2);
 
         if (result == null) return;
@@ -54,7 +53,7 @@ public class SplitBookClickEvent implements Listener {
         ItemStack firstItem = anvilInventory.getItem(0);
         ItemStack secondItem = anvilInventory.getItem(1);
 
-        if (!isEventValidDisenchantSplitBook(firstItem, secondItem)) return;
+        if (!EventCheckUtils.Shatterment.isEventValid(firstItem, secondItem)) return;
 
         AnvilView anvilView = (AnvilView) e.getView();
 
@@ -72,8 +71,8 @@ public class SplitBookClickEvent implements Listener {
 
         int exp = p.getLevel() - anvilView.getRepairCost();
 
-        if (getEnableLogging()) {
-            if (getLoggingLevel().equals(LoggingLevels.INFO) || getLoggingLevel().equals(LoggingLevels.DEBUG))
+        if (Config.isLoggingEnabled()) {
+            if (Config.getLoggingLevel().equals(LoggingLevel.INFO) || Config.getLoggingLevel().equals(LoggingLevel.DEBUG))
                 logger.info(
                         p.getName() + " has split a book " +
                                 firstItem.getType().name() + " with " +
@@ -85,7 +84,7 @@ public class SplitBookClickEvent implements Listener {
                                 p.getLocation().getBlockZ() + "."
                 );
 
-            if (getLoggingLevel().equals(LoggingLevels.DEBUG))
+            if (Config.getLoggingLevel().equals(LoggingLevel.DEBUG))
                 logger.info(
                         firstItem + " " +
                                 anvilInventory.getItem(1) + " " +
@@ -113,7 +112,7 @@ public class SplitBookClickEvent implements Listener {
         // Disenchantment plugins
         // ----------------------------------------------------------------------------------------------------
 
-        if (getEnableRepairReset() && (item.getItemMeta() instanceof Repairable meta)) {
+        if (Config.Shatterment.Anvil.Repair.isResetEnabled() && (item.getItemMeta() instanceof Repairable meta)) {
             meta.setRepairCost(0);
             item.setItemMeta(meta);
         }
@@ -126,8 +125,13 @@ public class SplitBookClickEvent implements Listener {
             anvilInventory.setItem(1, null);
         }
 
-        if (getEnableAnvilSound())
-            p.playSound(p.getLocation(), Sound.BLOCK_ANVIL_USE, Float.parseFloat(getAnvilSoundVolume().toString()), Float.parseFloat(getAnvilSoundPitch().toString()));
+        if (Config.Shatterment.Anvil.Sound.isEnabled())
+            p.playSound(
+                    p.getLocation(),
+                    Sound.BLOCK_ANVIL_USE,
+                    Float.parseFloat(Config.Shatterment.Anvil.Sound.getVolume().toString()),
+                    Float.parseFloat(Config.Shatterment.Anvil.Sound.getPitch().toString())
+            );
 
         if (p.getGameMode() != org.bukkit.GameMode.CREATIVE) p.setLevel(exp);
 
