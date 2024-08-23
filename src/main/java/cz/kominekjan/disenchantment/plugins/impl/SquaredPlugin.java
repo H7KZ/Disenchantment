@@ -8,8 +8,6 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.Map;
 
-import static cz.kominekjan.disenchantment.config.Config.getDisabledEnchantments;
-
 public class SquaredPlugin implements IPlugin {
     public static final String name = "EnchantsSquared";
 
@@ -26,17 +24,10 @@ public class SquaredPlugin implements IPlugin {
 
         for (Map.Entry<Enchantment, Integer> entry : enchantments.entrySet()) {
             Enchantment enchantment = entry.getKey();
-
-            if (getDisabledEnchantments().containsKey(enchantment))
-                continue;
-
             CustomEnchantManager.getInstance().removeEnchant(item, enchantment.getKey().getKey());
         }
 
         return item;
     }
 
-    public ItemStack removeAllEnchantments(ItemStack firstItem) {
-        return this.removeEnchantments(firstItem, firstItem.getEnchantments());
-    }
 }

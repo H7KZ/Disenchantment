@@ -53,6 +53,7 @@ public class CommandCompleter implements TabCompleter {
                     }
                     return result;
                 case "enchantments":
+                case "split-enchantments":
                     for (Enchantment enchantment : Registry.ENCHANTMENT) {
                         if (enchantment.getKey().getKey().toLowerCase().startsWith(args[1].toLowerCase())) {
                             result.add(enchantment.getKey().getKey());

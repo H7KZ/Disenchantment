@@ -1,6 +1,8 @@
 package cz.kominekjan.disenchantment.events;
 
 import cz.kominekjan.disenchantment.Disenchantment;
+import cz.kominekjan.disenchantment.config.Config;
+import cz.kominekjan.disenchantment.config.types.EnchantmentStatus;
 import cz.kominekjan.disenchantment.plugins.IPlugin;
 import cz.kominekjan.disenchantment.plugins.PluginManager;
 import cz.kominekjan.disenchantment.plugins.impl.VanillaPlugin;
@@ -16,11 +18,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.view.AnvilView;
 
 import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
 
 import static cz.kominekjan.disenchantment.Disenchantment.enabled;
-import static cz.kominekjan.disenchantment.config.Config.getDisabledEnchantments;
 import static cz.kominekjan.disenchantment.config.Config.getDisabledWorlds;
 import static cz.kominekjan.disenchantment.utils.AnvilCostUtils.countAnvilCost;
 import static cz.kominekjan.disenchantment.utils.EventCheckUtils.isEventValidDisenchantItem;
@@ -45,15 +44,11 @@ public class ItemEvent implements Listener {
 
         HashMap<Enchantment, Integer> enchantments = new HashMap<>(firstItem.getEnchantments());
 
-        for (Map.Entry<Enchantment, Boolean> disabledEnchantment : getDisabledEnchantments().entrySet()) {
-            if (!disabledEnchantment.getValue()) continue;
-
-            if (enchantments.keySet().stream().anyMatch(m -> m.equals(disabledEnchantment.getKey()))) {
-                Optional<Enchantment> enchantment = enchantments.keySet().stream().filter(m -> m.equals(disabledEnchantment.getKey())).findFirst();
-
-                enchantment.ifPresent(enchantments::remove);
-            }
-        }
+        // Find enchantment to keep to remove them to result
+        Config.getEnchantmentsStatus().forEach((enchantment, status) -> {
+            if (EnchantmentStatus.KEEP.equals(status))
+                enchantments.remove(enchantment);
+        });
 
         if (enchantments.isEmpty()) return;
 
@@ -64,14 +59,15 @@ public class ItemEvent implements Listener {
 
         HashMap<String, IPlugin> activatedPlugins = PluginManager.getActivatedPlugins();
 
-        boolean atLeastOnePluginEnabled = false;
+        if (activatedPlugins.isEmpty()) {
+            book = VanillaPlugin.createEnchantedBook(enchantments);
 
-        for (IPlugin plugin : activatedPlugins.values()) {
-            book = plugin.createEnchantedBook(enchantments);
-            atLeastOnePluginEnabled = true;
+        } else {
+            for (IPlugin plugin : activatedPlugins.values()) {
+                book = plugin.createEnchantedBook(enchantments);
+            }
+
         }
-
-        if (!atLeastOnePluginEnabled) book = VanillaPlugin.createEnchantedBook(enchantments);
 
         // Disenchantment plugins
         // ----------------------------------------------------------------------------------------------------
@@ -79,7 +75,7 @@ public class ItemEvent implements Listener {
         e.setResult(book);
 
         anvilView.setRepairCost(countAnvilCost(enchantments));
-        Bukkit.getScheduler().runTask(Disenchantment.plugin, ()->{
+        Bukkit.getScheduler().runTask(Disenchantment.plugin, () -> {
             // sadly, Spigot like to reset the changed price when vanilla do not expect it to be successful.
             anvilView.setRepairCost(countAnvilCost(enchantments));
 

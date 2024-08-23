@@ -1,79 +1,39 @@
-# Enable or disable the plugin
-"enabled": true
-
-# Enable or disable the log
-"enable-logging": true
-
-# Logging level: INFO, DEBUG
-"logging-level": "INFO"
-
-
 # ----------------------------------------------------------------------------------------
-# ----------------------------------------------------------------------------------------
+# For descriptions of each option, see the wiki:
+# https://github.com/H7KZ/Disenchantment/CONFIG.md
 # ----------------------------------------------------------------------------------------
 
-
-# List of worlds where the plugin is disabled
-"disabled-worlds": [ ]
-
-# List of materials that are not allowed to be disenchanted
-"disabled-materials": [ ]
-
-# List of enchantments that are not allowed to be disenchanted
-"disabled-enchantments": [ ]
-
+enabled: true
+enable-logging: true
+logging-level: "INFO"
 
 # ----------------------------------------------------------------------------------------
-# ----------------------------------------------------------------------------------------
-# ----------------------------------------------------------------------------------------
 
+disable-disenchantment: false
+disabled-disenchantment-worlds: [ ]
+disabled-disenchantment-materials: [ ]
+disenchantment-enchantments-status:
 
-# Enable or disable the book splitting
-"disable-book-splitting": false
+disenchantment-enable-anvil-sound: true
+disenchantment-anvil-volume: 1.0
+disenchantment-anvil-pitch: 1.0
 
-# List of worlds where the book splitting is disabled
-"disabled-book-splitting-worlds": [ ]
-
-# List of enchantments that are not allowed to be split
-"disabled-book-splitting-enchantments": [ ]
-
-
-# ----------------------------------------------------------------------------------------
-# ----------------------------------------------------------------------------------------
-# ----------------------------------------------------------------------------------------
-
-
-# Enable or disable the anvil sound
-"enable-anvil-sound": true
-
-# Edit the volume and pitch of the anvil sound
-"anvil-volume": 1.0
-"anvil-pitch": 1.0
-
+disenchantment-enable-repair-reset: false
+disenchantment-enable-repair-cost: true
+disenchantment-base: 10
+disenchantment-multiply: 0.25
 
 # ----------------------------------------------------------------------------------------
-# ----------------------------------------------------------------------------------------
-# ----------------------------------------------------------------------------------------
 
+disable-shatterment: false
+disabled-shatterment-worlds: [ ]
+shatterment-enchantments-status:
 
-# Enable or disable the repair cost reset back to 0 when the item is disenchanted
-"enable-repair-reset": false
+shatterment-enable-anvil-sound: true
+shatterment-anvil-volume: 1.0
+shatterment-anvil-pitch: 1.0
 
-# Enable or disable the repair cost
-"enable-repair-cost": true
-
-# Base value for the cost of the disenchantment
-"base": 10
-
-# This multiplication is applied to the base value
-# The enchantments are sorted by level in descending order, so the more enchantments you have, the more expensive it is
-# Multiplication value from 0 to infinity (0.25 = 25%)
-# ---
-# It is calculated by the following:
-#   base + (level * multiply)
-# ---
-# Example: base = 10, sharpness = 5, knockback = 1, multiplier = 0.25
-#
-#   10 + (1 * 1) = 11  ->  11 + (5 * 1.25) = 17.25  ->  17.25
-#
-"multiply": 0.25
+shatterment-enable-repair-reset: false
+shatterment-enable-repair-cost: true
+shatterment-base: 10
+shatterment-multiply: 0.25

@@ -11,8 +11,7 @@ import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 
 import java.util.ArrayList;
-
-import static org.bukkit.inventory.ItemFlag.*;
+import java.util.List;
 
 public class ItemBuilder {
     protected ItemStack stack;
@@ -85,7 +84,7 @@ public class ItemBuilder {
         return this;
     }
 
-    public ItemBuilder setLore(ArrayList<String> lore) {
+    public ItemBuilder setLore(List<String> lore) {
         ItemMeta meta = this.getItemMeta();
         meta.setLore(lore);
         this.setItemMeta(meta);

@@ -1,5 +1,5 @@
 name: Disenchantment
-version: '5.3.2'
+version: '5.4.0'
 main: cz.kominekjan.disenchantment.Disenchantment
 api-version: '1.21.1'
 authors:
@@ -14,6 +14,7 @@ commands:
       - disenchantment
       - disenchant
       - disench
+      - shatterment
     usage: '/<command>'
     permission: disenchantment.use
     permission-message: You don't have permission to use this command.
@@ -22,12 +23,12 @@ permissions:
     description: Access to all permissions
     default: op
   disenchantment.anvil:
-    description: Allows the player to disenchant items and split enchantments from books
+    description: Allows the player to disenchant items or shatter books
     default: op
-  disenchantment.anvil.item:
+  disenchantment.anvil.disenchant:
     description: Allows the player to disenchant items
     default: op
-  disenchantment.anvil.split_book:
+  disenchantment.anvil.shatter:
     description: Allows the player to split enchantments from books
     default: op
   disenchantment.command.gui:
@@ -42,16 +43,28 @@ permissions:
   disenchantment.command.toggle:
     description: Toggle command
     default: op
-  disenchantment.command.repair:
+  disenchantment.command.disenchantment_repair:
     description: Repair command
     default: op
-  disenchantment.command.enchantments:
+  disenchantment.command.disenchantment_enchantments:
     description: Enchantments command
     default: op
-  disenchantment.command.materials:
+  disenchantment.command.disenchantment_materials:
     description: Materials command
     default: op
-  disenchantment.command.sound:
+  disenchantment.command.disenchantment_sound:
+    description: Sound command
+    default: op
+  disenchantment.command.shatterment_repair:
+    description: Repair command
+    default: op
+  disenchantment.command.shatterment_enchantments:
+    description: Enchantments command
+    default: op
+  disenchantment.command.shatterment_materials:
+    description: Materials command
+    default: op
+  disenchantment.command.shatterment_sound:
     description: Sound command
     default: op
   disenchantment.gui.status:
@@ -60,15 +73,27 @@ permissions:
   disenchantment.gui.toggle:
     description: GUI Enable or disable the plugin in a specific world
     default: op
-  disenchantment.gui.repair:
+  disenchantment.gui.disenchantment_repair:
     description: GUI Set the repair settings
     default: op
-  disenchantment.gui.enchantments:
+  disenchantment.gui.disenchantment_enchantments:
     description: GUI Set the enchantments settings
     default: op
-  disenchantment.gui.materials:
+  disenchantment.gui.disenchantment_materials:
     description: GUI Set the materials settings
     default: op
-  disenchantment.gui.sound:
+  disenchantment.gui.disenchantment_sound:
+    description: GUI Set the sound settings
+    default: op
+  disenchantment.gui.shatterment_repair:
+    description: GUI Set the repair settings
+    default: op
+  disenchantment.gui.shatterment_enchantments:
+    description: GUI Set the enchantments settings
+    default: op
+  disenchantment.gui.shatterment_materials:
+    description: GUI Set the materials settings
+    default: op
+  disenchantment.gui.shatterment_sound:
     description: GUI Set the sound settings
     default: op

@@ -2,25 +2,26 @@ package cz.kominekjan.disenchantment;
 
 import cz.kominekjan.disenchantment.commands.CommandCompleter;
 import cz.kominekjan.disenchantment.commands.CommandRegister;
+import cz.kominekjan.disenchantment.config.Config;
+import cz.kominekjan.disenchantment.config.ConfigMigrations;
 import cz.kominekjan.disenchantment.events.*;
 import cz.kominekjan.disenchantment.libs.bstats.BStatsMetrics;
-import cz.kominekjan.disenchantment.libs.config.ConfigUpdater;
 import cz.kominekjan.disenchantment.libs.update.UpdateChecker;
 import cz.kominekjan.disenchantment.plugins.PluginManager;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitScheduler;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.io.File;
-import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.logging.Logger;
-
-import static cz.kominekjan.disenchantment.config.Config.setPluginEnabled;
 
 public final class Disenchantment extends JavaPlugin {
     public static Disenchantment plugin;
@@ -30,11 +31,11 @@ public final class Disenchantment extends JavaPlugin {
 
     public static boolean enabled = true;
 
-    private BukkitTask task;
+    private BukkitTask checkUpdateTask;
 
     public static void toggle() {
         enabled = !enabled;
-        setPluginEnabled(enabled);
+        Config.setPluginEnabled(enabled);
     }
 
     @Override
@@ -51,19 +52,16 @@ public final class Disenchantment extends JavaPlugin {
 
         plugin.saveDefaultConfig();
 
-        File configFile = new File(plugin.getDataFolder(), "config.yml");
+        FileConfiguration oldConfig = YamlConfiguration.loadConfiguration(new File(plugin.getDataFolder(), "config.yml"));
+        FileConfiguration newConfig = YamlConfiguration.loadConfiguration(new InputStreamReader(Objects.requireNonNull(plugin.getResource("config.yml")), StandardCharsets.UTF_8));
 
-        try {
-            ConfigUpdater.update(plugin, "config.yml", configFile);
-        } catch (IOException e) {
-            logger.warning(Arrays.toString(e.getStackTrace()));
-        }
+        ConfigMigrations.apply(oldConfig, newConfig);
 
         plugin.reloadConfig();
 
         config = getConfig();
 
-        enabled = config.getBoolean("enabled");
+        enabled = Config.getPluginEnabled();
 
         getServer().getPluginManager().registerEvents(new ItemEvent(), this);
         getServer().getPluginManager().registerEvents(new ItemClickEvent(), this);
@@ -78,14 +76,14 @@ public final class Disenchantment extends JavaPlugin {
 
         // Check for updates every 8 hours
         String version = plugin.getDescription().getVersion();
-        this.task = scheduler.runTaskTimerAsynchronously(this, this.checkUpdate(version), 3 * 20, 8 * 60 * 60 * 20);
+        this.checkUpdateTask = scheduler.runTaskTimerAsynchronously(this, this.checkUpdate(version), 3 * 20, 8 * 60 * 60 * 20);
 
         logger.info("Disenchantment enabled!");
     }
 
     @Override
     public void onDisable() {
-        this.task.cancel();
+        this.checkUpdateTask.cancel();
 
         getServer().getScheduler().cancelTasks(this);
 
