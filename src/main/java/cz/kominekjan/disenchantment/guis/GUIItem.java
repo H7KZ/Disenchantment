@@ -26,10 +26,12 @@ public class GUIItem {
     public void onClick(InventoryClickEvent event) {
         // avoid double-clicking
         long timeMilli = System.currentTimeMillis();
+
         if (timeMilli - lastClick < 100) {
             event.setCancelled(true);
             return;
         }
+
         lastClick = timeMilli;
 
         this.onClick.onClick(event);

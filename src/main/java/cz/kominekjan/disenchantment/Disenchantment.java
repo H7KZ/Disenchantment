@@ -33,9 +33,8 @@ public final class Disenchantment extends JavaPlugin {
 
     private BukkitTask checkUpdateTask;
 
-    public static void toggle() {
-        enabled = !enabled;
-        Config.setPluginEnabled(enabled);
+    public static void toggle(boolean enable) {
+        enabled = enable;
     }
 
     @Override
@@ -69,10 +68,10 @@ public final class Disenchantment extends JavaPlugin {
 
         enabled = Config.isPluginEnabled();
 
-        getServer().getPluginManager().registerEvents(new ItemEvent(), this);
-        getServer().getPluginManager().registerEvents(new ItemClickEvent(), this);
-        getServer().getPluginManager().registerEvents(new SplitBookEvent(), this);
-        getServer().getPluginManager().registerEvents(new SplitBookClickEvent(), this);
+        getServer().getPluginManager().registerEvents(new DisenchantEvent(), this);
+        getServer().getPluginManager().registerEvents(new DisenchantClickEvent(), this);
+        getServer().getPluginManager().registerEvents(new ShatterEvent(), this);
+        getServer().getPluginManager().registerEvents(new ShatterClickEvent(), this);
         getServer().getPluginManager().registerEvents(new GUIClickEvent(), this);
 
         Objects.requireNonNull(getCommand("disenchantment")).setExecutor(new CommandRegister());

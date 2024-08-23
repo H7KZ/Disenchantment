@@ -1,4 +1,4 @@
-package cz.kominekjan.disenchantment.config.types;
+package cz.kominekjan.disenchantment.types;
 
 public enum LoggingLevel {
     INFO("INFO"),

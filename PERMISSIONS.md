@@ -11,25 +11,24 @@
     - `disenchantment.command.help`
     - `disenchantment.command.status`
     - `disenchantment.command.toggle`
-    - `disenchantment.command.disenchantment_repair`
-    - `disenchantment.command.disenchantment_enchantments`
-    - `disenchantment.command.disenchantment_materials`
-    - `disenchantment.command.disenchantment_sound`
-    - `disenchantment.command.shatterment_repair`
-    - `disenchantment.command.shatterment_enchantments`
-    - `disenchantment.command.shatterment_materials`
-    - `disenchantment.command.shatterment_sound`
+    - `disenchantment.command.disenchant_enchantments`
+    - `disenchantment.command.disenchant_worlds`
+    - `disenchantment.command.disenchant_materials`
+    - `disenchantment.command.disenchant_repair`
+    - `disenchantment.command.disenchant_sound`
+    - `disenchantment.command.shatter_enchantments`
+    - `disenchantment.command.shatter_worlds`
+    - `disenchantment.command.shatter_repair`
+    - `disenchantment.command.shatter_sound`
 4. [GUI Permissions](#gui-permissions)
     - `disenchantment.gui.status`
-    - `disenchantment.gui.toggle`
-    - `disenchantment.gui.disenchantment_repair`
-    - `disenchantment.gui.disenchantment_enchantments`
-    - `disenchantment.gui.disenchantment_materials`
-    - `disenchantment.gui.disenchantment_sound`
-    - `disenchantment.gui.shatterment_repair`
-    - `disenchantment.gui.shatterment_enchantments`
-    - `disenchantment.gui.shatterment_materials`
-    - `disenchantment.gui.shatterment_sound`
+    - `disenchantment.gui.worlds`
+    - `disenchantment.gui.enchantments`
+    - `disenchantment.gui.disenchant_materials`
+    - `disenchantment.gui.disenchant_repair`
+    - `disenchantment.gui.disenchant_sound`
+    - `disenchantment.gui.shatter_repair`
+    - `disenchantment.gui.shatter_sound`
 
 ## General Permissions
 
@@ -67,35 +66,39 @@
 
 - Toggle the plugin on/off
 
-### `disenchantment.command.disenchantment_repair`
-
-- Repair disenchantment items
-
-### `disenchantment.command.disenchantment_enchantments`
+### `disenchantment.command.disenchant_enchantments`
 
 - View disenchantment enchantments
 
-### `disenchantment.command.disenchantment_materials`
+### `disenchantment.command.disenchant_worlds`
+
+- View disenchantment worlds
+
+### `disenchantment.command.disenchant_materials`
 
 - View disenchantment materials
 
-### `disenchantment.command.disenchantment_sound`
+### `disenchantment.command.disenchant_repair`
+
+- Repair disenchantment items
+
+### `disenchantment.command.disenchant_sound`
 
 - View disenchantment sounds
 
-### `disenchantment.command.shatterment_repair`
-
-- Repair shatterment items
-
-### `disenchantment.command.shatterment_enchantments`
+### `disenchantment.command.shatter_enchantments`
 
 - View shatterment enchantments
 
-### `disenchantment.command.shatterment_materials`
+### `disenchantment.command.shatter_worlds`
 
-- View shatterment materials
+- View shatterment worlds
 
-### `disenchantment.command.shatterment_sound`
+### `disenchantment.command.shatter_repair`
+
+- Repair shatterment items
+
+### `disenchantment.command.shatter_sound`
 
 - View shatterment sounds
 
@@ -105,21 +108,21 @@
 
 - See the status of the plugin
 
-### `disenchantment.gui.toggle`
+### `disenchantment.gui.worlds`
 
-- Toggle the plugin on/off
+- View disenchantment worlds
+
+### `disenchantment.gui.enchantments`
+
+- View disenchantment enchantments
+
+### `disenchantment.gui.materials`
+
+- View disenchantment materials
 
 ### `disenchantment.gui.disenchantment_repair`
 
 - Repair disenchantment items
-
-### `disenchantment.gui.disenchantment_enchantments`
-
-- View disenchantment enchantments
-
-### `disenchantment.gui.disenchantment_materials`
-
-- View disenchantment materials
 
 ### `disenchantment.gui.disenchantment_sound`
 
@@ -128,14 +131,6 @@
 ### `disenchantment.gui.shatterment_repair`
 
 - Repair shatterment items
-
-### `disenchantment.gui.shatterment_enchantments`
-
-- View shatterment enchantments
-
-### `disenchantment.gui.shatterment_materials`
-
-- View shatterment materials
 
 ### `disenchantment.gui.shatterment_sound`
 

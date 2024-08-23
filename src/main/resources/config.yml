@@ -6,36 +6,40 @@ migration: 1
 # ----------------------------------------------------------------------------------------
 
 enabled: true
-enable-logging: true
+logging-enable: true
 logging-level: "INFO"
 
 # ----------------------------------------------------------------------------------------
 
-disable-disenchantment: false
-disabled-disenchantment-worlds: [ ]
-disabled-disenchantment-materials: [ ]
-disenchantment-enchantments-status:
-
-disenchantment-enable-anvil-sound: true
-disenchantment-anvil-volume: 1.0
-disenchantment-anvil-pitch: 1.0
-
-disenchantment-enable-repair-reset: false
-disenchantment-enable-repair-cost: true
-disenchantment-base: 10
-disenchantment-multiply: 0.25
+disenchantment:
+  enabled: true
+  disabled-worlds: [ ]
+  disabled-materials: [ ]
+  enchantments-states: [ ]
+  anvil:
+    sound:
+      enabled: true
+      volume: 1.0
+      pitch: 1.0
+    repair:
+      reset: false
+      cost: true
+      base: 10
+      multiply: 0.25
 
 # ----------------------------------------------------------------------------------------
 
-disable-shatterment: false
-disabled-shatterment-worlds: [ ]
-shatterment-enchantments-status:
-
-shatterment-enable-anvil-sound: true
-shatterment-anvil-volume: 1.0
-shatterment-anvil-pitch: 1.0
-
-shatterment-enable-repair-reset: false
-shatterment-enable-repair-cost: true
-shatterment-base: 10
-shatterment-multiply: 0.25
+shatterment:
+  enabled: true
+  disabled-worlds: [ ]
+  enchantments-states: [ ]
+  anvil:
+    sound:
+      enabled: true
+      volume: 1.0
+      pitch: 1.0
+    repair:
+      reset: false
+      cost: true
+      base: 10
+      multiply: 0.25

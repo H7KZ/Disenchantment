@@ -20,6 +20,20 @@ public class GUIClickEvent implements Listener {
 
         if (clickedHolder instanceof NavigationGUI) {
             ((NavigationGUI) clickedHolder).onInventoryClick(event);
+        } else if (clickedHolder instanceof DisenchantmentRepairGUI) {
+            if (!event.getWhoClicked().hasPermission("disenchantment.gui.disenchantment-repair")) {
+                event.getWhoClicked().sendMessage(textWithPrefixError("You don't have permission to use this feature."));
+                return;
+            }
+
+            ((DisenchantmentRepairGUI) clickedHolder).onInventoryClick(event);
+        } else if (clickedHolder instanceof DisenchantmentSoundGUI) {
+            if (!event.getWhoClicked().hasPermission("disenchantment.gui.disenchantment-sound")) {
+                event.getWhoClicked().sendMessage(textWithPrefixError("You don't have permission to use this feature."));
+                return;
+            }
+
+            ((DisenchantmentSoundGUI) clickedHolder).onInventoryClick(event);
         } else if (clickedHolder instanceof WorldsGUI) {
             if (!event.getWhoClicked().hasPermission("disenchantment.gui.toggle")) {
                 event.getWhoClicked().sendMessage(textWithPrefixError("You don't have permission to use this feature."));
@@ -27,34 +41,20 @@ public class GUIClickEvent implements Listener {
             }
 
             ((WorldsGUI) clickedHolder).onInventoryClick(event);
-        } else if (clickedHolder instanceof RepairGUI) {
-            if (!event.getWhoClicked().hasPermission("disenchantment.gui.toggle")) {
+        } else if (clickedHolder instanceof DisenchantMaterialsGUI) {
+            if (!event.getWhoClicked().hasPermission("disenchantment.gui.materials")) {
                 event.getWhoClicked().sendMessage(textWithPrefixError("You don't have permission to use this feature."));
                 return;
             }
 
-            ((RepairGUI) clickedHolder).onInventoryClick(event);
+            ((DisenchantMaterialsGUI) clickedHolder).onInventoryClick(event);
         } else if (clickedHolder instanceof EnchantmentsGUI) {
-            if (!event.getWhoClicked().hasPermission("disenchantment.gui.toggle")) {
+            if (!event.getWhoClicked().hasPermission("disenchantment.gui.enchantments")) {
                 event.getWhoClicked().sendMessage(textWithPrefixError("You don't have permission to use this feature."));
                 return;
             }
 
             ((EnchantmentsGUI) clickedHolder).onInventoryClick(event);
-        } else if (clickedHolder instanceof MaterialsGUI) {
-            if (!event.getWhoClicked().hasPermission("disenchantment.gui.toggle")) {
-                event.getWhoClicked().sendMessage(textWithPrefixError("You don't have permission to use this feature."));
-                return;
-            }
-
-            ((MaterialsGUI) clickedHolder).onInventoryClick(event);
-        } else if (clickedHolder instanceof SoundGUI) {
-            if (!event.getWhoClicked().hasPermission("disenchantment.gui.toggle")) {
-                event.getWhoClicked().sendMessage(textWithPrefixError("You don't have permission to use this feature."));
-                return;
-            }
-
-            ((SoundGUI) clickedHolder).onInventoryClick(event);
         }
     }
 }

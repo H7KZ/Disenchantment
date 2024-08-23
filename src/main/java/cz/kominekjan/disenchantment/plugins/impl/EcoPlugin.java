@@ -7,8 +7,6 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.Map;
 
-import static cz.kominekjan.disenchantment.utils.DisenchantUtils.removeStoredEnchantment;
-
 public class EcoPlugin implements IPlugin {
     public static final String name = "EcoEnchants";
 
@@ -25,14 +23,7 @@ public class EcoPlugin implements IPlugin {
     }
 
     public ItemStack removeEnchantments(ItemStack firstItem, Map<Enchantment, Integer> enchantments) {
-        ItemStack item = firstItem.clone();
-
-        for (Map.Entry<Enchantment, Integer> entry : enchantments.entrySet()) {
-            Enchantment enchantment = entry.getKey();
-            removeStoredEnchantment(item, enchantment);
-        }
-
-        return item;
+        return VanillaPlugin.removeEnchantments(firstItem, enchantments);
     }
 
 }
