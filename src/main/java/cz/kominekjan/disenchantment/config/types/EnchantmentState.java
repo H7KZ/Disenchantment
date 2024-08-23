@@ -5,7 +5,7 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 
-public enum EnchantmentStatus {
+public enum EnchantmentState {
     ENABLED(ChatColor.GREEN + "Enabled", null),
     KEEP(ChatColor.GOLD + "Keep", "keep"),
     DISABLED(ChatColor.RED + "Disabled", "disabled"),
@@ -14,13 +14,13 @@ public enum EnchantmentStatus {
     private final String displayName;
     private final String configName;
 
-    EnchantmentStatus(String displayName, String configName) {
+    EnchantmentState(String displayName, String configName) {
         this.displayName = displayName;
         this.configName = configName;
     }
 
     @Nullable
-    public static EnchantmentStatus getStatusByName(@Nullable String name) {
+    public static EnchantmentState getStateByName(@Nullable String name) {
         if (name == null) return null;
 
         return switch (name.toLowerCase()) {
@@ -33,7 +33,7 @@ public enum EnchantmentStatus {
     }
 
     @NotNull
-    public static EnchantmentStatus getNextStatus(@Nullable EnchantmentStatus lastStatus) {
+    public static EnchantmentState getNextState(@Nullable EnchantmentState lastStatus) {
         if (lastStatus == null) return ENABLED;
 
         return switch (lastStatus) {
@@ -50,5 +50,4 @@ public enum EnchantmentStatus {
     public String getConfigName() {
         return configName;
     }
-
 }

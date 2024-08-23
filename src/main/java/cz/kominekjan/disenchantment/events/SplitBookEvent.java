@@ -1,7 +1,7 @@
 package cz.kominekjan.disenchantment.events;
 
 import cz.kominekjan.disenchantment.Disenchantment;
-import cz.kominekjan.disenchantment.config.types.EnchantmentStatus;
+import cz.kominekjan.disenchantment.config.types.EnchantmentState;
 import cz.kominekjan.disenchantment.plugins.IPlugin;
 import cz.kominekjan.disenchantment.plugins.PluginManager;
 import cz.kominekjan.disenchantment.plugins.impl.VanillaPlugin;
@@ -23,7 +23,6 @@ import java.util.HashMap;
 import java.util.List;
 
 import static cz.kominekjan.disenchantment.Disenchantment.enabled;
-import static cz.kominekjan.disenchantment.config.Config.*;
 import static cz.kominekjan.disenchantment.utils.AnvilCostUtils.countAnvilCost;
 import static cz.kominekjan.disenchantment.utils.EventCheckUtils.isEventValidDisenchantSplitBook;
 
@@ -52,7 +51,7 @@ public class SplitBookEvent implements Listener {
         if (enchantments.size() < 2) return;
 
         getBookSplittingEnchantmentsStatus().forEach((enchantment, status) -> {
-            if (EnchantmentStatus.KEEP.equals(status))
+            if (EnchantmentState.KEEP.equals(status))
                 enchantments.remove(enchantment);
         });
 

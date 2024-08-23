@@ -55,13 +55,19 @@ public final class Disenchantment extends JavaPlugin {
         FileConfiguration oldConfig = YamlConfiguration.loadConfiguration(new File(plugin.getDataFolder(), "config.yml"));
         FileConfiguration newConfig = YamlConfiguration.loadConfiguration(new InputStreamReader(Objects.requireNonNull(plugin.getResource("config.yml")), StandardCharsets.UTF_8));
 
-        ConfigMigrations.apply(oldConfig, newConfig);
+        FileConfiguration updatedConfig = ConfigMigrations.apply(plugin, oldConfig, newConfig);
+
+        try {
+            updatedConfig.save(new File(plugin.getDataFolder(), "config.yml"));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         plugin.reloadConfig();
 
         config = getConfig();
 
-        enabled = Config.getPluginEnabled();
+        enabled = Config.isPluginEnabled();
 
         getServer().getPluginManager().registerEvents(new ItemEvent(), this);
         getServer().getPluginManager().registerEvents(new ItemClickEvent(), this);

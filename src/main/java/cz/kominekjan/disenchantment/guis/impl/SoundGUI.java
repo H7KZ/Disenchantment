@@ -11,8 +11,6 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.jetbrains.annotations.NotNull;
 
-import static cz.kominekjan.disenchantment.config.Config.*;
-
 public class SoundGUI implements InventoryHolder {
     private final GUIItem[] items = ArrayUtils.addAll(
             DefaultGUIElements.border9x3(new Integer[]{0}),
