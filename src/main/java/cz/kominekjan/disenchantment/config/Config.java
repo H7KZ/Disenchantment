@@ -1,13 +1,13 @@
 package cz.kominekjan.disenchantment.config;
 
-import cz.kominekjan.disenchantment.config.types.EnchantmentStatus;
+import cz.kominekjan.disenchantment.config.types.EnchantmentState;
+import cz.kominekjan.disenchantment.config.types.LoggingLevel;
+import io.papermc.paper.registry.RegistryAccess;
+import io.papermc.paper.registry.RegistryKey;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.Registry;
 import org.bukkit.World;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.enchantments.Enchantment;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -18,313 +18,333 @@ import static cz.kominekjan.disenchantment.Disenchantment.config;
 import static cz.kominekjan.disenchantment.Disenchantment.plugin;
 
 public class Config {
-    public static Boolean getPluginEnabled() {
+    public static Boolean isPluginEnabled() {
         return config.getBoolean(ConfigKeys.ENABLED.getKey());
-    }
-
-    public static Boolean getEnableLogging() {
-        return config.getBoolean(ConfigKeys.ENABLE_LOGGING.getKey());
-    }
-
-    public static LoggingLevels getLoggingLevel() {
-        String level = config.getString(ConfigKeys.LOGGING_LEVEL.getKey());
-        return LoggingLevels.valueOf(level);
-    }
-
-    public static List<World> getDisabledWorlds() {
-        return new ArrayList<>(config.getStringList(ConfigKeys.DISABLED_WORLDS.getKey()).stream().map(Bukkit::getWorld).toList());
-    }
-
-    public static List<Material> getDisabledMaterials() {
-        return new ArrayList<>(config.getStringList(ConfigKeys.DISABLED_ITEMS.getKey()).stream().map(Material::getMaterial).toList());
-    }
-
-    public static Map<Enchantment, EnchantmentStatus> getBookSplittingEnchantmentsStatus() {
-        return getGeneralEnchantmentStatus(ConfigKeys.BOOK_SPLITTING_ENCHANTMENTS_STATUS, ConfigKeys.DISABLED_BOOK_SPLITTING_ENCHANTMENTS);
-    }
-
-    public static Map<Enchantment, EnchantmentStatus> getEnchantmentsStatus() {
-        return getGeneralEnchantmentStatus(ConfigKeys.ENCHANTMENTS_STATUS, ConfigKeys.DISABLED_ENCHANTMENTS);
-    }
-
-    private static Map<Enchantment, EnchantmentStatus> getGeneralEnchantmentStatus(ConfigKeys newKey, ConfigKeys legacyKey) {
-        Map<Enchantment, EnchantmentStatus> statuses = new HashMap<>();
-        ConfigurationSection section = config.getConfigurationSection(newKey.getKey());
-
-        if (section == null) {
-            fillLegacyStatus(legacyKey, statuses);
-            return statuses;
-        }
-
-        for (String enchantmentKey : section.getKeys(false)) {
-            if (!section.isString(enchantmentKey)) continue;
-
-            EnchantmentStatus status = EnchantmentStatus.getStatusByName(section.getString(enchantmentKey));
-
-            if (status == null) continue;
-
-            Registry.ENCHANTMENT
-                    .stream()
-                    .filter(e -> e.getKey().getKey().equals(enchantmentKey))
-                    .findFirst()
-                    .ifPresent(enchantment -> statuses.put(enchantment, status));
-        }
-
-        fillLegacyStatus(legacyKey, statuses);
-        return statuses;
-    }
-
-    // legacy (disabled-enchantment) compatibility
-    private static void fillLegacyStatus(ConfigKeys legacyKey, Map<Enchantment, EnchantmentStatus> statuses) {
-        ConfigurationSection legacySection = config.getConfigurationSection(legacyKey.getKey());
-
-        if (legacySection == null) return;
-
-        for (String enchantmentKey : legacySection.getKeys(false)) {
-            EnchantmentStatus status;
-            if (!legacySection.isBoolean(enchantmentKey)) {
-                // Not "false" or "true". we default to enabled
-                status = EnchantmentStatus.ENABLED;
-            } else {
-                status = config.getBoolean(enchantmentKey) ? EnchantmentStatus.DISABLED : EnchantmentStatus.KEEP;
-            }
-
-            Registry.ENCHANTMENT
-                    .stream()
-                    .filter(e -> e.getKey().getKey().equals(enchantmentKey))
-                    .findFirst()
-                    .ifPresent(enchantment -> statuses.putIfAbsent(enchantment, status));
-
-        }
-    }
-
-    public static EnchantmentStatus getBookSplittingEnchantmentStatus(@NotNull Enchantment enchantment) {
-        return getGeneralEnchantmentStatus(ConfigKeys.BOOK_SPLITTING_ENCHANTMENTS_STATUS, ConfigKeys.DISABLED_BOOK_SPLITTING_ENCHANTMENTS, enchantment);
-    }
-
-    public static EnchantmentStatus getEnchantmentStatus(@NotNull Enchantment enchantment) {
-        return getGeneralEnchantmentStatus(ConfigKeys.ENCHANTMENTS_STATUS, ConfigKeys.DISABLED_ENCHANTMENTS, enchantment);
-    }
-
-    private static EnchantmentStatus getGeneralEnchantmentStatus(ConfigKeys newKey, ConfigKeys legacyKey, Enchantment enchantment) {
-        ConfigurationSection section = config.getConfigurationSection(newKey.getKey());
-
-        if (section == null) return getLegacyStatus(legacyKey, enchantment);
-
-        String toFind = enchantment.getKey().getKey();
-        String key = section.getKeys(false).stream().filter(toFind::equalsIgnoreCase).findFirst().orElse(null);
-
-        if (key != null) return EnchantmentStatus.getStatusByName(section.getString(key));
-
-        return getLegacyStatus(legacyKey, enchantment);
-    }
-
-    // legacy (disabled-enchantment) compatibility
-    private static EnchantmentStatus getLegacyStatus(ConfigKeys legacyKey, Enchantment enchantment) {
-        ConfigurationSection legacySection = config.getConfigurationSection(legacyKey.getKey());
-
-        if (legacySection == null) return EnchantmentStatus.ENABLED;
-
-        String toFind = enchantment.getKey().getKey();
-        String key = legacySection.getKeys(false).stream().filter(toFind::equalsIgnoreCase).findFirst().orElse(null);
-
-        if ((key == null) || (!legacySection.isBoolean(key))) return EnchantmentStatus.ENABLED;
-
-        return legacySection.getBoolean(key) ? EnchantmentStatus.DISABLED : EnchantmentStatus.KEEP;
-    }
-
-    /**
-     * Set enchantment status and save config file.
-     *
-     * @param enchantment Enchantment to set the status to.
-     * @param status      Enchantment status to be set to.
-     */
-    public static void setEnchantmentsStatus(@NotNull Enchantment enchantment, @NotNull EnchantmentStatus status) {
-        setGeneralEnchantmentStatus(ConfigKeys.ENCHANTMENTS_STATUS, enchantment, status);
-    }
-
-    /**
-     * Set enchantment status for book splitting and save config file.
-     *
-     * @param enchantment Enchantment to set the status to.
-     * @param status      Enchantment status to be set to.
-     */
-    public static void setBookSplittingEnchantmentsStatus(@NotNull Enchantment enchantment, @NotNull EnchantmentStatus status) {
-        setGeneralEnchantmentStatus(ConfigKeys.BOOK_SPLITTING_ENCHANTMENTS_STATUS, enchantment, status);
-    }
-
-    private static void setGeneralEnchantmentStatus(@NotNull ConfigKeys configKey, @NotNull Enchantment enchantment, @NotNull EnchantmentStatus status) {
-        String configPath = configKey.getKey() + "." + enchantment.getKey().getKey();
-
-        if (EnchantmentStatus.ENABLED == status) {
-            if (!config.isString(configPath))
-                // Already absent. no need to write
-                return;
-
-            // Remove from config
-            config.set(configPath, null);
-        } else {
-            if (status.getConfigName().equalsIgnoreCase(config.getString(configPath))) {
-                // Same as previous value. we do not continue
-                return;
-            }
-
-            config.set(configPath, status.getConfigName());
-        }
-
-        plugin.saveConfig();
-    }
-
-
-    public static Boolean getDisableBookSplitting() {
-        return config.getBoolean(ConfigKeys.DISABLE_BOOK_SPLITTING.getKey());
-    }
-
-    public static List<World> getDisabledBookSplittingWorlds() {
-        return new ArrayList<>(config.getStringList(ConfigKeys.DISABLED_WORLDS.getKey()).stream().map(Bukkit::getWorld).toList());
-    }
-
-    public static Boolean getEnableAnvilSound() {
-        return config.getBoolean(ConfigKeys.ENABLE_ANVIL_SOUND.getKey());
-    }
-
-    public static Double getAnvilSoundVolume() {
-        return config.getDouble(ConfigKeys.ANVIL_VOLUME.getKey());
-    }
-
-    public static Double getAnvilSoundPitch() {
-        return config.getDouble(ConfigKeys.ANVIL_PITCH.getKey());
-    }
-
-    public static Boolean getEnableRepairReset() {
-        return config.getBoolean(ConfigKeys.ENABLE_REPAIR_RESET.getKey());
-    }
-
-    public static Boolean getEnableRepairCost() {
-        return config.getBoolean(ConfigKeys.ENABLE_REPAIR_COST.getKey());
-    }
-
-    public static Double getBaseRepairCost() {
-        return config.getDouble(ConfigKeys.BASE_REPAIR_COST.getKey());
-    }
-
-    public static Double getRepairCostMultiplier() {
-        return config.getDouble(ConfigKeys.COST_MULTIPLIER.getKey());
     }
 
     public static Boolean setPluginEnabled(Boolean enabled) {
         config.set(ConfigKeys.ENABLED.getKey(), enabled);
         plugin.saveConfig();
 
-        return getPluginEnabled() == enabled;
+        return isPluginEnabled() == enabled;
     }
 
-    public static Boolean setDisabledWorlds(List<World> worlds) {
-        config.set(ConfigKeys.DISABLED_WORLDS.getKey(), worlds.stream().map(World::getName).toList());
+    public static Boolean isLoggingEnabled() {
+        return config.getBoolean(ConfigKeys.ENABLE_LOGGING.getKey());
+    }
+
+    public static Boolean setLoggingEnabled(Boolean enabled) {
+        config.set(ConfigKeys.ENABLE_LOGGING.getKey(), enabled);
         plugin.saveConfig();
 
-        return getDisabledWorlds().equals(worlds);
+        return isLoggingEnabled() == enabled;
     }
 
-    public static Boolean setDisabledMaterials(List<Material> materials) {
-        config.set(ConfigKeys.DISABLED_ITEMS.getKey(), materials.stream().map(Material::name).toList());
+    public static LoggingLevel getLoggingLevel() {
+        return LoggingLevel.valueOf(config.getString(ConfigKeys.LOGGING_LEVEL.getKey()));
+    }
+
+    public static Boolean setLoggingLevel(LoggingLevel level) {
+        config.set(ConfigKeys.LOGGING_LEVEL.getKey(), level.name());
         plugin.saveConfig();
 
-        return getDisabledMaterials().equals(materials);
+        return getLoggingLevel() == level;
     }
 
-    public static Boolean setEnableAnvilSound(Boolean enabled) {
-        config.set(ConfigKeys.ENABLE_ANVIL_SOUND.getKey(), enabled);
-        plugin.saveConfig();
-
-        return getEnableAnvilSound() == enabled;
-    }
-
-    public static Boolean setAnvilSoundVolume(Double volume) {
-        config.set(ConfigKeys.ANVIL_VOLUME.getKey(), volume);
-        plugin.saveConfig();
-
-        return config.getDouble(ConfigKeys.ANVIL_VOLUME.getKey()) == volume;
-    }
-
-    public static Boolean setAnvilSoundPitch(Double pitch) {
-        config.set(ConfigKeys.ANVIL_PITCH.getKey(), pitch);
-        plugin.saveConfig();
-
-        return config.getDouble(ConfigKeys.ANVIL_PITCH.getKey()) == pitch;
-    }
-
-    public static Boolean setEnableRepairReset(Boolean enabled) {
-        config.set(ConfigKeys.ENABLE_REPAIR_RESET.getKey(), enabled);
-        plugin.saveConfig();
-
-        return getEnableRepairReset() == enabled;
-    }
-
-    public static Boolean setEnableRepairCost(Boolean enabled) {
-        config.set(ConfigKeys.ENABLE_REPAIR_COST.getKey(), enabled);
-        plugin.saveConfig();
-
-        return getEnableRepairCost() == enabled;
-    }
-
-    public static Boolean setBaseRepairCost(Double cost) {
-        config.set(ConfigKeys.BASE_REPAIR_COST.getKey(), cost);
-        plugin.saveConfig();
-
-        return config.getInt(ConfigKeys.BASE_REPAIR_COST.getKey()) == cost;
-    }
-
-    public static Boolean setRepairCostMultiplier(Double multiplier) {
-        config.set(ConfigKeys.COST_MULTIPLIER.getKey(), multiplier);
-        plugin.saveConfig();
-
-        return config.getDouble(ConfigKeys.COST_MULTIPLIER.getKey()) == multiplier;
-    }
-
-    private enum ConfigKeys {
-        ENABLED("enabled"),
-        ENABLE_LOGGING("enable-logging"),
-        LOGGING_LEVEL("logging-level"),
-        DISABLED_WORLDS("disabled-worlds"),
-        DISABLED_ITEMS("disabled-materials"),
-        DISABLED_ENCHANTMENTS("disabled-enchantments"),
-        ENCHANTMENTS_STATUS("enchantments-status"),
-        DISABLE_BOOK_SPLITTING("disable-book-splitting"),
-        DISABLED_BOOK_SPLITTING_WORLDS("disabled-book-splitting-worlds"),
-        DISABLED_BOOK_SPLITTING_ENCHANTMENTS("disabled-book-splitting-enchantments"),
-        BOOK_SPLITTING_ENCHANTMENTS_STATUS("book-splitting-enchantments-status"),
-        ENABLE_ANVIL_SOUND("enable-anvil-sound"),
-        ANVIL_VOLUME("anvil-volume"),
-        ANVIL_PITCH("anvil-pitch"),
-        ENABLE_REPAIR_RESET("enable-repair-reset"),
-        ENABLE_REPAIR_COST("enable-repair-cost"),
-        BASE_REPAIR_COST("base"),
-        COST_MULTIPLIER("multiply");
-
-        private final String key;
-
-        ConfigKeys(String key) {
-            this.key = key;
+    public static class Disenchantment {
+        public static Boolean isEnabled() {
+            return config.getBoolean(ConfigKeys.DISENCHANTMENT_ENABLED.getKey());
         }
 
-        public String getKey() {
-            return key;
+        public static Boolean setEnabled(Boolean enabled) {
+            config.set(ConfigKeys.DISENCHANTMENT_ENABLED.getKey(), enabled);
+            plugin.saveConfig();
+
+            return isEnabled() == enabled;
+        }
+
+        public static List<World> getDisabledWorlds() {
+            return new ArrayList<>(config.getStringList(ConfigKeys.DISENCHANTMENT_DISABLED_WORLDS.getKey()).stream().map(Bukkit::getWorld).toList());
+        }
+
+        public static Boolean setDisabledWorlds(List<World> worlds) {
+            config.set(ConfigKeys.DISENCHANTMENT_DISABLED_WORLDS.getKey(), worlds.stream().map(World::getName).toList());
+            plugin.saveConfig();
+
+            return getDisabledWorlds().equals(worlds);
+        }
+
+        public static List<Material> getDisabledMaterials() {
+            return new ArrayList<>(config.getStringList(ConfigKeys.DISENCHANTMENT_DISABLED_MATERIALS.getKey()).stream().map(Material::getMaterial).toList());
+        }
+
+        public static Boolean setDisabledMaterials(List<Material> materials) {
+            config.set(ConfigKeys.DISENCHANTMENT_DISABLED_MATERIALS.getKey(), materials.stream().map(Material::name).toList());
+            plugin.saveConfig();
+
+            return getDisabledMaterials().equals(materials);
+        }
+
+        public static HashMap<Enchantment, EnchantmentState> getEnchantmentStates() {
+            List<String> list = config.getStringList(ConfigKeys.DISENCHANTMENT_ENCHANTMENTS_STATES.getKey());
+            HashMap<Enchantment, EnchantmentState> enchantmentStates = new HashMap<>();
+
+            List<Enchantment> enchantments = new ArrayList<>(RegistryAccess.registryAccess().getRegistry(RegistryKey.ENCHANTMENT).stream().toList());
+
+            for (String enchantmentState : list) {
+                String[] split = enchantmentState.split(":");
+
+                if (split.length != 2) continue;
+
+                String enchantment = split[0];
+                EnchantmentState state = EnchantmentState.getStateByName(split[1]);
+
+                enchantmentStates.put(
+                        enchantments.stream().filter(e -> e.getKey().getKey().equalsIgnoreCase(enchantment)).findFirst().orElse(null),
+                        state
+                );
+            }
+
+            return enchantmentStates;
+        }
+
+        public static Boolean setEnchantmentStates(HashMap<Enchantment, EnchantmentState> enchantmentStates) {
+            List<String> list = new ArrayList<>();
+
+            for (Map.Entry<Enchantment, EnchantmentState> entry : enchantmentStates.entrySet()) {
+                list.add(entry.getKey().getKey().getKey().toLowerCase() + ":" + entry.getValue().getConfigName().toLowerCase());
+            }
+
+            config.set(ConfigKeys.DISENCHANTMENT_ENCHANTMENTS_STATES.getKey(), list);
+            plugin.saveConfig();
+
+            return getEnchantmentStates().equals(enchantmentStates);
+        }
+
+        public static class Anvil {
+            public static class Sound {
+                public static Boolean isEnabled() {
+                    return config.getBoolean(ConfigKeys.DISENCHANTMENT_ANVIL_SOUND_ENABLED.getKey());
+                }
+
+                public static Boolean setEnabled(Boolean enabled) {
+                    config.set(ConfigKeys.DISENCHANTMENT_ANVIL_SOUND_ENABLED.getKey(), enabled);
+                    plugin.saveConfig();
+
+                    return isEnabled() == enabled;
+                }
+
+                public static Double getVolume() {
+                    return config.getDouble(ConfigKeys.DISENCHANTMENT_ANVIL_VOLUME.getKey());
+                }
+
+                public static Boolean setVolume(Double volume) {
+                    config.set(ConfigKeys.DISENCHANTMENT_ANVIL_VOLUME.getKey(), volume);
+                    plugin.saveConfig();
+
+                    return getVolume().equals(volume);
+                }
+
+                public static Double getPitch() {
+                    return config.getDouble(ConfigKeys.DISENCHANTMENT_ANVIL_PITCH.getKey());
+                }
+
+                public static Boolean setPitch(Double pitch) {
+                    config.set(ConfigKeys.DISENCHANTMENT_ANVIL_PITCH.getKey(), pitch);
+                    plugin.saveConfig();
+
+                    return getPitch().equals(pitch);
+                }
+            }
+
+            public static class Repair {
+                public static Boolean isResetEnabled() {
+                    return config.getBoolean(ConfigKeys.DISENCHANTMENT_REPAIR_RESET_ENABLED.getKey());
+                }
+
+                public static Boolean setResetEnabled(Boolean enabled) {
+                    config.set(ConfigKeys.DISENCHANTMENT_REPAIR_RESET_ENABLED.getKey(), enabled);
+                    plugin.saveConfig();
+
+                    return isResetEnabled() == enabled;
+                }
+
+                public static Boolean isCostEnabled() {
+                    return config.getBoolean(ConfigKeys.DISENCHANTMENT_REPAIR_COST_ENABLED.getKey());
+                }
+
+                public static Boolean setCostEnabled(Boolean enabled) {
+                    config.set(ConfigKeys.DISENCHANTMENT_REPAIR_COST_ENABLED.getKey(), enabled);
+                    plugin.saveConfig();
+
+                    return isCostEnabled() == enabled;
+                }
+
+                public static Double getBaseCost() {
+                    return config.getDouble(ConfigKeys.DISENCHANTMENT_REPAIR_COST_BASE.getKey());
+                }
+
+                public static Boolean setBaseCost(Double cost) {
+                    config.set(ConfigKeys.DISENCHANTMENT_REPAIR_COST_BASE.getKey(), cost);
+                    plugin.saveConfig();
+
+                    return getBaseCost().equals(cost);
+                }
+
+                public static Double getCostMultiplier() {
+                    return config.getDouble(ConfigKeys.DISENCHANTMENT_REPAIR_COST_MULTIPLIER.getKey());
+                }
+
+                public static Boolean setCostMultiplier(Double multiplier) {
+                    config.set(ConfigKeys.DISENCHANTMENT_REPAIR_COST_MULTIPLIER.getKey(), multiplier);
+                    plugin.saveConfig();
+
+                    return getCostMultiplier().equals(multiplier);
+                }
+            }
         }
     }
 
-    public enum LoggingLevels {
-        INFO("INFO"),
-        DEBUG("DEBUG");
-
-        private final String level;
-
-        LoggingLevels(String level) {
-            this.level = level;
+    public static class Shatterment {
+        public static Boolean isDisabled() {
+            return config.getBoolean(ConfigKeys.SHATTERMENT_ENABLED.getKey());
         }
 
-        public String getLevel() {
-            return level;
+        public static Boolean setDisabled(Boolean disabled) {
+            config.set(ConfigKeys.SHATTERMENT_ENABLED.getKey(), disabled);
+            plugin.saveConfig();
+
+            return isDisabled() == disabled;
+        }
+
+        public static List<World> getDisabledWorlds() {
+            return new ArrayList<>(config.getStringList(ConfigKeys.SHATTERMENT_DISABLED_WORLDS.getKey()).stream().map(Bukkit::getWorld).toList());
+        }
+
+        public static Boolean setDisabledWorlds(List<World> worlds) {
+            config.set(ConfigKeys.SHATTERMENT_DISABLED_WORLDS.getKey(), worlds.stream().map(World::getName).toList());
+            plugin.saveConfig();
+
+            return getDisabledWorlds().equals(worlds);
+        }
+
+        public static HashMap<Enchantment, EnchantmentState> getEnchantmentStates() {
+            List<String> list = config.getStringList(ConfigKeys.SHATTERMENT_ENCHANTMENTS_STATES.getKey());
+            HashMap<Enchantment, EnchantmentState> enchantmentStates = new HashMap<>();
+
+            List<Enchantment> enchantments = new ArrayList<>(RegistryAccess.registryAccess().getRegistry(RegistryKey.ENCHANTMENT).stream().toList());
+
+            for (String enchantmentState : list) {
+                String[] split = enchantmentState.split(":");
+
+                if (split.length != 2) continue;
+
+                String enchantment = split[0];
+                EnchantmentState state = EnchantmentState.getStateByName(split[1]);
+
+                enchantmentStates.put(
+                        enchantments.stream().filter(e -> e.getKey().getKey().equalsIgnoreCase(enchantment)).findFirst().orElse(null),
+                        state
+                );
+            }
+
+            return enchantmentStates;
+        }
+
+        public static Boolean setEnchantmentStates(HashMap<Enchantment, EnchantmentState> enchantmentStates) {
+            List<String> list = new ArrayList<>();
+
+            for (Map.Entry<Enchantment, EnchantmentState> entry : enchantmentStates.entrySet()) {
+                list.add(entry.getKey().getKey().getKey().toLowerCase() + ":" + entry.getValue().getConfigName().toLowerCase());
+            }
+
+            config.set(ConfigKeys.SHATTERMENT_ENCHANTMENTS_STATES.getKey(), list);
+            plugin.saveConfig();
+
+            return getEnchantmentStates().equals(enchantmentStates);
+        }
+
+        public static class Anvil {
+            public static class Sound {
+                public static Boolean isEnabled() {
+                    return config.getBoolean(ConfigKeys.SHATTERMENT_ANVIL_SOUND_ENABLED.getKey());
+                }
+
+                public static Boolean setEnabled(Boolean enabled) {
+                    config.set(ConfigKeys.SHATTERMENT_ANVIL_SOUND_ENABLED.getKey(), enabled);
+                    plugin.saveConfig();
+
+                    return isEnabled() == enabled;
+                }
+
+                public static Double getVolume() {
+                    return config.getDouble(ConfigKeys.SHATTERMENT_ANVIL_VOLUME.getKey());
+                }
+
+                public static Boolean setVolume(Double volume) {
+                    config.set(ConfigKeys.SHATTERMENT_ANVIL_VOLUME.getKey(), volume);
+                    plugin.saveConfig();
+
+                    return getVolume().equals(volume);
+                }
+
+                public static Double getPitch() {
+                    return config.getDouble(ConfigKeys.SHATTERMENT_ANVIL_PITCH.getKey());
+                }
+
+                public static Boolean setPitch(Double pitch) {
+                    config.set(ConfigKeys.SHATTERMENT_ANVIL_PITCH.getKey(), pitch);
+                    plugin.saveConfig();
+
+                    return getPitch().equals(pitch);
+                }
+
+                public static class Repair {
+                    public static Boolean isResetEnabled() {
+                        return config.getBoolean(ConfigKeys.SHATTERMENT_REPAIR_RESET_ENABLED.getKey());
+                    }
+
+                    public static Boolean setResetEnabled(Boolean enabled) {
+                        config.set(ConfigKeys.SHATTERMENT_REPAIR_RESET_ENABLED.getKey(), enabled);
+                        plugin.saveConfig();
+
+                        return isResetEnabled() == enabled;
+                    }
+
+                    public static Boolean isCostEnabled() {
+                        return config.getBoolean(ConfigKeys.SHATTERMENT_REPAIR_COST_ENABLED.getKey());
+                    }
+
+                    public static Boolean setCostEnabled(Boolean enabled) {
+                        config.set(ConfigKeys.SHATTERMENT_REPAIR_COST_ENABLED.getKey(), enabled);
+                        plugin.saveConfig();
+
+                        return isCostEnabled() == enabled;
+                    }
+
+                    public static Double getBaseCost() {
+                        return config.getDouble(ConfigKeys.SHATTERMENT_REPAIR_COST_BASE.getKey());
+                    }
+
+                    public static Boolean setBaseCost(Double cost) {
+                        config.set(ConfigKeys.SHATTERMENT_REPAIR_COST_BASE.getKey(), cost);
+                        plugin.saveConfig();
+
+                        return getBaseCost().equals(cost);
+                    }
+
+                    public static Double getCostMultiplier() {
+                        return config.getDouble(ConfigKeys.SHATTERMENT_REPAIR_COST_MULTIPLIER.getKey());
+                    }
+
+                    public static Boolean setCostMultiplier(Double multiplier) {
+                        config.set(ConfigKeys.SHATTERMENT_REPAIR_COST_MULTIPLIER.getKey(), multiplier);
+                        plugin.saveConfig();
+
+                        return getCostMultiplier().equals(multiplier);
+                    }
+                }
+            }
         }
     }
 }

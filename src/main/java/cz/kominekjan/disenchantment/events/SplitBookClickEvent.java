@@ -21,7 +21,7 @@ import java.util.HashMap;
 
 import static cz.kominekjan.disenchantment.Disenchantment.enabled;
 import static cz.kominekjan.disenchantment.Disenchantment.logger;
-import static cz.kominekjan.disenchantment.config.Config.*;
+import static cz.kominekjan.disenchantment.config.Config.getLoggingLevel;
 import static cz.kominekjan.disenchantment.utils.EventCheckUtils.isEventValidDisenchantSplitBook;
 
 public class SplitBookClickEvent implements Listener {

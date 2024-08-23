@@ -2,7 +2,7 @@ package cz.kominekjan.disenchantment.events;
 
 import cz.kominekjan.disenchantment.Disenchantment;
 import cz.kominekjan.disenchantment.config.Config;
-import cz.kominekjan.disenchantment.config.types.EnchantmentStatus;
+import cz.kominekjan.disenchantment.config.types.EnchantmentState;
 import cz.kominekjan.disenchantment.plugins.IPlugin;
 import cz.kominekjan.disenchantment.plugins.PluginManager;
 import cz.kominekjan.disenchantment.plugins.impl.VanillaPlugin;
@@ -46,7 +46,7 @@ public class ItemEvent implements Listener {
 
         // Find enchantment to keep to remove them to result
         Config.getEnchantmentsStatus().forEach((enchantment, status) -> {
-            if (EnchantmentStatus.KEEP.equals(status))
+            if (EnchantmentState.KEEP.equals(status))
                 enchantments.remove(enchantment);
         });
 

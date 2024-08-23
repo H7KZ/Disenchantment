@@ -1,6 +1,6 @@
 package cz.kominekjan.disenchantment.utils;
 
-import cz.kominekjan.disenchantment.config.types.EnchantmentStatus;
+import cz.kominekjan.disenchantment.config.types.EnchantmentState;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
@@ -9,15 +9,13 @@ import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import java.util.Map;
 import java.util.Set;
 
-import static cz.kominekjan.disenchantment.config.Config.*;
-
 public class EventCheckUtils {
 
-    public static boolean checkForDisabledEnchantments(Set<Enchantment> enchantments, Map<Enchantment, EnchantmentStatus> statuses) {
+    public static boolean checkForDisabledEnchantments(Set<Enchantment> enchantments, Map<Enchantment, EnchantmentState> statuses) {
         for (Enchantment enchantment : enchantments) {
-            EnchantmentStatus status = statuses.getOrDefault(enchantment, EnchantmentStatus.ENABLED);
+            EnchantmentState status = statuses.getOrDefault(enchantment, EnchantmentState.ENABLED);
 
-            if (status == EnchantmentStatus.DISABLED)
+            if (status == EnchantmentState.DISABLED)
                 return true;
         }
 

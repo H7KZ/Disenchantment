@@ -2,7 +2,7 @@ package cz.kominekjan.disenchantment.commands.impl;
 
 import cz.kominekjan.disenchantment.commands.Command;
 import cz.kominekjan.disenchantment.config.Config;
-import cz.kominekjan.disenchantment.config.types.EnchantmentStatus;
+import cz.kominekjan.disenchantment.config.types.EnchantmentState;
 import org.bukkit.ChatColor;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Registry;
@@ -26,14 +26,14 @@ public class BookSplitEnchantments {
     );
 
     public static void execute(CommandSender s, String[] args) {
-        Map<Enchantment, EnchantmentStatus> enchantmentStatus = Config.getBookSplittingEnchantmentsStatus();
+        Map<Enchantment, EnchantmentState> enchantmentStatus = Config.getBookSplittingEnchantmentsStatus();
 
         if (args.length == 1) {
             s.sendMessage(textWithPrefix("Disabled enchantments for book splitting"));
             s.sendMessage("");
 
             List<Enchantment> nonEnabledEnchantments = enchantmentStatus.entrySet().stream()
-                    .filter(entry -> !EnchantmentStatus.ENABLED.equals(entry.getValue()))
+                    .filter(entry -> !EnchantmentState.ENABLED.equals(entry.getValue()))
                     .map(Map.Entry::getKey).toList();
 
             if (nonEnabledEnchantments.isEmpty()) {
@@ -42,7 +42,7 @@ public class BookSplitEnchantments {
             }
 
             for (Enchantment enchantment : nonEnabledEnchantments) {
-                EnchantmentStatus status = enchantmentStatus.get(enchantment);
+                EnchantmentState status = enchantmentStatus.get(enchantment);
 
                 StringBuilder builder = new StringBuilder();
                 switch (status) {
@@ -69,10 +69,10 @@ public class BookSplitEnchantments {
             return;
         }
 
-        EnchantmentStatus selectedStatus = switch (args[2].toLowerCase()) {
-            case "enable" -> EnchantmentStatus.ENABLED;
-            case "keep" -> EnchantmentStatus.KEEP;
-            case "cancel" -> EnchantmentStatus.DISABLED;
+        EnchantmentState selectedStatus = switch (args[2].toLowerCase()) {
+            case "enable" -> EnchantmentState.ENABLED;
+            case "keep" -> EnchantmentState.KEEP;
+            case "cancel" -> EnchantmentState.DISABLED;
             default -> null;
         };
 

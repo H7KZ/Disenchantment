@@ -2,7 +2,7 @@ package cz.kominekjan.disenchantment.commands.impl;
 
 import cz.kominekjan.disenchantment.commands.Command;
 import cz.kominekjan.disenchantment.config.Config;
-import cz.kominekjan.disenchantment.config.types.EnchantmentStatus;
+import cz.kominekjan.disenchantment.config.types.EnchantmentState;
 import org.bukkit.ChatColor;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Registry;
@@ -25,14 +25,14 @@ public class Enchantments {
     );
 
     public static void execute(CommandSender s, String[] args) {
-        Map<Enchantment, EnchantmentStatus> enchantmentStatus = Config.getEnchantmentsStatus();
+        Map<Enchantment, EnchantmentState> enchantmentStatus = Config.getEnchantmentsStatus();
 
         if (args.length == 1) {
             s.sendMessage(textWithPrefix("Disabled enchantments for disenchanting"));
             s.sendMessage("");
 
             List<Enchantment> nonEnabledEnchantments = enchantmentStatus.entrySet().stream()
-                    .filter(entry -> !EnchantmentStatus.ENABLED.equals(entry.getValue()))
+                    .filter(entry -> !EnchantmentState.ENABLED.equals(entry.getValue()))
                     .map(Map.Entry::getKey).toList();
 
             if (nonEnabledEnchantments.isEmpty()) {
@@ -41,7 +41,7 @@ public class Enchantments {
             }
 
             for (Enchantment enchantment : nonEnabledEnchantments) {
-                EnchantmentStatus status = enchantmentStatus.get(enchantment);
+                EnchantmentState status = enchantmentStatus.get(enchantment);
 
                 StringBuilder builder = new StringBuilder();
                 switch (status) {
@@ -68,10 +68,10 @@ public class Enchantments {
             return;
         }
 
-        EnchantmentStatus selectedStatus = switch (args[2].toLowerCase()) {
-            case "enable" -> EnchantmentStatus.ENABLED;
-            case "keep" -> EnchantmentStatus.KEEP;
-            case "cancel" -> EnchantmentStatus.DISABLED;
+        EnchantmentState selectedStatus = switch (args[2].toLowerCase()) {
+            case "enable" -> EnchantmentState.ENABLED;
+            case "keep" -> EnchantmentState.KEEP;
+            case "cancel" -> EnchantmentState.DISABLED;
             default -> null;
         };
 

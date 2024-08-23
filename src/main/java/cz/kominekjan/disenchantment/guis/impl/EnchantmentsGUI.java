@@ -1,6 +1,6 @@
 package cz.kominekjan.disenchantment.guis.impl;
 
-import cz.kominekjan.disenchantment.config.types.EnchantmentStatus;
+import cz.kominekjan.disenchantment.config.types.EnchantmentState;
 import cz.kominekjan.disenchantment.guis.GUIItem;
 import cz.kominekjan.disenchantment.guis.InventoryBuilder;
 import org.apache.commons.lang3.ArrayUtils;
@@ -15,8 +15,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
-
-import static cz.kominekjan.disenchantment.config.Config.*;
 
 public class EnchantmentsGUI implements InventoryHolder {
     private final Integer[] freeSlots = {
@@ -94,8 +92,8 @@ public class EnchantmentsGUI implements InventoryHolder {
 
         GUIItem[] worldItems = new GUIItem[pageSize];
 
-        Map<Enchantment, EnchantmentStatus> statuses = getEnchantmentsStatus();
-        Map<Enchantment, EnchantmentStatus> bookSplitStatuses = getBookSplittingEnchantmentsStatus();
+        Map<Enchantment, EnchantmentState> statuses = getEnchantmentsStatus();
+        Map<Enchantment, EnchantmentState> bookSplitStatuses = getBookSplittingEnchantmentsStatus();
 
         for (int i = 0; i < pageSize; i++) {
             int slot = i + this.page * 28;
@@ -104,14 +102,14 @@ public class EnchantmentsGUI implements InventoryHolder {
 
             if (enchantment == null) continue;
 
-            EnchantmentStatus status = statuses.getOrDefault(enchantment, EnchantmentStatus.ENABLED);
-            EnchantmentStatus bookStatus = bookSplitStatuses.getOrDefault(enchantment, EnchantmentStatus.ENABLED);
+            EnchantmentState status = statuses.getOrDefault(enchantment, EnchantmentState.ENABLED);
+            EnchantmentState bookStatus = bookSplitStatuses.getOrDefault(enchantment, EnchantmentState.ENABLED);
 
             String lore = status.getDisplayName() + " " + ChatColor.GRAY + "for " + ChatColor.LIGHT_PURPLE + ChatColor.BOLD + "Disenchantment";
             String bookLore = bookStatus.getDisplayName() + " " + ChatColor.GRAY + "for " + ChatColor.LIGHT_PURPLE + ChatColor.BOLD + "Book Splitting";
 
-            AtomicReference<EnchantmentStatus> oldStatus = new AtomicReference<>(status);
-            AtomicReference<EnchantmentStatus> oldBookStatus = new AtomicReference<>(bookStatus);
+            AtomicReference<EnchantmentState> oldStatus = new AtomicReference<>(status);
+            AtomicReference<EnchantmentState> oldBookStatus = new AtomicReference<>(bookStatus);
 
             worldItems[i] = new GUIItem(
                     freeSlots[i],
@@ -121,8 +119,8 @@ public class EnchantmentsGUI implements InventoryHolder {
 
                         boolean bookSplitting = event.isRightClick();
 
-                        EnchantmentStatus newStatus = bookSplitting ? oldStatus.get() : EnchantmentStatus.getNextStatus(oldStatus.get());
-                        EnchantmentStatus bookNewStatus = bookSplitting ? EnchantmentStatus.getNextStatus(oldBookStatus.get()) : oldBookStatus.get();
+                        EnchantmentState newStatus = bookSplitting ? oldStatus.get() : EnchantmentState.getNextState(oldStatus.get());
+                        EnchantmentState bookNewStatus = bookSplitting ? EnchantmentState.getNextState(oldBookStatus.get()) : oldBookStatus.get();
 
                         String newLore = newStatus.getDisplayName() + " " + ChatColor.GRAY + "for " + ChatColor.LIGHT_PURPLE + ChatColor.BOLD + "Disenchantment";
                         String newLore2 = bookNewStatus.getDisplayName() + " " + ChatColor.GRAY + "for " + ChatColor.LIGHT_PURPLE + ChatColor.BOLD + "Book Splitting";

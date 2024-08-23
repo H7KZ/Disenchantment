@@ -5,8 +5,6 @@ import org.bukkit.enchantments.Enchantment;
 import java.util.Comparator;
 import java.util.Map;
 
-import static cz.kominekjan.disenchantment.config.Config.*;
-
 public class AnvilCostUtils {
     public static int countAnvilCost(Map<Enchantment, Integer> enchantments) {
         if (!getEnableRepairCost()) return 0;
