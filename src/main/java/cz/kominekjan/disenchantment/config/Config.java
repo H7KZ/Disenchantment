@@ -1,16 +1,18 @@
 package cz.kominekjan.disenchantment.config;
 
+import cz.kominekjan.disenchantment.config.types.EnchantmentStatus;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Registry;
 import org.bukkit.World;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.enchantments.Enchantment;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
 import static cz.kominekjan.disenchantment.Disenchantment.config;
 import static cz.kominekjan.disenchantment.Disenchantment.plugin;
@@ -37,16 +39,142 @@ public class Config {
         return new ArrayList<>(config.getStringList(ConfigKeys.DISABLED_ITEMS.getKey()).stream().map(Material::getMaterial).toList());
     }
 
-    public static Map<Enchantment, Boolean> getDisabledEnchantments() {
-        List<String> list = config.getStringList(ConfigKeys.DISABLED_ENCHANTMENTS.getKey());
-        return list.stream().map(s -> {
-            String[] split = s.split(":");
-            return Map.entry(
-                    Objects.requireNonNull(Registry.ENCHANTMENT.stream().filter(e -> e.getKey().getKey().equals(split[0])).findFirst().orElse(null)),
-                    Boolean.parseBoolean(split[1])
-            );
-        }).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+    public static Map<Enchantment, EnchantmentStatus> getBookSplittingEnchantmentsStatus() {
+        return getGeneralEnchantmentStatus(ConfigKeys.BOOK_SPLITTING_ENCHANTMENTS_STATUS, ConfigKeys.DISABLED_BOOK_SPLITTING_ENCHANTMENTS);
     }
+
+    public static Map<Enchantment, EnchantmentStatus> getEnchantmentsStatus() {
+        return getGeneralEnchantmentStatus(ConfigKeys.ENCHANTMENTS_STATUS, ConfigKeys.DISABLED_ENCHANTMENTS);
+    }
+
+    private static Map<Enchantment, EnchantmentStatus> getGeneralEnchantmentStatus(ConfigKeys newKey, ConfigKeys legacyKey) {
+        Map<Enchantment, EnchantmentStatus> statuses = new HashMap<>();
+        ConfigurationSection section = config.getConfigurationSection(newKey.getKey());
+
+        if (section == null) {
+            fillLegacyStatus(legacyKey, statuses);
+            return statuses;
+        }
+
+        for (String enchantmentKey : section.getKeys(false)) {
+            if (!section.isString(enchantmentKey)) continue;
+
+            EnchantmentStatus status = EnchantmentStatus.getStatusByName(section.getString(enchantmentKey));
+
+            if (status == null) continue;
+
+            Registry.ENCHANTMENT
+                    .stream()
+                    .filter(e -> e.getKey().getKey().equals(enchantmentKey))
+                    .findFirst()
+                    .ifPresent(enchantment -> statuses.put(enchantment, status));
+        }
+
+        fillLegacyStatus(legacyKey, statuses);
+        return statuses;
+    }
+
+    // legacy (disabled-enchantment) compatibility
+    private static void fillLegacyStatus(ConfigKeys legacyKey, Map<Enchantment, EnchantmentStatus> statuses) {
+        ConfigurationSection legacySection = config.getConfigurationSection(legacyKey.getKey());
+
+        if (legacySection == null) return;
+
+        for (String enchantmentKey : legacySection.getKeys(false)) {
+            EnchantmentStatus status;
+            if (!legacySection.isBoolean(enchantmentKey)) {
+                // Not "false" or "true". we default to enabled
+                status = EnchantmentStatus.ENABLED;
+            } else {
+                status = config.getBoolean(enchantmentKey) ? EnchantmentStatus.DISABLED : EnchantmentStatus.KEEP;
+            }
+
+            Registry.ENCHANTMENT
+                    .stream()
+                    .filter(e -> e.getKey().getKey().equals(enchantmentKey))
+                    .findFirst()
+                    .ifPresent(enchantment -> statuses.putIfAbsent(enchantment, status));
+
+        }
+    }
+
+    public static EnchantmentStatus getBookSplittingEnchantmentStatus(@NotNull Enchantment enchantment) {
+        return getGeneralEnchantmentStatus(ConfigKeys.BOOK_SPLITTING_ENCHANTMENTS_STATUS, ConfigKeys.DISABLED_BOOK_SPLITTING_ENCHANTMENTS, enchantment);
+    }
+
+    public static EnchantmentStatus getEnchantmentStatus(@NotNull Enchantment enchantment) {
+        return getGeneralEnchantmentStatus(ConfigKeys.ENCHANTMENTS_STATUS, ConfigKeys.DISABLED_ENCHANTMENTS, enchantment);
+    }
+
+    private static EnchantmentStatus getGeneralEnchantmentStatus(ConfigKeys newKey, ConfigKeys legacyKey, Enchantment enchantment) {
+        ConfigurationSection section = config.getConfigurationSection(newKey.getKey());
+
+        if (section == null) return getLegacyStatus(legacyKey, enchantment);
+
+        String toFind = enchantment.getKey().getKey();
+        String key = section.getKeys(false).stream().filter(toFind::equalsIgnoreCase).findFirst().orElse(null);
+
+        if (key != null) return EnchantmentStatus.getStatusByName(section.getString(key));
+
+        return getLegacyStatus(legacyKey, enchantment);
+    }
+
+    // legacy (disabled-enchantment) compatibility
+    private static EnchantmentStatus getLegacyStatus(ConfigKeys legacyKey, Enchantment enchantment) {
+        ConfigurationSection legacySection = config.getConfigurationSection(legacyKey.getKey());
+
+        if (legacySection == null) return EnchantmentStatus.ENABLED;
+
+        String toFind = enchantment.getKey().getKey();
+        String key = legacySection.getKeys(false).stream().filter(toFind::equalsIgnoreCase).findFirst().orElse(null);
+
+        if ((key == null) || (!legacySection.isBoolean(key))) return EnchantmentStatus.ENABLED;
+
+        return legacySection.getBoolean(key) ? EnchantmentStatus.DISABLED : EnchantmentStatus.KEEP;
+    }
+
+    /**
+     * Set enchantment status and save config file.
+     *
+     * @param enchantment Enchantment to set the status to.
+     * @param status      Enchantment status to be set to.
+     */
+    public static void setEnchantmentsStatus(@NotNull Enchantment enchantment, @NotNull EnchantmentStatus status) {
+        setGeneralEnchantmentStatus(ConfigKeys.ENCHANTMENTS_STATUS, enchantment, status);
+    }
+
+    /**
+     * Set enchantment status for book splitting and save config file.
+     *
+     * @param enchantment Enchantment to set the status to.
+     * @param status      Enchantment status to be set to.
+     */
+    public static void setBookSplittingEnchantmentsStatus(@NotNull Enchantment enchantment, @NotNull EnchantmentStatus status) {
+        setGeneralEnchantmentStatus(ConfigKeys.BOOK_SPLITTING_ENCHANTMENTS_STATUS, enchantment, status);
+    }
+
+    private static void setGeneralEnchantmentStatus(@NotNull ConfigKeys configKey, @NotNull Enchantment enchantment, @NotNull EnchantmentStatus status) {
+        String configPath = configKey.getKey() + "." + enchantment.getKey().getKey();
+
+        if (EnchantmentStatus.ENABLED == status) {
+            if (!config.isString(configPath))
+                // Already absent. no need to write
+                return;
+
+            // Remove from config
+            config.set(configPath, null);
+        } else {
+            if (status.getConfigName().equalsIgnoreCase(config.getString(configPath))) {
+                // Same as previous value. we do not continue
+                return;
+            }
+
+            config.set(configPath, status.getConfigName());
+        }
+
+        plugin.saveConfig();
+    }
+
 
     public static Boolean getDisableBookSplitting() {
         return config.getBoolean(ConfigKeys.DISABLE_BOOK_SPLITTING.getKey());
@@ -54,17 +182,6 @@ public class Config {
 
     public static List<World> getDisabledBookSplittingWorlds() {
         return new ArrayList<>(config.getStringList(ConfigKeys.DISABLED_WORLDS.getKey()).stream().map(Bukkit::getWorld).toList());
-    }
-
-    public static Map<Enchantment, Boolean> getDisabledBookSplittingEnchantments() {
-        List<String> list = config.getStringList(ConfigKeys.DISABLED_BOOK_SPLITTING_ENCHANTMENTS.getKey());
-        return list.stream().map(s -> {
-            String[] split = s.split(":");
-            return Map.entry(
-                    Objects.requireNonNull(Registry.ENCHANTMENT.stream().filter(e -> e.getKey().getKey().equals(split[0])).findFirst().orElse(null)),
-                    Boolean.parseBoolean(split[1])
-            );
-        }).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
     public static Boolean getEnableAnvilSound() {
@@ -114,13 +231,6 @@ public class Config {
         plugin.saveConfig();
 
         return getDisabledMaterials().equals(materials);
-    }
-
-    public static Boolean setDisabledEnchantments(Map<Enchantment, Boolean> enchantments) {
-        config.set(ConfigKeys.DISABLED_ENCHANTMENTS.getKey(), enchantments.entrySet().stream().map(e -> e.getKey().getKey().getKey() + ":" + e.getValue()).toList());
-        plugin.saveConfig();
-
-        return getDisabledEnchantments().equals(enchantments);
     }
 
     public static Boolean setEnableAnvilSound(Boolean enabled) {
@@ -179,9 +289,11 @@ public class Config {
         DISABLED_WORLDS("disabled-worlds"),
         DISABLED_ITEMS("disabled-materials"),
         DISABLED_ENCHANTMENTS("disabled-enchantments"),
+        ENCHANTMENTS_STATUS("enchantments-status"),
         DISABLE_BOOK_SPLITTING("disable-book-splitting"),
         DISABLED_BOOK_SPLITTING_WORLDS("disabled-book-splitting-worlds"),
         DISABLED_BOOK_SPLITTING_ENCHANTMENTS("disabled-book-splitting-enchantments"),
+        BOOK_SPLITTING_ENCHANTMENTS_STATUS("book-splitting-enchantments-status"),
         ENABLE_ANVIL_SOUND("enable-anvil-sound"),
         ANVIL_VOLUME("anvil-volume"),
         ANVIL_PITCH("anvil-pitch"),

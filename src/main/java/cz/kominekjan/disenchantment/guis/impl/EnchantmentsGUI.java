@@ -1,5 +1,6 @@
 package cz.kominekjan.disenchantment.guis.impl;
 
+import cz.kominekjan.disenchantment.config.types.EnchantmentStatus;
 import cz.kominekjan.disenchantment.guis.GUIItem;
 import cz.kominekjan.disenchantment.guis.InventoryBuilder;
 import org.apache.commons.lang3.ArrayUtils;
@@ -13,9 +14,9 @@ import org.bukkit.inventory.InventoryHolder;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 
-import static cz.kominekjan.disenchantment.config.Config.getDisabledEnchantments;
-import static cz.kominekjan.disenchantment.config.Config.setDisabledEnchantments;
+import static cz.kominekjan.disenchantment.config.Config.*;
 
 public class EnchantmentsGUI implements InventoryHolder {
     private final Integer[] freeSlots = {
@@ -39,6 +40,8 @@ public class EnchantmentsGUI implements InventoryHolder {
                             ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + "Help",
                             new ArrayList<>(Arrays.asList(
                                     ChatColor.GRAY + "Click on an enchantment to change its behavior",
+                                    ChatColor.GRAY + "Left click for " + ChatColor.LIGHT_PURPLE + "disenchantment",
+                                    ChatColor.GRAY + "Right click for " + ChatColor.LIGHT_PURPLE + "book splitting",
                                     ChatColor.GREEN + "Enabled" + ChatColor.GRAY + " = Enchantment can be removed from items",
                                     ChatColor.GOLD + "Keep" + ChatColor.GRAY + " = Enchantment stays on items",
                                     ChatColor.RED + "Cancel" + ChatColor.GRAY + " = Cancels the entire disenchantment process"
@@ -91,6 +94,9 @@ public class EnchantmentsGUI implements InventoryHolder {
 
         GUIItem[] worldItems = new GUIItem[pageSize];
 
+        Map<Enchantment, EnchantmentStatus> statuses = getEnchantmentsStatus();
+        Map<Enchantment, EnchantmentStatus> bookSplitStatuses = getBookSplittingEnchantmentsStatus();
+
         for (int i = 0; i < pageSize; i++) {
             int slot = i + this.page * 28;
 
@@ -98,44 +104,40 @@ public class EnchantmentsGUI implements InventoryHolder {
 
             if (enchantment == null) continue;
 
-            String lore = "";
+            EnchantmentStatus status = statuses.getOrDefault(enchantment, EnchantmentStatus.ENABLED);
+            EnchantmentStatus bookStatus = bookSplitStatuses.getOrDefault(enchantment, EnchantmentStatus.ENABLED);
 
-            for (Map.Entry<Enchantment, Boolean> disabledEnchantment : getDisabledEnchantments().entrySet()) {
-                if (disabledEnchantment.getKey().equals(enchantment.getKey().getKey())) {
-                    lore = disabledEnchantment.getValue() ? ChatColor.GOLD + "Keep" : ChatColor.RED + "Cancel";
-                    break;
-                }
-            }
+            String lore = status.getDisplayName() + " " + ChatColor.GRAY + "for " + ChatColor.LIGHT_PURPLE + ChatColor.BOLD + "Disenchantment";
+            String bookLore = bookStatus.getDisplayName() + " " + ChatColor.GRAY + "for " + ChatColor.LIGHT_PURPLE + ChatColor.BOLD + "Book Splitting";
 
-            if (lore.isEmpty()) lore = ChatColor.GREEN + "Enabled";
+            AtomicReference<EnchantmentStatus> oldStatus = new AtomicReference<>(status);
+            AtomicReference<EnchantmentStatus> oldBookStatus = new AtomicReference<>(bookStatus);
 
             worldItems[i] = new GUIItem(
                     freeSlots[i],
-                    DefaultGUIElements.enchantmentItem(ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + enchantment.getKey().getKey(), lore),
+                    DefaultGUIElements.enchantmentItem(ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + enchantment.getKey().getKey(), lore, bookLore),
                     event -> {
                         event.setCancelled(true);
 
-                        Map<Enchantment, Boolean> disabledEnchantments = getDisabledEnchantments();
-                        Map.Entry<Enchantment, Boolean> disabledEnchantment = disabledEnchantments.entrySet().stream().filter(e -> e.getKey().equals(enchantment)).findFirst().orElse(null);
-                        String newLore = "";
+                        boolean bookSplitting = event.isRightClick();
 
-                        if (disabledEnchantment != null) {
-                            if (disabledEnchantment.getValue()) {
-                                disabledEnchantments.remove(disabledEnchantment.getKey());
-                                disabledEnchantments.put(enchantment, false);
-                            } else {
-                                disabledEnchantments.remove(disabledEnchantment.getKey());
-                            }
+                        EnchantmentStatus newStatus = bookSplitting ? oldStatus.get() : EnchantmentStatus.getNextStatus(oldStatus.get());
+                        EnchantmentStatus bookNewStatus = bookSplitting ? EnchantmentStatus.getNextStatus(oldBookStatus.get()) : oldBookStatus.get();
 
-                            newLore = disabledEnchantment.getValue() ? ChatColor.RED + "Cancel" : ChatColor.GREEN + "Enabled";
+                        String newLore = newStatus.getDisplayName() + " " + ChatColor.GRAY + "for " + ChatColor.LIGHT_PURPLE + ChatColor.BOLD + "Disenchantment";
+                        String newLore2 = bookNewStatus.getDisplayName() + " " + ChatColor.GRAY + "for " + ChatColor.LIGHT_PURPLE + ChatColor.BOLD + "Book Splitting";
+
+                        if (bookSplitting) {
+                            setBookSplittingEnchantmentsStatus(enchantment, bookNewStatus);
+                            oldBookStatus.set(bookNewStatus);
+
                         } else {
-                            disabledEnchantments.put(enchantment, true);
-                            newLore = ChatColor.GOLD + "Keep";
+                            setEnchantmentsStatus(enchantment, newStatus);
+                            oldBookStatus.set(newStatus);
+
                         }
 
-                        setDisabledEnchantments(disabledEnchantments);
-
-                        event.setCurrentItem(DefaultGUIElements.enchantmentItem(ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + enchantment.getKey().getKey(), newLore));
+                        event.setCurrentItem(DefaultGUIElements.enchantmentItem(ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + enchantment.getKey().getKey(), newLore, newLore2));
                     }
             );
         }

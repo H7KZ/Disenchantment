@@ -12,5 +12,4 @@ public interface IPlugin {
 
     ItemStack removeEnchantments(ItemStack firstItem, Map<Enchantment, Integer> enchantments);
 
-    ItemStack removeAllEnchantments(ItemStack firstItem);
 }

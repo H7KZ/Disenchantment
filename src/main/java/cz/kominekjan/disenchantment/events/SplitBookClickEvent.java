@@ -40,7 +40,7 @@ public class SplitBookClickEvent implements Listener {
         if (e.getSlot() != 2) return;
 
         // We do not want to continue if the player has an item in cursor as it would delete it.
-        if(!p.getItemOnCursor().getType().isAir()) return;
+        if (!p.getItemOnCursor().getType().isAir()) return;
 
         AnvilInventory anvilInventory = (AnvilInventory) e.getInventory();
 
@@ -100,15 +100,15 @@ public class SplitBookClickEvent implements Listener {
 
         HashMap<String, IPlugin> activatedPlugins = PluginManager.getActivatedPlugins();
 
-        boolean atLeastOnePluginEnabled = false;
+        if (activatedPlugins.isEmpty()) {
+            item = VanillaPlugin.removeEnchantments(item, resultItemMeta.getStoredEnchants());
 
-        for (IPlugin plugin : activatedPlugins.values()) {
-            item = plugin.removeEnchantments(firstItem, resultItemMeta.getStoredEnchants());
-            atLeastOnePluginEnabled = true;
+        } else {
+            for (IPlugin plugin : activatedPlugins.values()) {
+                item = plugin.removeEnchantments(item, resultItemMeta.getStoredEnchants());
+            }
+
         }
-
-        if (!atLeastOnePluginEnabled)
-            item = VanillaPlugin.removeEnchantments(firstItem, resultItemMeta.getStoredEnchants());
 
         // Disenchantment plugins
         // ----------------------------------------------------------------------------------------------------

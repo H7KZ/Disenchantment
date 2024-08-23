@@ -1,6 +1,7 @@
 package cz.kominekjan.disenchantment.events;
 
 import cz.kominekjan.disenchantment.Disenchantment;
+import cz.kominekjan.disenchantment.config.types.EnchantmentStatus;
 import cz.kominekjan.disenchantment.plugins.IPlugin;
 import cz.kominekjan.disenchantment.plugins.PluginManager;
 import cz.kominekjan.disenchantment.plugins.impl.VanillaPlugin;
@@ -16,7 +17,10 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import org.bukkit.inventory.view.AnvilView;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
 
 import static cz.kominekjan.disenchantment.Disenchantment.enabled;
 import static cz.kominekjan.disenchantment.config.Config.*;
@@ -45,18 +49,14 @@ public class SplitBookEvent implements Listener {
         EnchantmentStorageMeta firstItemItemMeta = (EnchantmentStorageMeta) firstItem.getItemMeta();
 
         HashMap<Enchantment, Integer> enchantments = new HashMap<>(firstItemItemMeta.getStoredEnchants());
+        if (enchantments.size() < 2) return;
 
-        for (Map.Entry<Enchantment, Boolean> disabledEnchantment : getDisabledBookSplittingEnchantments().entrySet()) {
-            if (!disabledEnchantment.getValue()) continue;
+        getBookSplittingEnchantmentsStatus().forEach((enchantment, status) -> {
+            if (EnchantmentStatus.KEEP.equals(status))
+                enchantments.remove(enchantment);
+        });
 
-            if (enchantments.keySet().stream().anyMatch(m -> m.equals(disabledEnchantment.getKey()))) {
-                Optional<Enchantment> enchantment = enchantments.keySet().stream().filter(m -> m.equals(disabledEnchantment.getKey())).findFirst();
-
-                enchantment.ifPresent(enchantments::remove);
-            }
-        }
-
-        if (enchantments.isEmpty() || enchantments.size() == 1) return;
+        if (enchantments.isEmpty()) return;
 
         HashMap<Enchantment, Integer> randomEnchantmentSplit = new HashMap<>();
 
@@ -64,6 +64,7 @@ public class SplitBookEvent implements Listener {
         Collections.shuffle(keys); // Shuffle the keys to ensure randomness
 
         int halfSize = keys.size() / 2; // Calculate half of the size
+        if (halfSize == 0) halfSize = 1;
         for (int i = 0; i < halfSize; i++) {
             Enchantment key = keys.get(i);
             randomEnchantmentSplit.put(key, enchantments.get(key));
@@ -76,14 +77,15 @@ public class SplitBookEvent implements Listener {
 
         HashMap<String, IPlugin> activatedPlugins = PluginManager.getActivatedPlugins();
 
-        boolean atLeastOnePluginEnabled = false;
+        if (activatedPlugins.isEmpty()) {
+            book = VanillaPlugin.createEnchantedBook(enchantments);
 
-        for (IPlugin plugin : activatedPlugins.values()) {
-            book = plugin.createEnchantedBook(randomEnchantmentSplit);
-            atLeastOnePluginEnabled = true;
+        } else {
+            for (IPlugin plugin : activatedPlugins.values()) {
+                book = plugin.createEnchantedBook(enchantments);
+            }
+
         }
-
-        if (!atLeastOnePluginEnabled) book = VanillaPlugin.createEnchantedBook(randomEnchantmentSplit);
 
         // Disenchantment plugins
         // ----------------------------------------------------------------------------------------------------
@@ -91,7 +93,7 @@ public class SplitBookEvent implements Listener {
         e.setResult(book);
 
         anvilView.setRepairCost(countAnvilCost(enchantments));
-        Bukkit.getScheduler().runTask(Disenchantment.plugin, ()->{
+        Bukkit.getScheduler().runTask(Disenchantment.plugin, () -> {
             // sadly, Spigot like to reset the changed price when vanilla do not expect it to be successful.
             anvilView.setRepairCost(countAnvilCost(enchantments));
 
