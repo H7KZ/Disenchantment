@@ -2,8 +2,6 @@ package cz.kominekjan.disenchantment.config;
 
 import cz.kominekjan.disenchantment.types.EnchantmentState;
 import cz.kominekjan.disenchantment.types.LoggingLevel;
-import io.papermc.paper.registry.RegistryAccess;
-import io.papermc.paper.registry.RegistryKey;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Registry;
@@ -15,8 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static cz.kominekjan.disenchantment.Disenchantment.config;
-import static cz.kominekjan.disenchantment.Disenchantment.plugin;
+import static cz.kominekjan.disenchantment.Disenchantment.*;
 
 public class Config {
     public static Boolean isPluginEnabled() {
@@ -97,11 +94,24 @@ public class Config {
 
                 if (split.length != 2) continue;
 
-                String enchantment = split[0];
+                String enchantmentName = split[0];
                 EnchantmentState state = EnchantmentState.getStateByName(split[1]);
 
+                Enchantment enchantment = enchantments.stream()
+                        .filter(e -> e.getKey().getKey().equalsIgnoreCase(enchantmentName))
+                        .findFirst().orElse(null);
+
+                // It is possible that the user miss-wrote an enchantment if he edited config.yml by hand.
+                if (enchantment == null) {
+                    if (Config.isLoggingEnabled()) {
+                        logger.info("Could not find enchantment " + enchantmentName);
+                    }
+
+                    continue;
+                }
+
                 enchantmentStates.put(
-                        enchantments.stream().filter(e -> e.getKey().getKey().equalsIgnoreCase(enchantment)).findFirst().orElse(null),
+                        enchantment,
                         state
                 );
             }
@@ -240,11 +250,24 @@ public class Config {
 
                 if (split.length != 2) continue;
 
-                String enchantment = split[0];
+                String enchantmentName = split[0];
                 EnchantmentState state = EnchantmentState.getStateByName(split[1]);
 
+                Enchantment enchantment = enchantments.stream()
+                        .filter(e -> e.getKey().getKey().equalsIgnoreCase(enchantmentName))
+                        .findFirst().orElse(null);
+
+                // It is possible that the user miss-wrote an enchantment if he edited config.yml by hand.
+                if (enchantment == null) {
+                    if (Config.isLoggingEnabled()) {
+                        logger.info("Could not find enchantment " + enchantmentName);
+                    }
+
+                    continue;
+                }
+
                 enchantmentStates.put(
-                        enchantments.stream().filter(e -> e.getKey().getKey().equalsIgnoreCase(enchantment)).findFirst().orElse(null),
+                        enchantment,
                         state
                 );
             }

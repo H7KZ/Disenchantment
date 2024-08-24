@@ -1,7 +1,5 @@
 package cz.kominekjan.disenchantment.commands;
 
-import io.papermc.paper.registry.RegistryAccess;
-import io.papermc.paper.registry.RegistryKey;
 import org.bukkit.Material;
 import org.bukkit.Registry;
 import org.bukkit.World;

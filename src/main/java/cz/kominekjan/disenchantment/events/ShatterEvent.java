@@ -63,9 +63,7 @@ public class ShatterEvent implements Listener {
         List<Enchantment> keys = new ArrayList<>(enchantments.keySet());
         Collections.shuffle(keys);
 
-        int halfSize = keys.size() / 2;
-
-        if (halfSize == 0) halfSize = 1;
+        int halfSize = Math.max(1, keys.size() / 2);
 
         for (int i = 0; i < halfSize; i++) {
             Enchantment key = keys.get(i);
@@ -80,10 +78,10 @@ public class ShatterEvent implements Listener {
         HashMap<String, IPlugin> activatedPlugins = PluginManager.getActivatedPlugins();
 
         if (activatedPlugins.isEmpty()) {
-            book = VanillaPlugin.createEnchantedBook(enchantments);
+            book = VanillaPlugin.createEnchantedBook(randomEnchantmentShatter);
         } else {
             for (IPlugin plugin : activatedPlugins.values()) {
-                book = plugin.createEnchantedBook(enchantments);
+                book = plugin.createEnchantedBook(randomEnchantmentShatter);
             }
         }
 
