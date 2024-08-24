@@ -92,6 +92,24 @@ public class CommandCompleter implements TabCompleter {
             }
         }
 
+        if (args.length == 3) {
+            switch (args[0].toLowerCase()) {
+                case "disenchant_enchantments":
+                case "shatter_enchantments":
+                    if("enable".startsWith(args[2].toLowerCase())) {
+                        result.add("enable");
+                    }
+                    if("keep".startsWith(args[2].toLowerCase())) {
+                        result.add("keep");
+                    }
+                    if("cancel".startsWith(args[2].toLowerCase())) {
+                        result.add("cancel");
+                    }
+                    return result;
+            }
+
+        }
+
         return null;
     }
 }
