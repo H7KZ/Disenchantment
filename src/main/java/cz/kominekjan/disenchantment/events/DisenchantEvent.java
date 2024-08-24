@@ -30,7 +30,7 @@ public class DisenchantEvent implements Listener {
         AnvilView anvilView = e.getView();
         if (!(anvilView.getPlayer() instanceof Player p)) return;
 
-        if (!Config.isPluginEnabled() || Config.Disenchantment.isEnabled() || Config.Disenchantment.getDisabledWorlds().contains(p.getWorld()))
+        if (!Config.isPluginEnabled() || !Config.Disenchantment.isEnabled() || Config.Disenchantment.getDisabledWorlds().contains(p.getWorld()))
             return;
 
         if (!(p.hasPermission("disenchantment.all") || p.hasPermission("disenchantment.anvil") || p.hasPermission("disenchantment.anvil.disenchant")))

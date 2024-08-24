@@ -35,7 +35,7 @@ public class ShatterEvent implements Listener {
 
         if (!(anvilView.getPlayer() instanceof Player p)) return;
 
-        if (!Config.isPluginEnabled() || Config.Shatterment.isEnabled() || Config.Shatterment.getDisabledWorlds().contains(p.getWorld()))
+        if (!Config.isPluginEnabled() || !Config.Shatterment.isEnabled() || Config.Shatterment.getDisabledWorlds().contains(p.getWorld()))
             return;
 
         if (!(p.hasPermission("disenchantment.all") || p.hasPermission("disenchantment.anvil") || p.hasPermission("disenchantment.anvil.shatter")))

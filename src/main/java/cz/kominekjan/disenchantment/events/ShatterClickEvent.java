@@ -29,7 +29,7 @@ public class ShatterClickEvent implements Listener {
     public void onDisenchantmentClickEvent(InventoryClickEvent e) {
         if (!(e.getWhoClicked() instanceof Player p)) return;
 
-        if (!Config.isPluginEnabled() || Config.Shatterment.isEnabled() || Config.Shatterment.getDisabledWorlds().contains(p.getWorld()))
+        if (!Config.isPluginEnabled() || !Config.Shatterment.isEnabled() || Config.Shatterment.getDisabledWorlds().contains(p.getWorld()))
             return;
 
         if (!(p.hasPermission("disenchantment.all") || p.hasPermission("disenchantment.anvil") || p.hasPermission("disenchantment.anvil.shatter")))
