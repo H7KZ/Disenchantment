@@ -7,6 +7,7 @@ import io.papermc.paper.registry.RegistryAccess;
 import io.papermc.paper.registry.RegistryKey;
 import org.bukkit.ChatColor;
 import org.bukkit.NamespacedKey;
+import org.bukkit.Registry;
 import org.bukkit.command.CommandSender;
 import org.bukkit.enchantments.Enchantment;
 
@@ -48,7 +49,7 @@ public class ShatterEnchantments {
             return;
         }
 
-        Enchantment enchantment = RegistryAccess.registryAccess().getRegistry(RegistryKey.ENCHANTMENT).get(NamespacedKey.minecraft(args[1].toLowerCase()));
+        Enchantment enchantment = Registry.ENCHANTMENT.get(NamespacedKey.minecraft(args[1].toLowerCase()));
 
         if (enchantment == null) {
             s.sendMessage(textWithPrefixError("Unknown enchantment!"));

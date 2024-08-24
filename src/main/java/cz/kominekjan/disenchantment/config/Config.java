@@ -6,6 +6,7 @@ import io.papermc.paper.registry.RegistryAccess;
 import io.papermc.paper.registry.RegistryKey;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.Registry;
 import org.bukkit.World;
 import org.bukkit.enchantments.Enchantment;
 
@@ -89,7 +90,7 @@ public class Config {
             List<String> list = config.getStringList(ConfigKeys.DISENCHANTMENT_ENCHANTMENTS_STATES.getKey());
             HashMap<Enchantment, EnchantmentState> enchantmentStates = new HashMap<>();
 
-            List<Enchantment> enchantments = new ArrayList<>(RegistryAccess.registryAccess().getRegistry(RegistryKey.ENCHANTMENT).stream().toList());
+            List<Enchantment> enchantments = Registry.ENCHANTMENT.stream().toList();
 
             for (String enchantmentState : list) {
                 String[] split = enchantmentState.split(":");
@@ -232,7 +233,7 @@ public class Config {
             List<String> list = config.getStringList(ConfigKeys.SHATTERMENT_ENCHANTMENTS_STATES.getKey());
             HashMap<Enchantment, EnchantmentState> enchantmentStates = new HashMap<>();
 
-            List<Enchantment> enchantments = new ArrayList<>(RegistryAccess.registryAccess().getRegistry(RegistryKey.ENCHANTMENT).stream().toList());
+            List<Enchantment> enchantments = Registry.ENCHANTMENT.stream().toList();
 
             for (String enchantmentState : list) {
                 String[] split = enchantmentState.split(":");

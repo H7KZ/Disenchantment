@@ -9,16 +9,14 @@ import io.papermc.paper.registry.RegistryKey;
 import org.apache.commons.lang3.ArrayUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Registry;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 public class EnchantmentsGUI implements InventoryHolder {
     private final Integer size = 54;
@@ -55,7 +53,7 @@ public class EnchantmentsGUI implements InventoryHolder {
     );
 
     public EnchantmentsGUI(int page) {
-        List<Enchantment> enchantments = new ArrayList<>(RegistryAccess.registryAccess().getRegistry(RegistryKey.ENCHANTMENT).stream().toList());
+        List<Enchantment> enchantments = Registry.ENCHANTMENT.stream().sorted(Comparator.comparing(e -> e.getKey().getKey())).toList();
 
         this.page = page;
         this.title = "Enchantments " + (page + 1) + "/" + (enchantments.size() / 28 + 1);

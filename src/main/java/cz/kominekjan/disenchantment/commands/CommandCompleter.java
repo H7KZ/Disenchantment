@@ -50,7 +50,7 @@ public class CommandCompleter implements TabCompleter {
                     return result;
                 case "disenchant_enchantments":
                 case "shatter_enchantments":
-                    for (Enchantment enchantment : RegistryAccess.registryAccess().getRegistry(RegistryKey.ENCHANTMENT)) {
+                    for (Enchantment enchantment : Registry.ENCHANTMENT.stream().toList()) {
                         if (enchantment.getKey().getKey().toLowerCase().startsWith(args[1].toLowerCase())) {
                             result.add(enchantment.getKey().getKey());
                         }
