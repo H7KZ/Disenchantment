@@ -3,8 +3,6 @@ package cz.kominekjan.disenchantment.commands.impl;
 import cz.kominekjan.disenchantment.commands.Command;
 import cz.kominekjan.disenchantment.config.Config;
 import cz.kominekjan.disenchantment.types.EnchantmentState;
-import io.papermc.paper.registry.RegistryAccess;
-import io.papermc.paper.registry.RegistryKey;
 import org.bukkit.ChatColor;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Registry;

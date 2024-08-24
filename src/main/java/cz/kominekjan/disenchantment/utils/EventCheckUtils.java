@@ -27,8 +27,10 @@ public class EventCheckUtils {
         }
 
         private static Boolean areEnchantmentsDisabled(Map<Enchantment, Integer> enchantments) {
+            Map<Enchantment, EnchantmentState> states = Config.Shatterment.getEnchantmentStates();
+
             for (Enchantment enchantment : enchantments.keySet()) {
-                if (Config.Disenchantment.getEnchantmentStates().containsKey(enchantment) && Config.Disenchantment.getEnchantmentStates().get(enchantment) == EnchantmentState.DISABLED)
+                if (states.getOrDefault(enchantment, EnchantmentState.ENABLED) == EnchantmentState.DISABLED)
                     return true;
             }
 
@@ -58,8 +60,10 @@ public class EventCheckUtils {
         }
 
         private static Boolean areEnchantmentsDisabled(Map<Enchantment, Integer> enchantments) {
+            Map<Enchantment, EnchantmentState> states = Config.Shatterment.getEnchantmentStates();
+
             for (Enchantment enchantment : enchantments.keySet()) {
-                if (Config.Shatterment.getEnchantmentStates().containsKey(enchantment) && Config.Shatterment.getEnchantmentStates().get(enchantment) == EnchantmentState.DISABLED)
+                if (states.getOrDefault(enchantment, EnchantmentState.ENABLED) == EnchantmentState.DISABLED)
                     return true;
             }
 
