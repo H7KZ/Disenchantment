@@ -271,7 +271,7 @@ public class DefaultGUIElements {
     }
 
     public static ItemStack headWorldItem(String name, String texture, String... lore) {
-        return headWorldItem(name, texture, (ArrayList<String>) List.of(lore));
+        return headWorldItem(name, texture, new ArrayList<>(List.of(lore)));
     }
 
     public static ItemStack enchantmentItem(String name, List<String> lore) {
