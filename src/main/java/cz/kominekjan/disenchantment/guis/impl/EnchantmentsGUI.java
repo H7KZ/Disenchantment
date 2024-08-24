@@ -103,22 +103,23 @@ public class EnchantmentsGUI implements InventoryHolder {
 
             if (enchantment == null) continue;
 
-            EnchantmentState disenchantmentState = disenchantmentEnchantmentsStates.getOrDefault(enchantment, EnchantmentState.ENABLED);
-            EnchantmentState shattermentState = shattermentEnchantmentsStates.getOrDefault(enchantment, EnchantmentState.ENABLED);
+            EnchantmentState[] disenchantmentState = new EnchantmentState[]{disenchantmentEnchantmentsStates.getOrDefault(enchantment, EnchantmentState.ENABLED)};
+            EnchantmentState[] shattermentState = new EnchantmentState[]{shattermentEnchantmentsStates.getOrDefault(enchantment, EnchantmentState.ENABLED)};
 
             worldItems[i] = new GUIItem(
                     freeSlots[i],
                     DefaultGUIElements.enchantmentItem(
                             ChatColor.GRAY + "" + ChatColor.BOLD + enchantment.getKey().getKey(),
-                            ChatColor.GRAY + "Disenchantment: " + disenchantmentState.getDisplayName(),
-                            ChatColor.GRAY + "Shatterment: " + shattermentState.getDisplayName()
+                            ChatColor.GRAY + "Disenchantment: " + disenchantmentState[0].getDisplayName(),
+                            ChatColor.GRAY + "Shatterment: " + disenchantmentState[0].getDisplayName()
                     ),
                     event -> {
                         event.setCancelled(true);
 
                         switch (event.getClick()) {
                             case LEFT:
-                                EnchantmentState newDisenchantmentState = EnchantmentState.getNextState(disenchantmentState);
+                                EnchantmentState newDisenchantmentState = EnchantmentState.getNextState(disenchantmentState[0]);
+                                disenchantmentState[0] = newDisenchantmentState;
 
                                 if (newDisenchantmentState.equals(EnchantmentState.ENABLED))
                                     disenchantmentEnchantmentsStates.remove(enchantment);
@@ -130,7 +131,8 @@ public class EnchantmentsGUI implements InventoryHolder {
 
                                 break;
                             case RIGHT:
-                                EnchantmentState newShattermentState = EnchantmentState.getNextState(shattermentState);
+                                EnchantmentState newShattermentState = EnchantmentState.getNextState(shattermentState[0]);
+                                shattermentState[0] = newShattermentState;
 
                                 if (newShattermentState.equals(EnchantmentState.ENABLED))
                                     shattermentEnchantmentsStates.remove(enchantment);
@@ -147,8 +149,8 @@ public class EnchantmentsGUI implements InventoryHolder {
 
                         event.setCurrentItem(DefaultGUIElements.enchantmentItem(
                                 ChatColor.GRAY + "" + ChatColor.BOLD + enchantment.getKey().getKey(),
-                                ChatColor.GRAY + "Disenchantment: " + disenchantmentState.getDisplayName(),
-                                ChatColor.GRAY + "Shatterment: " + shattermentState.getDisplayName()
+                                ChatColor.GRAY + "Disenchantment: " + disenchantmentState[0].getDisplayName(),
+                                ChatColor.GRAY + "Shatterment: " + shattermentState[0].getDisplayName()
                         ));
                     }
             );
