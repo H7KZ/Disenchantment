@@ -1,6 +1,7 @@
 package cz.kominekjan.disenchantment.events;
 
 import cz.kominekjan.disenchantment.config.Config;
+import cz.kominekjan.disenchantment.config.migrations.PermissionMigration;
 import cz.kominekjan.disenchantment.plugins.IPlugin;
 import cz.kominekjan.disenchantment.plugins.PluginManager;
 import cz.kominekjan.disenchantment.plugins.impl.VanillaPlugin;
@@ -32,7 +33,10 @@ public class ShatterClickEvent implements Listener {
         if (!Config.isPluginEnabled() || !Config.Shatterment.isEnabled() || Config.Shatterment.getDisabledWorlds().contains(p.getWorld()))
             return;
 
-        if (!(p.hasPermission("disenchantment.all") || p.hasPermission("disenchantment.anvil") || p.hasPermission("disenchantment.anvil.shatter")))
+        if (!(p.hasPermission("disenchantment.all") ||
+                p.hasPermission("disenchantment.anvil") ||
+                p.hasPermission("disenchantment.anvil.shatter") ||
+                PermissionMigration.checkDeprecatedPermission(p, "disenchantment.anvil.split_book")))
             return;
 
         if (e.getInventory().getType() != InventoryType.ANVIL) return;
