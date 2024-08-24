@@ -24,8 +24,14 @@ permissions:
   disenchantment.anvil:
     description: Allows the player to disenchant items or shatter books
     default: op
+  disenchantment.anvil.item:
+    description: Deprecated permission. Use "disenchantment.anvil.disenchant" instead.
+    default: op
   disenchantment.anvil.disenchant:
     description: Allows the player to disenchant items
+    default: op
+  disenchantment.anvil.split_book:
+    description: Deprecated permission. Use "disenchantment.anvil.shatter" instead.
     default: op
   disenchantment.anvil.shatter:
     description: Allows the player to split enchantments from books
