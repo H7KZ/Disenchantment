@@ -83,7 +83,11 @@ public class Config {
             return getDisabledMaterials().equals(materials);
         }
 
+        private static HashMap<Enchantment, EnchantmentState> STATE_CACHE = null;
+
         public static HashMap<Enchantment, EnchantmentState> getEnchantmentStates() {
+            if(STATE_CACHE != null) return STATE_CACHE;
+
             List<String> list = config.getStringList(ConfigKeys.DISENCHANTMENT_ENCHANTMENTS_STATES.getKey());
             HashMap<Enchantment, EnchantmentState> enchantmentStates = new HashMap<>();
 
@@ -116,6 +120,8 @@ public class Config {
                 );
             }
 
+            STATE_CACHE = enchantmentStates;
+
             return enchantmentStates;
         }
 
@@ -128,6 +134,8 @@ public class Config {
 
             config.set(ConfigKeys.DISENCHANTMENT_ENCHANTMENTS_STATES.getKey(), list);
             plugin.saveConfig();
+
+            STATE_CACHE = new HashMap<>(enchantmentStates);
 
             return getEnchantmentStates().equals(enchantmentStates);
         }
@@ -239,7 +247,11 @@ public class Config {
             return getDisabledWorlds().equals(worlds);
         }
 
+        private static HashMap<Enchantment, EnchantmentState> STATE_CACHE = null;
+
         public static HashMap<Enchantment, EnchantmentState> getEnchantmentStates() {
+            if(STATE_CACHE != null) return STATE_CACHE;
+
             List<String> list = config.getStringList(ConfigKeys.SHATTERMENT_ENCHANTMENTS_STATES.getKey());
             HashMap<Enchantment, EnchantmentState> enchantmentStates = new HashMap<>();
 
@@ -272,6 +284,8 @@ public class Config {
                 );
             }
 
+            STATE_CACHE = enchantmentStates;
+
             return enchantmentStates;
         }
 
@@ -284,6 +298,8 @@ public class Config {
 
             config.set(ConfigKeys.SHATTERMENT_ENCHANTMENTS_STATES.getKey(), list);
             plugin.saveConfig();
+
+            STATE_CACHE = new HashMap<>(enchantmentStates);
 
             return getEnchantmentStates().equals(enchantmentStates);
         }
