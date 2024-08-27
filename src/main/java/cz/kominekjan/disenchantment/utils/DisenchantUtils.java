@@ -80,20 +80,17 @@ public class DisenchantUtils {
     public static List<Enchantment> everyEnchantments(){
         HashMap<String, IPlugin> activatedPlugins = PluginManager.getActivatedPlugins();
 
-        if (activatedPlugins.isEmpty()) {
-            // Return registered enchantments
-            return Registry.ENCHANTMENT.stream().toList();
+        List<Enchantment> enchantments = new ArrayList<>(Registry.ENCHANTMENT.stream().toList());
 
-        } else {
-            // return registered enchantment and other if any
-            List<Enchantment> enchantments = new ArrayList<>(Registry.ENCHANTMENT.stream().toList());
-
+        if (!activatedPlugins.isEmpty()) {
+            // and non registered enchantments if any
             for (IPlugin plugin : activatedPlugins.values()) {
                 enchantments.addAll(plugin.everyComplementaryEnchantments());
             }
 
-            return enchantments;
         }
+
+        return enchantments;
 
     }
 

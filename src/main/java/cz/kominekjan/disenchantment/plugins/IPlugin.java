@@ -14,7 +14,9 @@ public interface IPlugin {
 
     ItemStack removeEnchantments(ItemStack firstItem, Map<Enchantment, Integer> enchantments);
 
-    default void fetchComplementaryEnchantment(ItemStack firstItem, Map<Enchantment, Integer> enchantments){}
+    default void activate() {}
+
+    default void fetchComplementaryEnchantment(ItemStack firstItem, Map<Enchantment, Integer> enchantments) {}
 
     default List<Enchantment> everyComplementaryEnchantments() {
         return Collections.emptyList();

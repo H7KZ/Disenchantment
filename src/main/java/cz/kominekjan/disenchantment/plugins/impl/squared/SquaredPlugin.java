@@ -15,8 +15,8 @@ import java.util.Map;
 public class SquaredPlugin implements IPlugin {
     public static final String name = "EnchantsSquared";
 
-    private final HashMap<CustomEnchant, Enchantment> squaredEnchantmentMap;
-    public SquaredPlugin(){
+    private HashMap<CustomEnchant, Enchantment> squaredEnchantmentMap;
+    public void activate(){
         squaredEnchantmentMap = new HashMap<>();
 
         for (CustomEnchant enchant : CustomEnchantManager.getInstance().getAllEnchants().values()) {

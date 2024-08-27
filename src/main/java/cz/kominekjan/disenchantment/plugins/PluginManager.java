@@ -52,6 +52,11 @@ public class PluginManager {
     }
 
     public static void addActivatedPlugin(String pluginName) {
-        if (isSupported(pluginName)) activatedPlugins.put(pluginName, supportedPlugins.get(pluginName));
+        if (isSupported(pluginName)) {
+            IPlugin plugin = supportedPlugins.get(pluginName);
+
+            plugin.activate();
+            activatedPlugins.put(pluginName, plugin);
+        }
     }
 }
