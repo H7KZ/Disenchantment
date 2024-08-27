@@ -5,25 +5,33 @@ import cz.kominekjan.disenchantment.types.EnchantmentState;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 
+import java.util.Collections;
 import java.util.Map;
 
 public class EventCheckUtils {
     public static class Disenchantment {
-        public static Boolean isEventValid(ItemStack firstItem, ItemStack secondItem) {
-            if (firstItem == null || secondItem == null) return false;
+        public static Map<Enchantment, Integer> getValidEnchantments(ItemStack firstItem, ItemStack secondItem) {
+            if (firstItem == null || secondItem == null) return Collections.emptyMap();
 
-            if (firstItem.getType() == Material.ENCHANTED_BOOK) return false;
-            if (secondItem.getType() != Material.BOOK) return false;
+            if (firstItem.getType() == Material.ENCHANTED_BOOK) return Collections.emptyMap();
+            if (secondItem.getType() != Material.BOOK) return Collections.emptyMap();
 
-            if (!secondItem.getEnchantments().isEmpty()) return false;
+            if (isMaterialDisabled(firstItem)) return Collections.emptyMap();
 
-            if (isMaterialDisabled(firstItem)) return false;
+            Map<Enchantment, Integer> secondEnchants = DisenchantUtils.fetchEnchantments(secondItem);
 
-            if (EventCheckUtils.Disenchantment.areEnchantmentsDisabled(firstItem.getEnchantments())) return false;
+            if (!secondEnchants.isEmpty()) return Collections.emptyMap();
 
-            return !firstItem.getEnchantments().isEmpty();
+            Map<Enchantment, Integer> firstEnchants = DisenchantUtils.fetchEnchantments(firstItem);
+
+            Config.Disenchantment.getEnchantmentStates().forEach((enchantment, state) -> {
+                if (EnchantmentState.KEEP.equals(state)) firstEnchants.remove(enchantment);
+            });
+
+            if (EventCheckUtils.Disenchantment.areEnchantmentsDisabled(firstEnchants)) return Collections.emptyMap();
+
+            return firstEnchants;
         }
 
         private static Boolean areEnchantmentsDisabled(Map<Enchantment, Integer> enchantments) {
@@ -43,20 +51,27 @@ public class EventCheckUtils {
     }
 
     public static class Shatterment {
-        public static Boolean isEventValid(ItemStack firstItem, ItemStack secondItem) {
-            if (firstItem == null || secondItem == null) return false;
+        public static Map<Enchantment, Integer> getValidEnchantments(ItemStack firstItem, ItemStack secondItem) {
+            if (firstItem == null || secondItem == null) return Collections.emptyMap();
 
-            if (firstItem.getType() != Material.ENCHANTED_BOOK) return false;
-            if (secondItem.getType() != Material.BOOK) return false;
+            if (firstItem.getType() != Material.ENCHANTED_BOOK) return Collections.emptyMap();
+            if (secondItem.getType() != Material.BOOK) return Collections.emptyMap();
 
-            if (!secondItem.getEnchantments().isEmpty()) return false;
+            Map<Enchantment, Integer> secondEnchants = DisenchantUtils.fetchEnchantments(secondItem);
 
-            EnchantmentStorageMeta meta = (EnchantmentStorageMeta) firstItem.getItemMeta();
-            Map<Enchantment, Integer> enchants = meta.getStoredEnchants();
+            if (!secondEnchants.isEmpty()) return Collections.emptyMap();
 
-            if (EventCheckUtils.Shatterment.areEnchantmentsDisabled(enchants)) return false;
+            Map<Enchantment, Integer> firstEnchants = DisenchantUtils.fetchEnchantments(firstItem);
 
-            return !enchants.isEmpty();
+            if (EventCheckUtils.Shatterment.areEnchantmentsDisabled(firstEnchants)) return Collections.emptyMap();
+
+            if (firstEnchants.size() < 2) return Collections.emptyMap();
+
+            Config.Shatterment.getEnchantmentStates().forEach((enchantment, state) -> {
+                if (EnchantmentState.KEEP.equals(state)) firstEnchants.remove(enchantment);
+            });
+
+            return firstEnchants;
         }
 
         private static Boolean areEnchantmentsDisabled(Map<Enchantment, Integer> enchantments) {

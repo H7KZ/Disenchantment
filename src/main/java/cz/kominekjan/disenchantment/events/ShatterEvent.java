@@ -6,7 +6,6 @@ import cz.kominekjan.disenchantment.config.migrations.PermissionMigration;
 import cz.kominekjan.disenchantment.plugins.IPlugin;
 import cz.kominekjan.disenchantment.plugins.PluginManager;
 import cz.kominekjan.disenchantment.plugins.impl.VanillaPlugin;
-import cz.kominekjan.disenchantment.types.EnchantmentState;
 import cz.kominekjan.disenchantment.types.EventType;
 import cz.kominekjan.disenchantment.utils.EventCheckUtils;
 import org.bukkit.Bukkit;
@@ -18,13 +17,9 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.PrepareAnvilEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import org.bukkit.inventory.view.AnvilView;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 import static cz.kominekjan.disenchantment.utils.AnvilCostUtils.countAnvilCost;
 
@@ -48,17 +43,7 @@ public class ShatterEvent implements Listener {
         ItemStack firstItem = e.getInventory().getItem(0);
         ItemStack secondItem = e.getInventory().getItem(1);
 
-        if (!EventCheckUtils.Shatterment.isEventValid(firstItem, secondItem)) return;
-
-        EnchantmentStorageMeta firstItemItemMeta = (EnchantmentStorageMeta) firstItem.getItemMeta();
-
-        HashMap<Enchantment, Integer> enchantments = new HashMap<>(firstItemItemMeta.getStoredEnchants());
-
-        if (enchantments.size() < 2) return;
-
-        Config.Shatterment.getEnchantmentStates().forEach((enchantment, state) -> {
-            if (EnchantmentState.KEEP.equals(state)) enchantments.remove(enchantment);
-        });
+        Map<Enchantment, Integer> enchantments = EventCheckUtils.Shatterment.getValidEnchantments(firstItem, secondItem);
 
         if (enchantments.isEmpty()) return;
 
@@ -85,6 +70,7 @@ public class ShatterEvent implements Listener {
             book = VanillaPlugin.createEnchantedBook(randomEnchantmentShatter);
         } else {
             for (IPlugin plugin : activatedPlugins.values()) {
+                // won't 2 plugin activated on the same time would only use the last book ?
                 book = plugin.createEnchantedBook(randomEnchantmentShatter);
             }
         }

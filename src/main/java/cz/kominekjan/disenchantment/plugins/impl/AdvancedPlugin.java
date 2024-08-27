@@ -31,4 +31,7 @@ public class AdvancedPlugin implements IPlugin {
         return item;
     }
 
+    @Override
+    public void fetchComplementaryEnchantment(ItemStack firstItem, Map<Enchantment, Integer> enchantments) {}
+
 }

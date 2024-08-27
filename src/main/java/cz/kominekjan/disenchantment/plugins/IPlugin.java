@@ -12,4 +12,6 @@ public interface IPlugin {
 
     ItemStack removeEnchantments(ItemStack firstItem, Map<Enchantment, Integer> enchantments);
 
+    void fetchComplementaryEnchantment(ItemStack firstItem, Map<Enchantment, Integer> enchantments);
+
 }

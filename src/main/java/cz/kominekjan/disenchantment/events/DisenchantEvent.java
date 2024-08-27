@@ -6,7 +6,6 @@ import cz.kominekjan.disenchantment.config.migrations.PermissionMigration;
 import cz.kominekjan.disenchantment.plugins.IPlugin;
 import cz.kominekjan.disenchantment.plugins.PluginManager;
 import cz.kominekjan.disenchantment.plugins.impl.VanillaPlugin;
-import cz.kominekjan.disenchantment.types.EnchantmentState;
 import cz.kominekjan.disenchantment.types.EventType;
 import cz.kominekjan.disenchantment.utils.EventCheckUtils;
 import org.bukkit.Bukkit;
@@ -21,6 +20,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.view.AnvilView;
 
 import java.util.HashMap;
+import java.util.Map;
 
 import static cz.kominekjan.disenchantment.utils.AnvilCostUtils.countAnvilCost;
 
@@ -43,13 +43,7 @@ public class DisenchantEvent implements Listener {
         ItemStack firstItem = e.getInventory().getItem(0);
         ItemStack secondItem = e.getInventory().getItem(1);
 
-        if (!EventCheckUtils.Disenchantment.isEventValid(firstItem, secondItem)) return;
-
-        HashMap<Enchantment, Integer> enchantments = new HashMap<>(firstItem.getEnchantments());
-
-        Config.Disenchantment.getEnchantmentStates().forEach((enchantment, state) -> {
-            if (EnchantmentState.KEEP.equals(state)) enchantments.remove(enchantment);
-        });
+        Map<Enchantment, Integer> enchantments = EventCheckUtils.Disenchantment.getValidEnchantments(firstItem, secondItem);
 
         if (enchantments.isEmpty()) return;
 
@@ -64,6 +58,7 @@ public class DisenchantEvent implements Listener {
             book = VanillaPlugin.createEnchantedBook(enchantments);
         } else {
             for (IPlugin plugin : activatedPlugins.values()) {
+                // won't 2 plugin activated on the same time would only use the last book ?
                 book = plugin.createEnchantedBook(enchantments);
             }
         }
