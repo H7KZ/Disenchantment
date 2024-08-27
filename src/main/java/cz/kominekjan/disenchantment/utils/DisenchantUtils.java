@@ -1,5 +1,7 @@
 package cz.kominekjan.disenchantment.utils;
 
+import cz.kominekjan.disenchantment.plugins.IPlugin;
+import cz.kominekjan.disenchantment.plugins.PluginManager;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
@@ -7,6 +9,7 @@ import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.Arrays;
+import java.util.HashMap;
 
 public class DisenchantUtils {
     private static final Enchantment[] enchantmentCheck = {
@@ -49,5 +52,25 @@ public class DisenchantUtils {
 
     public static Boolean canBeEnchanted(ItemStack item) {
         return Arrays.stream(enchantmentCheck).anyMatch(e -> e.canEnchantItem(item));
+    }
+
+    public static HashMap<Enchantment, Integer> fetchEnchantments(ItemStack item){
+        HashMap<Enchantment, Integer> enchantments;
+
+        if (item.hasItemMeta() && item.getItemMeta() instanceof EnchantmentStorageMeta meta) {
+            enchantments = new HashMap<>(meta.getStoredEnchants());
+        } else {
+            enchantments = new HashMap<>(item.getEnchantments());
+        }
+
+        HashMap<String, IPlugin> activatedPlugins = PluginManager.getActivatedPlugins();
+
+        if (!activatedPlugins.isEmpty()) {
+            for (IPlugin plugin : activatedPlugins.values()) {
+                plugin.fetchComplementaryEnchantment(item, enchantments);
+            }
+        }
+
+        return enchantments;
     }
 }

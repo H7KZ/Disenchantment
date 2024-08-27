@@ -6,9 +6,11 @@ import cz.kominekjan.disenchantment.plugins.IPlugin;
 import cz.kominekjan.disenchantment.plugins.PluginManager;
 import cz.kominekjan.disenchantment.plugins.impl.VanillaPlugin;
 import cz.kominekjan.disenchantment.types.LoggingLevel;
+import cz.kominekjan.disenchantment.utils.DisenchantUtils;
 import cz.kominekjan.disenchantment.utils.EventCheckUtils;
 import org.bukkit.Material;
 import org.bukkit.Sound;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -22,6 +24,7 @@ import org.bukkit.inventory.meta.Repairable;
 import org.bukkit.inventory.view.AnvilView;
 
 import java.util.HashMap;
+import java.util.Map;
 
 import static cz.kominekjan.disenchantment.Disenchantment.logger;
 
@@ -58,7 +61,9 @@ public class DisenchantClickEvent implements Listener {
         ItemStack firstItem = anvilInventory.getItem(0);
         ItemStack secondItem = anvilInventory.getItem(1);
 
-        if (!EventCheckUtils.Disenchantment.isEventValid(firstItem, secondItem)) return;
+        Map<Enchantment, Integer> validEnchantments = EventCheckUtils.Disenchantment.getValidEnchantments(firstItem, secondItem);
+
+        if (validEnchantments.isEmpty()) return;
 
         AnvilView anvilView = (AnvilView) e.getView();
 
@@ -107,8 +112,10 @@ public class DisenchantClickEvent implements Listener {
         if (activatedPlugins.isEmpty()) {
             item = VanillaPlugin.removeEnchantments(item, resultItemMeta.getStoredEnchants());
         } else {
+            HashMap<Enchantment, Integer> enchantments = DisenchantUtils.fetchEnchantments(result);
+
             for (IPlugin plugin : activatedPlugins.values()) {
-                item = plugin.removeEnchantments(item, resultItemMeta.getStoredEnchants());
+                item = plugin.removeEnchantments(item, enchantments);
             }
         }
 

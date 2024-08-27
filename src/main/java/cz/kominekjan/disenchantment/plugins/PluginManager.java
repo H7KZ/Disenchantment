@@ -1,6 +1,10 @@
 package cz.kominekjan.disenchantment.plugins;
 
-import cz.kominekjan.disenchantment.plugins.impl.*;
+import cz.kominekjan.disenchantment.plugins.impl.AdvancedPlugin;
+import cz.kominekjan.disenchantment.plugins.impl.EcoPlugin;
+import cz.kominekjan.disenchantment.plugins.impl.ExcellentPlugin;
+import cz.kominekjan.disenchantment.plugins.impl.UberPlugin;
+import cz.kominekjan.disenchantment.plugins.impl.squared.SquaredPlugin;
 
 import java.util.ArrayList;
 import java.util.HashMap;
