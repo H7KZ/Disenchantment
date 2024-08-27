@@ -4,10 +4,10 @@ import cz.kominekjan.disenchantment.config.Config;
 import cz.kominekjan.disenchantment.guis.GUIItem;
 import cz.kominekjan.disenchantment.guis.InventoryBuilder;
 import cz.kominekjan.disenchantment.types.EnchantmentState;
+import cz.kominekjan.disenchantment.utils.DisenchantUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.Registry;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
@@ -51,7 +51,8 @@ public class EnchantmentsGUI implements InventoryHolder {
     );
 
     public EnchantmentsGUI(int page) {
-        List<Enchantment> enchantments = Registry.ENCHANTMENT.stream().sorted(Comparator.comparing(e -> e.getKey().getKey())).toList();
+        List<Enchantment> enchantments = DisenchantUtils.everyEnchantments();
+        enchantments.sort(Comparator.comparing(e -> e.getKey().getKey()));
 
         this.page = page;
         this.title = "Enchantments " + (page + 1) + "/" + (enchantments.size() / 28 + 1);

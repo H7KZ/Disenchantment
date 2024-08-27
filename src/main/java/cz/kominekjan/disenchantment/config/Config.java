@@ -2,9 +2,9 @@ package cz.kominekjan.disenchantment.config;
 
 import cz.kominekjan.disenchantment.types.EnchantmentState;
 import cz.kominekjan.disenchantment.types.LoggingLevel;
+import cz.kominekjan.disenchantment.utils.DisenchantUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.Registry;
 import org.bukkit.World;
 import org.bukkit.enchantments.Enchantment;
 
@@ -91,7 +91,7 @@ public class Config {
             List<String> list = config.getStringList(ConfigKeys.DISENCHANTMENT_ENCHANTMENTS_STATES.getKey());
             HashMap<Enchantment, EnchantmentState> enchantmentStates = new HashMap<>();
 
-            List<Enchantment> enchantments = Registry.ENCHANTMENT.stream().toList();
+            List<Enchantment> enchantments = DisenchantUtils.everyEnchantments();
 
             for (String enchantmentState : list) {
                 String[] split = enchantmentState.split(":");
@@ -255,7 +255,7 @@ public class Config {
             List<String> list = config.getStringList(ConfigKeys.SHATTERMENT_ENCHANTMENTS_STATES.getKey());
             HashMap<Enchantment, EnchantmentState> enchantmentStates = new HashMap<>();
 
-            List<Enchantment> enchantments = Registry.ENCHANTMENT.stream().toList();
+            List<Enchantment> enchantments = DisenchantUtils.everyEnchantments();
 
             for (String enchantmentState : list) {
                 String[] split = enchantmentState.split(":");

@@ -3,9 +3,8 @@ package cz.kominekjan.disenchantment.commands.impl;
 import cz.kominekjan.disenchantment.commands.Command;
 import cz.kominekjan.disenchantment.config.Config;
 import cz.kominekjan.disenchantment.types.EnchantmentState;
+import cz.kominekjan.disenchantment.utils.DisenchantUtils;
 import org.bukkit.ChatColor;
-import org.bukkit.NamespacedKey;
-import org.bukkit.Registry;
 import org.bukkit.command.CommandSender;
 import org.bukkit.enchantments.Enchantment;
 
@@ -47,7 +46,9 @@ public class ShatterEnchantments {
             return;
         }
 
-        Enchantment enchantment = Registry.ENCHANTMENT.get(NamespacedKey.minecraft(args[1].toLowerCase()));
+        Enchantment enchantment = DisenchantUtils.everyEnchantments().stream()
+                .filter(enchantment1 -> enchantment1.getKey().getKey().equalsIgnoreCase(args[1]))
+                .findFirst().orElse(null);
 
         if (enchantment == null) {
             s.sendMessage(textWithPrefixError("Unknown enchantment!"));

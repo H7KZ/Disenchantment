@@ -3,13 +3,16 @@ package cz.kominekjan.disenchantment.utils;
 import cz.kominekjan.disenchantment.plugins.IPlugin;
 import cz.kominekjan.disenchantment.plugins.PluginManager;
 import org.bukkit.Material;
+import org.bukkit.Registry;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 
 public class DisenchantUtils {
     private static final Enchantment[] enchantmentCheck = {
@@ -73,4 +76,26 @@ public class DisenchantUtils {
 
         return enchantments;
     }
+
+    public static List<Enchantment> everyEnchantments(){
+        HashMap<String, IPlugin> activatedPlugins = PluginManager.getActivatedPlugins();
+
+        if (activatedPlugins.isEmpty()) {
+            // Return registered enchantments
+            return Registry.ENCHANTMENT.stream().toList();
+
+        } else {
+            // return registered enchantment and other if any
+            List<Enchantment> enchantments = new ArrayList<>(Registry.ENCHANTMENT.stream().toList());
+
+            for (IPlugin plugin : activatedPlugins.values()) {
+                enchantments.addAll(plugin.everyComplementaryEnchantments());
+            }
+
+            return enchantments;
+        }
+
+    }
+
+
 }
