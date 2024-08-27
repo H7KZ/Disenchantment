@@ -9,6 +9,7 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class SquaredPlugin implements IPlugin {
@@ -64,6 +65,11 @@ public class SquaredPlugin implements IPlugin {
                 (enchant, level) -> enchantments.put(squaredEnchantmentMap.get(enchant), level)
         );
 
+    }
+
+    @Override
+    public List<Enchantment> everyComplementaryEnchantments() {
+        return List.copyOf(squaredEnchantmentMap.values());
     }
 
 }

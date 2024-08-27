@@ -3,6 +3,8 @@ package cz.kominekjan.disenchantment.plugins;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 public interface IPlugin {
@@ -12,6 +14,10 @@ public interface IPlugin {
 
     ItemStack removeEnchantments(ItemStack firstItem, Map<Enchantment, Integer> enchantments);
 
-    void fetchComplementaryEnchantment(ItemStack firstItem, Map<Enchantment, Integer> enchantments);
+    default void fetchComplementaryEnchantment(ItemStack firstItem, Map<Enchantment, Integer> enchantments){}
+
+    default List<Enchantment> everyComplementaryEnchantments() {
+        return Collections.emptyList();
+    }
 
 }
