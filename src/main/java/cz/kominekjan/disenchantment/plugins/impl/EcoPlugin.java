@@ -26,7 +26,4 @@ public class EcoPlugin implements IPlugin {
         return VanillaPlugin.removeEnchantments(firstItem, enchantments);
     }
 
-    @Override
-    public void fetchComplementaryEnchantment(ItemStack firstItem, Map<Enchantment, Integer> enchantments) {}
-
 }

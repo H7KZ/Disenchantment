@@ -1,5 +1,6 @@
 package cz.kominekjan.disenchantment.commands;
 
+import cz.kominekjan.disenchantment.utils.DisenchantUtils;
 import org.bukkit.Material;
 import org.bukkit.Registry;
 import org.bukkit.World;
@@ -48,7 +49,7 @@ public class CommandCompleter implements TabCompleter {
                     return result;
                 case "disenchant_enchantments":
                 case "shatter_enchantments":
-                    for (Enchantment enchantment : Registry.ENCHANTMENT.stream().toList()) {
+                    for (Enchantment enchantment : DisenchantUtils.everyEnchantments()) {
                         if (enchantment.getKey().getKey().toLowerCase().startsWith(args[1].toLowerCase())) {
                             result.add(enchantment.getKey().getKey());
                         }

@@ -25,7 +25,7 @@ public class SquarredWrappedEnchantment extends Enchantment {
     private final NamespacedKey key;
     SquarredWrappedEnchantment(CustomEnchant enchantment){
         this.enchantment = enchantment;
-        this.key = new NamespacedKey(enchantment.getType().toLowerCase(),"enchantmentsquarred");
+        this.key = new NamespacedKey("enchantmentsquarred", enchantment.getType().toLowerCase());
     }
 
     public CustomEnchant getEnchantment() {
