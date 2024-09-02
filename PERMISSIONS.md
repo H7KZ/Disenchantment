@@ -7,6 +7,7 @@
     - `disenchantment.anvil.disenchant`
     - `disenchantment.anvil.shatter`
 3. [Command Permissions](#command-permissions)
+    - `disenchantment.command.all`
     - `disenchantment.command.gui`
     - `disenchantment.command.help`
     - `disenchantment.command.status`
@@ -21,6 +22,8 @@
     - `disenchantment.command.shatter_repair`
     - `disenchantment.command.shatter_sound`
 4. [GUI Permissions](#gui-permissions)
+    - `disenchantment.gui`
+    - `disenchantment.gui.all`
     - `disenchantment.gui.status`
     - `disenchantment.gui.worlds`
     - `disenchantment.gui.enchantments`
@@ -40,7 +43,7 @@
 
 ### `disenchantment.anvil`
 
-- Allows the player to disenchant items
+- Allows the player to disenchant or shatter items
 
 ### `disenchantment.anvil.disenchant`
 
@@ -49,6 +52,10 @@
 ### `disenchantment.anvil.shatter`
 
 - Allows the player to split enchantments off books
+
+### `disenchantment.command.all`
+
+- Allow use of every commands
 
 ### `disenchantment.command.gui`
 
@@ -103,6 +110,14 @@
 - View shatterment sounds
 
 ## GUI Permissions
+
+### `disenchantment.gui`
+
+- Needed to use the gui
+
+- ### `disenchantment.gui.all`
+
+- GUI Allow everything related to the gui
 
 ### `disenchantment.gui.status`
 
