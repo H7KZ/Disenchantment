@@ -2,6 +2,7 @@ package cz.kominekjan.disenchantment.commands.impl;
 
 import cz.kominekjan.disenchantment.commands.Command;
 import cz.kominekjan.disenchantment.config.Config;
+import cz.kominekjan.disenchantment.permission.PermissionGoal;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
@@ -14,7 +15,7 @@ import static cz.kominekjan.disenchantment.utils.TextUtils.textWithPrefixSuccess
 public class DisenchantMaterials {
     public static final Command command = new Command(
             "disenchant_materials",
-            new String[]{"disenchantment.all", "disenchantment.command.disenchant_materials"},
+            PermissionGoal.DISENCHANTMENT_MATERIAL_CDM,
             "You don't have permission to use this command.",
             new String[]{},
             false,

@@ -2,6 +2,7 @@ package cz.kominekjan.disenchantment.commands.impl;
 
 import cz.kominekjan.disenchantment.commands.Command;
 import cz.kominekjan.disenchantment.config.Config;
+import cz.kominekjan.disenchantment.permission.PermissionGoal;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.World;
@@ -15,7 +16,7 @@ import static cz.kominekjan.disenchantment.utils.TextUtils.textWithPrefixSuccess
 public class ShatterWorlds {
     public static final Command command = new Command(
             "shatter_worlds",
-            new String[]{"disenchantment.all", "disenchantment.command.shatter_worlds"},
+            PermissionGoal.SHATTER_WORLDS_CMD,
             "You don't have permission to use this command.",
             new String[]{},
             false,

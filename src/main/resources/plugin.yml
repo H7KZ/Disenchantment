@@ -36,6 +36,9 @@ permissions:
   disenchantment.anvil.shatter:
     description: Allows the player to split enchantments from books
     default: op
+  disenchantment.command.all:
+    description: Every commands
+    default: op
   disenchantment.command.gui:
     description: GUI command
     default: op
@@ -63,10 +66,10 @@ permissions:
   disenchantment.command.disenchantment_sound:
     description: Disenchant sound command
     default: op
-  disenchantment.command.shatter_enchantments:
+  disenchantment.command.shatterment_enchantments:
     description: Shatter enchantments command
     default: op
-  disenchantment.command.shatter_worlds:
+  disenchantment.command.shatterment_worlds:
     description: Shatter worlds command
     default: op
   disenchantment.command.shatterment_repair:
@@ -74,6 +77,12 @@ permissions:
     default: op
   disenchantment.command.shatterment_sound:
     description: Shatter round command
+    default: op
+  disenchantment.gui:
+    description: Needed to use the gui
+    default: op
+  disenchantment.gui.all:
+    description: GUI Allow everything related to the gui
     default: op
   disenchantment.gui.status:
     description: GUI Enable or disable the plugin
