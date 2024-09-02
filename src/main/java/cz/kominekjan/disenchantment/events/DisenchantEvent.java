@@ -2,7 +2,7 @@ package cz.kominekjan.disenchantment.events;
 
 import cz.kominekjan.disenchantment.Disenchantment;
 import cz.kominekjan.disenchantment.config.Config;
-import cz.kominekjan.disenchantment.config.migrations.PermissionMigration;
+import cz.kominekjan.disenchantment.permission.PermissionGoal;
 import cz.kominekjan.disenchantment.plugins.IPlugin;
 import cz.kominekjan.disenchantment.plugins.PluginManager;
 import cz.kominekjan.disenchantment.plugins.impl.VanillaPlugin;
@@ -34,11 +34,7 @@ public class DisenchantEvent implements Listener {
         if (!Config.isPluginEnabled() || !Config.Disenchantment.isEnabled() || Config.Disenchantment.getDisabledWorlds().contains(p.getWorld()))
             return;
 
-        if (!(p.hasPermission("disenchantment.all") ||
-                p.hasPermission("disenchantment.anvil") ||
-                p.hasPermission("disenchantment.anvil.disenchant") ||
-                PermissionMigration.checkDeprecatedPermission(p, "disenchantment.anvil.item")))
-            return;
+        if (!PermissionGoal.DISENCHANTMENT_EVENT.checkPermission(p)) return;
 
         ItemStack firstItem = e.getInventory().getItem(0);
         ItemStack secondItem = e.getInventory().getItem(1);
