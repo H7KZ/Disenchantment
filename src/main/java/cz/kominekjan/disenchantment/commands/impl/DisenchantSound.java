@@ -2,6 +2,7 @@ package cz.kominekjan.disenchantment.commands.impl;
 
 import cz.kominekjan.disenchantment.commands.Command;
 import cz.kominekjan.disenchantment.config.Config;
+import cz.kominekjan.disenchantment.permission.PermissionGoal;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 
@@ -10,7 +11,7 @@ import static cz.kominekjan.disenchantment.utils.TextUtils.*;
 public class DisenchantSound {
     public static final Command command = new Command(
             "disenchant_sound",
-            new String[]{"disenchantment.all", "disenchantment.command.disenchant_sound"},
+            PermissionGoal.SHATTER_SOUND_CMD,
             "You don't have permission to use this command.",
             new String[]{"enable", "disable", "volume", "pitch"},
             false,

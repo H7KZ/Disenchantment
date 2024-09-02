@@ -1,6 +1,7 @@
 package cz.kominekjan.disenchantment.commands.impl;
 
 import cz.kominekjan.disenchantment.commands.Command;
+import cz.kominekjan.disenchantment.permission.PermissionGoal;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 
@@ -9,7 +10,7 @@ import static cz.kominekjan.disenchantment.Disenchantment.enabled;
 public class Status {
     public static final Command command = new Command(
             "status",
-            new String[]{"disenchantment.all", "disenchantment.command.status"},
+            PermissionGoal.STATUS_CMD,
             "You don't have permission to use this command.",
             new String[]{},
             false,

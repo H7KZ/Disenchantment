@@ -4,6 +4,7 @@ import cz.kominekjan.disenchantment.Disenchantment;
 import cz.kominekjan.disenchantment.config.Config;
 import cz.kominekjan.disenchantment.guis.GUIItem;
 import cz.kominekjan.disenchantment.guis.InventoryBuilder;
+import cz.kominekjan.disenchantment.permission.PermissionGoal;
 import org.apache.commons.lang3.ArrayUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -11,18 +12,13 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.jetbrains.annotations.NotNull;
 
-import static cz.kominekjan.disenchantment.utils.TextUtils.textWithPrefixError;
-
 public class NavigationGUI implements InventoryHolder {
     private final GUIItem[] items = ArrayUtils.addAll(
             DefaultGUIElements.border9x3(),
             new GUIItem(10, Config.isPluginEnabled() ? DefaultGUIElements.enabledPluginItem() : DefaultGUIElements.disabledPluginItem(), event -> {
                 event.setCancelled(true);
 
-                if (!event.getWhoClicked().hasPermission("disenchantment.gui.status")) {
-                    event.getWhoClicked().sendMessage(textWithPrefixError("You don't have permission to use this feature."));
-                    return;
-                }
+                if (!PermissionGoal.GUI_EDIT_STATUS.checkPermission(event.getWhoClicked(), true)) return;
 
                 boolean pluginEnabled = !Config.isPluginEnabled();
 
@@ -34,50 +30,35 @@ public class NavigationGUI implements InventoryHolder {
             new GUIItem(11, DefaultGUIElements.worldsItem(), event -> {
                 event.setCancelled(true);
 
-                if (!event.getWhoClicked().hasPermission("disenchantment.gui.worlds")) {
-                    event.getWhoClicked().sendMessage(textWithPrefixError("You don't have permission to use this feature."));
-                    return;
-                }
+                if (!PermissionGoal.GUI_EDIT_ALLOWED_WORLDS.checkPermission(event.getWhoClicked(), true)) return;
 
                 event.getWhoClicked().openInventory(new WorldsGUI(0).getInventory());
             }),
             new GUIItem(12, DefaultGUIElements.repairItem(), event -> {
                 event.setCancelled(true);
 
-                if (!event.getWhoClicked().hasPermission("disenchantment.gui.disenchant_repair")) {
-                    event.getWhoClicked().sendMessage(textWithPrefixError("You don't have permission to use this feature."));
-                    return;
-                }
+                if (!PermissionGoal.GUI_EDIT_DISENCHANTMENT_REPAIR.checkPermission(event.getWhoClicked(), true)) return;
 
                 event.getWhoClicked().openInventory(new DisenchantmentRepairGUI().getInventory());
             }),
             new GUIItem(13, DefaultGUIElements.enchantmentsItem(), event -> {
                 event.setCancelled(true);
 
-                if (!event.getWhoClicked().hasPermission("disenchantment.gui.enchantments")) {
-                    event.getWhoClicked().sendMessage(textWithPrefixError("You don't have permission to use this feature."));
-                    return;
-                }
+                if (!PermissionGoal.GUI_EDIT_ENCHANTMENT_STATES.checkPermission(event.getWhoClicked(), true)) return;
 
                 event.getWhoClicked().openInventory(new EnchantmentsGUI(0).getInventory());
             }),
             new GUIItem(14, DefaultGUIElements.materialsItem(), event -> {
                 event.setCancelled(true);
 
-                if (!event.getWhoClicked().hasPermission("disenchantment.gui.disenchant_materials")) {
-                    event.getWhoClicked().sendMessage(textWithPrefixError("You don't have permission to use this feature."));
-                    return;
-                }
+                if (!PermissionGoal.GUI_EDIT_DISENCHANTMENT_MATERIALS.checkPermission(event.getWhoClicked(), true)) return;
 
                 event.getWhoClicked().openInventory(new DisenchantMaterialsGUI(0).getInventory());
             }),
             new GUIItem(15, DefaultGUIElements.soundItem(), event -> {
                 event.setCancelled(true);
 
-                if (!event.getWhoClicked().hasPermission("disenchantment.gui.disenchant_sound")) {
-                    event.getWhoClicked().sendMessage(textWithPrefixError("You don't have permission to use this feature."));
-                    return;
-                }
+                if (!PermissionGoal.GUI_EDIT_DISENCHANTMENT_SOUND.checkPermission(event.getWhoClicked(), true)) return;
 
                 event.getWhoClicked().openInventory(new DisenchantmentSoundGUI().getInventory());
             }),

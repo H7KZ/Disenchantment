@@ -1,19 +1,21 @@
 package cz.kominekjan.disenchantment.events;
 
 import cz.kominekjan.disenchantment.guis.impl.*;
+import cz.kominekjan.disenchantment.permission.PermissionGoal;
+import org.bukkit.entity.HumanEntity;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.InventoryHolder;
-
-import static cz.kominekjan.disenchantment.utils.TextUtils.textWithPrefixError;
 
 public class GUIClickEvent implements Listener {
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
         if (event.getClickedInventory() == null) return;
 
-        if (!(event.getWhoClicked().hasPermission("disenchantment.all") || event.getWhoClicked().hasPermission("disenchantment.gui")))
+        HumanEntity human = event.getWhoClicked();
+
+        if (!PermissionGoal.GUI_USE.checkPermission(human))
             return;
 
         InventoryHolder clickedHolder = event.getClickedInventory().getHolder();
@@ -21,38 +23,23 @@ public class GUIClickEvent implements Listener {
         if (clickedHolder instanceof NavigationGUI) {
             ((NavigationGUI) clickedHolder).onInventoryClick(event);
         } else if (clickedHolder instanceof DisenchantmentRepairGUI) {
-            if (!event.getWhoClicked().hasPermission("disenchantment.gui.disenchantment-repair")) {
-                event.getWhoClicked().sendMessage(textWithPrefixError("You don't have permission to use this feature."));
-                return;
-            }
+            if (!PermissionGoal.GUI_EDIT_DISENCHANTMENT_REPAIR.checkPermission(human, true)) return;
 
             ((DisenchantmentRepairGUI) clickedHolder).onInventoryClick(event);
         } else if (clickedHolder instanceof DisenchantmentSoundGUI) {
-            if (!event.getWhoClicked().hasPermission("disenchantment.gui.disenchantment-sound")) {
-                event.getWhoClicked().sendMessage(textWithPrefixError("You don't have permission to use this feature."));
-                return;
-            }
+            if (!PermissionGoal.GUI_EDIT_DISENCHANTMENT_SOUND.checkPermission(human, true)) return;
 
             ((DisenchantmentSoundGUI) clickedHolder).onInventoryClick(event);
         } else if (clickedHolder instanceof WorldsGUI) {
-            if (!event.getWhoClicked().hasPermission("disenchantment.gui.toggle")) {
-                event.getWhoClicked().sendMessage(textWithPrefixError("You don't have permission to use this feature."));
-                return;
-            }
+            if (!PermissionGoal.GUI_EDIT_ALLOWED_WORLDS.checkPermission(human, true)) return;
 
             ((WorldsGUI) clickedHolder).onInventoryClick(event);
         } else if (clickedHolder instanceof DisenchantMaterialsGUI) {
-            if (!event.getWhoClicked().hasPermission("disenchantment.gui.materials")) {
-                event.getWhoClicked().sendMessage(textWithPrefixError("You don't have permission to use this feature."));
-                return;
-            }
+            if (!PermissionGoal.GUI_EDIT_DISENCHANTMENT_MATERIALS.checkPermission(human, true)) return;
 
             ((DisenchantMaterialsGUI) clickedHolder).onInventoryClick(event);
         } else if (clickedHolder instanceof EnchantmentsGUI) {
-            if (!event.getWhoClicked().hasPermission("disenchantment.gui.enchantments")) {
-                event.getWhoClicked().sendMessage(textWithPrefixError("You don't have permission to use this feature."));
-                return;
-            }
+            if (!PermissionGoal.GUI_EDIT_ENCHANTMENT_STATES.checkPermission(human, true)) return;
 
             ((EnchantmentsGUI) clickedHolder).onInventoryClick(event);
         }

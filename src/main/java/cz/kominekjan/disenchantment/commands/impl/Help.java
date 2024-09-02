@@ -1,13 +1,14 @@
 package cz.kominekjan.disenchantment.commands.impl;
 
 import cz.kominekjan.disenchantment.commands.Command;
+import cz.kominekjan.disenchantment.permission.PermissionGoal;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 
 public class Help {
     public static final Command command = new Command(
             "help",
-            new String[]{"disenchantment.all", "disenchantment.command.help"},
+            PermissionGoal.HELP_CMD,
             "You don't have permission to use this command.",
             new String[]{"1", "2", "3", "4", "5", "6", "7", "8"},
             false,

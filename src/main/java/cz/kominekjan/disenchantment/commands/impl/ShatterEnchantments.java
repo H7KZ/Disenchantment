@@ -2,6 +2,7 @@ package cz.kominekjan.disenchantment.commands.impl;
 
 import cz.kominekjan.disenchantment.commands.Command;
 import cz.kominekjan.disenchantment.config.Config;
+import cz.kominekjan.disenchantment.permission.PermissionGoal;
 import cz.kominekjan.disenchantment.types.EnchantmentState;
 import cz.kominekjan.disenchantment.utils.DisenchantUtils;
 import org.bukkit.ChatColor;
@@ -16,7 +17,7 @@ import static cz.kominekjan.disenchantment.utils.TextUtils.*;
 public class ShatterEnchantments {
     public static final Command command = new Command(
             "shatter_enchantments",
-            new String[]{"disenchantment.all", "disenchantment.command.shatter_enchantments"},
+            PermissionGoal.SHATTER_ENCHANTMENTS_CMD,
             "You don't have permission to use this command.",
             new String[]{},
             false,
