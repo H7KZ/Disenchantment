@@ -51,7 +51,8 @@ public class NavigationGUI implements InventoryHolder {
             new GUIItem(14, DefaultGUIElements.materialsItem(), event -> {
                 event.setCancelled(true);
 
-                if (!PermissionGoal.GUI_EDIT_DISENCHANTMENT_MATERIALS.checkPermission(event.getWhoClicked(), true)) return;
+                if (!PermissionGoal.GUI_EDIT_DISENCHANTMENT_MATERIALS.checkPermission(event.getWhoClicked(), true))
+                    return;
 
                 event.getWhoClicked().openInventory(new DisenchantMaterialsGUI(0).getInventory());
             }),

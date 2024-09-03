@@ -5,12 +5,9 @@
 New mechanics for minecraft vanilla gameplay.
 This plugin allows players to disenchant items and get the item's enchantments back.
 
-- For minecraft versions 1.21.1 use: =< v5.3.0
-- For minecraft versions 1.20.6 - 1.21 use: >= v5.2.1
-
 <br />
 
-### Tested custom enchantment plugins
+### Supported & tested custom enchantment plugins
 
 - `ExcellentEnchants`
 - `EcoEnchants` (partially, you need to build the plugin from the source code with changes

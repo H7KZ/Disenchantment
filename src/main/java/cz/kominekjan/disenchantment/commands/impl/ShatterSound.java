@@ -57,6 +57,8 @@ public class ShatterSound {
                 } catch (NumberFormatException e) {
                     s.sendMessage(textWithPrefixError("You must specify a valid number"));
                 }
+
+                break;
             }
             case "pitch": {
                 if (args.length == 2) {
@@ -70,6 +72,8 @@ public class ShatterSound {
                 } catch (NumberFormatException e) {
                     s.sendMessage(textWithPrefixError("You must specify a valid number"));
                 }
+
+                break;
             }
             default: {
                 s.sendMessage(textWithPrefixError("Unknown argument!"));

@@ -30,5 +30,4 @@ public class AdvancedPlugin implements IPlugin {
 
         return item;
     }
-
 }

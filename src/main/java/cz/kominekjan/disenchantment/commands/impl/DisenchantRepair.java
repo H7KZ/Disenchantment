@@ -86,6 +86,8 @@ public class DisenchantRepair {
                 } catch (NumberFormatException e) {
                     s.sendMessage(textWithPrefixError("You must specify a valid number"));
                 }
+
+                break;
             }
             case "multiply": {
                 if (args.length == 2) {
@@ -99,6 +101,8 @@ public class DisenchantRepair {
                 } catch (NumberFormatException e) {
                     s.sendMessage(textWithPrefixError("You must specify a valid number"));
                 }
+
+                break;
             }
             default: {
                 s.sendMessage(textWithPrefixError("Unknown argument"));

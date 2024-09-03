@@ -50,6 +50,8 @@ public class Config {
     }
 
     public static class Disenchantment {
+        private static HashMap<Enchantment, EnchantmentState> STATE_CACHE = null;
+
         public static Boolean isEnabled() {
             return config.getBoolean(ConfigKeys.DISENCHANTMENT_ENABLED.getKey());
         }
@@ -83,15 +85,13 @@ public class Config {
             return getDisabledMaterials().equals(materials);
         }
 
-        private static HashMap<Enchantment, EnchantmentState> STATE_CACHE = null;
-
         public static HashMap<Enchantment, EnchantmentState> getEnchantmentStates() {
-            if(STATE_CACHE != null) return STATE_CACHE;
+            if (STATE_CACHE != null) return STATE_CACHE;
 
             List<String> list = config.getStringList(ConfigKeys.DISENCHANTMENT_ENCHANTMENTS_STATES.getKey());
             HashMap<Enchantment, EnchantmentState> enchantmentStates = new HashMap<>();
 
-            List<Enchantment> enchantments = DisenchantUtils.everyEnchantments();
+            List<Enchantment> enchantments = DisenchantUtils.getAllRegisteredEnchantments();
 
             for (String enchantmentState : list) {
                 String[] split = enchantmentState.split(":");
@@ -225,6 +225,8 @@ public class Config {
     }
 
     public static class Shatterment {
+        private static HashMap<Enchantment, EnchantmentState> STATE_CACHE = null;
+
         public static Boolean isEnabled() {
             return config.getBoolean(ConfigKeys.SHATTERMENT_ENABLED.getKey());
         }
@@ -247,15 +249,13 @@ public class Config {
             return getDisabledWorlds().equals(worlds);
         }
 
-        private static HashMap<Enchantment, EnchantmentState> STATE_CACHE = null;
-
         public static HashMap<Enchantment, EnchantmentState> getEnchantmentStates() {
-            if(STATE_CACHE != null) return STATE_CACHE;
+            if (STATE_CACHE != null) return STATE_CACHE;
 
             List<String> list = config.getStringList(ConfigKeys.SHATTERMENT_ENCHANTMENTS_STATES.getKey());
             HashMap<Enchantment, EnchantmentState> enchantmentStates = new HashMap<>();
 
-            List<Enchantment> enchantments = DisenchantUtils.everyEnchantments();
+            List<Enchantment> enchantments = DisenchantUtils.getAllRegisteredEnchantments();
 
             for (String enchantmentState : list) {
                 String[] split = enchantmentState.split(":");

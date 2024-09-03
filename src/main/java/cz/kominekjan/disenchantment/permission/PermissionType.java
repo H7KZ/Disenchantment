@@ -4,5 +4,4 @@ public enum PermissionType {
     DEFAULT,
     LEGACY,
     ALTERNATIVE,
-
 }

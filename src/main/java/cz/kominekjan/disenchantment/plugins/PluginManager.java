@@ -56,6 +56,7 @@ public class PluginManager {
             IPlugin plugin = supportedPlugins.get(pluginName);
 
             plugin.activate();
+
             activatedPlugins.put(pluginName, plugin);
         }
     }
