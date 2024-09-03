@@ -25,10 +25,10 @@ import java.util.Map;
 import static cz.kominekjan.disenchantment.utils.AnvilCostUtils.countAnvilCost;
 
 public class DisenchantEvent implements Listener {
-
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onDisenchantmentEvent(PrepareAnvilEvent e) {
         AnvilView anvilView = e.getView();
+
         if (!(anvilView.getPlayer() instanceof Player p)) return;
 
         if (!Config.isPluginEnabled() || !Config.Disenchantment.isEnabled() || Config.Disenchantment.getDisabledWorlds().contains(p.getWorld()))
@@ -73,6 +73,5 @@ public class DisenchantEvent implements Listener {
             // Allow player to see the price even after writing in the rename textbox (fix it for spigot and paper)
             p.updateInventory();
         });
-
     }
 }

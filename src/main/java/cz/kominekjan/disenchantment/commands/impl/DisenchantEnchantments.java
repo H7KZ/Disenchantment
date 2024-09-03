@@ -47,7 +47,7 @@ public class DisenchantEnchantments {
             return;
         }
 
-        Enchantment enchantment = DisenchantUtils.everyEnchantments().stream()
+        Enchantment enchantment = DisenchantUtils.getAllRegisteredEnchantments().stream()
                 .filter(enchantment1 -> enchantment1.getKey().getKey().equalsIgnoreCase(args[1]))
                 .findFirst().orElse(null);
 
@@ -83,7 +83,6 @@ public class DisenchantEnchantments {
                 Config.Disenchantment.setEnchantmentStates(enchantments);
 
                 s.sendMessage(textWithPrefixSuccess("Enchantment kept"));
-
                 break;
             case "cancel":
                 if (enchantments.containsKey(enchantment)) {

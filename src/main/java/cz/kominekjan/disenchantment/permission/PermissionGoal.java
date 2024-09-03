@@ -3,6 +3,8 @@ package cz.kominekjan.disenchantment.permission;
 import org.bukkit.command.CommandSender;
 import org.bukkit.permissions.Permissible;
 
+import java.util.Arrays;
+
 import static cz.kominekjan.disenchantment.utils.TextUtils.textWithPrefixError;
 
 public enum PermissionGoal {
@@ -104,20 +106,16 @@ public enum PermissionGoal {
         this.parts = parts;
     }
 
-    public boolean checkPermission(Permissible permissible, boolean feedback){
-        for (PermissionPart part : parts) {
-            if(part.checkPermission(permissible)) return true;
-        }
+    public boolean checkPermission(Permissible permissible, boolean feedback) {
+        if (Arrays.stream(parts).anyMatch(p -> p.checkPermission(permissible))) return true;
 
-        if(feedback && (permissible instanceof CommandSender sender)){
+        if (feedback && (permissible instanceof CommandSender sender))
             sender.sendMessage(textWithPrefixError("You don't have permission to use this feature."));
-        }
 
         return false;
     }
-    public boolean checkPermission(Permissible permissible){
+
+    public boolean checkPermission(Permissible permissible) {
         return checkPermission(permissible, false);
     }
-
-
 }

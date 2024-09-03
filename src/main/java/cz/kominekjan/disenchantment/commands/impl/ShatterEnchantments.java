@@ -47,7 +47,7 @@ public class ShatterEnchantments {
             return;
         }
 
-        Enchantment enchantment = DisenchantUtils.everyEnchantments().stream()
+        Enchantment enchantment = DisenchantUtils.getAllRegisteredEnchantments().stream()
                 .filter(enchantment1 -> enchantment1.getKey().getKey().equalsIgnoreCase(args[1]))
                 .findFirst().orElse(null);
 
@@ -83,7 +83,6 @@ public class ShatterEnchantments {
                 Config.Shatterment.setEnchantmentStates(enchantments);
 
                 s.sendMessage(textWithPrefixSuccess("Enchantment kept"));
-
                 break;
             case "cancel":
                 if (enchantments.containsKey(enchantment)) {

@@ -49,7 +49,7 @@ public class CommandCompleter implements TabCompleter {
                     return result;
                 case "disenchant_enchantments":
                 case "shatter_enchantments":
-                    for (Enchantment enchantment : DisenchantUtils.everyEnchantments()) {
+                    for (Enchantment enchantment : DisenchantUtils.getAllRegisteredEnchantments()) {
                         if (enchantment.getKey().getKey().toLowerCase().startsWith(args[1].toLowerCase())) {
                             result.add(enchantment.getKey().getKey());
                         }
@@ -97,18 +97,17 @@ public class CommandCompleter implements TabCompleter {
             switch (args[0].toLowerCase()) {
                 case "disenchant_enchantments":
                 case "shatter_enchantments":
-                    if("enable".startsWith(args[2].toLowerCase())) {
+                    if ("enable".startsWith(args[2].toLowerCase())) {
                         result.add("enable");
                     }
-                    if("keep".startsWith(args[2].toLowerCase())) {
+                    if ("keep".startsWith(args[2].toLowerCase())) {
                         result.add("keep");
                     }
-                    if("cancel".startsWith(args[2].toLowerCase())) {
+                    if ("cancel".startsWith(args[2].toLowerCase())) {
                         result.add("cancel");
                     }
                     return result;
             }
-
         }
 
         return null;

@@ -16,22 +16,21 @@ public class SquaredPlugin implements IPlugin {
     public static final String name = "EnchantsSquared";
 
     private HashMap<CustomEnchant, Enchantment> squaredEnchantmentMap;
-    public void activate(){
+
+    public void activate() {
         squaredEnchantmentMap = new HashMap<>();
 
         for (CustomEnchant enchant : CustomEnchantManager.getInstance().getAllEnchants().values()) {
             Enchantment wrapped = new SquarredWrappedEnchantment(enchant);
             squaredEnchantmentMap.put(enchant, wrapped);
         }
-
     }
 
     public ItemStack createEnchantedBook(Map<Enchantment, Integer> enchantments) {
         ItemStack book = VanillaPlugin.createEnchantedBook(enchantments);
 
         enchantments.forEach((bukkitEnchantment, level) -> {
-
-            if(!(bukkitEnchantment instanceof SquarredWrappedEnchantment squaredEnchantment)) return;
+            if (!(bukkitEnchantment instanceof SquarredWrappedEnchantment squaredEnchantment)) return;
 
             // Remove the dummy enchantment object
             DisenchantUtils.removeStoredEnchantment(book, bukkitEnchantment);
@@ -47,8 +46,7 @@ public class SquaredPlugin implements IPlugin {
         ItemStack item = VanillaPlugin.removeEnchantments(firstItem, enchantments);
 
         enchantments.forEach((bukkitEnchantment, level) -> {
-
-            if(!(bukkitEnchantment instanceof SquarredWrappedEnchantment squaredEnchantment)) return;
+            if (!(bukkitEnchantment instanceof SquarredWrappedEnchantment squaredEnchantment)) return;
 
             // And add the enchantment squared enchantment
             CustomEnchantManager.getInstance().removeEnchant(item, squaredEnchantment.getEnchantment().getType());
@@ -59,17 +57,14 @@ public class SquaredPlugin implements IPlugin {
 
     @Override
     public void fetchComplementaryEnchantment(ItemStack firstItem, Map<Enchantment, Integer> enchantments) {
-
         // Add wrapper of squared enchantments
         CustomEnchantManager.getInstance().getItemsEnchantsFromPDC(firstItem).forEach(
                 (enchant, level) -> enchantments.put(squaredEnchantmentMap.get(enchant), level)
         );
-
     }
 
     @Override
     public List<Enchantment> everyComplementaryEnchantments() {
         return List.copyOf(squaredEnchantmentMap.values());
     }
-
 }

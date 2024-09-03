@@ -13,7 +13,6 @@ public class Command {
     public final Boolean reqArgs;
     public final ICommandExecutor executor;
 
-
     public Command(String name, PermissionGoal permission, String permissionMessage, String[] args, Boolean reqArgs, ICommandExecutor executor) {
         this.name = name;
         this.permission = permission;

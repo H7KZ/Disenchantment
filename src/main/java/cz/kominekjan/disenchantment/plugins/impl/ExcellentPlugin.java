@@ -29,5 +29,4 @@ public class ExcellentPlugin implements IPlugin {
 
         return item;
     }
-
 }
