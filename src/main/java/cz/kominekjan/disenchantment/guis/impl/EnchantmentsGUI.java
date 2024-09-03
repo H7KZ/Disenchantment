@@ -51,7 +51,7 @@ public class EnchantmentsGUI implements InventoryHolder {
     );
 
     public EnchantmentsGUI(int page) {
-        List<Enchantment> enchantments = DisenchantUtils.everyEnchantments();
+        List<Enchantment> enchantments = DisenchantUtils.getAllRegisteredEnchantments();
         enchantments.sort(Comparator.comparing(e -> e.getKey().getKey()));
 
         this.page = page;

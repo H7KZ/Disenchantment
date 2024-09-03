@@ -13,11 +13,12 @@
 > - `' '` - Text
 > - `< >` - Type
 > - Types:
-    >
-- `number` - Any number in format `12` or `14.3`
->   - `enchantment name` - Enchantment key (e.g. `flame`)
->   - `world name` - World name (e.g. `world_the_end`)
->   - `material name` - Material key (e.g. `diamond_sword`)
+>    - `<number>` - Any number in format `12` or `14.3`
+>    - `<enchantment name>` - Enchantment key (e.g. `flame`)
+>    - `<world name>` - World name (e.g. `world_the_end`)
+>    - `<material name>` - Material key (e.g. `diamond_sword`)
+
+// TODO: Review this and write current commands
 
 ### Command list
 
@@ -33,12 +34,12 @@
 - `/disenchantment repair base [<number>]` - Set the base cost of disenchanting items
 - `/disenchantment repair multiply [<number>]` - Set the multiplier when disenchanting items with multiple enchantments
 - `/disenchantment enchantments` - Get the enchantments settings
-- `/disenchantment enchantments [enchantment name] ('keep' or 'cancel')` - Set which enchantments are allowed to be
+- `/disenchantment enchantments [<enchantment name>] ('keep' or 'cancel')` - Set which enchantments are allowed to be
   removed
     - Enchantment command examples:
-    - `/disenchantment enchantments [enchantment name]` - Remove the enchantment from the list
-    - `/disenchantment enchantments [enchantment name] keep` - Enchantment will be kept on an item when disenchanting
-    - `/disenchantment enchantments [enchantment name] cancel` - Entire disenchanting process will be canceled if item
+    - `/disenchantment enchantments [<enchantment name>]` - Remove the enchantment from the list
+    - `/disenchantment enchantments [<enchantment name>] keep` - Enchantment will be kept on an item when disenchanting
+    - `/disenchantment enchantments [<enchantment name>] cancel` - Entire disenchanting process will be canceled if item
       has this enchantment
 - `/disenchantment materials` - Get the materials settings
 - `/disenchantment materials [<material name>]` - Set which materials are not allowed to be disenchanted

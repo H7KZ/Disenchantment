@@ -28,5 +28,4 @@ public class VanillaPlugin {
 
         return item;
     }
-
 }

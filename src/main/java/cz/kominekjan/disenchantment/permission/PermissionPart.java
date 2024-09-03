@@ -1,9 +1,10 @@
 package cz.kominekjan.disenchantment.permission;
 
-import cz.kominekjan.disenchantment.Disenchantment;
 import org.bukkit.ChatColor;
 import org.bukkit.permissions.Permissible;
 import org.jetbrains.annotations.NotNull;
+
+import static cz.kominekjan.disenchantment.Disenchantment.logger;
 
 /**
  * Permission part is an abstraction of a permission with special condition (PermissionType).
@@ -77,6 +78,12 @@ public enum PermissionPart {
     DISENCHANTMENT_SOUND_GUI_ALTERNATIVE("disenchantment.gui.disenchantment-sound", PermissionType.ALTERNATIVE),
     ;
 
+    // minimum delay before throwing a warning again. (currently 15minute)
+    private static final long LEGACY_WARN_DELAY_MILLIS = 15 * 60 * 1000;
+    // minimum delay before throwing a warning again. (currently 15minute)
+    private static final long ALTERNATE_WARN_DELAY_MILLIS = 15 * 60 * 1000;
+    private static long LAST_LEGACY_WARNING = 0;
+    private static long LAST_ALTERNATE_WARNING = 0;
     private final String permission;
     private final PermissionType type;
 
@@ -89,23 +96,18 @@ public enum PermissionPart {
         this(permission, PermissionType.DEFAULT);
     }
 
-    public boolean checkPermission(Permissible permissible){
+    public boolean checkPermission(Permissible permissible) {
         boolean hasPermission = permissible.hasPermission(permission);
 
-        if(!hasPermission) return false;
+        if (!hasPermission) return false;
 
-        switch (type){
+        switch (type) {
             case LEGACY -> sendLegacyMessage();
             case ALTERNATIVE -> sendAlternateMessage();
         }
 
         return true;
     }
-
-
-    private static long LAST_LEGACY_WARNING = 0;
-    // minimum delay before throwing a warning again. (currently 15minute)
-    private static final long LEGACY_WARN_DELAY_MILLIS = 15 * 60 * 1000;
 
     private void sendLegacyMessage() {
         long time = System.currentTimeMillis();
@@ -114,26 +116,21 @@ public enum PermissionPart {
 
         LAST_LEGACY_WARNING = time + LEGACY_WARN_DELAY_MILLIS;
 
-        Disenchantment.logger.severe(ChatColor.DARK_RED + "/!\\ Caution /!\\");
-        Disenchantment.logger.severe("It look like you are using deprecated permission ( " + permission + ")");
-        Disenchantment.logger.severe("Deprecated permission is planned for removal and should be changed asap.");
-        Disenchantment.logger.severe("");
-        Disenchantment.logger.severe("Here is a list of old permission mapped with the new permission.");
-        Disenchantment.logger.severe("disenchantment.anvil.item -> disenchantment.anvil.disenchant");
-        Disenchantment.logger.severe("disenchantment.anvil.split_book -> disenchantment.anvil.shatter");
-        Disenchantment.logger.severe("disenchantment.gui.toggle -> disenchantment.gui.worlds");
-        Disenchantment.logger.severe("");
-        Disenchantment.logger.severe("disenchantment.command.repair -> disenchantment.command.disenchantment_repair & disenchantment.command.shatterment_repair");
-        Disenchantment.logger.severe("disenchantment.command.disenchant_materials -> disenchantment.command.disenchant_materials & disenchantment.command.shatterment_materials");
-        Disenchantment.logger.severe("disenchantment.command.sound -> disenchantment.command.disenchantment_sound & disenchantment.command.shatterment_sound");
-        Disenchantment.logger.severe("disenchantment.command.enchantments -> disenchantment.command.disenchant_enchantments & disenchantment.command.shattermen_enchantments");
-        Disenchantment.logger.severe("");
+        logger.severe(ChatColor.DARK_RED + "/!\\ Caution /!\\");
+        logger.severe("It look like you are using deprecated permission ( " + permission + ")");
+        logger.severe("Deprecated permission is planned for removal and should be changed asap.");
+        logger.severe("");
+        logger.severe("Here is a list of old permission mapped with the new permission.");
+        logger.severe("disenchantment.anvil.item -> disenchantment.anvil.disenchant");
+        logger.severe("disenchantment.anvil.split_book -> disenchantment.anvil.shatter");
+        logger.severe("disenchantment.gui.toggle -> disenchantment.gui.worlds");
+        logger.severe("");
+        logger.severe("disenchantment.command.repair -> disenchantment.command.disenchantment_repair & disenchantment.command.shatterment_repair");
+        logger.severe("disenchantment.command.disenchant_materials -> disenchantment.command.disenchant_materials & disenchantment.command.shatterment_materials");
+        logger.severe("disenchantment.command.sound -> disenchantment.command.disenchantment_sound & disenchantment.command.shatterment_sound");
+        logger.severe("disenchantment.command.enchantments -> disenchantment.command.disenchant_enchantments & disenchantment.command.shattermen_enchantments");
+        logger.severe("");
     }
-
-
-    private static long LAST_ALTERNATE_WARNING = 0;
-    // minimum delay before throwing a warning again. (currently 15minute)
-    private static final long ALTERNATE_WARN_DELAY_MILLIS = 15 * 60 * 1000;
 
     private void sendAlternateMessage() {
         long time = System.currentTimeMillis();
@@ -142,11 +139,10 @@ public enum PermissionPart {
 
         LAST_ALTERNATE_WARNING = time + ALTERNATE_WARN_DELAY_MILLIS;
 
-        Disenchantment.logger.severe(ChatColor.DARK_RED + "/!\\ Caution /!\\");
-        Disenchantment.logger.severe("It look like you are using a misspelled permission ( " + permission + ")");
-        Disenchantment.logger.severe("It was previously necessary for some part of the plugin but now is replaced with " +
+        logger.severe(ChatColor.DARK_RED + "/!\\ Caution /!\\");
+        logger.severe("It look like you are using a misspelled permission ( " + permission + ")");
+        logger.severe("It was previously necessary for some part of the plugin but now is replaced with " +
                 permission.replaceAll("-", "_"));
-        Disenchantment.logger.severe("");
+        logger.severe("");
     }
-
 }

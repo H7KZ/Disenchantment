@@ -57,7 +57,7 @@ public class DisenchantUtils {
         return Arrays.stream(enchantmentCheck).anyMatch(e -> e.canEnchantItem(item));
     }
 
-    public static HashMap<Enchantment, Integer> fetchEnchantments(ItemStack item){
+    public static HashMap<Enchantment, Integer> fetchEnchantments(ItemStack item) {
         HashMap<Enchantment, Integer> enchantments;
 
         if (item.hasItemMeta() && item.getItemMeta() instanceof EnchantmentStorageMeta meta) {
@@ -77,7 +77,7 @@ public class DisenchantUtils {
         return enchantments;
     }
 
-    public static List<Enchantment> everyEnchantments(){
+    public static List<Enchantment> getAllRegisteredEnchantments() {
         HashMap<String, IPlugin> activatedPlugins = PluginManager.getActivatedPlugins();
 
         List<Enchantment> enchantments = new ArrayList<>(Registry.ENCHANTMENT.stream().toList());
@@ -87,12 +87,8 @@ public class DisenchantUtils {
             for (IPlugin plugin : activatedPlugins.values()) {
                 enchantments.addAll(plugin.everyComplementaryEnchantments());
             }
-
         }
 
         return enchantments;
-
     }
-
-
 }

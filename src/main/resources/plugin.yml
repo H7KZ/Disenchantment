@@ -3,7 +3,7 @@ version: '5.4.0'
 main: cz.kominekjan.disenchantment.Disenchantment
 api-version: '1.21.1'
 authors:
-  - Jan Komínek
+  - Jan Komínek, Alexcrea
 description: Allows players to disenchant items and get the item's enchantments back
 website: 'https://kominekjan.cz'
 softdepend: [ ExcellentEnchants, EcoEnchants, eco, AdvancedEnchantments, UberEnchant, EnchantsSquared ]

@@ -24,7 +24,6 @@ import java.util.*;
 import static cz.kominekjan.disenchantment.utils.AnvilCostUtils.countAnvilCost;
 
 public class ShatterEvent implements Listener {
-
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onDisenchantmentEvent(PrepareAnvilEvent e) {
         AnvilView anvilView = e.getView();

@@ -25,5 +25,4 @@ public class EcoPlugin implements IPlugin {
     public ItemStack removeEnchantments(ItemStack firstItem, Map<Enchantment, Integer> enchantments) {
         return VanillaPlugin.removeEnchantments(firstItem, enchantments);
     }
-
 }
