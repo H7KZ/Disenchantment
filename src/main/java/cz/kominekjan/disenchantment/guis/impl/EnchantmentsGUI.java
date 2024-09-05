@@ -15,6 +15,7 @@ import org.bukkit.inventory.InventoryHolder;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class EnchantmentsGUI implements InventoryHolder {
     private final Integer size = 54;
@@ -104,23 +105,23 @@ public class EnchantmentsGUI implements InventoryHolder {
 
             if (enchantment == null) continue;
 
-            EnchantmentState[] disenchantmentState = new EnchantmentState[]{disenchantmentEnchantmentsStates.getOrDefault(enchantment, EnchantmentState.ENABLED)};
-            EnchantmentState[] shattermentState = new EnchantmentState[]{shattermentEnchantmentsStates.getOrDefault(enchantment, EnchantmentState.ENABLED)};
+            AtomicReference<EnchantmentState> disenchantmentState = new AtomicReference<>(disenchantmentEnchantmentsStates.getOrDefault(enchantment, EnchantmentState.ENABLED));
+            AtomicReference<EnchantmentState> shattermentState = new AtomicReference<>(shattermentEnchantmentsStates.getOrDefault(enchantment, EnchantmentState.ENABLED));
 
             worldItems[i] = new GUIItem(
                     freeSlots[i],
                     DefaultGUIElements.enchantmentItem(
                             ChatColor.GRAY + "" + ChatColor.BOLD + enchantment.getKey().getKey(),
-                            ChatColor.GRAY + "Disenchantment: " + disenchantmentState[0].getDisplayName(),
-                            ChatColor.GRAY + "Shatterment: " + shattermentState[0].getDisplayName()
+                            ChatColor.GRAY + "Disenchantment: " + disenchantmentState.get().getDisplayName(),
+                            ChatColor.GRAY + "Shatterment: " + shattermentState.get().getDisplayName()
                     ),
                     event -> {
                         event.setCancelled(true);
 
                         switch (event.getClick()) {
                             case LEFT:
-                                EnchantmentState newDisenchantmentState = EnchantmentState.getNextState(disenchantmentState[0]);
-                                disenchantmentState[0] = newDisenchantmentState;
+                                EnchantmentState newDisenchantmentState = EnchantmentState.getNextState(disenchantmentState.get());
+                                disenchantmentState.set(newDisenchantmentState);
 
                                 if (newDisenchantmentState.equals(EnchantmentState.ENABLED))
                                     disenchantmentEnchantmentsStates.remove(enchantment);
@@ -132,8 +133,8 @@ public class EnchantmentsGUI implements InventoryHolder {
 
                                 break;
                             case RIGHT:
-                                EnchantmentState newShattermentState = EnchantmentState.getNextState(shattermentState[0]);
-                                shattermentState[0] = newShattermentState;
+                                EnchantmentState newShattermentState = EnchantmentState.getNextState(shattermentState.get());
+                                shattermentState.set(newShattermentState);
 
                                 if (newShattermentState.equals(EnchantmentState.ENABLED))
                                     shattermentEnchantmentsStates.remove(enchantment);
@@ -150,8 +151,8 @@ public class EnchantmentsGUI implements InventoryHolder {
 
                         event.setCurrentItem(DefaultGUIElements.enchantmentItem(
                                 ChatColor.GRAY + "" + ChatColor.BOLD + enchantment.getKey().getKey(),
-                                ChatColor.GRAY + "Disenchantment: " + disenchantmentState[0].getDisplayName(),
-                                ChatColor.GRAY + "Shatterment: " + shattermentState[0].getDisplayName()
+                                ChatColor.GRAY + "Disenchantment: " + disenchantmentState.get().getDisplayName(),
+                                ChatColor.GRAY + "Shatterment: " + shattermentState.get().getDisplayName()
                         ));
                     }
             );
