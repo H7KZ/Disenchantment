@@ -112,7 +112,7 @@ public class EnchantmentsGUI implements InventoryHolder {
                     DefaultGUIElements.enchantmentItem(
                             ChatColor.GRAY + "" + ChatColor.BOLD + enchantment.getKey().getKey(),
                             ChatColor.GRAY + "Disenchantment: " + disenchantmentState[0].getDisplayName(),
-                            ChatColor.GRAY + "Shatterment: " + disenchantmentState[0].getDisplayName()
+                            ChatColor.GRAY + "Shatterment: " + shattermentState[0].getDisplayName()
                     ),
                     event -> {
                         event.setCancelled(true);
