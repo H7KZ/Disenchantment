@@ -9,7 +9,7 @@ public class Migration1Base implements IConfigMigration {
     public FileConfiguration migrate(FileConfiguration oldConfig, FileConfiguration configTemplate) {
         if (oldConfig.contains("enabled")) configTemplate.set("enabled", oldConfig.getBoolean("enabled"));
         if (oldConfig.contains("enable-logging"))
-            configTemplate.set("enable-logging", oldConfig.getBoolean("enable-logging"));
+            configTemplate.set("logging-enable", oldConfig.getBoolean("enable-logging"));
         if (oldConfig.contains("logging-level"))
             configTemplate.set("logging-level", oldConfig.getString("logging-level"));
 
@@ -54,8 +54,6 @@ public class Migration1Base implements IConfigMigration {
         if (oldConfig.contains("enabled")) configTemplate.set("shatterment.enabled", oldConfig.getBoolean("enabled"));
         if (oldConfig.contains("disabled-worlds"))
             configTemplate.set("shatterment.disabled-worlds", oldConfig.getStringList("disabled-worlds"));
-        if (oldConfig.contains("disabled-materials"))
-            configTemplate.set("shatterment.disabled-materials", oldConfig.getStringList("disabled-materials"));
         if (oldConfig.contains("disabled-enchantments")) {
             List<String> list = oldConfig.getStringList("disabled-enchantments");
             List<String> newList = new java.util.ArrayList<>();
