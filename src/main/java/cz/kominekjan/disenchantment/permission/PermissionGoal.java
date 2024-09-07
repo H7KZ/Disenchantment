@@ -81,9 +81,15 @@ public enum PermissionGoal {
             PermissionPart.DISENCHANTMENT_REPAIR_GUI,
             PermissionPart.DISENCHANTMENT_REPAIR_GUI_ALTERNATIVE
     ),
+    GUI_EDIT_SHATTERMENT_REPAIR(PermissionPart.ALL, PermissionPart.ALL_GUI,
+            PermissionPart.SHATTERMENT_REPAIR_GUI
+    ),
     GUI_EDIT_DISENCHANTMENT_SOUND(PermissionPart.ALL, PermissionPart.ALL_GUI,
             PermissionPart.DISENCHANTMENT_SOUND_GUI,
             PermissionPart.DISENCHANTMENT_SOUND_GUI_ALTERNATIVE
+    ),
+    GUI_EDIT_SHATTERMENT_SOUND(PermissionPart.ALL, PermissionPart.ALL_GUI,
+            PermissionPart.SHATTERMENT_SOUND_GUI
     ),
     GUI_EDIT_DISENCHANTMENT_MATERIALS(PermissionPart.ALL, PermissionPart.ALL_GUI,
             PermissionPart.DISENCHANTMENT_MATERIAL_TOGGLE_GUI,

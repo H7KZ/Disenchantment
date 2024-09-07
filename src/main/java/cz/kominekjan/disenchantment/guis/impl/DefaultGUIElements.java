@@ -152,7 +152,17 @@ public class DefaultGUIElements {
     }
 
     public static ItemStack repairItem() {
-        return new ItemBuilder(Material.NETHERITE_SCRAP).setDisplayName(ChatColor.DARK_GRAY + "" + ChatColor.BOLD + "Repair").setLore(ChatColor.GRAY + "Edit repair cost").addAllFlags().build();
+        return new ItemBuilder(Material.NETHERITE_SCRAP)
+                .setDisplayName(ChatColor.DARK_GRAY + "" + ChatColor.BOLD + "Repair")
+                .setLore(
+                        new ArrayList<>(Arrays.asList(
+                                ChatColor.GRAY + "Edit repair cost",
+                                ChatColor.GRAY + "LEFT CLICK to edit disenchantment",
+                                ChatColor.GRAY + "RIGHT CLICK to edit shatterment"
+                        ))
+                )
+                .addAllFlags()
+                .build();
     }
 
     public static ItemStack enchantmentsItem() {
@@ -164,7 +174,17 @@ public class DefaultGUIElements {
     }
 
     public static ItemStack soundItem() {
-        return new ItemBuilder(Material.JUKEBOX).setDisplayName(ChatColor.WHITE + "" + ChatColor.BOLD + "Sound").setLore(ChatColor.GRAY + "Edit anvil sound volume and pitch").addAllFlags().build();
+        return new ItemBuilder(Material.JUKEBOX)
+                .setDisplayName(ChatColor.WHITE + "" + ChatColor.BOLD + "Sound")
+                .setLore(
+                        new ArrayList<>(Arrays.asList(
+                                ChatColor.GRAY + "Edit anvil sound volume and pitch",
+                                ChatColor.GRAY + "LEFT CLICK to edit disenchantment",
+                                ChatColor.GRAY + "RIGHT CLICK to edit shatterment"
+                        ))
+                )
+                .addAllFlags()
+                .build();
     }
 
     public static ItemStack spigotItem() {
@@ -175,53 +195,93 @@ public class DefaultGUIElements {
         return new ItemBuilder(Material.NETHERITE_UPGRADE_SMITHING_TEMPLATE).setDisplayName(ChatColor.YELLOW + "" + ChatColor.BOLD + "Back to navigation").addAllFlags().build();
     }
 
-    public static ItemStack disabledRepairCostItem() {
+    public static ItemStack disabledDisenchantmentRepairCostItem() {
         return disabledItem(
                 ChatColor.GRAY + "" + ChatColor.BOLD + "Repair cost",
                 new ArrayList<>(Arrays.asList(
                         ChatColor.RED + "Disabled",
-                        ChatColor.GRAY + "Click to enable repair cost"
+                        ChatColor.GRAY + "Click to enable disenchantment repair cost"
                 ))
         );
     }
 
-    public static ItemStack enabledRepairCostItem() {
+    public static ItemStack disabledShattermentRepairCostItem() {
+        return disabledItem(
+                ChatColor.GRAY + "" + ChatColor.BOLD + "Repair cost",
+                new ArrayList<>(Arrays.asList(
+                        ChatColor.RED + "Disabled",
+                        ChatColor.GRAY + "Click to enable shatterment repair cost"
+                ))
+        );
+    }
+
+    public static ItemStack enabledDisenchantmentRepairCostItem() {
         return enabledItem(
                 ChatColor.GRAY + "" + ChatColor.BOLD + "Repair cost",
                 new ArrayList<>(Arrays.asList(
                         ChatColor.GREEN + "Enabled",
-                        ChatColor.GRAY + "Click to disable repair cost"
+                        ChatColor.GRAY + "Click to disable disenchantment repair cost"
                 ))
         );
     }
 
-    public static ItemStack disabledRepairCostResetItem() {
+    public static ItemStack enabledShattermentRepairCostItem() {
+        return enabledItem(
+                ChatColor.GRAY + "" + ChatColor.BOLD + "Repair cost",
+                new ArrayList<>(Arrays.asList(
+                        ChatColor.GREEN + "Enabled",
+                        ChatColor.GRAY + "Click to disable shatterment repair cost"
+                ))
+        );
+    }
+
+    public static ItemStack disabledDisenchantmentRepairCostResetItem() {
         return disabledItem(
                 ChatColor.GRAY + "" + ChatColor.BOLD + "Repair cost reset",
                 new ArrayList<>(Arrays.asList(
                         ChatColor.RED + "Disabled",
-                        ChatColor.GRAY + "Click to enable repair cost reset"
+                        ChatColor.GRAY + "Click to enable disenchantment repair cost reset"
                 ))
         );
     }
 
-    public static ItemStack enabledRepairCostResetItem() {
+    public static ItemStack disabledShattermentRepairCostResetItem() {
+        return disabledItem(
+                ChatColor.GRAY + "" + ChatColor.BOLD + "Repair cost reset",
+                new ArrayList<>(Arrays.asList(
+                        ChatColor.RED + "Disabled",
+                        ChatColor.GRAY + "Click to enable shatterment repair cost reset"
+                ))
+        );
+    }
+
+    public static ItemStack enabledDisenchantmentRepairCostResetItem() {
         return enabledItem(
                 ChatColor.GRAY + "" + ChatColor.BOLD + "Repair cost reset",
                 new ArrayList<>(Arrays.asList(
                         ChatColor.GREEN + "Enabled",
-                        ChatColor.GRAY + "Click to disable repair cost reset"
+                        ChatColor.GRAY + "Click to disable disenchantment repair cost reset"
                 ))
         );
     }
 
-    public static ItemStack repairCostBaseItem(final int cost, final int amount) {
+    public static ItemStack enabledShattermentRepairCostResetItem() {
+        return enabledItem(
+                ChatColor.GRAY + "" + ChatColor.BOLD + "Repair cost reset",
+                new ArrayList<>(Arrays.asList(
+                        ChatColor.GREEN + "Enabled",
+                        ChatColor.GRAY + "Click to disable shatterment repair cost reset"
+                ))
+        );
+    }
+
+    public static ItemStack disenchantmentRepairCostBaseItem(final int cost, final int amount) {
         return new ItemBuilder(Material.EXPERIENCE_BOTTLE)
                 .setAmount(amount)
                 .setDisplayName(ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + "Base repair cost")
                 .setLore(
                         new ArrayList<>(Arrays.asList(
-                                ChatColor.GRAY + "Current cost: " + ChatColor.WHITE + cost,
+                                ChatColor.GRAY + "Current disenchantment cost: " + ChatColor.WHITE + cost,
                                 ChatColor.GRAY + "LEFT CLICK to increase by 1",
                                 ChatColor.GRAY + "RIGHT CLICK to decrease by 1"
                         ))
@@ -230,13 +290,44 @@ public class DefaultGUIElements {
                 .build();
     }
 
-    public static ItemStack repairCostMultiplierItem(final double cost, final int amount) {
+    public static ItemStack shattermentRepairCostBaseItem(final int cost, final int amount) {
+        return new ItemBuilder(Material.EXPERIENCE_BOTTLE)
+                .setAmount(amount)
+                .setDisplayName(ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + "Base repair cost")
+                .setLore(
+                        new ArrayList<>(Arrays.asList(
+                                ChatColor.GRAY + "Current shatterment cost: " + ChatColor.WHITE + cost,
+                                ChatColor.GRAY + "LEFT CLICK to increase by 1",
+                                ChatColor.GRAY + "RIGHT CLICK to decrease by 1"
+                        ))
+                )
+                .addAllFlags()
+                .build();
+    }
+
+    public static ItemStack disenchantmentRepairCostMultiplierItem(final double cost, final int amount) {
         return new ItemBuilder(Material.DRAGON_BREATH)
                 .setAmount(amount)
                 .setDisplayName(ChatColor.GOLD + "" + ChatColor.BOLD + "Repair cost multiplier")
                 .setLore(
                         new ArrayList<>(Arrays.asList(
-                                ChatColor.GRAY + "Current multiplier: " + ChatColor.WHITE + cost,
+                                ChatColor.GRAY + "Current disenchantment multiplier: " + ChatColor.WHITE + cost,
+                                ChatColor.GRAY + "LEFT CLICK to increase by 0.1",
+                                ChatColor.GRAY + "RIGHT CLICK to decrease by 0.1",
+                                ChatColor.GRAY + "Calculated by: [ base + (level * multiply) ]"
+                        ))
+                )
+                .addAllFlags()
+                .build();
+    }
+
+    public static ItemStack shattermentRepairCostMultiplierItem(final double cost, final int amount) {
+        return new ItemBuilder(Material.DRAGON_BREATH)
+                .setAmount(amount)
+                .setDisplayName(ChatColor.GOLD + "" + ChatColor.BOLD + "Repair cost multiplier")
+                .setLore(
+                        new ArrayList<>(Arrays.asList(
+                                ChatColor.GRAY + "Current shatterment multiplier: " + ChatColor.WHITE + cost,
                                 ChatColor.GRAY + "LEFT CLICK to increase by 0.1",
                                 ChatColor.GRAY + "RIGHT CLICK to decrease by 0.1",
                                 ChatColor.GRAY + "Calculated by: [ base + (level * multiply) ]"
@@ -286,7 +377,7 @@ public class DefaultGUIElements {
         return enchantmentItem(name, List.of(lore));
     }
 
-    public static ItemStack disabledAnvilSoundItem() {
+    public static ItemStack disabledDisenchantmentAnvilSoundItem() {
         return disabledItem(
                 ChatColor.GRAY + "" + ChatColor.BOLD + "Anvil sound",
                 new ArrayList<>(Arrays.asList(
@@ -296,7 +387,17 @@ public class DefaultGUIElements {
         );
     }
 
-    public static ItemStack enabledAnvilSoundItem() {
+    public static ItemStack disabledShattermentAnvilSoundItem() {
+        return disabledItem(
+                ChatColor.GRAY + "" + ChatColor.BOLD + "Anvil sound",
+                new ArrayList<>(Arrays.asList(
+                        ChatColor.RED + "Disabled",
+                        ChatColor.GRAY + "Click to enable anvil sound"
+                ))
+        );
+    }
+
+    public static ItemStack enabledDisenchantmentAnvilSoundItem() {
         return enabledItem(
                 ChatColor.GRAY + "" + ChatColor.BOLD + "Anvil sound",
                 new ArrayList<>(Arrays.asList(
@@ -306,7 +407,17 @@ public class DefaultGUIElements {
         );
     }
 
-    public static ItemStack anvilSoundVolumeItem(final double cost, final int amount) {
+    public static ItemStack enabledShattermentAnvilSoundItem() {
+        return enabledItem(
+                ChatColor.GRAY + "" + ChatColor.BOLD + "Anvil sound",
+                new ArrayList<>(Arrays.asList(
+                        ChatColor.GREEN + "Enabled",
+                        ChatColor.GRAY + "Click to disable anvil sound"
+                ))
+        );
+    }
+
+    public static ItemStack disenchantmentAnvilSoundVolumeItem(final double cost, final int amount) {
         return new ItemBuilder(Material.FIRE_CHARGE)
                 .setAmount(amount)
                 .setDisplayName(ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + "Anvil sound volume")
@@ -321,7 +432,37 @@ public class DefaultGUIElements {
                 .build();
     }
 
-    public static ItemStack anvilSoundPitchItem(final double cost, final int amount) {
+    public static ItemStack shattermentAnvilSoundVolumeItem(final double cost, final int amount) {
+        return new ItemBuilder(Material.FIRE_CHARGE)
+                .setAmount(amount)
+                .setDisplayName(ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + "Anvil sound volume")
+                .setLore(
+                        new ArrayList<>(Arrays.asList(
+                                ChatColor.GRAY + "Current volume: " + ChatColor.WHITE + cost,
+                                ChatColor.GRAY + "LEFT CLICK to increase by 0.1",
+                                ChatColor.GRAY + "RIGHT CLICK to decrease by 0.1"
+                        ))
+                )
+                .addAllFlags()
+                .build();
+    }
+
+    public static ItemStack disenchantmentAnvilSoundPitchItem(final double cost, final int amount) {
+        return new ItemBuilder(Material.SLIME_BALL)
+                .setAmount(amount)
+                .setDisplayName(ChatColor.GOLD + "" + ChatColor.BOLD + "Anvil sound pitch")
+                .setLore(
+                        new ArrayList<>(Arrays.asList(
+                                ChatColor.GRAY + "Current pitch: " + ChatColor.WHITE + cost,
+                                ChatColor.GRAY + "LEFT CLICK to increase by 0.1",
+                                ChatColor.GRAY + "RIGHT CLICK to decrease by 0.1"
+                        ))
+                )
+                .addAllFlags()
+                .build();
+    }
+
+    public static ItemStack shattermentAnvilSoundPitchItem(final double cost, final int amount) {
         return new ItemBuilder(Material.SLIME_BALL)
                 .setAmount(amount)
                 .setDisplayName(ChatColor.GOLD + "" + ChatColor.BOLD + "Anvil sound pitch")
