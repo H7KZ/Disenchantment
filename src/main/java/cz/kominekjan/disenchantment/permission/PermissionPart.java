@@ -61,7 +61,9 @@ public enum PermissionPart {
     PLUGIN_STATUS("disenchantment.gui.status"),
 
     DISENCHANTMENT_REPAIR_GUI("disenchantment.gui.disenchantment_repair"),
+    SHATTERMENT_REPAIR_GUI("disenchantment.gui.shatterment_repair"),
     DISENCHANTMENT_SOUND_GUI("disenchantment.gui.disenchantment_sound"),
+    SHATTERMENT_SOUND_GUI("disenchantment.gui.shatterment_sound"),
 
     WORLD_TOGGLE_GUI("disenchantment.gui.worlds"),
     LEGACY_WORLD_TOGGLE_GUI("disenchantment.gui.toggle", PermissionType.LEGACY),

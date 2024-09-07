@@ -37,9 +37,20 @@ public class NavigationGUI implements InventoryHolder {
             new GUIItem(12, DefaultGUIElements.repairItem(), event -> {
                 event.setCancelled(true);
 
-                if (!PermissionGoal.GUI_EDIT_DISENCHANTMENT_REPAIR.checkPermission(event.getWhoClicked(), true)) return;
+                switch (event.getClick()) {
+                    case LEFT:
+                        if (!PermissionGoal.GUI_EDIT_DISENCHANTMENT_REPAIR.checkPermission(event.getWhoClicked(), true))
+                            return;
 
-                event.getWhoClicked().openInventory(new DisenchantmentRepairGUI().getInventory());
+                        event.getWhoClicked().openInventory(new DisenchantmentRepairGUI().getInventory());
+                        break;
+                    case RIGHT:
+                        if (!PermissionGoal.GUI_EDIT_SHATTERMENT_REPAIR.checkPermission(event.getWhoClicked(), true))
+                            return;
+
+                        event.getWhoClicked().openInventory(new ShattermentRepairGUI().getInventory());
+                        break;
+                }
             }),
             new GUIItem(13, DefaultGUIElements.enchantmentsItem(), event -> {
                 event.setCancelled(true);
@@ -59,9 +70,20 @@ public class NavigationGUI implements InventoryHolder {
             new GUIItem(15, DefaultGUIElements.soundItem(), event -> {
                 event.setCancelled(true);
 
-                if (!PermissionGoal.GUI_EDIT_DISENCHANTMENT_SOUND.checkPermission(event.getWhoClicked(), true)) return;
+                switch (event.getClick()) {
+                    case LEFT:
+                        if (!PermissionGoal.GUI_EDIT_DISENCHANTMENT_SOUND.checkPermission(event.getWhoClicked(), true))
+                            return;
 
-                event.getWhoClicked().openInventory(new DisenchantmentSoundGUI().getInventory());
+                        event.getWhoClicked().openInventory(new DisenchantmentSoundGUI().getInventory());
+                        break;
+                    case RIGHT:
+                        if (!PermissionGoal.GUI_EDIT_SHATTERMENT_SOUND.checkPermission(event.getWhoClicked(), true))
+                            return;
+
+                        event.getWhoClicked().openInventory(new ShattermentSoundGUI().getInventory());
+                        break;
+                }
             }),
             new GUIItem(16, DefaultGUIElements.spigotItem(), event -> {
                 event.setCancelled(true);

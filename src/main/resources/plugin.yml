@@ -96,14 +96,14 @@ permissions:
   disenchantment.gui.disenchant_materials:
     description: GUI Set the materials settings
     default: op
+  disenchantment.gui.shatterment_repair:
+    description: GUI Set the repair settings
+    default: op
   disenchantment.gui.disenchantment_repair:
     description: GUI Set the repair settings
     default: op
   disenchantment.gui.disenchantment_sound:
     description: GUI Set the sound settings
-    default: op
-  disenchantment.gui.shatterment_repair:
-    description: GUI Set the repair settings
     default: op
   disenchantment.gui.shatterment_sound:
     description: GUI Set the sound settings
