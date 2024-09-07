@@ -23,7 +23,7 @@ public class Command {
     }
 
     public boolean execute(CommandSender s, String[] args) {
-        if (permission.checkPermission(s)) {
+        if (!permission.checkPermission(s)) {
             s.sendMessage(textWithPrefixError(permissionMessage));
             return true;
         }

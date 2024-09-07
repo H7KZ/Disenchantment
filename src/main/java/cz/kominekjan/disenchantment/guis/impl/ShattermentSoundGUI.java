@@ -11,9 +11,9 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.jetbrains.annotations.NotNull;
 
-public class DisenchantmentSoundGUI implements InventoryHolder {
+public class ShattermentSoundGUI implements InventoryHolder {
     private final Integer size = 27;
-    private final String title = "Disenchantment | Sound";
+    private final String title = "Shatterment | Sound";
     private final GUIItem[] items = ArrayUtils.addAll(
             DefaultGUIElements.border9x3(new Integer[]{0}),
             new GUIItem(0, DefaultGUIElements.backItem(), event -> {
@@ -21,21 +21,21 @@ public class DisenchantmentSoundGUI implements InventoryHolder {
                 event.getWhoClicked().openInventory(new NavigationGUI().getInventory());
             }),
             DefaultGUIElements.border(10),
-            new GUIItem(11, Config.Disenchantment.Anvil.Sound.isEnabled() ? DefaultGUIElements.enabledDisenchantmentAnvilSoundItem() : DefaultGUIElements.disabledDisenchantmentAnvilSoundItem(), event -> {
+            new GUIItem(11, Config.Shatterment.Anvil.Sound.isEnabled() ? DefaultGUIElements.enabledShattermentAnvilSoundItem() : DefaultGUIElements.disabledShattermentAnvilSoundItem(), event -> {
                 event.setCancelled(true);
 
-                boolean anvilSoundEnabled = !Config.Disenchantment.Anvil.Sound.isEnabled();
+                boolean anvilSoundEnabled = !Config.Shatterment.Anvil.Sound.isEnabled();
 
-                Config.Disenchantment.Anvil.Sound.setEnabled(anvilSoundEnabled);
+                Config.Shatterment.Anvil.Sound.setEnabled(anvilSoundEnabled);
 
-                event.setCurrentItem(anvilSoundEnabled ? DefaultGUIElements.enabledDisenchantmentAnvilSoundItem() : DefaultGUIElements.disabledDisenchantmentAnvilSoundItem());
+                event.setCurrentItem(anvilSoundEnabled ? DefaultGUIElements.enabledShattermentAnvilSoundItem() : DefaultGUIElements.disabledShattermentAnvilSoundItem());
             }),
             DefaultGUIElements.border(12),
             DefaultGUIElements.border(13),
-            new GUIItem(14, DefaultGUIElements.disenchantmentAnvilSoundVolumeItem(Config.Disenchantment.Anvil.Sound.getVolume(), Math.min((int) (Config.Disenchantment.Anvil.Sound.getVolume() * 10), 64)), event -> {
+            new GUIItem(14, DefaultGUIElements.shattermentAnvilSoundVolumeItem(Config.Shatterment.Anvil.Sound.getVolume(), Math.min((int) (Config.Shatterment.Anvil.Sound.getVolume() * 10), 64)), event -> {
                 event.setCancelled(true);
 
-                double volume = Config.Disenchantment.Anvil.Sound.getVolume();
+                double volume = Config.Shatterment.Anvil.Sound.getVolume();
 
                 switch (event.getClick()) {
                     case LEFT:
@@ -48,14 +48,14 @@ public class DisenchantmentSoundGUI implements InventoryHolder {
                         return;
                 }
 
-                Config.Disenchantment.Anvil.Sound.setVolume(volume);
+                Config.Shatterment.Anvil.Sound.setVolume(volume);
 
-                event.setCurrentItem(DefaultGUIElements.disenchantmentAnvilSoundVolumeItem(volume, Math.min((int) (volume * 10), 64)));
+                event.setCurrentItem(DefaultGUIElements.shattermentAnvilSoundVolumeItem(volume, Math.min((int) (volume * 10), 64)));
             }),
-            new GUIItem(15, DefaultGUIElements.disenchantmentAnvilSoundPitchItem(Config.Disenchantment.Anvil.Sound.getPitch(), Math.min((int) (Config.Disenchantment.Anvil.Sound.getPitch() * 10), 64)), event -> {
+            new GUIItem(15, DefaultGUIElements.shattermentAnvilSoundPitchItem(Config.Shatterment.Anvil.Sound.getPitch(), Math.min((int) (Config.Shatterment.Anvil.Sound.getPitch() * 10), 64)), event -> {
                 event.setCancelled(true);
 
-                double pitch = Config.Disenchantment.Anvil.Sound.getPitch();
+                double pitch = Config.Shatterment.Anvil.Sound.getPitch();
 
                 switch (event.getClick()) {
                     case LEFT:
@@ -68,16 +68,16 @@ public class DisenchantmentSoundGUI implements InventoryHolder {
                         return;
                 }
 
-                Config.Disenchantment.Anvil.Sound.setPitch(pitch);
+                Config.Shatterment.Anvil.Sound.setPitch(pitch);
 
-                event.setCurrentItem(DefaultGUIElements.disenchantmentAnvilSoundPitchItem(pitch, Math.min((int) (pitch * 10), 64)));
+                event.setCurrentItem(DefaultGUIElements.shattermentAnvilSoundPitchItem(pitch, Math.min((int) (pitch * 10), 64)));
             }),
             DefaultGUIElements.border(16),
             DefaultGUIElements.border(17)
     );
     private final Inventory inventory;
 
-    public DisenchantmentSoundGUI() {
+    public ShattermentSoundGUI() {
         Inventory inv = Bukkit.createInventory(this, this.size, this.title);
 
         this.inventory = InventoryBuilder.fillItems(inv, this.items);

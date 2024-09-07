@@ -11,9 +11,9 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.jetbrains.annotations.NotNull;
 
-public class DisenchantmentRepairGUI implements InventoryHolder {
+public class ShattermentRepairGUI implements InventoryHolder {
     private final Integer size = 27;
-    private final String title = "Disenchantment | Repair";
+    private final String title = "Shatterment | Repair";
     private final GUIItem[] items = ArrayUtils.addAll(
             DefaultGUIElements.border9x3(new Integer[]{0}),
             new GUIItem(0, DefaultGUIElements.backItem(), event -> {
@@ -21,29 +21,29 @@ public class DisenchantmentRepairGUI implements InventoryHolder {
                 event.getWhoClicked().openInventory(new NavigationGUI().getInventory());
             }),
             DefaultGUIElements.border(10),
-            new GUIItem(11, Config.Disenchantment.Anvil.Repair.isCostEnabled() ? DefaultGUIElements.enabledDisenchantmentRepairCostItem() : DefaultGUIElements.disabledDisenchantmentRepairCostItem(), event -> {
+            new GUIItem(11, Config.Shatterment.Anvil.Repair.isCostEnabled() ? DefaultGUIElements.enabledShattermentRepairCostItem() : DefaultGUIElements.disabledShattermentRepairCostItem(), event -> {
                 event.setCancelled(true);
 
-                boolean repairCostEnabled = !Config.Disenchantment.Anvil.Repair.isCostEnabled();
+                boolean repairCostEnabled = !Config.Shatterment.Anvil.Repair.isCostEnabled();
 
-                Config.Disenchantment.Anvil.Repair.setCostEnabled(repairCostEnabled);
+                Config.Shatterment.Anvil.Repair.setCostEnabled(repairCostEnabled);
 
-                event.setCurrentItem(repairCostEnabled ? DefaultGUIElements.enabledDisenchantmentRepairCostItem() : DefaultGUIElements.disabledDisenchantmentRepairCostItem());
+                event.setCurrentItem(repairCostEnabled ? DefaultGUIElements.enabledShattermentRepairCostItem() : DefaultGUIElements.disabledShattermentRepairCostItem());
             }),
             DefaultGUIElements.border(12),
-            new GUIItem(13, Config.Disenchantment.Anvil.Repair.isResetEnabled() ? DefaultGUIElements.enabledDisenchantmentRepairCostResetItem() : DefaultGUIElements.disabledDisenchantmentRepairCostResetItem(), event -> {
+            new GUIItem(13, Config.Shatterment.Anvil.Repair.isResetEnabled() ? DefaultGUIElements.enabledShattermentRepairCostResetItem() : DefaultGUIElements.disabledShattermentRepairCostResetItem(), event -> {
                 event.setCancelled(true);
 
-                boolean repairResetEnabled = !Config.Disenchantment.Anvil.Repair.isResetEnabled();
+                boolean repairResetEnabled = !Config.Shatterment.Anvil.Repair.isResetEnabled();
 
-                Config.Disenchantment.Anvil.Repair.setResetEnabled(repairResetEnabled);
+                Config.Shatterment.Anvil.Repair.setResetEnabled(repairResetEnabled);
 
-                event.setCurrentItem(repairResetEnabled ? DefaultGUIElements.enabledDisenchantmentRepairCostResetItem() : DefaultGUIElements.disabledDisenchantmentRepairCostResetItem());
+                event.setCurrentItem(repairResetEnabled ? DefaultGUIElements.enabledShattermentRepairCostResetItem() : DefaultGUIElements.disabledShattermentRepairCostResetItem());
             }),
-            new GUIItem(14, DefaultGUIElements.disenchantmentRepairCostBaseItem((int) Math.round(Config.Disenchantment.Anvil.Repair.getBaseCost()), Math.min((int) Math.round(Config.Disenchantment.Anvil.Repair.getBaseCost()), 64)), event -> {
+            new GUIItem(14, DefaultGUIElements.shattermentRepairCostBaseItem((int) Math.round(Config.Shatterment.Anvil.Repair.getBaseCost()), Math.min((int) Math.round(Config.Shatterment.Anvil.Repair.getBaseCost()), 64)), event -> {
                 event.setCancelled(true);
 
-                double cost = Config.Disenchantment.Anvil.Repair.getBaseCost();
+                double cost = Config.Shatterment.Anvil.Repair.getBaseCost();
 
                 switch (event.getClick()) {
                     case LEFT:
@@ -56,14 +56,14 @@ public class DisenchantmentRepairGUI implements InventoryHolder {
                         return;
                 }
 
-                Config.Disenchantment.Anvil.Repair.setBaseCost(cost);
+                Config.Shatterment.Anvil.Repair.setBaseCost(cost);
 
-                event.setCurrentItem(DefaultGUIElements.disenchantmentRepairCostBaseItem((int) Math.round(cost), Math.min((int) Math.round(cost), 64)));
+                event.setCurrentItem(DefaultGUIElements.shattermentRepairCostBaseItem((int) Math.round(cost), Math.min((int) Math.round(cost), 64)));
             }),
-            new GUIItem(15, DefaultGUIElements.disenchantmentRepairCostMultiplierItem(Config.Disenchantment.Anvil.Repair.getCostMultiplier(), Math.min((int) (Config.Disenchantment.Anvil.Repair.getCostMultiplier() * 10), 64)), event -> {
+            new GUIItem(15, DefaultGUIElements.shattermentRepairCostMultiplierItem(Config.Shatterment.Anvil.Repair.getCostMultiplier(), Math.min((int) (Config.Shatterment.Anvil.Repair.getCostMultiplier() * 10), 64)), event -> {
                 event.setCancelled(true);
 
-                double multiplier = Config.Disenchantment.Anvil.Repair.getCostMultiplier();
+                double multiplier = Config.Shatterment.Anvil.Repair.getCostMultiplier();
 
                 switch (event.getClick()) {
                     case LEFT:
@@ -76,16 +76,16 @@ public class DisenchantmentRepairGUI implements InventoryHolder {
                         return;
                 }
 
-                Config.Disenchantment.Anvil.Repair.setCostMultiplier(multiplier);
+                Config.Shatterment.Anvil.Repair.setCostMultiplier(multiplier);
 
-                event.setCurrentItem(DefaultGUIElements.disenchantmentRepairCostMultiplierItem(multiplier, Math.min((int) (multiplier * 10), 64)));
+                event.setCurrentItem(DefaultGUIElements.shattermentRepairCostMultiplierItem(multiplier, Math.min((int) (multiplier * 10), 64)));
             }),
             DefaultGUIElements.border(16),
             DefaultGUIElements.border(17)
     );
     private final Inventory inventory;
 
-    public DisenchantmentRepairGUI() {
+    public ShattermentRepairGUI() {
         Inventory inv = Bukkit.createInventory(this, this.size, this.title);
 
         this.inventory = InventoryBuilder.fillItems(inv, this.items);
