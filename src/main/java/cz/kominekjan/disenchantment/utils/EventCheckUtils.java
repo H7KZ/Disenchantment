@@ -25,17 +25,17 @@ public class EventCheckUtils {
 
             Map<Enchantment, Integer> firstEnchants = DisenchantUtils.fetchEnchantments(firstItem);
 
+            if (EventCheckUtils.Disenchantment.areEnchantmentsDisabled(firstEnchants)) return Collections.emptyMap();
+
             Config.Disenchantment.getEnchantmentStates().forEach((enchantment, state) -> {
                 if (EnchantmentState.KEEP.equals(state)) firstEnchants.remove(enchantment);
             });
-
-            if (EventCheckUtils.Disenchantment.areEnchantmentsDisabled(firstEnchants)) return Collections.emptyMap();
 
             return firstEnchants;
         }
 
         private static Boolean areEnchantmentsDisabled(Map<Enchantment, Integer> enchantments) {
-            Map<Enchantment, EnchantmentState> states = Config.Shatterment.getEnchantmentStates();
+            Map<Enchantment, EnchantmentState> states = Config.Disenchantment.getEnchantmentStates();
 
             for (Enchantment enchantment : enchantments.keySet()) {
                 if (states.getOrDefault(enchantment, EnchantmentState.ENABLED) == EnchantmentState.DISABLED)
