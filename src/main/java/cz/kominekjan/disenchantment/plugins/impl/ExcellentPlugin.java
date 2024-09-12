@@ -4,7 +4,7 @@ import cz.kominekjan.disenchantment.plugins.IPlugin;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
-import su.nightexpress.excellentenchants.enchantment.util.EnchantUtils;
+import su.nightexpress.excellentenchants.util.EnchantUtils;
 
 import java.util.Map;
 
