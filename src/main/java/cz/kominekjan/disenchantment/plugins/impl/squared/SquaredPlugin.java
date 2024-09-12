@@ -2,7 +2,6 @@ package cz.kominekjan.disenchantment.plugins.impl.squared;
 
 import cz.kominekjan.disenchantment.plugins.IPlugin;
 import cz.kominekjan.disenchantment.plugins.impl.VanillaPlugin;
-import cz.kominekjan.disenchantment.utils.DisenchantUtils;
 import me.athlaeos.enchantssquared.enchantments.CustomEnchant;
 import me.athlaeos.enchantssquared.managers.CustomEnchantManager;
 import org.bukkit.enchantments.Enchantment;
@@ -27,17 +26,26 @@ public class SquaredPlugin implements IPlugin {
     }
 
     public ItemStack createEnchantedBook(Map<Enchantment, Integer> enchantments) {
-        ItemStack book = VanillaPlugin.createEnchantedBook(enchantments);
+        Map<SquarredWrappedEnchantment, Integer> esEnchants = new HashMap<>();
 
+        // Fetch enchantment squared enchants
         enchantments.forEach((bukkitEnchantment, level) -> {
             if (!(bukkitEnchantment instanceof SquarredWrappedEnchantment squaredEnchantment)) return;
 
-            // Remove the dummy enchantment object
-            DisenchantUtils.removeStoredEnchantment(book, bukkitEnchantment);
-
-            // And add the enchantment squared enchantment
-            CustomEnchantManager.getInstance().addEnchant(book, squaredEnchantment.getEnchantment().getType(), level);
+            esEnchants.put(squaredEnchantment, level);
         });
+
+        // Remove es enchantment from bukkit enchantment map
+        for (SquarredWrappedEnchantment esEnchantment : esEnchants.keySet()) {
+            enchantments.remove(esEnchantment);
+        }
+
+        // Create book with only bukkit enchantments
+        ItemStack book = VanillaPlugin.createEnchantedBook(enchantments);
+
+        // Add enchantment squared enchantments to the book
+        CustomEnchantManager manager = CustomEnchantManager.getInstance();
+        esEnchants.forEach((enchantment, level) -> manager.addEnchant(book, enchantment.getEnchantment().getType(), level));
 
         return book;
     }
