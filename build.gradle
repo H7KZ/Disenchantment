@@ -29,12 +29,12 @@ dependencies {
 
 
     // Custom Enchants
-    compileOnly "com.willfp:EcoEnchants:12.16.0"
-    compileOnly "com.willfp:eco:6.73.0"
-    implementation files('libs/ExcellentEnchants-4.1.0.jar')
+    compileOnly "com.willfp:EcoEnchants:12.18.7"
+    compileOnly "com.willfp:eco:6.74.1"
+    implementation files('libs/ExcellentEnchants-4.2.1.jar')
     implementation files('libs/AdvancedEnchantments-8.7.4.jar')
     implementation files('libs/UberEnchant-8.11.5.jar')
-    implementation files('libs/EnchantsSquared-2.5.12.jar')
+    implementation files('libs/EnchantsSquared-2.5.13.jar')
 }
 
 def targetJavaVersion = 21
