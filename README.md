@@ -9,12 +9,12 @@ This plugin allows players to disenchant items and get the item's enchantments b
 
 ### Supported & tested custom enchantment plugins
 
-- `ExcellentEnchants` v4.2.1+
-- `EcoEnchants` v12.18.7+ (partially, you need to build the plugin from the source code with changes
+- `ExcellentEnchants` v4.3.2+
+- `EcoEnchants` v12.19.3+ (partially, you need to build the plugin from the source code with changes
   here: [EcoEnchants PR](https://github.com/Auxilor/EcoEnchants/pull/397))
 - `AdvancedEnchantments` v8.7.4+
 - `UberEnchant` v8.11.5+
-- `EnchantsSquared` v2.5.13+
+- `EnchantsSquared` v2.5.15+
 
 <br />
 
