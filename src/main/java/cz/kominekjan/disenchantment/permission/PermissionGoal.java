@@ -28,16 +28,9 @@ public enum PermissionGoal {
             PermissionPart.DISENCHANTMENT_MATERIALS_CMD,
             PermissionPart.LEGACY_DISENCHANTMENT_MATERIALS_CMD
     ),
-    DISENCHANTMENT_SOUND_CMD(PermissionPart.ALL, PermissionPart.ALL_CMD,
-            PermissionPart.DISENCHANTMENT_SOUND_CMD,
-            PermissionPart.LEGACY_DISENCHANTMENT_SOUND_CMD
-    ),
     DISENCHANTMENT_ENCHANTMENTS_CMD(PermissionPart.ALL, PermissionPart.ALL_CMD,
             PermissionPart.DISENCHANTMENT_ENCHANTMENTS_CMD,
             PermissionPart.LEGACY_DISENCHANTMENT_ENCHANTMENTS_CMD
-    ),
-    DISENCHANTMENT_WORLDS_CMD(PermissionPart.ALL, PermissionPart.ALL_CMD,
-            PermissionPart.DISENCHANTMENT_WORLDS_CMD
     ),
 
     // Shatterment commands permission goals
@@ -113,15 +106,15 @@ public enum PermissionGoal {
     }
 
     public boolean checkPermission(Permissible permissible, boolean feedback) {
-        if (Arrays.stream(parts).anyMatch(p -> p.checkPermission(permissible))) return true;
+        if (Arrays.stream(parts).anyMatch(p -> p.checkPermission(permissible))) return false;
 
         if (feedback && (permissible instanceof CommandSender sender))
             sender.sendMessage(textWithPrefixError("You don't have permission to use this feature."));
 
-        return false;
+        return true;
     }
 
     public boolean checkPermission(Permissible permissible) {
-        return !checkPermission(permissible, false);
+        return checkPermission(permissible, false);
     }
 }
