@@ -20,11 +20,11 @@ public class Config {
         return config.getBoolean(ConfigKeys.ENABLED.getKey());
     }
 
-    public static Boolean setPluginEnabled(Boolean enabled) {
+    public static void setPluginEnabled(Boolean enabled) {
         config.set(ConfigKeys.ENABLED.getKey(), enabled);
         plugin.saveConfig();
 
-        return isPluginEnabled() == enabled;
+        isPluginEnabled();
     }
 
     public static Boolean isLoggingEnabled() {
@@ -67,22 +67,22 @@ public class Config {
             return new ArrayList<>(config.getStringList(ConfigKeys.DISENCHANTMENT_DISABLED_WORLDS.getKey()).stream().map(Bukkit::getWorld).toList());
         }
 
-        public static Boolean setDisabledWorlds(List<World> worlds) {
+        public static void setDisabledWorlds(List<World> worlds) {
             config.set(ConfigKeys.DISENCHANTMENT_DISABLED_WORLDS.getKey(), worlds.stream().map(World::getName).toList());
             plugin.saveConfig();
 
-            return getDisabledWorlds().equals(worlds);
+            getDisabledWorlds();
         }
 
         public static List<Material> getDisabledMaterials() {
             return new ArrayList<>(config.getStringList(ConfigKeys.DISENCHANTMENT_DISABLED_MATERIALS.getKey()).stream().map(Material::getMaterial).toList());
         }
 
-        public static Boolean setDisabledMaterials(List<Material> materials) {
+        public static void setDisabledMaterials(List<Material> materials) {
             config.set(ConfigKeys.DISENCHANTMENT_DISABLED_MATERIALS.getKey(), materials.stream().map(Material::name).toList());
             plugin.saveConfig();
 
-            return getDisabledMaterials().equals(materials);
+            getDisabledMaterials();
         }
 
         public static HashMap<Enchantment, EnchantmentState> getEnchantmentStates() {
@@ -125,7 +125,7 @@ public class Config {
             return enchantmentStates;
         }
 
-        public static Boolean setEnchantmentStates(HashMap<Enchantment, EnchantmentState> enchantmentStates) {
+        public static void setEnchantmentStates(HashMap<Enchantment, EnchantmentState> enchantmentStates) {
             List<String> list = new ArrayList<>();
 
             for (Map.Entry<Enchantment, EnchantmentState> entry : enchantmentStates.entrySet()) {
@@ -137,7 +137,7 @@ public class Config {
 
             STATE_CACHE = new HashMap<>(enchantmentStates);
 
-            return getEnchantmentStates().equals(enchantmentStates);
+            getEnchantmentStates();
         }
 
         public static class Anvil {
@@ -146,33 +146,33 @@ public class Config {
                     return config.getBoolean(ConfigKeys.DISENCHANTMENT_ANVIL_SOUND_ENABLED.getKey());
                 }
 
-                public static Boolean setEnabled(Boolean enabled) {
+                public static void setEnabled(Boolean enabled) {
                     config.set(ConfigKeys.DISENCHANTMENT_ANVIL_SOUND_ENABLED.getKey(), enabled);
                     plugin.saveConfig();
 
-                    return isEnabled() == enabled;
+                    isEnabled();
                 }
 
                 public static Double getVolume() {
                     return config.getDouble(ConfigKeys.DISENCHANTMENT_ANVIL_VOLUME.getKey());
                 }
 
-                public static Boolean setVolume(Double volume) {
+                public static void setVolume(Double volume) {
                     config.set(ConfigKeys.DISENCHANTMENT_ANVIL_VOLUME.getKey(), volume);
                     plugin.saveConfig();
 
-                    return getVolume().equals(volume);
+                    getVolume();
                 }
 
                 public static Double getPitch() {
                     return config.getDouble(ConfigKeys.DISENCHANTMENT_ANVIL_PITCH.getKey());
                 }
 
-                public static Boolean setPitch(Double pitch) {
+                public static void setPitch(Double pitch) {
                     config.set(ConfigKeys.DISENCHANTMENT_ANVIL_PITCH.getKey(), pitch);
                     plugin.saveConfig();
 
-                    return getPitch().equals(pitch);
+                    getPitch();
                 }
             }
 
@@ -181,44 +181,44 @@ public class Config {
                     return config.getBoolean(ConfigKeys.DISENCHANTMENT_REPAIR_RESET_ENABLED.getKey());
                 }
 
-                public static Boolean setResetEnabled(Boolean enabled) {
+                public static void setResetEnabled(Boolean enabled) {
                     config.set(ConfigKeys.DISENCHANTMENT_REPAIR_RESET_ENABLED.getKey(), enabled);
                     plugin.saveConfig();
 
-                    return isResetEnabled() == enabled;
+                    isResetEnabled();
                 }
 
                 public static Boolean isCostEnabled() {
                     return config.getBoolean(ConfigKeys.DISENCHANTMENT_REPAIR_COST_ENABLED.getKey());
                 }
 
-                public static Boolean setCostEnabled(Boolean enabled) {
+                public static void setCostEnabled(Boolean enabled) {
                     config.set(ConfigKeys.DISENCHANTMENT_REPAIR_COST_ENABLED.getKey(), enabled);
                     plugin.saveConfig();
 
-                    return isCostEnabled() == enabled;
+                    isCostEnabled();
                 }
 
                 public static Double getBaseCost() {
                     return config.getDouble(ConfigKeys.DISENCHANTMENT_REPAIR_COST_BASE.getKey());
                 }
 
-                public static Boolean setBaseCost(Double cost) {
+                public static void setBaseCost(Double cost) {
                     config.set(ConfigKeys.DISENCHANTMENT_REPAIR_COST_BASE.getKey(), cost);
                     plugin.saveConfig();
 
-                    return getBaseCost().equals(cost);
+                    getBaseCost();
                 }
 
                 public static Double getCostMultiplier() {
                     return config.getDouble(ConfigKeys.DISENCHANTMENT_REPAIR_COST_MULTIPLIER.getKey());
                 }
 
-                public static Boolean setCostMultiplier(Double multiplier) {
+                public static void setCostMultiplier(Double multiplier) {
                     config.set(ConfigKeys.DISENCHANTMENT_REPAIR_COST_MULTIPLIER.getKey(), multiplier);
                     plugin.saveConfig();
 
-                    return getCostMultiplier().equals(multiplier);
+                    getCostMultiplier();
                 }
             }
         }
@@ -242,11 +242,11 @@ public class Config {
             return new ArrayList<>(config.getStringList(ConfigKeys.SHATTERMENT_DISABLED_WORLDS.getKey()).stream().map(Bukkit::getWorld).toList());
         }
 
-        public static Boolean setDisabledWorlds(List<World> worlds) {
+        public static void setDisabledWorlds(List<World> worlds) {
             config.set(ConfigKeys.SHATTERMENT_DISABLED_WORLDS.getKey(), worlds.stream().map(World::getName).toList());
             plugin.saveConfig();
 
-            return getDisabledWorlds().equals(worlds);
+            getDisabledWorlds();
         }
 
         public static HashMap<Enchantment, EnchantmentState> getEnchantmentStates() {
@@ -289,7 +289,7 @@ public class Config {
             return enchantmentStates;
         }
 
-        public static Boolean setEnchantmentStates(HashMap<Enchantment, EnchantmentState> enchantmentStates) {
+        public static void setEnchantmentStates(HashMap<Enchantment, EnchantmentState> enchantmentStates) {
             List<String> list = new ArrayList<>();
 
             for (Map.Entry<Enchantment, EnchantmentState> entry : enchantmentStates.entrySet()) {
@@ -301,7 +301,7 @@ public class Config {
 
             STATE_CACHE = new HashMap<>(enchantmentStates);
 
-            return getEnchantmentStates().equals(enchantmentStates);
+            getEnchantmentStates();
         }
 
         public static class Anvil {
@@ -310,33 +310,33 @@ public class Config {
                     return config.getBoolean(ConfigKeys.SHATTERMENT_ANVIL_SOUND_ENABLED.getKey());
                 }
 
-                public static Boolean setEnabled(Boolean enabled) {
+                public static void setEnabled(Boolean enabled) {
                     config.set(ConfigKeys.SHATTERMENT_ANVIL_SOUND_ENABLED.getKey(), enabled);
                     plugin.saveConfig();
 
-                    return isEnabled() == enabled;
+                    isEnabled();
                 }
 
                 public static Double getVolume() {
                     return config.getDouble(ConfigKeys.SHATTERMENT_ANVIL_VOLUME.getKey());
                 }
 
-                public static Boolean setVolume(Double volume) {
+                public static void setVolume(Double volume) {
                     config.set(ConfigKeys.SHATTERMENT_ANVIL_VOLUME.getKey(), volume);
                     plugin.saveConfig();
 
-                    return getVolume().equals(volume);
+                    getVolume();
                 }
 
                 public static Double getPitch() {
                     return config.getDouble(ConfigKeys.SHATTERMENT_ANVIL_PITCH.getKey());
                 }
 
-                public static Boolean setPitch(Double pitch) {
+                public static void setPitch(Double pitch) {
                     config.set(ConfigKeys.SHATTERMENT_ANVIL_PITCH.getKey(), pitch);
                     plugin.saveConfig();
 
-                    return getPitch().equals(pitch);
+                    getPitch();
                 }
             }
 
@@ -345,44 +345,44 @@ public class Config {
                     return config.getBoolean(ConfigKeys.SHATTERMENT_REPAIR_RESET_ENABLED.getKey());
                 }
 
-                public static Boolean setResetEnabled(Boolean enabled) {
+                public static void setResetEnabled(Boolean enabled) {
                     config.set(ConfigKeys.SHATTERMENT_REPAIR_RESET_ENABLED.getKey(), enabled);
                     plugin.saveConfig();
 
-                    return isResetEnabled() == enabled;
+                    isResetEnabled();
                 }
 
                 public static Boolean isCostEnabled() {
                     return config.getBoolean(ConfigKeys.SHATTERMENT_REPAIR_COST_ENABLED.getKey());
                 }
 
-                public static Boolean setCostEnabled(Boolean enabled) {
+                public static void setCostEnabled(Boolean enabled) {
                     config.set(ConfigKeys.SHATTERMENT_REPAIR_COST_ENABLED.getKey(), enabled);
                     plugin.saveConfig();
 
-                    return isCostEnabled() == enabled;
+                    isCostEnabled();
                 }
 
                 public static Double getBaseCost() {
                     return config.getDouble(ConfigKeys.SHATTERMENT_REPAIR_COST_BASE.getKey());
                 }
 
-                public static Boolean setBaseCost(Double cost) {
+                public static void setBaseCost(Double cost) {
                     config.set(ConfigKeys.SHATTERMENT_REPAIR_COST_BASE.getKey(), cost);
                     plugin.saveConfig();
 
-                    return getBaseCost().equals(cost);
+                    getBaseCost();
                 }
 
                 public static Double getCostMultiplier() {
                     return config.getDouble(ConfigKeys.SHATTERMENT_REPAIR_COST_MULTIPLIER.getKey());
                 }
 
-                public static Boolean setCostMultiplier(Double multiplier) {
+                public static void setCostMultiplier(Double multiplier) {
                     config.set(ConfigKeys.SHATTERMENT_REPAIR_COST_MULTIPLIER.getKey(), multiplier);
                     plugin.saveConfig();
 
-                    return getCostMultiplier().equals(multiplier);
+                    getCostMultiplier();
                 }
             }
         }

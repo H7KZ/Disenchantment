@@ -15,7 +15,7 @@ public class GUIClickEvent implements Listener {
 
         if (!(e.getWhoClicked() instanceof Player p)) return;
 
-        if (!PermissionGoal.GUI_USE.checkPermission(p))
+        if (PermissionGoal.GUI_USE.checkPermission(p))
             return;
 
         InventoryHolder clickedHolder = e.getClickedInventory().getHolder();

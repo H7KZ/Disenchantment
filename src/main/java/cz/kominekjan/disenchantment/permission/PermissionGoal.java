@@ -122,6 +122,6 @@ public enum PermissionGoal {
     }
 
     public boolean checkPermission(Permissible permissible) {
-        return checkPermission(permissible, false);
+        return !checkPermission(permissible, false);
     }
 }

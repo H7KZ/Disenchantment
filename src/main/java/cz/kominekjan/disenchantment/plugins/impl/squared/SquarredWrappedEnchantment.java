@@ -115,12 +115,12 @@ public class SquarredWrappedEnchantment extends Enchantment {
     }
 
     @Override
-    public @NotNull RegistryKeySet<ItemType> getSupportedItems() {
+    public @NotNull RegistryKeySet<@NotNull ItemType> getSupportedItems() {
         return null;
     }
 
     @Override
-    public @Nullable RegistryKeySet<ItemType> getPrimaryItems() {
+    public @Nullable RegistryKeySet<@NotNull ItemType> getPrimaryItems() {
         return null;
     }
 
@@ -130,7 +130,7 @@ public class SquarredWrappedEnchantment extends Enchantment {
     }
 
     @Override
-    public @NotNull RegistryKeySet<Enchantment> getExclusiveWith() {
+    public @NotNull RegistryKeySet<@NotNull Enchantment> getExclusiveWith() {
         return null;
     }
 

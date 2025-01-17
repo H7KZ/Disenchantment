@@ -33,7 +33,7 @@ public class ShatterEvent implements Listener {
         if (!Config.isPluginEnabled() || !Config.Shatterment.isEnabled() || Config.Shatterment.getDisabledWorlds().contains(p.getWorld()))
             return;
 
-        if (!PermissionGoal.SHATTER_EVENT.checkPermission(p)) return;
+        if (PermissionGoal.SHATTER_EVENT.checkPermission(p)) return;
 
         ItemStack firstItem = e.getInventory().getItem(0);
         ItemStack secondItem = e.getInventory().getItem(1);

@@ -14,9 +14,7 @@ public class AdvancedPlugin implements IPlugin {
     public ItemStack createEnchantedBook(Map<Enchantment, Integer> enchantments) {
         ItemStack book = new ItemStack(Material.ENCHANTED_BOOK);
 
-        enchantments.forEach((en, l) -> {
-            AEAPI.applyEnchant(en.getKey().getKey(), l, book, true);
-        });
+        enchantments.forEach((en, l) -> AEAPI.applyEnchant(en.getKey().getKey(), l, book, true));
         return book;
     }
 

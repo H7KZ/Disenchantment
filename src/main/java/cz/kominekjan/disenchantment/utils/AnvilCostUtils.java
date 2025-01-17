@@ -10,8 +10,8 @@ import java.util.Map;
 
 public class AnvilCostUtils {
     public static int countAnvilCost(Map<Enchantment, Integer> enchantments, EventType eventType) {
-        double enchantmentCost = 0;
-        double baseMultiplier = 0;
+        double enchantmentCost;
+        double baseMultiplier;
 
         switch (eventType) {
             case EventType.DISENCHANTMENT:

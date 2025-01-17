@@ -34,7 +34,7 @@ public class CommandCompleter implements TabCompleter {
         if (args.length == 2) {
             switch (args[0].toLowerCase()) {
                 case "help":
-                    for (String arg : commands.get("help").args) {
+                    for (String arg : commands.get("help").args()) {
                         if (arg.toLowerCase().startsWith(args[1].toLowerCase())) {
                             result.add(arg);
                         }
@@ -63,28 +63,28 @@ public class CommandCompleter implements TabCompleter {
                     }
                     return result;
                 case "disenchant_repair":
-                    for (String arg : commands.get("disenchant_repair").args) {
+                    for (String arg : commands.get("disenchant_repair").args()) {
                         if (arg.toLowerCase().startsWith(args[1].toLowerCase())) {
                             result.add(arg);
                         }
                     }
                     return result;
                 case "shatter_repair":
-                    for (String arg : commands.get("shatter_repair").args) {
+                    for (String arg : commands.get("shatter_repair").args()) {
                         if (arg.toLowerCase().startsWith(args[1].toLowerCase())) {
                             result.add(arg);
                         }
                     }
                     return result;
                 case "disenchant_sound":
-                    for (String arg : commands.get("disenchant_sound").args) {
+                    for (String arg : commands.get("disenchant_sound").args()) {
                         if (arg.toLowerCase().startsWith(args[1].toLowerCase())) {
                             result.add(arg);
                         }
                     }
                     return result;
                 case "shatter_sound":
-                    for (String arg : commands.get("shatter_sound").args) {
+                    for (String arg : commands.get("shatter_sound").args()) {
                         if (arg.toLowerCase().startsWith(args[1].toLowerCase())) {
                             result.add(arg);
                         }

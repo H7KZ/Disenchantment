@@ -25,6 +25,7 @@ import org.bukkit.inventory.view.AnvilView;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import static cz.kominekjan.disenchantment.Disenchantment.logger;
 
@@ -36,7 +37,7 @@ public class ShatterClickEvent implements Listener {
         if (!Config.isPluginEnabled() || !Config.Shatterment.isEnabled() || Config.Shatterment.getDisabledWorlds().contains(p.getWorld()))
             return;
 
-        if (!PermissionGoal.SHATTER_EVENT.checkPermission(p)) return;
+        if (PermissionGoal.SHATTER_EVENT.checkPermission(p)) return;
 
         if (e.getInventory().getType() != InventoryType.ANVIL) return;
 
@@ -80,7 +81,7 @@ public class ShatterClickEvent implements Listener {
             if (Config.getLoggingLevel().equals(LoggingLevel.INFO) || Config.getLoggingLevel().equals(LoggingLevel.DEBUG))
                 logger.info(
                         p.getName() + " has split a book " +
-                                firstItem.getType().name() + " with " +
+                                Objects.requireNonNull(firstItem).getType().name() + " with " +
                                 firstItem.getEnchantments().keySet() + " for " +
                                 anvilView.getRepairCost() + "xp" + " in " +
                                 p.getWorld().getName() + " at " +
@@ -100,7 +101,7 @@ public class ShatterClickEvent implements Listener {
         // ----------------------------------------------------------------------------------------------------
         // Disenchantment plugins
 
-        ItemStack item = firstItem.clone();
+        ItemStack item = Objects.requireNonNull(firstItem).clone();
 
         HashMap<String, IPlugin> activatedPlugins = PluginManager.getActivatedPlugins();
 
@@ -126,7 +127,7 @@ public class ShatterClickEvent implements Listener {
 
         anvilInventory.setItem(0, item);
 
-        if (secondItem.getAmount() > 1) {
+        if (Objects.requireNonNull(secondItem).getAmount() > 1) {
             secondItem.setAmount(secondItem.getAmount() - 1);
         } else {
             anvilInventory.setItem(1, null);
