@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Map;
 
 public interface IPlugin {
-    String name = "Unknown";
 
     ItemStack createEnchantedBook(Map<Enchantment, Integer> enchantments);
 

@@ -92,12 +92,12 @@ public class NavigationGUI implements InventoryHolder {
                 event.getWhoClicked().closeInventory();
             })
     );
-    private final Integer size = 27;
-    private final String title = "Navigation";
     private final Inventory inventory;
 
     public NavigationGUI() {
-        Inventory inv = Bukkit.createInventory(this, this.size, this.title);
+        String title = "Navigation";
+        int size = 27;
+        Inventory inv = Bukkit.createInventory(this, size, title);
 
         this.inventory = InventoryBuilder.fillItems(inv, this.items);
     }

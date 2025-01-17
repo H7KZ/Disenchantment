@@ -77,7 +77,7 @@ public final class Disenchantment extends JavaPlugin {
         Objects.requireNonNull(getCommand("disenchantment")).setExecutor(new CommandRegister());
         Objects.requireNonNull(getCommand("disenchantment")).setTabCompleter(new CommandCompleter());
 
-        new BStatsMetrics(this, 19058);
+        new BStatsMetrics(this);
 
         // Check for updates every 8 hours
         String version = plugin.getDescription().getVersion();

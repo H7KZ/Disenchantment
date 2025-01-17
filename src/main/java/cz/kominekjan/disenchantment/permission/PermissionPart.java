@@ -30,13 +30,8 @@ public enum PermissionPart {
     DISENCHANTMENT_MATERIALS_CMD("disenchantment.command.disenchant_materials"),
     LEGACY_DISENCHANTMENT_MATERIALS_CMD("disenchantment.command.materials", PermissionType.LEGACY),
 
-    DISENCHANTMENT_SOUND_CMD("disenchantment.command.disenchantment_sound"),
-    LEGACY_DISENCHANTMENT_SOUND_CMD("disenchantment.command.sound", PermissionType.LEGACY),
-
     DISENCHANTMENT_ENCHANTMENTS_CMD("disenchantment.command.disenchant_enchantments"),
     LEGACY_DISENCHANTMENT_ENCHANTMENTS_CMD("disenchantment.command.enchantments", PermissionType.LEGACY),
-
-    DISENCHANTMENT_WORLDS_CMD("disenchantment.command.disenchant_worlds"),
 
     // Shatterment commands Permissions
     SHATTER_REPAIR_CMD("disenchantment.command.shatterment_repair"),
@@ -67,8 +62,6 @@ public enum PermissionPart {
 
     WORLD_TOGGLE_GUI("disenchantment.gui.worlds"),
     LEGACY_WORLD_TOGGLE_GUI("disenchantment.gui.toggle", PermissionType.LEGACY),
-
-    SHATTER_WORLD_TOGGLE_GUI("disenchantment.gui.shatter_worlds"),
 
     DISENCHANTMENT_MATERIAL_TOGGLE_GUI("disenchantment.gui.disenchant_materials"),
     LEGACY_DISENCHANTMENT_MATERIAL_TOGGLE_GUI("disenchantment.gui.materials", PermissionType.LEGACY),

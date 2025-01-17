@@ -1,17 +1,11 @@
 package cz.kominekjan.disenchantment.types;
 
 public enum LoggingLevel {
-    INFO("INFO"),
-    DEBUG("DEBUG"),
+    INFO(),
+    DEBUG(),
     ;
 
-    private final String level;
-
-    LoggingLevel(String level) {
-        this.level = level;
+    LoggingLevel() {
     }
 
-    public String getLevel() {
-        return level;
-    }
 }

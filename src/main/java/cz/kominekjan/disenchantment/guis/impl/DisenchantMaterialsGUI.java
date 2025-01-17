@@ -22,8 +22,6 @@ import java.util.List;
 
 
 public class DisenchantMaterialsGUI implements InventoryHolder {
-    private final Integer size = 54;
-    private final String title;
     private final Integer[] freeSlots = {
             10, 11, 12, 13, 14, 15, 16,
             19, 20, 21, 22, 23, 24, 25,
@@ -64,9 +62,10 @@ public class DisenchantMaterialsGUI implements InventoryHolder {
                 .toList();
 
         this.page = page;
-        this.title = "Disenchantment | Materials " + (page + 1) + "/" + (materials.size() / 28 + 1);
+        String title = "Disenchantment | Materials " + (page + 1) + "/" + (materials.size() / 28 + 1);
 
-        Inventory inv = Bukkit.createInventory(this, this.size, this.title);
+        int size = 54;
+        Inventory inv = Bukkit.createInventory(this, size, title);
 
         this.inventory = InventoryBuilder.fillItems(inv, this.items);
         this.items = ArrayUtils.addAll(this.items, this.getMaterialsItems(materials));

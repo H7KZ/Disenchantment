@@ -21,10 +21,6 @@ public class DisenchantUtils {
             Enchantment.MENDING
     };
 
-    public static void addEnchantment(ItemStack item, Enchantment enchantment, Integer level) {
-        item.addUnsafeEnchantment(enchantment, level);
-    }
-
     public static void addStoredEnchantment(ItemStack item, Enchantment enchantment, Integer level) {
         ItemMeta meta = item.getItemMeta();
 
@@ -33,10 +29,6 @@ public class DisenchantUtils {
         else meta.addEnchant(enchantment, level, true);
 
         item.setItemMeta(meta);
-    }
-
-    public static void removeEnchantment(ItemStack item, Enchantment enchantment) {
-        item.removeEnchantment(enchantment);
     }
 
     public static void removeStoredEnchantment(ItemStack item, Enchantment enchantment) {

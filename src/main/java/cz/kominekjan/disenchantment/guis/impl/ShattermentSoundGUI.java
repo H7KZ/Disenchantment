@@ -12,8 +12,6 @@ import org.bukkit.inventory.InventoryHolder;
 import org.jetbrains.annotations.NotNull;
 
 public class ShattermentSoundGUI implements InventoryHolder {
-    private final Integer size = 27;
-    private final String title = "Shatterment | Sound";
     private final GUIItem[] items = ArrayUtils.addAll(
             DefaultGUIElements.border9x3(new Integer[]{0}),
             new GUIItem(0, DefaultGUIElements.backItem(), event -> {
@@ -78,7 +76,9 @@ public class ShattermentSoundGUI implements InventoryHolder {
     private final Inventory inventory;
 
     public ShattermentSoundGUI() {
-        Inventory inv = Bukkit.createInventory(this, this.size, this.title);
+        String title = "Shatterment | Sound";
+        int size = 27;
+        Inventory inv = Bukkit.createInventory(this, size, title);
 
         this.inventory = InventoryBuilder.fillItems(inv, this.items);
     }

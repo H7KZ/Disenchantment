@@ -20,8 +20,6 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class WorldsGUI implements InventoryHolder {
-    private final Integer size = 54;
-    private final String title;
     private final HashMap<World.Environment, String> worldHeads = new HashMap<>() {
         {
             put(World.Environment.NORMAL, "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNWVhYTlhYzE1NzU4ZDUxNzdhODk2NjA1OTg1ZTk4YmVhYzhmZWUwZTZiMmM2OGE4ZGMxZjNjOTFjMDc5ZmI4OSJ9fX0=");
@@ -64,9 +62,10 @@ public class WorldsGUI implements InventoryHolder {
         List<World> worlds = Bukkit.getWorlds();
 
         this.page = page;
-        this.title = "Worlds " + (page + 1) + "/" + (worlds.size() / 28 + 1);
+        String title = "Worlds " + (page + 1) + "/" + (worlds.size() / 28 + 1);
 
-        Inventory inv = Bukkit.createInventory(this, this.size, this.title);
+        int size = 54;
+        Inventory inv = Bukkit.createInventory(this, size, title);
 
         this.inventory = InventoryBuilder.fillItems(inv, this.items);
         this.items = ArrayUtils.addAll(this.items, this.getWorldsItems(worlds));

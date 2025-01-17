@@ -18,8 +18,6 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class EnchantmentsGUI implements InventoryHolder {
-    private final Integer size = 54;
-    private final String title;
     private final Integer[] freeSlots = {
             10, 11, 12, 13, 14, 15, 16,
             19, 20, 21, 22, 23, 24, 25,
@@ -56,9 +54,10 @@ public class EnchantmentsGUI implements InventoryHolder {
         enchantments.sort(Comparator.comparing(e -> e.getKey().getKey()));
 
         this.page = page;
-        this.title = "Enchantments " + (page + 1) + "/" + (enchantments.size() / 28 + 1);
+        String title = "Enchantments " + (page + 1) + "/" + (enchantments.size() / 28 + 1);
 
-        Inventory inv = Bukkit.createInventory(this, this.size, this.title);
+        int size = 54;
+        Inventory inv = Bukkit.createInventory(this, size, title);
 
         this.inventory = InventoryBuilder.fillItems(inv, this.items);
         this.items = ArrayUtils.addAll(this.items, this.getEnchantmentsItems(enchantments));

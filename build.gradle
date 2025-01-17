@@ -3,7 +3,7 @@ plugins {
 }
 
 group = 'cz.kominekjan'
-version = "5.5.0"
+version = "5.6.0"
 
 repositories {
 //    mavenLocal()
@@ -23,7 +23,7 @@ repositories {
 }
 
 dependencies {
-    compileOnly "io.papermc.paper:paper-api:1.21.3-R0.1-SNAPSHOT"
+    compileOnly "io.papermc.paper:paper-api:1.21.4-R0.1-SNAPSHOT"
 
     compileOnly "com.mojang:authlib:3.11.50"
 

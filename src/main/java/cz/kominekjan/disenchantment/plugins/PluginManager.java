@@ -6,7 +6,6 @@ import cz.kominekjan.disenchantment.plugins.impl.ExcellentPlugin;
 import cz.kominekjan.disenchantment.plugins.impl.UberPlugin;
 import cz.kominekjan.disenchantment.plugins.impl.squared.SquaredPlugin;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,22 +19,6 @@ public class PluginManager {
             SquaredPlugin.name, new SquaredPlugin()
     );
     private static final HashMap<String, IPlugin> activatedPlugins = new HashMap<>();
-
-    public static Map<String, IPlugin> getSupportedPlugins() {
-        return supportedPlugins;
-    }
-
-    public static List<IPlugin> getPlugins() {
-        return new ArrayList<>(supportedPlugins.values());
-    }
-
-    public static IPlugin getPlugin(String pluginName) {
-        return supportedPlugins.get(pluginName);
-    }
-
-    public static List<String> getPluginNames() {
-        return new ArrayList<>(supportedPlugins.keySet());
-    }
 
     public static boolean isSupported(String pluginName) {
         return supportedPlugins.containsKey(pluginName);

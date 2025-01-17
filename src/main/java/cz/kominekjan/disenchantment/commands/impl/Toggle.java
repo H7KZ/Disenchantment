@@ -14,10 +14,10 @@ public class Toggle {
             "You don't have permission to use this command.",
             new String[]{},
             false,
-            Toggle::execute
+            (s, args) -> execute(s)
     );
 
-    public static void execute(CommandSender s, String[] args) {
+    public static void execute(CommandSender s) {
         boolean pluginEnabled = !Config.isPluginEnabled();
 
         Disenchantment.toggle(pluginEnabled);

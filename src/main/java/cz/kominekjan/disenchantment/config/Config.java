@@ -31,22 +31,8 @@ public class Config {
         return config.getBoolean(ConfigKeys.ENABLE_LOGGING.getKey());
     }
 
-    public static Boolean setLoggingEnabled(Boolean enabled) {
-        config.set(ConfigKeys.ENABLE_LOGGING.getKey(), enabled);
-        plugin.saveConfig();
-
-        return isLoggingEnabled() == enabled;
-    }
-
     public static LoggingLevel getLoggingLevel() {
         return LoggingLevel.valueOf(config.getString(ConfigKeys.LOGGING_LEVEL.getKey()));
-    }
-
-    public static Boolean setLoggingLevel(LoggingLevel level) {
-        config.set(ConfigKeys.LOGGING_LEVEL.getKey(), level.name());
-        plugin.saveConfig();
-
-        return getLoggingLevel() == level;
     }
 
     public static class Disenchantment {
@@ -54,13 +40,6 @@ public class Config {
 
         public static Boolean isEnabled() {
             return config.getBoolean(ConfigKeys.DISENCHANTMENT_ENABLED.getKey());
-        }
-
-        public static Boolean setEnabled(Boolean enabled) {
-            config.set(ConfigKeys.DISENCHANTMENT_ENABLED.getKey(), enabled);
-            plugin.saveConfig();
-
-            return isEnabled() == enabled;
         }
 
         public static List<World> getDisabledWorlds() {
@@ -229,13 +208,6 @@ public class Config {
 
         public static Boolean isEnabled() {
             return config.getBoolean(ConfigKeys.SHATTERMENT_ENABLED.getKey());
-        }
-
-        public static Boolean setEnabled(Boolean enabled) {
-            config.set(ConfigKeys.SHATTERMENT_ENABLED.getKey(), enabled);
-            plugin.saveConfig();
-
-            return isEnabled() == enabled;
         }
 
         public static List<World> getDisabledWorlds() {

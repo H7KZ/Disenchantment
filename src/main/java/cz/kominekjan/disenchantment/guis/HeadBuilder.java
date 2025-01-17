@@ -38,12 +38,4 @@ public class HeadBuilder extends ItemBuilder {
         return this;
     }
 
-    public SkullMeta getSkullMeta() {
-        return (SkullMeta) this.getItemMeta();
-    }
-
-    public HeadBuilder setSkullMeta(SkullMeta meta) {
-        this.setItemMeta(meta);
-        return this;
-    }
 }

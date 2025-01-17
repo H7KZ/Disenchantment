@@ -13,10 +13,10 @@ public class GUI {
             "You don't have permission to use this command.",
             new String[]{},
             false,
-            GUI::execute
+            (s, args) -> execute(s)
     );
 
-    public static void execute(CommandSender s, String[] args) {
+    public static void execute(CommandSender s) {
         NavigationGUI navigationGUI = new NavigationGUI();
 
         if (!(s instanceof Player player)) return;

@@ -11,7 +11,6 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 public class DefaultGUIElements {
@@ -50,46 +49,6 @@ public class DefaultGUIElements {
         return border;
     }
 
-    public static GUIItem[] border9x4() {
-        return border9x4(new Integer[]{});
-    }
-
-    public static GUIItem[] border9x4(Integer[] remove) {
-        GUIItem[] border = rowBorder(0, 8);
-        border = ArrayUtils.add(border, border(9));
-        border = ArrayUtils.add(border, border(17));
-        border = ArrayUtils.add(border, border(18));
-        border = ArrayUtils.add(border, border(26));
-        border = ArrayUtils.addAll(border, rowBorder(27, 35));
-
-        border = new ArrayList<>(Arrays.asList(border)).stream().filter(item -> !ArrayUtils.contains(remove, item.getSlot())).toArray(GUIItem[]::new);
-
-        return border;
-    }
-
-    public static GUIItem[] border9x5() {
-        return border9x5(new Integer[]{});
-    }
-
-    public static GUIItem[] border9x5(Integer[] remove) {
-        GUIItem[] border = rowBorder(0, 8);
-        border = ArrayUtils.add(border, border(9));
-        border = ArrayUtils.add(border, border(17));
-        border = ArrayUtils.add(border, border(18));
-        border = ArrayUtils.add(border, border(26));
-        border = ArrayUtils.add(border, border(27));
-        border = ArrayUtils.add(border, border(35));
-        border = ArrayUtils.addAll(border, rowBorder(36, 44));
-
-        border = new ArrayList<>(Arrays.asList(border)).stream().filter(item -> !ArrayUtils.contains(remove, item.getSlot())).toArray(GUIItem[]::new);
-
-        return border;
-    }
-
-    public static GUIItem[] border9x6() {
-        return border9x6(new Integer[]{});
-    }
-
     public static GUIItem[] border9x6(Integer[] remove) {
         GUIItem[] border = rowBorder(0, 8);
         border = ArrayUtils.add(border, border(9));
@@ -117,14 +76,6 @@ public class DefaultGUIElements {
 
     public static ItemStack enabledItem(String name, ArrayList<String> lore) {
         return new ItemBuilder(Material.LIME_TERRACOTTA).setDisplayName(name).setLore(lore).addAllFlags().build();
-    }
-
-    public static ItemStack disabledItem(String name, String lore) {
-        return disabledItem(name, new ArrayList<>(Collections.singletonList(lore)));
-    }
-
-    public static ItemStack enabledItem(String name, String lore) {
-        return enabledItem(name, new ArrayList<>(Collections.singletonList(lore)));
     }
 
     public static ItemStack disabledPluginItem() {
@@ -349,16 +300,8 @@ public class DefaultGUIElements {
         return new ItemBuilder(Material.OAK_HANGING_SIGN).setDisplayName(name).setLore(lore).addAllFlags().build();
     }
 
-    public static ItemStack infoItem(String name, String lore) {
-        return infoItem(name, new ArrayList<>(Collections.singletonList(lore)));
-    }
-
     public static ItemStack headWorldItem(String name, String texture, ArrayList<String> lore) {
         return new HeadBuilder().setTexture(texture).setDisplayName(name).setLore(lore).addAllFlags().build();
-    }
-
-    public static ItemStack headWorldItem(String name, String texture, String lore) {
-        return headWorldItem(name, texture, new ArrayList<>(Collections.singletonList(lore)));
     }
 
     public static ItemStack headWorldItem(String name, String texture, String... lore) {
@@ -367,10 +310,6 @@ public class DefaultGUIElements {
 
     public static ItemStack enchantmentItem(String name, List<String> lore) {
         return new ItemBuilder(Material.ENCHANTED_BOOK).setDisplayName(name).setLore(lore).addAllFlags().build();
-    }
-
-    public static ItemStack enchantmentItem(String name, String lore) {
-        return enchantmentItem(name, new ArrayList<>(Collections.singletonList(lore)));
     }
 
     public static ItemStack enchantmentItem(String name, String... lore) {
