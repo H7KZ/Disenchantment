@@ -28,7 +28,7 @@ import java.util.regex.Pattern;
  * @author BananaPuncher714
  * @version 7.19.1
  */
-public final class NBTEditor {
+public final class NBTEditor_v1_18_R1 {
     public static final Type COMPOUND = Type.COMPOUND;
     public static final Type LIST = Type.LIST;
     public static final Type NEW_ELEMENT = Type.NEW_ELEMENT;
@@ -56,21 +56,21 @@ public final class NBTEditor {
 
         reflectionTargets = new TreeSet<ReflectionTarget>();
         reflectionTargets.addAll(Arrays.asList(
-                new ReflectionTarget.v1_8().setClassFetcher(NBTEditor::getNMSClass),
-                new ReflectionTarget.v1_9().setClassFetcher(NBTEditor::getNMSClass),
-                new ReflectionTarget.v1_11().setClassFetcher(NBTEditor::getNMSClass),
-                new ReflectionTarget.v1_12().setClassFetcher(NBTEditor::getNMSClass),
-                new ReflectionTarget.v1_13().setClassFetcher(NBTEditor::getNMSClass),
-                new ReflectionTarget.v1_15().setClassFetcher(NBTEditor::getNMSClass),
-                new ReflectionTarget.v1_16().setClassFetcher(NBTEditor::getNMSClass),
-                new ReflectionTarget.v1_17().setClassFetcher(NBTEditor::getNMSClass),
-                new ReflectionTarget.v1_18_R1().setClassFetcher(NBTEditor::getNMSClass),
-                new ReflectionTarget.v1_18_R2().setClassFetcher(NBTEditor::getNMSClass),
-                new ReflectionTarget.v1_19_R1().setClassFetcher(NBTEditor::getNMSClass),
-                new ReflectionTarget.v1_19_R2().setClassFetcher(NBTEditor::getNMSClass),
-                new ReflectionTarget.v1_20_R1().setClassFetcher(NBTEditor::getNMSClass),
-                new ReflectionTarget.v1_20_R2().setClassFetcher(NBTEditor::getNMSClass),
-                new ReflectionTarget.v1_20_R3().setClassFetcher(NBTEditor::getNMSClass)
+                new ReflectionTarget.v1_8().setClassFetcher(NBTEditor_v1_18_R1::getNMSClass),
+                new ReflectionTarget.v1_9().setClassFetcher(NBTEditor_v1_18_R1::getNMSClass),
+                new ReflectionTarget.v1_11().setClassFetcher(NBTEditor_v1_18_R1::getNMSClass),
+                new ReflectionTarget.v1_12().setClassFetcher(NBTEditor_v1_18_R1::getNMSClass),
+                new ReflectionTarget.v1_13().setClassFetcher(NBTEditor_v1_18_R1::getNMSClass),
+                new ReflectionTarget.v1_15().setClassFetcher(NBTEditor_v1_18_R1::getNMSClass),
+                new ReflectionTarget.v1_16().setClassFetcher(NBTEditor_v1_18_R1::getNMSClass),
+                new ReflectionTarget.v1_17().setClassFetcher(NBTEditor_v1_18_R1::getNMSClass),
+                new ReflectionTarget.v1_18_R1().setClassFetcher(NBTEditor_v1_18_R1::getNMSClass),
+                new ReflectionTarget.v1_18_R2().setClassFetcher(NBTEditor_v1_18_R1::getNMSClass),
+                new ReflectionTarget.v1_19_R1().setClassFetcher(NBTEditor_v1_18_R1::getNMSClass),
+                new ReflectionTarget.v1_19_R2().setClassFetcher(NBTEditor_v1_18_R1::getNMSClass),
+                new ReflectionTarget.v1_20_R1().setClassFetcher(NBTEditor_v1_18_R1::getNMSClass),
+                new ReflectionTarget.v1_20_R2().setClassFetcher(NBTEditor_v1_18_R1::getNMSClass),
+                new ReflectionTarget.v1_20_R3().setClassFetcher(NBTEditor_v1_18_R1::getNMSClass)
         ));
 
         for (ReflectionTarget target : reflectionTargets) {

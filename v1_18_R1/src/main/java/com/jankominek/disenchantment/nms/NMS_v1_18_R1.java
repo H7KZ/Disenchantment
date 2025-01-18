@@ -11,9 +11,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static nbt.NBT.setNBTRepairCost;
+import static nbt.NBT_v1_18_R1.setNBTRepairCost;
 
-public class NMS_v1_17_R1 implements NMS {
+public class NMS_v1_18_R1 implements NMS {
     @Override
     public boolean canItemBeEnchanted(ItemStack item) {
         Enchantment[] checkers = {

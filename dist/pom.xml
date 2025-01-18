@@ -47,7 +47,12 @@
         </dependency>
         <dependency>
             <groupId>com.jankominek</groupId>
-            <artifactId>disenchantment-v1_17_R1</artifactId>
+            <artifactId>disenchantment-v1_18_R1</artifactId>
+            <version>${revision}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.jankominek</groupId>
+            <artifactId>disenchantment-v1_20_R4</artifactId>
             <version>${revision}</version>
         </dependency>
         <dependency>

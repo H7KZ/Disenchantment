@@ -107,20 +107,13 @@ public final class Disenchantment extends JavaPlugin {
         try {
             String nmsVersion = MinecraftVersion.getServerVersion().getNmsVersion();
 
-            System.out.println("NMS version: " + nmsVersion);
-
-            if (nmsVersion == null) {
-                System.out.println("no NMS version");
-                return false;
-            }
+            if (nmsVersion == null) return false;
 
             Class<?> clazz = Class.forName("com.jankominek.disenchantment.nms.NMS_" + nmsVersion);
 
             if (NMS.class.isAssignableFrom(clazz)) {
                 nms = (NMS) clazz.getDeclaredConstructor().newInstance();
             }
-
-            System.out.println("NMS version found: " + (nms != null));
 
             return nms != null;
         } catch (Exception | Error ignored) {
@@ -130,7 +123,7 @@ public final class Disenchantment extends JavaPlugin {
 
     private Runnable checkForUpdate(String pluginVersion) {
         return () -> new UpdateChecker(110741).getVersion(version -> {
-            if (!pluginVersion.equals(version)) System.out.println("There is a new version available: " + version);
+            if (!pluginVersion.equals(version)) logger.info("There is a new version available: " + version);
         });
     }
 }

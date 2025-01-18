@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>disenchantment-v1_21_R1</artifactId>
+    <artifactId>disenchantment-v1_20_R4</artifactId>
 
     <parent>
         <groupId>com.jankominek</groupId>
@@ -16,7 +16,7 @@
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot</artifactId>
-            <version>1.21.1-R0.1-SNAPSHOT</version>
+            <version>1.20.6-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
             <classifier>remapped-mojang</classifier>
         </dependency>
