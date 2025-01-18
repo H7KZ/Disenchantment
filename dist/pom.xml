@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>disenchantment-dist</artifactId>
+
+    <parent>
+        <groupId>com.jankominek</groupId>
+        <artifactId>disenchantment-parent</artifactId>
+        <version>${revision}</version>
+    </parent>
+
+    <build>
+        <directory>../target</directory>
+        <finalName>disenchantment-${project.version}</finalName>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.1.1</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <artifactSet>
+                                <includes>
+                                    <include>com.jankominek:disenchantment-*</include>
+                                </includes>
+                            </artifactSet>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.jankominek</groupId>
+            <artifactId>disenchantment-core</artifactId>
+            <version>${revision}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.jankominek</groupId>
+            <artifactId>disenchantment-v1_17_R1</artifactId>
+            <version>${revision}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.jankominek</groupId>
+            <artifactId>disenchantment-v1_21_R1</artifactId>
+            <version>${revision}</version>
+        </dependency>
+    </dependencies>
+</project>

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.jankominek</groupId>
+    <artifactId>disenchantment-parent</artifactId>
+    <version>${revision}</version>
+    <packaging>pom</packaging>
+
+    <name>Disenchantment</name>
+    <url>https://github.com/H7KZ/Disenchantment</url>
+
+    <modules>
+        <module>core</module>
+        <module>v1_21_R1</module>
+        <!--        <module>v1_21_R3</module>-->
+        <!--        <module>v1_21_R1</module>-->
+        <!--        <module>v1_20_R3</module>-->
+        <!--        <module>v1_20_R2</module>-->
+        <!--        <module>v1_20_R1</module>-->
+        <!--        <module>v1_19_R3</module>-->
+        <!--        <module>v1_19_R2</module>-->
+        <!--        <module>v1_19_R1</module>-->
+        <!--        <module>v1_18_R2</module>-->
+        <!--        <module>v1_18_R1</module>-->
+        <module>v1_17_R1</module>
+        <module>dist</module>
+    </modules>
+
+    <properties>
+        <revision>6.0.0</revision>
+
+        <maven.compiler.source>16</maven.compiler.source>
+        <maven.compiler.target>16</maven.compiler.target>
+        <maven.compiler.release>16</maven.compiler.release>
+    </properties>
+</project>

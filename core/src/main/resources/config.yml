@@ -1,0 +1,43 @@
+# DO NOT EDIT THIS VALUE
+migration: 2
+# ----------------------------------------------------------------------------------------
+# For descriptions of each option, see the wiki:
+# https://github.com/H7KZ/Disenchantment/CONFIG.md
+# ----------------------------------------------------------------------------------------
+
+enabled: true
+
+# ----------------------------------------------------------------------------------------
+
+disenchantment:
+  enabled: true
+  disabled-worlds: [ ]
+  disabled-materials: [ ]
+  enchantments-states: [ ]
+  anvil:
+    sound:
+      enabled: true
+      volume: 1.0
+      pitch: 1.0
+    repair:
+      reset: false
+      cost: true
+      base: 10
+      multiply: 0.25
+
+# ----------------------------------------------------------------------------------------
+
+shatterment:
+  enabled: true
+  disabled-worlds: [ ]
+  enchantments-states: [ ]
+  anvil:
+    sound:
+      enabled: true
+      volume: 1.0
+      pitch: 1.0
+    repair:
+      reset: false
+      cost: true
+      base: 10
+      multiply: 0.25
