@@ -28,7 +28,7 @@ public class Config {
     }
 
     public static class Disenchantment {
-        private static HashMap<Enchantment, EnchantmentStateType> STATE_CACHE = null;
+        private static HashMap<Enchantment, EnchantmentStateType> ENCHANTMENT_STATES_CACHE = null;
 
         public static Boolean isEnabled() {
             return config.getBoolean(ConfigKeys.DISENCHANTMENT_ENABLED.getKey());
@@ -64,7 +64,7 @@ public class Config {
         }
 
         public static HashMap<Enchantment, EnchantmentStateType> getEnchantmentStates() {
-            if (STATE_CACHE != null) return STATE_CACHE;
+            if (ENCHANTMENT_STATES_CACHE != null) return ENCHANTMENT_STATES_CACHE;
 
             List<String> list = config.getStringList(ConfigKeys.DISENCHANTMENT_ENCHANTMENTS_STATES.getKey());
             HashMap<Enchantment, EnchantmentStateType> enchantmentStates = new HashMap<>();
@@ -92,7 +92,7 @@ public class Config {
                 );
             }
 
-            STATE_CACHE = enchantmentStates;
+            ENCHANTMENT_STATES_CACHE = enchantmentStates;
 
             return enchantmentStates;
         }
@@ -107,7 +107,7 @@ public class Config {
             config.set(ConfigKeys.DISENCHANTMENT_ENCHANTMENTS_STATES.getKey(), list);
             plugin.saveConfig();
 
-            STATE_CACHE = new HashMap<>(enchantmentStates);
+            ENCHANTMENT_STATES_CACHE = new HashMap<>(enchantmentStates);
 
             return getEnchantmentStates().equals(enchantmentStates);
         }
@@ -197,7 +197,7 @@ public class Config {
     }
 
     public static class Shatterment {
-        private static HashMap<Enchantment, EnchantmentStateType> STATE_CACHE = null;
+        private static HashMap<Enchantment, EnchantmentStateType> ENCHANTMENT_STATES_CACHE = null;
 
         public static Boolean isEnabled() {
             return config.getBoolean(ConfigKeys.SHATTERMENT_ENABLED.getKey());
@@ -222,7 +222,7 @@ public class Config {
         }
 
         public static HashMap<Enchantment, EnchantmentStateType> getEnchantmentStates() {
-            if (STATE_CACHE != null) return STATE_CACHE;
+            if (ENCHANTMENT_STATES_CACHE != null) return ENCHANTMENT_STATES_CACHE;
 
             List<String> list = config.getStringList(ConfigKeys.SHATTERMENT_ENCHANTMENTS_STATES.getKey());
             HashMap<Enchantment, EnchantmentStateType> enchantmentStates = new HashMap<>();
@@ -250,7 +250,7 @@ public class Config {
                 );
             }
 
-            STATE_CACHE = enchantmentStates;
+            ENCHANTMENT_STATES_CACHE = enchantmentStates;
 
             return enchantmentStates;
         }
@@ -265,7 +265,7 @@ public class Config {
             config.set(ConfigKeys.SHATTERMENT_ENCHANTMENTS_STATES.getKey(), list);
             plugin.saveConfig();
 
-            STATE_CACHE = new HashMap<>(enchantmentStates);
+            ENCHANTMENT_STATES_CACHE = new HashMap<>(enchantmentStates);
 
             return getEnchantmentStates().equals(enchantmentStates);
         }

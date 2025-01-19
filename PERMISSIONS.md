@@ -1,152 +1,92 @@
 # Permissions
 
-1. [General Permissions](#general-permissions)
-    - `disenchantment.all`
-2. [Anvil Permissions](#anvil-permissions)
-    - `disenchantment.anvil`
-    - `disenchantment.anvil.disenchant`
-    - `disenchantment.anvil.shatter`
-3. [Command Permissions](#command-permissions)
-    - `disenchantment.command.all`
-    - `disenchantment.command.gui`
-    - `disenchantment.command.help`
-    - `disenchantment.command.status`
-    - `disenchantment.command.toggle`
-    - `disenchantment.command.disenchant_enchantments`
-    - `disenchantment.command.disenchant_worlds`
-    - `disenchantment.command.disenchant_materials`
-    - `disenchantment.command.disenchant_repair`
-    - `disenchantment.command.disenchant_sound`
-    - `disenchantment.command.shatter_enchantments`
-    - `disenchantment.command.shatter_worlds`
-    - `disenchantment.command.shatter_repair`
-    - `disenchantment.command.shatter_sound`
-4. [GUI Permissions](#gui-permissions)
-    - `disenchantment.gui`
-    - `disenchantment.gui.all`
-    - `disenchantment.gui.status`
-    - `disenchantment.gui.worlds`
-    - `disenchantment.gui.enchantments`
-    - `disenchantment.gui.disenchant_materials`
-    - `disenchantment.gui.disenchant_repair`
-    - `disenchantment.gui.disenchant_sound`
-    - `disenchantment.gui.shatter_repair`
-    - `disenchantment.gui.shatter_sound`
+```yaml
 
-## General Permissions
-
-### `disenchantment.all`
-
-- Access to all permissions
-
-## Anvil Permissions
-
-### `disenchantment.anvil`
-
-- Allows the player to disenchant or shatter items
-
-### `disenchantment.anvil.disenchant`
-
-- Allows the player to disenchant items
-
-### `disenchantment.anvil.shatter`
-
-- Allows the player to split enchantments off books
-
-### `disenchantment.command.all`
-
-- Allow use of every commands
-
-### `disenchantment.command.gui`
-
-- Opens the settings GUI
-
-### `disenchantment.command.help`
-
-- Help command
-
-### `disenchantment.command.status`
-
-- See the status of the plugin
-
-### `disenchantment.command.toggle`
-
-- Toggle the plugin on/off
-
-### `disenchantment.command.disenchant_enchantments`
-
-- View disenchantment enchantments
-
-### `disenchantment.command.disenchant_worlds`
-
-- View disenchantment worlds
-
-### `disenchantment.command.disenchant_materials`
-
-- View disenchantment materials
-
-### `disenchantment.command.disenchant_repair`
-
-- Repair disenchantment items
-
-### `disenchantment.command.disenchant_sound`
-
-- View disenchantment sounds
-
-### `disenchantment.command.shatter_enchantments`
-
-- View shatterment enchantments
-
-### `disenchantment.command.shatter_worlds`
-
-- View shatterment worlds
-
-### `disenchantment.command.shatter_repair`
-
-- Repair shatterment items
-
-### `disenchantment.command.shatter_sound`
-
-- View shatterment sounds
-
-## GUI Permissions
-
-### `disenchantment.gui`
-
-- Needed to use the gui
-
-- ### `disenchantment.gui.all`
-
-- GUI Allow everything related to the gui
-
-### `disenchantment.gui.status`
-
-- See the status of the plugin
-
-### `disenchantment.gui.worlds`
-
-- View disenchantment worlds
-
-### `disenchantment.gui.enchantments`
-
-- View disenchantment enchantments
-
-### `disenchantment.gui.materials`
-
-- View disenchantment materials
-
-### `disenchantment.gui.disenchantment_repair`
-
-- Repair disenchantment items
-
-### `disenchantment.gui.disenchantment_sound`
-
-- View disenchantment sounds
-
-### `disenchantment.gui.shatterment_repair`
-
-- Repair shatterment items
-
-### `disenchantment.gui.shatterment_sound`
-
-- View shatterment sounds
+disenchantment.all:
+   description: Access to everything/all permissions.
+   default: op
+disenchantment.anvil.all:
+   description: Allows the player to disenchant items or shatter books.
+   default: op
+disenchantment.anvil.disenchant:
+   description: Allows the player to disenchant items.
+   default: op
+disenchantment.anvil.shatter:
+   description: Allows the player to split enchantments from books.
+   default: op
+disenchantment.command.use:
+   description: Access to the disenchantment command.
+   default: op
+disenchantment.command.all:
+   description: Access to every command.
+   default: op
+disenchantment.command.gui:
+   description: Access to the gui command.
+   default: op
+disenchantment.command.help:
+   description: Access to the help command.
+   default: op
+disenchantment.command.status:
+   description: Access to the status command.
+   default: op
+disenchantment.command.toggle:
+   description: Access to the toggle command.
+   default: op
+disenchantment.command.disenchant.enchantments:
+   description: Access to the disenchant enchantments command.
+   default: op
+disenchantment.command.disenchant.worlds:
+   description: Access to the disenchant worlds command.
+   default: op
+disenchantment.command.disenchant.materials:
+   description: Access to the disenchant materials command.
+   default: op
+disenchantment.command.disenchant.repair:
+   description: Access to the disenchant repair command.
+   default: op
+disenchantment.command.disenchant.sound:
+   description: Access to the disenchant sound command.
+   default: op
+disenchantment.command.shatter.enchantments:
+   description: Access to the shatter enchantments command.
+   default: op
+disenchantment.command.shatter.worlds:
+   description: Access to the shatter worlds command.
+   default: op
+disenchantment.command.shatter.repair:
+   description: Access to the shatter repair command.
+   default: op
+disenchantment.command.shatter.sound:
+   description: Access to the shatter sound command.
+   default: op
+disenchantment.gui:
+   description: Allows the player to open the GUI.
+   default: op
+disenchantment.gui.all:
+   description: Allows the player to access all GUI settings.
+   default: op
+disenchantment.gui.status:
+   description: Allows the player to see the status of the plugin.
+   default: op
+disenchantment.gui.worlds:
+   description: Allows the player to set the anvil worlds.
+   default: op
+disenchantment.gui.enchantments:
+   description: Allows the player to set the anvil enchantments.
+   default: op
+disenchantment.gui.materials:
+   description: Allows the player to set the anvil materials.
+   default: op
+disenchantment.gui.disenchant.repair:
+   description: Allows the player to set the disenchant repair settings.
+   default: op
+disenchantment.gui.disenchant.sound:
+   description: Allows the player to set the disenchant sound settings.
+   default: op
+disenchantment.gui.shatter.repair:
+   description: Allows the player to set the shatter repair settings.
+   default: op
+disenchantment.gui.shatter.sound:
+   description: Allows the player to set the shatter sound settings.
+   default: op
+```

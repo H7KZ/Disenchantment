@@ -70,7 +70,8 @@ public final class NBTEditor_v1_20_R4 {
                 new ReflectionTarget.v1_19_R2().setClassFetcher(NBTEditor_v1_20_R4::getNMSClass),
                 new ReflectionTarget.v1_20_R1().setClassFetcher(NBTEditor_v1_20_R4::getNMSClass),
                 new ReflectionTarget.v1_20_R2().setClassFetcher(NBTEditor_v1_20_R4::getNMSClass),
-                new ReflectionTarget.v1_20_R3().setClassFetcher(NBTEditor_v1_20_R4::getNMSClass)
+                new ReflectionTarget.v1_20_R3().setClassFetcher(NBTEditor_v1_20_R4::getNMSClass),
+                new ReflectionTarget.v1_20_R4().setClassFetcher(NBTEditor_v1_20_R4::getNMSClass)
         ));
 
         for (ReflectionTarget target : reflectionTargets) {
@@ -1317,6 +1318,7 @@ public final class NBTEditor_v1_20_R4 {
         v1_20_R1,
         v1_20_R2,
         v1_20_R3,
+        v1_20_R4,
         v1_21,
         v1_22;
 
@@ -1824,6 +1826,12 @@ public final class NBTEditor_v1_20_R4 {
                 addMethod(MethodId.getTileTag, ClassId.TileEntity, "o");
                 addMethod(MethodId.getPropertyName, ClassId.Property, "name");
                 addMethod(MethodId.getPropertyValue, ClassId.Property, "value");
+            }
+        }
+
+        private static class v1_20_R4 extends ReflectionTarget {
+            protected v1_20_R4() {
+                super(MinecraftVersion.v1_20_R4);
             }
         }
     }

@@ -21,7 +21,8 @@ public class Help {
                 s.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + "Disenchantment Help page 2/8");
                 s.sendMessage("");
 
-                s.sendMessage(CreateHelpTextComponent("/disenchant status", "Show where the plugin is enabled or disabled."));
+                s.sendMessage(CreateHelpTextComponent("/disenchant gui", "Open GUI for disenchantment configuration."));
+                s.sendMessage(CreateHelpTextComponent("/disenchant status", "Show if the plugin is enabled or disabled."));
                 s.sendMessage(CreateHelpTextComponent("/disenchant toggle", "Toggle the plugin on/off."));
                 break;
             }
@@ -29,12 +30,12 @@ public class Help {
                 s.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + "Disenchantment Help page 3/8");
                 s.sendMessage("");
 
-                s.sendMessage(CreateHelpTextComponent("/disenchant disenchant:enchantments", "Show current list of the disabled enchantments."));
+                s.sendMessage(CreateHelpTextComponent("/disenchant disenchant:enchantments", "Show current list of the enchantment settings."));
                 s.sendMessage(CreateHelpTextComponent("/disenchant disenchant:enchantments [enchantment name] ['enable', 'keep' or 'cancel']", "Change configuration of disabled enchantments."));
                 s.sendMessage(CreateHelpTextComponent("/disenchant disenchant:worlds", "Show current list of the disabled worlds."));
-                s.sendMessage(CreateHelpTextComponent("/disenchant disenchant:worlds [world]", "Toggle specific world to enable/disable disenchant. To enable the world, run the same command."));
+                s.sendMessage(CreateHelpTextComponent("/disenchant disenchant:worlds [world]", "Toggle specific world to enable/disable disenchant."));
                 s.sendMessage(CreateHelpTextComponent("/disenchant disenchant:materials", "Show current list of the disabled materials."));
-                s.sendMessage(CreateHelpTextComponent("/disenchant disenchant:materials [material]", "Change the list of disabled materials. To enable the material, run the same command."));
+                s.sendMessage(CreateHelpTextComponent("/disenchant disenchant:materials [material]", "Toggle specific material to enable/disable disenchantment."));
                 break;
             }
             case "4": {
@@ -42,8 +43,8 @@ public class Help {
                 s.sendMessage("");
 
                 s.sendMessage(CreateHelpTextComponent("/disenchant disenchant:repair", "Show current configuration of repair cost."));
-                s.sendMessage(CreateHelpTextComponent("/disenchant disenchant:repair [enable or disable]", "Enable/disable the repair cost."));
-                s.sendMessage(CreateHelpTextComponent("/disenchant disenchant:repair reset [enable or disable]", "Enable/disable the reset of repair cost to 0 after disenchanting."));
+                s.sendMessage(CreateHelpTextComponent("/disenchant disenchant:repair ['enable', 'disable']", "Enable/disable repair cost."));
+                s.sendMessage(CreateHelpTextComponent("/disenchant disenchant:repair reset ['enable', 'disable']", "Enable/disable the reset of repair cost to 0 after disenchantment."));
                 s.sendMessage(CreateHelpTextComponent("/disenchant disenchant:repair base [int]", "Change the value of base repair cost."));
                 s.sendMessage(CreateHelpTextComponent("/disenchant disenchant:repair multiply [float]", "Change the value of multiplication of repair cost based on the enchantment level and number of enchantments."));
                 break;
@@ -53,7 +54,7 @@ public class Help {
                 s.sendMessage("");
 
                 s.sendMessage(CreateHelpTextComponent("/disenchant disenchant:sound", "Show current configuration of anvil sound."));
-                s.sendMessage(CreateHelpTextComponent("/disenchant disenchant:sound [enable or disable]", "Enable/disable the repair cost."));
+                s.sendMessage(CreateHelpTextComponent("/disenchant disenchant:sound ['enable', 'disable']", "Enable/disable the repair cost."));
                 s.sendMessage(CreateHelpTextComponent("/disenchant disenchant:sound volume [float]", "Change the value of anvil sound volume."));
                 s.sendMessage(CreateHelpTextComponent("/disenchant disenchant:sound pitch [float]", "Change the value of anvil sound pitch."));
                 break;
@@ -73,24 +74,24 @@ public class Help {
                 s.sendMessage("");
 
                 s.sendMessage(CreateHelpTextComponent("/disenchant shatter:repair", "Show current configuration of repair cost."));
-                s.sendMessage(CreateHelpTextComponent("/disenchant shatter:repair [enable or disable]", "Enable/disable the repair cost."));
-                s.sendMessage(CreateHelpTextComponent("/disenchant shatter:repair reset [enable or disable]", "Enable/disable the reset of repair cost to 0 after disenchanting."));
-                s.sendMessage(CreateHelpTextComponent("/disenchant shatter:repair base [int]", "Change the value of base repair cost."));
-                s.sendMessage(CreateHelpTextComponent("/disenchant shatter:repair multiply [float]", "Change the value of multiplication of repair cost based on the enchantment level and number of enchantments."));
+                s.sendMessage(CreateHelpTextComponent("/disenchant shatter:repair ['enable', 'disable']", "Enable/disable repair cost."));
+                s.sendMessage(CreateHelpTextComponent("/disenchant shatter:repair reset [enable or disable]", "Enable/disable the reset of repair cost to 0 after shatterment."));
+                s.sendMessage(CreateHelpTextComponent("/disenchant shatter:repair base [int]", "Change value of the base repair cost."));
+                s.sendMessage(CreateHelpTextComponent("/disenchant shatter:repair multiply [float]", "Change value of the multiplication for repair cost."));
                 break;
             }
             case "8": {
                 s.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + "Disenchantment Help page 8/8");
                 s.sendMessage("");
 
-                s.sendMessage(CreateHelpTextComponent("/disenchant shatter:sound", "Show current configuration of anvil sound."));
-                s.sendMessage(CreateHelpTextComponent("/disenchant shatter:sound [enable or disable]", "Enable/disable the repair cost."));
-                s.sendMessage(CreateHelpTextComponent("/disenchant shatter:sound volume [float]", "Change the value of anvil sound volume."));
-                s.sendMessage(CreateHelpTextComponent("/disenchant shatter:sound pitch [float]", "Change the value of anvil sound pitch."));
+                s.sendMessage(CreateHelpTextComponent("/disenchant shatter:sound", "Show current configuration of anvil sound for shatterment."));
+                s.sendMessage(CreateHelpTextComponent("/disenchant shatter:sound ['enable', 'disable']", "Enable/disable anvil sound."));
+                s.sendMessage(CreateHelpTextComponent("/disenchant shatter:sound volume [float]", "Change value of the anvil sound volume."));
+                s.sendMessage(CreateHelpTextComponent("/disenchant shatter:sound pitch [float]", "Change value of the anvil sound pitch."));
                 break;
             }
             default: {
-                s.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + "Disenchantment Help page 1/4");
+                s.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + "Disenchantment Help page 1/8");
                 defaultCommand(s);
             }
         }
@@ -101,7 +102,7 @@ public class Help {
         s.sendMessage("");
 
         s.sendMessage(CreateHelpTextComponent("/disenchant help [page]", "Show command help."));
-        s.sendMessage(CreateHelpTextComponent("/disenchant gui", "Open the GUI for configuration."));
+        s.sendMessage(CreateHelpTextComponent("/disenchant gui", "Open GUI for disenchantment configuration."));
     }
 
     private static String CreateHelpTextComponent(String command, String description) {

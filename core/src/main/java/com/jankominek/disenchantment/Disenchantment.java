@@ -116,7 +116,8 @@ public final class Disenchantment extends JavaPlugin {
             }
 
             return nms != null;
-        } catch (Exception | Error ignored) {
+        } catch (Exception e) {
+            e.printStackTrace();
             return false;
         }
     }

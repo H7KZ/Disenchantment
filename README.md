@@ -3,18 +3,33 @@
 ![event.png](assets/event.png)
 
 New mechanics for minecraft vanilla gameplay.
-This plugin allows players to disenchant items and get the item's enchantments back.
+This plugin allows players to disenchant items & get back item's enchantments.
 
 <br />
 
-### Supported & tested custom enchantment plugins
+### Supported (Not Tested) Custom Enchantment Plugins
 
-- `ExcellentEnchants` v4.3.2+
-- `EcoEnchants` v12.19.3+ (partially, you need to build the plugin from the source code with changes
-  here: [EcoEnchants PR](https://github.com/Auxilor/EcoEnchants/pull/397))
-- `AdvancedEnchantments` v8.7.4+
-- `UberEnchant` v8.11.5+
-- `EnchantsSquared` v2.5.15+
+#### 1.18 - 1.20.4
+
+- AdvancedEnchantments
+- EcoEnchants
+- EnchantsSquared
+- UberEnchant
+
+#### 1.20.5 - 1.20.6
+
+- AdvancedEnchantments
+- EcoEnchants
+- EnchantsSquared
+- UberEnchant
+
+#### 1.21 - 1.20.4
+
+- AdvancedEnchantments
+- EcoEnchants
+- EnchantsSquared
+- ExcellentEnchants
+- UberEnchant
 
 <br />
 

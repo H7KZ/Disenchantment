@@ -1,19 +1,9 @@
 # Config file handbook
 
 ```yaml
-# DO NOT EDIT THIS VALUE
-migration: 1
-# ----------------------------------------------------------------------------------------
-# For descriptions of each option, see the wiki:
-# https://github.com/H7KZ/Disenchantment/CONFIG.md
-# ----------------------------------------------------------------------------------------
 
 # Boolean - Enable or disable the plugin
 enabled: true
-# Boolean - Enable or disable logging
-logging-enable: true
-# String - Logging level: INFO, DEBUG
-logging-level: "INFO"
 
 # ----------------------------------------------------------------------------------------
 
@@ -50,7 +40,7 @@ disenchantment:
          # It is calculated by the following:
          #   base + (level * multiply)
          #
-         # Example: base = 10, sharpness = 5, knockback = 1, multiplier = 0.25
+         # Example: base = 10, sharpness = 5, fire_aspect = 1, multiplier = 0.25
          #
          #   10 + (1 * 1) = 11  ->  11 + (5 * 1.25) = 17.25  ->  17.25
          multiply: 0.25
@@ -88,7 +78,7 @@ shatterment:
          # It is calculated by the following:
          #   base + (level * multiply)
          #
-         # Example: base = 10, sharpness = 5, knockback = 1, multiplier = 0.25
+         # Example: base = 10, sharpness = 5, fire_aspect = 1, multiplier = 0.25
          #
          #   10 + (1 * 1) = 11  ->  11 + (5 * 1.25) = 17.25  ->  17.25
          multiply: 0.25
