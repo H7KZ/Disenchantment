@@ -14,7 +14,7 @@
 
     <build>
         <directory>../target</directory>
-        <finalName>disenchantment-${project.version}</finalName>
+        <finalName>Disenchantment-${project.version}</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
