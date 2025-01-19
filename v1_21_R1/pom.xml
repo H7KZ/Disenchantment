@@ -25,7 +25,48 @@
             <artifactId>disenchantment-core</artifactId>
             <version>${revision}</version>
         </dependency>
+
+        <dependency>
+            <groupId>net.advancedplugins</groupId>
+            <artifactId>ae</artifactId>
+            <version>8.7.4</version>
+            <scope>system</scope>
+            <systemPath>${pom.basedir}/libs/AdvancedEnchantments-8.7.4.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>com.willfp</groupId>
+            <artifactId>eco</artifactId>
+            <version>6.74.5</version>
+        </dependency>
+        <dependency>
+            <groupId>me.athlaeos</groupId>
+            <artifactId>enchantssquared</artifactId>
+            <version>2.5.15</version>
+            <scope>system</scope>
+            <systemPath>${pom.basedir}/libs/EnchantsSquared-2.5.15.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>su.nightexpress</groupId>
+            <artifactId>excellentenchants</artifactId>
+            <version>4.3.3</version>
+            <scope>system</scope>
+            <systemPath>${pom.basedir}/libs/ExcellentEnchants-4.3.3.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>me.sciguymjm</groupId>
+            <artifactId>uberenchant</artifactId>
+            <version>8.11.5</version>
+            <scope>system</scope>
+            <systemPath>${pom.basedir}/libs/UberEnchant-8.11.5.jar</systemPath>
+        </dependency>
     </dependencies>
+
+    <repositories>
+        <repository>
+            <id>auxilor-repo</id>
+            <url>https://repo.auxilor.io/repository/maven-public/</url>
+        </repository>
+    </repositories>
 
     <build>
         <plugins>

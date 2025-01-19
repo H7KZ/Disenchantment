@@ -6,11 +6,7 @@ import org.bukkit.inventory.ItemStack;
 import java.util.Map;
 
 public interface ISupportedPlugin {
-    String name = "Unknown";
-
-    default String getName() {
-        return name;
-    }
+    String getName();
 
     ItemStack createEnchantedBook(Map<Enchantment, Integer> enchantments);
 

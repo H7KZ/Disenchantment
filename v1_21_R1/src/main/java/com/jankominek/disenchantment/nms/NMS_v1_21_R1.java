@@ -9,6 +9,7 @@ import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Repairable;
 import org.bukkit.inventory.view.AnvilView;
+import plugins.ExcellentEnchants_v1_21_R1;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -38,7 +39,15 @@ public class NMS_v1_21_R1 implements NMS {
 
     @Override
     public List<ISupportedPlugin> getSupportedPlugins() {
-        return new ArrayList<>();
+        return new ArrayList<>() {
+            {
+                add(new plugins.AdvancedEnchantments_v1_21_R1());
+                add(new plugins.EcoEnchants_v1_21_R1());
+                add(new plugins.EnchantsSquared_v1_21_R1());
+                add(new ExcellentEnchants_v1_21_R1());
+                add(new plugins.UberEnchant_v1_21_R1());
+            }
+        };
     }
 
     @Override

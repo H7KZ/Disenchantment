@@ -16,6 +16,12 @@ public class VanillaPlugin {
         return book;
     }
 
+    public static ItemStack addEnchantmentToBook(ItemStack firstItem, Enchantment enchantment, int level) {
+        ItemStack item = firstItem.clone();
+        EnchantmentUtils.addStoredEnchantment(item, enchantment, level);
+        return item;
+    }
+
     public static ItemStack removeEnchantments(ItemStack firstItem, Map<Enchantment, Integer> enchantments) {
         ItemStack item = firstItem.clone();
 
@@ -24,6 +30,12 @@ public class VanillaPlugin {
             EnchantmentUtils.removeStoredEnchantment(item, enchantment);
         }
 
+        return item;
+    }
+
+    public static ItemStack removeEnchantment(ItemStack firstItem, Enchantment enchantment) {
+        ItemStack item = firstItem.clone();
+        EnchantmentUtils.removeStoredEnchantment(item, enchantment);
         return item;
     }
 }

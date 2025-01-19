@@ -37,7 +37,14 @@ public class NMS_v1_18_R1 implements NMS {
 
     @Override
     public List<ISupportedPlugin> getSupportedPlugins() {
-        return new ArrayList<>();
+        return new ArrayList<>() {
+            {
+                add(new plugins.AdvancedEnchantments_v1_18_R1());
+                add(new plugins.EcoEnchants_v1_18_R1());
+                add(new plugins.EnchantsSquared_v1_18_R1());
+                add(new plugins.UberEnchant_v1_18_R1());
+            }
+        };
     }
 
     @Override
