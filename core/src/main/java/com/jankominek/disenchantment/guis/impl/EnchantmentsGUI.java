@@ -42,10 +42,10 @@ public class EnchantmentsGUI implements InventoryHolder {
                                     ChatColor.GRAY + "Click on an enchantment to change its behavior",
                                     ChatColor.GRAY + "Left click for " + ChatColor.GOLD + "Disenchantment",
                                     ChatColor.GRAY + "Right click for " + ChatColor.AQUA + "Shatterment",
-                                    ChatColor.GREEN + "Enabled" + ChatColor.GRAY + " = Enchantment can be removed from items",
-                                    ChatColor.GOLD + "Keep" + ChatColor.GRAY + " = Enchantment stays on items",
-                                    ChatColor.YELLOW + "Delete" + ChatColor.GRAY + " = Enchantment is removed from items",
-                                    ChatColor.RED + "Cancel" + ChatColor.GRAY + " = Cancels the entire disenchantment process"
+                                    ChatColor.GREEN + "Enabled" + ChatColor.GRAY + " = Enchantment can be removed from items.",
+                                    ChatColor.GOLD + "Keep" + ChatColor.GRAY + " = Enchantment stays on items.",
+                                    ChatColor.YELLOW + "Delete" + ChatColor.GRAY + " = Enchantment is removed from item and destroyed.",
+                                    ChatColor.RED + "Cancel" + ChatColor.GRAY + " = Cancels the entire disenchantment process."
                             ))
                     ),
                     GUIElements::cancelOnClick

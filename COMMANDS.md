@@ -4,6 +4,12 @@
 - `/disenchantment`
 - `/disenchant`
 
+### Enchantment states:
+- `enable` - Enchantment can be removed from items.
+- `keep` - Enchantment stays on items.
+- `delete` - Enchantment is removed from item and destroyed.
+- `cancel` - Cancels the entire disenchantment process.
+
 ### Command list
 
 - `/disenchantment` - Help page 1
@@ -14,7 +20,7 @@
 - `/disenchantment toggle` - Toggle the plugin on/off.
 ---
 - `/disenchantment disenchant:enchantments` - Show current list of enchantment settings for disenchantment.
-- `/disenchantment disenchant:enchantments [enchantment] ['enable', 'keep', 'cancel']` - Change configuration of disabled enchantments.
+- `/disenchantment disenchant:enchantments [enchantment] ['enable', 'keep', 'delete', 'cancel']` - Change configuration of disabled enchantments.
 - `/disenchantment disenchant:worlds` - Show current list of disabled worlds for disenchantment.
 - `/disenchantment disenchant:worlds [world]` - Toggle specific world to enable/disable disenchantment.
 - `/disenchantment disenchant:materials` - Show current list of disabled materials for disenchantment.
@@ -32,7 +38,7 @@
 - `/disenchantment disenchant:sound pitch [float]` - Change value of the anvil sound pitch.
 ---
 - `/disenchantment shatter:enchantments` - Show current list of enchantment settings for shatterment.
-- `/disenchantment shatter:enchantments [enchantment] ['enable', 'keep', 'cancel']` - Change configuration of disabled enchantments.
+- `/disenchantment shatter:enchantments [enchantment] ['enable', 'keep', 'delete', 'cancel']` - Change configuration of disabled enchantments.
 - `/disenchantment shatter:worlds` - Show current list of disabled worlds for shatterment.
 - `/disenchantment shatter:worlds [world]` - Toggle specific world to enable/disable shatterment.
 ---

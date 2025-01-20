@@ -31,7 +31,7 @@ public class Help {
                 s.sendMessage("");
 
                 s.sendMessage(CreateHelpTextComponent("/disenchant disenchant:enchantments", "Show current list of the enchantment settings."));
-                s.sendMessage(CreateHelpTextComponent("/disenchant disenchant:enchantments [enchantment name] ['enable', 'keep' or 'cancel']", "Change configuration of disabled enchantments."));
+                s.sendMessage(CreateHelpTextComponent("/disenchant disenchant:enchantments [enchantment name] ['enable', 'keep', 'delete', 'cancel']", "Change configuration of disabled enchantments."));
                 s.sendMessage(CreateHelpTextComponent("/disenchant disenchant:worlds", "Show current list of the disabled worlds."));
                 s.sendMessage(CreateHelpTextComponent("/disenchant disenchant:worlds [world]", "Toggle specific world to enable/disable disenchant."));
                 s.sendMessage(CreateHelpTextComponent("/disenchant disenchant:materials", "Show current list of the disabled materials."));
@@ -64,7 +64,7 @@ public class Help {
                 s.sendMessage("");
 
                 s.sendMessage(CreateHelpTextComponent("/disenchant shatter:enchantments", "Show current list of the disabled enchantments."));
-                s.sendMessage(CreateHelpTextComponent("/disenchant shatter:enchantments [enchantment name] ['enable', 'keep' or 'cancel']", "Change configuration of disabled enchantments."));
+                s.sendMessage(CreateHelpTextComponent("/disenchant shatter:enchantments [enchantment name] ['enable', 'keep', 'delete', 'cancel']", "Change configuration of disabled enchantments."));
                 s.sendMessage(CreateHelpTextComponent("/disenchant shatter:worlds", "Show current list of the disabled worlds."));
                 s.sendMessage(CreateHelpTextComponent("/disenchant shatter:worlds [world]", "Toggle specific world to enable/disable disenchant. To enable the world, run the same command."));
                 break;
