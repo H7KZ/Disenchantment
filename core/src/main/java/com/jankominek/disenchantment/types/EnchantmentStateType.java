@@ -5,6 +5,7 @@ import org.bukkit.ChatColor;
 public enum EnchantmentStateType {
     ENABLED(ChatColor.GREEN + "Enabled", null),
     KEEP(ChatColor.GOLD + "Keep", "keep"),
+    DELETE(ChatColor.YELLOW + "Delete", "delete"),
     DISABLED(ChatColor.RED + "Disabled", "disabled"),
     ;
 
@@ -22,6 +23,7 @@ public enum EnchantmentStateType {
         return switch (name.toLowerCase()) {
             case "enabled" -> ENABLED;
             case "keep" -> KEEP;
+            case "delete" -> DELETE;
             case "disabled" -> DISABLED;
 
             default -> null;
@@ -33,7 +35,8 @@ public enum EnchantmentStateType {
 
         return switch (lastStatus) {
             case ENABLED -> KEEP;
-            case KEEP -> DISABLED;
+            case KEEP -> DELETE;
+            case DELETE -> DISABLED;
             case DISABLED -> ENABLED;
         };
     }

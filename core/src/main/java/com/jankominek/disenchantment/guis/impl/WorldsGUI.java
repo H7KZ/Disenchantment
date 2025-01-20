@@ -4,7 +4,7 @@ import com.jankominek.disenchantment.config.Config;
 import com.jankominek.disenchantment.guis.GUIElements;
 import com.jankominek.disenchantment.guis.GUIItem;
 import com.jankominek.disenchantment.guis.InventoryBuilder;
-import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.World;
@@ -17,7 +17,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Stream;
 
 public class WorldsGUI implements InventoryHolder {
     private final Integer size = 54;
@@ -38,7 +37,7 @@ public class WorldsGUI implements InventoryHolder {
     };
     private final Integer page;
     private final Inventory inventory;
-    private GUIItem[] items = Stream.of(
+    private GUIItem[] items = ArrayUtils.addAll(
             GUIElements.border9x6(new Integer[]{0, 49}),
             new GUIItem(0, GUIElements.backItem(), event -> {
                 event.setCancelled(true);
@@ -58,7 +57,7 @@ public class WorldsGUI implements InventoryHolder {
                     ),
                     GUIElements::cancelOnClick
             )
-    ).toArray(GUIItem[]::new);
+    );
 
     public WorldsGUI(int page) {
         List<World> worlds = Bukkit.getWorlds();
@@ -69,14 +68,14 @@ public class WorldsGUI implements InventoryHolder {
         Inventory inv = Bukkit.createInventory(this, this.size, this.title);
 
         this.inventory = InventoryBuilder.fillItems(inv, this.items);
-        this.items = (GUIItem[]) ArrayUtils.addAll(this.items, this.getWorldsItems(worlds));
+        this.items = ArrayUtils.addAll(this.items, this.getWorldsItems(worlds));
 
         InventoryBuilder.fillItems(this.inventory, this.items);
 
         if (worlds.size() > 28) {
             this.items = Arrays.stream(this.items.clone()).filter(item -> item.getSlot() != 47 && item.getSlot() != 51).toArray(GUIItem[]::new);
 
-            this.items = Stream.of(
+            this.items = ArrayUtils.addAll(
                     this.items,
                     new GUIItem(47, GUIElements.previousPageItem(), event -> {
                         event.setCancelled(true);
@@ -92,7 +91,7 @@ public class WorldsGUI implements InventoryHolder {
 
                         event.getWhoClicked().openInventory(new WorldsGUI(this.page + 1).getInventory());
                     })
-            ).toArray(GUIItem[]::new);
+            );
 
             InventoryBuilder.fillItems(this.inventory, this.items);
         }

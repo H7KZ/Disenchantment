@@ -6,7 +6,7 @@ import com.jankominek.disenchantment.guis.GUIItem;
 import com.jankominek.disenchantment.guis.InventoryBuilder;
 import com.jankominek.disenchantment.types.EnchantmentStateType;
 import com.jankominek.disenchantment.utils.EnchantmentUtils;
-import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.enchantments.Enchantment;
@@ -16,7 +16,6 @@ import org.bukkit.inventory.InventoryHolder;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Stream;
 
 public class EnchantmentsGUI implements InventoryHolder {
     private final Integer size = 54;
@@ -29,7 +28,7 @@ public class EnchantmentsGUI implements InventoryHolder {
     };
     private final Integer page;
     private final Inventory inventory;
-    private GUIItem[] items = Stream.of(
+    private GUIItem[] items = org.apache.commons.lang3.ArrayUtils.addAll(
             GUIElements.border9x6(new Integer[]{0, 49}),
             new GUIItem(0, GUIElements.backItem(), event -> {
                 event.setCancelled(true);
@@ -45,12 +44,13 @@ public class EnchantmentsGUI implements InventoryHolder {
                                     ChatColor.GRAY + "Right click for " + ChatColor.AQUA + "Shatterment",
                                     ChatColor.GREEN + "Enabled" + ChatColor.GRAY + " = Enchantment can be removed from items",
                                     ChatColor.GOLD + "Keep" + ChatColor.GRAY + " = Enchantment stays on items",
+                                    ChatColor.YELLOW + "Delete" + ChatColor.GRAY + " = Enchantment is removed from items",
                                     ChatColor.RED + "Cancel" + ChatColor.GRAY + " = Cancels the entire disenchantment process"
                             ))
                     ),
                     GUIElements::cancelOnClick
             )
-    ).toArray(GUIItem[]::new);
+    );
 
     public EnchantmentsGUI(int page) {
         List<Enchantment> enchantments = EnchantmentUtils.getRegisteredEnchantments();
@@ -62,14 +62,14 @@ public class EnchantmentsGUI implements InventoryHolder {
         Inventory inv = Bukkit.createInventory(this, this.size, this.title);
 
         this.inventory = InventoryBuilder.fillItems(inv, this.items);
-        this.items = (GUIItem[]) ArrayUtils.addAll(this.items, this.getEnchantmentsItems(enchantments));
+        this.items = ArrayUtils.addAll(this.items, this.getEnchantmentsItems(enchantments));
 
         InventoryBuilder.fillItems(this.inventory, this.items);
 
         if (enchantments.size() > 28) {
             this.items = Arrays.stream(this.items.clone()).filter(item -> item.getSlot() != 47 && item.getSlot() != 51).toArray(GUIItem[]::new);
 
-            this.items = Stream.of(
+            this.items = ArrayUtils.addAll(
                     this.items,
                     new GUIItem(47, GUIElements.previousPageItem(), event -> {
                         event.setCancelled(true);
@@ -85,7 +85,7 @@ public class EnchantmentsGUI implements InventoryHolder {
 
                         event.getWhoClicked().openInventory(new EnchantmentsGUI(this.page + 1).getInventory());
                     })
-            ).toArray(GUIItem[]::new);
+            );
 
             InventoryBuilder.fillItems(this.inventory, this.items);
         }

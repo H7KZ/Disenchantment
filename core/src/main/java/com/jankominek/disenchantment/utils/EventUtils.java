@@ -7,11 +7,16 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 public class EventUtils {
     public static class Disenchantment {
         public static Map<Enchantment, Integer> getDisenchantedEnchantments(ItemStack firstItem, ItemStack secondItem) {
+            return getDisenchantedEnchantments(firstItem, secondItem, false);
+        }
+
+        public static Map<Enchantment, Integer> getDisenchantedEnchantments(ItemStack firstItem, ItemStack secondItem, boolean withDelete) {
             if (firstItem == null || secondItem == null) return Collections.emptyMap();
 
             if (firstItem.getType() == Material.ENCHANTED_BOOK) return Collections.emptyMap();
@@ -28,10 +33,22 @@ public class EventUtils {
             if (EventUtils.Disenchantment.isAtLeastOneEnchantmentDisabled(firstEnchants)) return Collections.emptyMap();
 
             Config.Disenchantment.getEnchantmentStates().forEach((enchantment, state) -> {
-                if (EnchantmentStateType.KEEP.equals(state)) firstEnchants.remove(enchantment);
+                if (EnchantmentStateType.KEEP.equals(state) || (withDelete && EnchantmentStateType.DELETE.equals(state)))
+                    firstEnchants.remove(enchantment);
             });
 
             return firstEnchants;
+        }
+
+        public static Map<Enchantment, Integer> findEnchantmentsToDelete(Map<Enchantment, Integer> enchantments) {
+            HashMap<Enchantment, Integer> result = new HashMap<>();
+
+            for (Map.Entry<Enchantment, Integer> entry : enchantments.entrySet()) {
+                if (Config.Disenchantment.getEnchantmentStates().getOrDefault(entry.getKey(), EnchantmentStateType.ENABLED) == EnchantmentStateType.DELETE)
+                    result.put(entry.getKey(), entry.getValue());
+            }
+
+            return result;
         }
 
         private static boolean isAtLeastOneEnchantmentDisabled(Map<Enchantment, Integer> enchantments) {
@@ -52,6 +69,10 @@ public class EventUtils {
 
     public static class Shatterment {
         public static Map<Enchantment, Integer> getDisenchantedEnchantments(ItemStack firstItem, ItemStack secondItem) {
+            return getDisenchantedEnchantments(firstItem, secondItem, false);
+        }
+
+        public static Map<Enchantment, Integer> getDisenchantedEnchantments(ItemStack firstItem, ItemStack secondItem, boolean withDelete) {
             if (firstItem == null || secondItem == null) return Collections.emptyMap();
 
             if (firstItem.getType() != Material.ENCHANTED_BOOK) return Collections.emptyMap();
@@ -68,10 +89,22 @@ public class EventUtils {
             if (firstEnchants.size() < 2) return Collections.emptyMap();
 
             Config.Shatterment.getEnchantmentStates().forEach((enchantment, state) -> {
-                if (EnchantmentStateType.KEEP.equals(state)) firstEnchants.remove(enchantment);
+                if (EnchantmentStateType.KEEP.equals(state) || (withDelete && EnchantmentStateType.DELETE.equals(state)))
+                    firstEnchants.remove(enchantment);
             });
 
             return firstEnchants;
+        }
+
+        public static Map<Enchantment, Integer> findEnchantmentsToDelete(Map<Enchantment, Integer> enchantments) {
+            HashMap<Enchantment, Integer> result = new HashMap<>();
+
+            for (Map.Entry<Enchantment, Integer> entry : enchantments.entrySet()) {
+                if (Config.Shatterment.getEnchantmentStates().getOrDefault(entry.getKey(), EnchantmentStateType.ENABLED) == EnchantmentStateType.DELETE)
+                    result.put(entry.getKey(), entry.getValue());
+            }
+
+            return result;
         }
 
         private static boolean isAtLeastOneEnchantmentDisabled(Map<Enchantment, Integer> enchantments) {

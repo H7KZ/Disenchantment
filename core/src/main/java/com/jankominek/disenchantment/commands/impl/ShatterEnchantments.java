@@ -39,6 +39,7 @@ public class ShatterEnchantments {
                 switch (state) {
                     case DISABLED -> builder += ChatColor.RED + "[cancel] ";
                     case KEEP -> builder += ChatColor.GOLD + "[ keep ] ";
+                    case DELETE -> builder += ChatColor.YELLOW + "[delete] ";
                 }
 
                 builder += ChatColor.GRAY + enchantment.getKey().getKey().toLowerCase();
@@ -88,6 +89,22 @@ public class ShatterEnchantments {
             Config.Shatterment.setEnchantmentStates(enchantments);
 
             s.sendMessage(textWithPrefixSuccess("Enchantment kept"));
+            return;
+        } else if (EnchantmentStateType.DELETE.getConfigName().startsWith(state)) {
+            if (enchantments.containsKey(enchantment)) {
+                enchantments.replace(enchantment, EnchantmentStateType.DELETE);
+
+                Config.Shatterment.setEnchantmentStates(enchantments);
+
+                s.sendMessage(textWithPrefixSuccess("Enchantment state updated"));
+                return;
+            }
+
+            enchantments.put(enchantment, EnchantmentStateType.DELETE);
+
+            Config.Shatterment.setEnchantmentStates(enchantments);
+
+            s.sendMessage(textWithPrefixSuccess("Enchantment deleted"));
             return;
         } else if (EnchantmentStateType.DISABLED.getConfigName().startsWith(state)) {
             if (enchantments.containsKey(enchantment)) {

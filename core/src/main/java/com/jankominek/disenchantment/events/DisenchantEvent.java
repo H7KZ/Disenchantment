@@ -37,7 +37,7 @@ public class DisenchantEvent implements Listener {
         ItemStack firstItem = e.getInventory().getItem(0);
         ItemStack secondItem = e.getInventory().getItem(1);
 
-        Map<Enchantment, Integer> enchantments = EventUtils.Disenchantment.getDisenchantedEnchantments(firstItem, secondItem);
+        Map<Enchantment, Integer> enchantments = EventUtils.Disenchantment.getDisenchantedEnchantments(firstItem, secondItem, true);
 
         if (enchantments.isEmpty()) return;
 

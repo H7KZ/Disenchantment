@@ -5,17 +5,16 @@ import com.jankominek.disenchantment.guis.GUIElements;
 import com.jankominek.disenchantment.guis.GUIItem;
 import com.jankominek.disenchantment.guis.InventoryBuilder;
 import com.jankominek.disenchantment.utils.PrecisionUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 
-import java.util.stream.Stream;
-
 public class DisenchantmentRepairGUI implements InventoryHolder {
     private final Integer size = 27;
     private final String title = "Disenchantment | Repair";
-    private final GUIItem[] items = Stream.of(
+    private final GUIItem[] items = ArrayUtils.addAll(
             GUIElements.border9x3(new Integer[]{0}),
             new GUIItem(0, GUIElements.backItem(), event -> {
                 event.setCancelled(true);
@@ -83,7 +82,7 @@ public class DisenchantmentRepairGUI implements InventoryHolder {
             }),
             GUIElements.border(16),
             GUIElements.border(17)
-    ).toArray(GUIItem[]::new);
+    );
     private final Inventory inventory;
 
     public DisenchantmentRepairGUI() {

@@ -6,15 +6,14 @@ import com.jankominek.disenchantment.guis.GUIElements;
 import com.jankominek.disenchantment.guis.GUIItem;
 import com.jankominek.disenchantment.guis.InventoryBuilder;
 import com.jankominek.disenchantment.permissions.PermissionGroups;
+import org.apache.commons.lang3.ArrayUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 
-import java.util.stream.Stream;
-
 public class NavigationGUI implements InventoryHolder {
-    private final GUIItem[] items = Stream.of(
+    private final GUIItem[] items = ArrayUtils.addAll(
             GUIElements.border9x3(),
             new GUIItem(10, Config.isPluginEnabled() ? GUIElements.enabledPluginItem() : GUIElements.disabledPluginItem(), event -> {
                 event.setCancelled(true);
@@ -92,7 +91,7 @@ public class NavigationGUI implements InventoryHolder {
                 event.getWhoClicked().sendMessage("https://www.spigotmc.org/resources/110741/");
                 event.getWhoClicked().closeInventory();
             })
-    ).toArray(GUIItem[]::new);
+    );
     private final Integer size = 27;
     private final String title = "Navigation";
     private final Inventory inventory;

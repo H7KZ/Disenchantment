@@ -40,6 +40,7 @@ public class DisenchantEnchantments {
                 switch (state) {
                     case DISABLED -> builder += ChatColor.RED + "[cancel] ";
                     case KEEP -> builder += ChatColor.GOLD + "[ keep ] ";
+                    case DELETE -> builder += ChatColor.YELLOW + "[delete] ";
                 }
 
                 builder += ChatColor.GRAY + enchantment.getKey().getKey().toLowerCase();
@@ -90,6 +91,22 @@ public class DisenchantEnchantments {
 
             s.sendMessage(textWithPrefixSuccess("Enchantment kept"));
             return;
+        } else if (EnchantmentStateType.DELETE.getConfigName().startsWith(state)) {
+            if (enchantments.containsKey(enchantment)) {
+                enchantments.replace(enchantment, EnchantmentStateType.DELETE);
+
+                Config.Disenchantment.setEnchantmentStates(enchantments);
+
+                s.sendMessage(textWithPrefixSuccess("Enchantment state updated"));
+                return;
+            }
+
+            enchantments.put(enchantment, EnchantmentStateType.DELETE);
+
+            Config.Disenchantment.setEnchantmentStates(enchantments);
+
+            s.sendMessage(textWithPrefixSuccess("Enchantment deleted"));
+            return;
         } else if (EnchantmentStateType.DISABLED.getConfigName().startsWith(state)) {
             if (enchantments.containsKey(enchantment)) {
                 enchantments.replace(enchantment, EnchantmentStateType.DISABLED);
@@ -126,6 +143,9 @@ public class DisenchantEnchantments {
 
             if (EnchantmentStateType.KEEP.getConfigName().startsWith(args[2].toLowerCase()))
                 result.add(EnchantmentStateType.KEEP.getConfigName());
+
+            if (EnchantmentStateType.DELETE.getConfigName().startsWith(args[2].toLowerCase()))
+                result.add(EnchantmentStateType.DELETE.getConfigName());
 
             if (EnchantmentStateType.DISABLED.getConfigName().startsWith(args[2].toLowerCase()))
                 result.add(EnchantmentStateType.DISABLED.getConfigName());

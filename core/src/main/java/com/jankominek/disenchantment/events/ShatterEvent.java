@@ -36,7 +36,7 @@ public class ShatterEvent implements Listener {
         ItemStack firstItem = e.getInventory().getItem(0);
         ItemStack secondItem = e.getInventory().getItem(1);
 
-        Map<Enchantment, Integer> enchantments = EventUtils.Shatterment.getDisenchantedEnchantments(firstItem, secondItem);
+        Map<Enchantment, Integer> enchantments = EventUtils.Shatterment.getDisenchantedEnchantments(firstItem, secondItem, true);
 
         if (enchantments.isEmpty()) return;
 

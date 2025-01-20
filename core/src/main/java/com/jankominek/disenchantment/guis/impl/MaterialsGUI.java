@@ -7,7 +7,7 @@ import com.jankominek.disenchantment.guis.InventoryBuilder;
 import com.jankominek.disenchantment.guis.ItemBuilder;
 import com.jankominek.disenchantment.utils.EnchantmentUtils;
 import com.jankominek.disenchantment.utils.MaterialUtils;
-import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -19,8 +19,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Stream;
-
 
 public class MaterialsGUI implements InventoryHolder {
     private final Integer size = 54;
@@ -33,7 +31,7 @@ public class MaterialsGUI implements InventoryHolder {
     };
     private final Integer page;
     private final Inventory inventory;
-    private GUIItem[] items = Stream.of(
+    private GUIItem[] items = ArrayUtils.addAll(
             GUIElements.border9x6(new Integer[]{0, 49}),
             new GUIItem(0, GUIElements.backItem(), event -> {
                 event.setCancelled(true);
@@ -53,7 +51,7 @@ public class MaterialsGUI implements InventoryHolder {
                     ),
                     GUIElements::cancelOnClick
             )
-    ).toArray(GUIItem[]::new);
+    );
 
     public MaterialsGUI(int page) {
         List<Material> materials = MaterialUtils.getMaterials()
@@ -70,14 +68,14 @@ public class MaterialsGUI implements InventoryHolder {
         Inventory inv = Bukkit.createInventory(this, this.size, this.title);
 
         this.inventory = InventoryBuilder.fillItems(inv, this.items);
-        this.items = (GUIItem[]) ArrayUtils.addAll(this.items, this.getMaterialsItems(materials));
+        this.items = ArrayUtils.addAll(this.items, this.getMaterialsItems(materials));
 
         InventoryBuilder.fillItems(this.inventory, this.items);
 
         if (materials.size() > 28) {
             this.items = Arrays.stream(this.items.clone()).filter(item -> item.getSlot() != 47 && item.getSlot() != 51).toArray(GUIItem[]::new);
 
-            this.items = Stream.of(
+            this.items = ArrayUtils.addAll(
                     this.items,
                     new GUIItem(47, GUIElements.previousPageItem(), event -> {
                         event.setCancelled(true);
@@ -93,7 +91,7 @@ public class MaterialsGUI implements InventoryHolder {
 
                         event.getWhoClicked().openInventory(new MaterialsGUI(this.page + 1).getInventory());
                     })
-            ).toArray(GUIItem[]::new);
+            );
 
             InventoryBuilder.fillItems(this.inventory, this.items);
         }

@@ -53,9 +53,9 @@ public class DisenchantClickEvent implements Listener {
         ItemStack firstItem = anvilInventory.getItem(0);
         ItemStack secondItem = anvilInventory.getItem(1);
 
-        Map<Enchantment, Integer> validEnchantments = EventUtils.Disenchantment.getDisenchantedEnchantments(firstItem, secondItem);
+        Map<Enchantment, Integer> enchantments = EventUtils.Disenchantment.getDisenchantedEnchantments(firstItem, secondItem);
 
-        if (validEnchantments.isEmpty()) return;
+        if (enchantments.isEmpty()) return;
 
         EnchantmentStorageMeta resultItemMeta = (EnchantmentStorageMeta) result.getItemMeta();
 
@@ -76,17 +76,20 @@ public class DisenchantClickEvent implements Listener {
 
         if (firstItem == null) return;
         ItemStack item = firstItem.clone();
+        Map<Enchantment, Integer> enchantmentsToDelete = EventUtils.Disenchantment.findEnchantmentsToDelete(enchantments);
 
         List<ISupportedPlugin> activatedPlugins = SupportedPluginManager.getAllActivatedPlugins();
 
         if (activatedPlugins.isEmpty()) {
             if (resultItemMeta == null) return;
             item = VanillaPlugin.removeEnchantments(item, resultItemMeta.getStoredEnchants());
+            item = VanillaPlugin.removeEnchantments(item, enchantmentsToDelete);
         } else {
-            HashMap<Enchantment, Integer> enchantments = EnchantmentUtils.getItemEnchantments(result);
+            HashMap<Enchantment, Integer> pluginEnchantments = EnchantmentUtils.getItemEnchantments(result);
 
             for (ISupportedPlugin plugin : activatedPlugins) {
-                item = plugin.removeEnchantmentsFromItem(item, enchantments);
+                item = plugin.removeEnchantmentsFromItem(item, pluginEnchantments);
+                item = plugin.removeEnchantmentsFromItem(item, enchantmentsToDelete);
             }
         }
 
