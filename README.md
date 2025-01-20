@@ -7,6 +7,14 @@ This plugin allows players to disenchant items & get back item's enchantments.
 
 <br />
 
+### Disenchantment
+Take away enchantments from items and put it on a book. Fully customizable!
+
+### Shatterment
+Have an enchanted book? Want to split it and shatter into two enchanted books? You can do it! With customizable shatterment, everything is possible!
+
+<br />
+
 ### Supported (Not Tested) Custom Enchantment Plugins
 
 #### 1.18 - 1.20.4
