@@ -1,5 +1,7 @@
 # Disenchantment
 
+> [Contributing](CONTRIBUTING.md)
+
 ![event.png](assets/event.png)
 
 New mechanics for minecraft vanilla gameplay.
