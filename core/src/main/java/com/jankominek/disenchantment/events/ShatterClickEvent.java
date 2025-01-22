@@ -48,14 +48,14 @@ public class ShatterClickEvent implements Listener {
 
         if (result == null) return;
 
-        if (result.getType() != Material.ENCHANTED_BOOK) return;
-
         ItemStack firstItem = anvilInventory.getItem(0);
         ItemStack secondItem = anvilInventory.getItem(1);
 
         Map<Enchantment, Integer> enchantments = EventUtils.Shatterment.getDisenchantedEnchantments(firstItem, secondItem);
 
         if (enchantments.isEmpty()) return;
+
+        if (result.getType() != Material.ENCHANTED_BOOK) return;
 
         EnchantmentStorageMeta resultItemMeta = (EnchantmentStorageMeta) result.getItemMeta();
 

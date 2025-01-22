@@ -33,8 +33,6 @@ public class DisenchantClickEvent implements Listener {
         if (!Config.isPluginEnabled() || !Config.Disenchantment.isEnabled() || Config.Disenchantment.getDisabledWorlds().contains(p.getWorld()))
             return;
 
-        if (!PermissionGroups.DISENCHANT_EVENT.checkPermission(p)) return;
-
         if (e.getInventory().getType() != InventoryType.ANVIL) return;
 
         if (e.getSlot() != 2) return;
@@ -56,6 +54,8 @@ public class DisenchantClickEvent implements Listener {
         Map<Enchantment, Integer> enchantments = EventUtils.Disenchantment.getDisenchantedEnchantments(firstItem, secondItem);
 
         if (enchantments.isEmpty()) return;
+
+        if (!PermissionGroups.DISENCHANT_EVENT.checkPermission(p)) return;
 
         EnchantmentStorageMeta resultItemMeta = (EnchantmentStorageMeta) result.getItemMeta();
 

@@ -32,14 +32,14 @@ public class DisenchantEvent implements Listener {
         if (!Config.isPluginEnabled() || !Config.Disenchantment.isEnabled() || Config.Disenchantment.getDisabledWorlds().contains(p.getWorld()))
             return;
 
-        if (!PermissionGroups.DISENCHANT_EVENT.checkPermission(p)) return;
-
         ItemStack firstItem = e.getInventory().getItem(0);
         ItemStack secondItem = e.getInventory().getItem(1);
 
         Map<Enchantment, Integer> enchantments = EventUtils.Disenchantment.getDisenchantedEnchantments(firstItem, secondItem, true);
 
         if (enchantments.isEmpty()) return;
+
+        if (!PermissionGroups.DISENCHANT_EVENT.checkPermission(p)) return;
 
         // ----------------------------------------------------------------------------------------------------
         // Disenchantment plugins

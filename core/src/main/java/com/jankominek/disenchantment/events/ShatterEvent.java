@@ -31,14 +31,14 @@ public class ShatterEvent implements Listener {
         if (!Config.isPluginEnabled() || !Config.Shatterment.isEnabled() || Config.Shatterment.getDisabledWorlds().contains(p.getWorld()))
             return;
 
-        if (!PermissionGroups.SHATTER_EVENT.checkPermission(p)) return;
-
         ItemStack firstItem = e.getInventory().getItem(0);
         ItemStack secondItem = e.getInventory().getItem(1);
 
         Map<Enchantment, Integer> enchantments = EventUtils.Shatterment.getDisenchantedEnchantments(firstItem, secondItem, true);
 
         if (enchantments.isEmpty()) return;
+
+        if (!PermissionGroups.SHATTER_EVENT.checkPermission(p)) return;
 
         HashMap<Enchantment, Integer> randomEnchantmentShatter = new HashMap<>();
 
