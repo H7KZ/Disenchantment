@@ -33,8 +33,6 @@ public class ShatterClickEvent implements Listener {
         if (!Config.isPluginEnabled() || !Config.Shatterment.isEnabled() || Config.Shatterment.getDisabledWorlds().contains(p.getWorld()))
             return;
 
-        if (!PermissionGroups.SHATTER_EVENT.checkPermission(p)) return;
-
         if (e.getInventory().getType() != InventoryType.ANVIL) return;
 
         if (e.getSlot() != 2) return;
@@ -54,6 +52,8 @@ public class ShatterClickEvent implements Listener {
         Map<Enchantment, Integer> enchantments = EventUtils.Shatterment.getDisenchantedEnchantments(firstItem, secondItem);
 
         if (enchantments.isEmpty()) return;
+
+        if (!PermissionGroups.SHATTER_EVENT.checkPermission(p)) return;
 
         if (result.getType() != Material.ENCHANTED_BOOK) return;
 
