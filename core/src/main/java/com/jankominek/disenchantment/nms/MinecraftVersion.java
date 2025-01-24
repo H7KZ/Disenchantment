@@ -24,43 +24,41 @@ public enum MinecraftVersion {
     MINECRAFT_1_18_2((byte) 3, "1_18_2", "1.18.2", "v1_18_R1"),
     MINECRAFT_1_18_1((byte) 2, "1_18_1", "1.18.1", "v1_18_R1"),
     MINECRAFT_1_18((byte) 1, "1_18", "1.18", "v1_18_R1"),
-    INCOMPATIBLE((byte) -1, null, null, null);
+    INCOMPATIBLE((byte) -1, null, null, null),
+    ;
+
     private static final MinecraftVersion serverVersion = init();
-    private final Byte v;
-    private final String versionString1;
-    private final String versionString2;
+
+    private final Byte value;
+    private final String versionUnderlined;
+    private final String versionDotted;
     private final String nmsVersion;
 
-    MinecraftVersion(Byte v, String v1, String v2, String nmsVersion) {
-        this.v = v;
-        this.versionString1 = v1;
-        this.versionString2 = v2;
+    MinecraftVersion(Byte value, String versionUnderlined, String versionDotted, String nmsVersion) {
+        this.value = value;
+        this.versionUnderlined = versionUnderlined;
+        this.versionDotted = versionDotted;
         this.nmsVersion = nmsVersion;
     }
 
     private static MinecraftVersion init() {
         String v = Disenchantment.plugin.getServer().getVersion();
+
         for (MinecraftVersion version : MinecraftVersion.values()) {
-            if (version.versionString1 == null || version.versionString2 == null) continue;
-            if (v.contains(version.versionString1) || v.contains(version.versionString2)) return version;
+            if (version.versionUnderlined == null || version.versionDotted == null) continue;
+            if (v.contains(version.versionUnderlined) || v.contains(version.versionDotted)) return version;
         }
         return INCOMPATIBLE;
     }
 
-    /**
-     * @return True if the version is the same or older than the version given
-     */
     public static boolean currentVersionOlderThan(MinecraftVersion version) {
         if (serverVersion == MinecraftVersion.INCOMPATIBLE) return false;
-        return serverVersion.v <= version.v;
+        return serverVersion.value <= version.value;
     }
 
-    /**
-     * @return True if the version is the same or newer than the version given
-     */
     public static boolean currentVersionNewerThan(MinecraftVersion version) {
         if (serverVersion == MinecraftVersion.INCOMPATIBLE) return false;
-        return serverVersion.v >= version.v;
+        return serverVersion.value >= version.value;
     }
 
     public static MinecraftVersion getServerVersion() {
@@ -68,7 +66,7 @@ public enum MinecraftVersion {
     }
 
     public String getVersionString() {
-        return versionString1;
+        return versionUnderlined;
     }
 
     public String getNmsVersion() {

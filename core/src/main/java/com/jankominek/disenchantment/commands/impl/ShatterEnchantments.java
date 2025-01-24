@@ -2,8 +2,8 @@ package com.jankominek.disenchantment.commands.impl;
 
 import com.jankominek.disenchantment.commands.CommandBuilder;
 import com.jankominek.disenchantment.config.Config;
-import com.jankominek.disenchantment.permissions.PermissionGroups;
 import com.jankominek.disenchantment.types.EnchantmentStateType;
+import com.jankominek.disenchantment.types.PermissionGroupType;
 import com.jankominek.disenchantment.utils.EnchantmentUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
@@ -18,7 +18,7 @@ import static com.jankominek.disenchantment.utils.TextUtils.*;
 public class ShatterEnchantments {
     public static final CommandBuilder command = new CommandBuilder(
             "shatter:enchantments",
-            PermissionGroups.COMMAND_SHATTER_ENCHANTMENTS,
+            PermissionGroupType.COMMAND_SHATTER_ENCHANTMENTS,
             "You don't have permission to use this command.",
             new String[]{},
             false,

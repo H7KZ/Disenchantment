@@ -1,5 +1,6 @@
 package com.jankominek.disenchantment.config;
 
+import com.jankominek.disenchantment.types.ConfigKeys;
 import com.jankominek.disenchantment.types.EnchantmentStateType;
 import com.jankominek.disenchantment.utils.EnchantmentUtils;
 import org.bukkit.Bukkit;

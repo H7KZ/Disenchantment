@@ -1,7 +1,7 @@
 package com.jankominek.disenchantment.commands.impl;
 
 import com.jankominek.disenchantment.commands.CommandBuilder;
-import com.jankominek.disenchantment.permissions.PermissionGroups;
+import com.jankominek.disenchantment.types.PermissionGroupType;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 
@@ -129,7 +129,7 @@ public class Help {
 
     public static final CommandBuilder command = new CommandBuilder(
             "help",
-            PermissionGroups.COMMAND_HELP,
+            PermissionGroupType.COMMAND_HELP,
             "You don't have permission to use this command.",
             new String[]{"1", "2", "3", "4", "5", "6", "7", "8"},
             false,

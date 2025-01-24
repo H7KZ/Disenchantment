@@ -1,4 +1,4 @@
-package com.jankominek.disenchantment.config;
+package com.jankominek.disenchantment.config.migration;
 
 import org.bukkit.configuration.file.FileConfiguration;
 

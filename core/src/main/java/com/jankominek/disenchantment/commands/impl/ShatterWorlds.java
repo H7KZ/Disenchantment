@@ -2,7 +2,7 @@ package com.jankominek.disenchantment.commands.impl;
 
 import com.jankominek.disenchantment.commands.CommandBuilder;
 import com.jankominek.disenchantment.config.Config;
-import com.jankominek.disenchantment.permissions.PermissionGroups;
+import com.jankominek.disenchantment.types.PermissionGroupType;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.World;
@@ -16,7 +16,7 @@ import static com.jankominek.disenchantment.utils.TextUtils.textWithPrefixSucces
 public class ShatterWorlds {
     public static final CommandBuilder command = new CommandBuilder(
             "shatter:worlds",
-            PermissionGroups.COMMAND_SHATTER_WORLDS,
+            PermissionGroupType.COMMAND_SHATTER_WORLDS,
             "You don't have permission to use this command.",
             new String[]{},
             false,

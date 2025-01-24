@@ -2,11 +2,11 @@ package com.jankominek.disenchantment.events;
 
 import com.jankominek.disenchantment.Disenchantment;
 import com.jankominek.disenchantment.config.Config;
-import com.jankominek.disenchantment.permissions.PermissionGroups;
 import com.jankominek.disenchantment.plugins.ISupportedPlugin;
 import com.jankominek.disenchantment.plugins.SupportedPluginManager;
 import com.jankominek.disenchantment.plugins.VanillaPlugin;
 import com.jankominek.disenchantment.types.AnvilEventType;
+import com.jankominek.disenchantment.types.PermissionGroupType;
 import com.jankominek.disenchantment.utils.AnvilCostUtils;
 import com.jankominek.disenchantment.utils.EventUtils;
 import org.bukkit.Bukkit;
@@ -39,7 +39,7 @@ public class DisenchantEvent implements Listener {
 
         if (enchantments.isEmpty()) return;
 
-        if (!PermissionGroups.DISENCHANT_EVENT.checkPermission(p)) return;
+        if (!PermissionGroupType.DISENCHANT_EVENT.hasPermission(p)) return;
 
         // ----------------------------------------------------------------------------------------------------
         // Disenchantment plugins

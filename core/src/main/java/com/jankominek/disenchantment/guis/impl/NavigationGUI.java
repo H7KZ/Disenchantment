@@ -2,10 +2,10 @@ package com.jankominek.disenchantment.guis.impl;
 
 import com.jankominek.disenchantment.Disenchantment;
 import com.jankominek.disenchantment.config.Config;
-import com.jankominek.disenchantment.guis.GUIElements;
 import com.jankominek.disenchantment.guis.GUIItem;
 import com.jankominek.disenchantment.guis.InventoryBuilder;
-import com.jankominek.disenchantment.permissions.PermissionGroups;
+import com.jankominek.disenchantment.guis.components.GUIElements;
+import com.jankominek.disenchantment.types.PermissionGroupType;
 import org.apache.commons.lang3.ArrayUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -18,11 +18,11 @@ public class NavigationGUI implements InventoryHolder {
             new GUIItem(10, Config.isPluginEnabled() ? GUIElements.enabledPluginItem() : GUIElements.disabledPluginItem(), event -> {
                 event.setCancelled(true);
 
-                if (!PermissionGroups.GUI_STATUS.checkPermission(event.getWhoClicked(), true)) return;
+                if (!PermissionGroupType.GUI_STATUS.hasPermission(event.getWhoClicked(), true)) return;
 
                 boolean pluginEnabled = !Config.isPluginEnabled();
 
-                Disenchantment.toggle(pluginEnabled);
+                Disenchantment.onToggle(pluginEnabled);
                 Config.setPluginEnabled(pluginEnabled);
 
                 event.setCurrentItem(pluginEnabled ? GUIElements.enabledPluginItem() : GUIElements.disabledPluginItem());
@@ -30,7 +30,7 @@ public class NavigationGUI implements InventoryHolder {
             new GUIItem(11, GUIElements.worldsItem(), event -> {
                 event.setCancelled(true);
 
-                if (!PermissionGroups.GUI_WORLDS.checkPermission(event.getWhoClicked(), true)) return;
+                if (!PermissionGroupType.GUI_WORLDS.hasPermission(event.getWhoClicked(), true)) return;
 
                 event.getWhoClicked().openInventory(new WorldsGUI(0).getInventory());
             }),
@@ -39,13 +39,13 @@ public class NavigationGUI implements InventoryHolder {
 
                 switch (event.getClick()) {
                     case LEFT:
-                        if (!PermissionGroups.GUI_DISENCHANT_REPAIR.checkPermission(event.getWhoClicked(), true))
+                        if (!PermissionGroupType.GUI_DISENCHANT_REPAIR.hasPermission(event.getWhoClicked(), true))
                             return;
 
                         event.getWhoClicked().openInventory(new DisenchantmentRepairGUI().getInventory());
                         break;
                     case RIGHT:
-                        if (!PermissionGroups.GUI_SHATTER_REPAIR.checkPermission(event.getWhoClicked(), true))
+                        if (!PermissionGroupType.GUI_SHATTER_REPAIR.hasPermission(event.getWhoClicked(), true))
                             return;
 
                         event.getWhoClicked().openInventory(new ShattermentRepairGUI().getInventory());
@@ -55,14 +55,14 @@ public class NavigationGUI implements InventoryHolder {
             new GUIItem(13, GUIElements.enchantmentsItem(), event -> {
                 event.setCancelled(true);
 
-                if (!PermissionGroups.GUI_ENCHANTMENTS.checkPermission(event.getWhoClicked(), true)) return;
+                if (!PermissionGroupType.GUI_ENCHANTMENTS.hasPermission(event.getWhoClicked(), true)) return;
 
                 event.getWhoClicked().openInventory(new EnchantmentsGUI(0).getInventory());
             }),
             new GUIItem(14, GUIElements.materialsItem(), event -> {
                 event.setCancelled(true);
 
-                if (!PermissionGroups.GUI_MATERIALS.checkPermission(event.getWhoClicked(), true))
+                if (!PermissionGroupType.GUI_MATERIALS.hasPermission(event.getWhoClicked(), true))
                     return;
 
                 event.getWhoClicked().openInventory(new MaterialsGUI(0).getInventory());
@@ -72,13 +72,13 @@ public class NavigationGUI implements InventoryHolder {
 
                 switch (event.getClick()) {
                     case LEFT:
-                        if (!PermissionGroups.GUI_DISENCHANT_SOUND.checkPermission(event.getWhoClicked(), true))
+                        if (!PermissionGroupType.GUI_DISENCHANT_SOUND.hasPermission(event.getWhoClicked(), true))
                             return;
 
                         event.getWhoClicked().openInventory(new DisenchantmentSoundGUI().getInventory());
                         break;
                     case RIGHT:
-                        if (!PermissionGroups.GUI_SHATTER_SOUND.checkPermission(event.getWhoClicked(), true))
+                        if (!PermissionGroupType.GUI_SHATTER_SOUND.hasPermission(event.getWhoClicked(), true))
                             return;
 
                         event.getWhoClicked().openInventory(new ShattermentSoundGUI().getInventory());

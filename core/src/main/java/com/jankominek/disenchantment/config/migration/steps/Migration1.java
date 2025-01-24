@@ -1,11 +1,11 @@
-package com.jankominek.disenchantment.config.migrations;
+package com.jankominek.disenchantment.config.migration.steps;
 
-import com.jankominek.disenchantment.config.IConfigMigration;
+import com.jankominek.disenchantment.config.migration.IConfigMigration;
 import org.bukkit.configuration.file.FileConfiguration;
 
 import java.util.List;
 
-public class Migration1Base implements IConfigMigration {
+public class Migration1 implements IConfigMigration {
     public FileConfiguration migrate(FileConfiguration oldConfig, FileConfiguration configTemplate) {
         if (oldConfig.contains("enabled")) configTemplate.set("enabled", oldConfig.getBoolean("enabled"));
         if (oldConfig.contains("enable-logging"))

@@ -2,7 +2,7 @@ package com.jankominek.disenchantment.commands.impl;
 
 import com.jankominek.disenchantment.commands.CommandBuilder;
 import com.jankominek.disenchantment.config.Config;
-import com.jankominek.disenchantment.permissions.PermissionGroups;
+import com.jankominek.disenchantment.types.PermissionGroupType;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 
@@ -134,7 +134,7 @@ public class DisenchantRepair {
 
     public static final CommandBuilder command = new CommandBuilder(
             "disenchant:repair",
-            PermissionGroups.COMMAND_DISENCHANT_REPAIR,
+            PermissionGroupType.COMMAND_DISENCHANT_REPAIR,
             "You don't have permission to use this command.",
             new String[]{"reset", "cost", "base", "multiply"},
             false,

@@ -1,5 +1,8 @@
-package com.jankominek.disenchantment.guis;
+package com.jankominek.disenchantment.guis.components;
 
+import com.jankominek.disenchantment.guis.GUIItem;
+import com.jankominek.disenchantment.guis.HeadBuilder;
+import com.jankominek.disenchantment.guis.ItemBuilder;
 import org.apache.commons.lang.ArrayUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;

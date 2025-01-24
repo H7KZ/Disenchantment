@@ -1,38 +1,29 @@
 package com.jankominek.disenchantment.types;
 
-import org.bukkit.ChatColor;
-
 public enum EnchantmentStateType {
-    ENABLED(ChatColor.GREEN + "Enabled", null),
-    KEEP(ChatColor.GOLD + "Keep", "keep"),
-    DELETE(ChatColor.YELLOW + "Delete", "delete"),
-    DISABLED(ChatColor.RED + "Disabled", "disabled"),
+    ENABLED(null),
+    KEEP("keep"),
+    DELETE("delete"),
+    DISABLED("disabled"),
     ;
 
-    private final String displayName;
     private final String configName;
 
-    EnchantmentStateType(String displayName, String configName) {
-        this.displayName = displayName;
+    EnchantmentStateType(String configName) {
         this.configName = configName;
     }
 
     public static EnchantmentStateType getStateByName(String name) {
-        if (name == null) return null;
-
         return switch (name.toLowerCase()) {
             case "enabled" -> ENABLED;
             case "keep" -> KEEP;
             case "delete" -> DELETE;
             case "disabled" -> DISABLED;
-
             default -> null;
         };
     }
 
     public static EnchantmentStateType getNextState(EnchantmentStateType lastStatus) {
-        if (lastStatus == null) return ENABLED;
-
         return switch (lastStatus) {
             case ENABLED -> KEEP;
             case KEEP -> DELETE;
@@ -42,7 +33,12 @@ public enum EnchantmentStateType {
     }
 
     public String getDisplayName() {
-        return displayName;
+        return switch (this) {
+            case ENABLED -> ConfigKeys.I18N_STATES_ENABLED.getKey();
+            case KEEP -> ConfigKeys.I18N_STATES_KEEP.getKey();
+            case DELETE -> ConfigKeys.I18N_STATES_DELETE.getKey();
+            case DISABLED -> ConfigKeys.I18N_STATES_DISABLED.getKey();
+        };
     }
 
     public String getConfigName() {

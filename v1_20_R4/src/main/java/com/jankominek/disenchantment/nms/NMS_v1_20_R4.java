@@ -2,6 +2,7 @@ package com.jankominek.disenchantment.nms;
 
 import com.jankominek.disenchantment.plugins.ISupportedPlugin;
 import org.bukkit.Material;
+import org.bukkit.Registry;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.AnvilInventory;
 import org.bukkit.inventory.InventoryView;
@@ -27,7 +28,7 @@ public class NMS_v1_20_R4 implements NMS {
 
     @Override
     public List<Enchantment> getRegisteredEnchantments() {
-        return List.of(Enchantment.values());
+        return new ArrayList<>(Registry.ENCHANTMENT.stream().toList());
     }
 
     @Override

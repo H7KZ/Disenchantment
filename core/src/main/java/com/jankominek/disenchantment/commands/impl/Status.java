@@ -1,7 +1,7 @@
 package com.jankominek.disenchantment.commands.impl;
 
 import com.jankominek.disenchantment.commands.CommandBuilder;
-import com.jankominek.disenchantment.permissions.PermissionGroups;
+import com.jankominek.disenchantment.types.PermissionGroupType;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 
@@ -13,7 +13,7 @@ import static com.jankominek.disenchantment.Disenchantment.enabled;
 public class Status {
     public static final CommandBuilder command = new CommandBuilder(
             "status",
-            PermissionGroups.COMMAND_STATUS,
+            PermissionGroupType.COMMAND_STATUS,
             "You don't have permission to use this command.",
             new String[]{},
             false,

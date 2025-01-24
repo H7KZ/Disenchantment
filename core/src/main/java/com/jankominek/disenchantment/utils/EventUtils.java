@@ -13,7 +13,7 @@ import java.util.Map;
 public class EventUtils {
     public static class Disenchantment {
         public static Map<Enchantment, Integer> getDisenchantedEnchantments(ItemStack firstItem, ItemStack secondItem) {
-            return getDisenchantedEnchantments(firstItem, secondItem, false);
+            return EventUtils.Disenchantment.getDisenchantedEnchantments(firstItem, secondItem, false);
         }
 
         public static Map<Enchantment, Integer> getDisenchantedEnchantments(ItemStack firstItem, ItemStack secondItem, boolean withDelete) {
@@ -32,10 +32,13 @@ public class EventUtils {
 
             if (EventUtils.Disenchantment.isAtLeastOneEnchantmentDisabled(firstEnchants)) return Collections.emptyMap();
 
-            Config.Disenchantment.getEnchantmentStates().forEach((enchantment, state) -> {
+            for (Map.Entry<Enchantment, EnchantmentStateType> entry : Config.Disenchantment.getEnchantmentStates().entrySet()) {
+                Enchantment enchantment = entry.getKey();
+                EnchantmentStateType state = entry.getValue();
+
                 if (EnchantmentStateType.KEEP.equals(state) || (withDelete && EnchantmentStateType.DELETE.equals(state)))
                     firstEnchants.remove(enchantment);
-            });
+            }
 
             return firstEnchants;
         }
@@ -44,8 +47,11 @@ public class EventUtils {
             HashMap<Enchantment, Integer> result = new HashMap<>();
 
             for (Map.Entry<Enchantment, Integer> entry : enchantments.entrySet()) {
-                if (Config.Disenchantment.getEnchantmentStates().getOrDefault(entry.getKey(), EnchantmentStateType.ENABLED) == EnchantmentStateType.DELETE)
-                    result.put(entry.getKey(), entry.getValue());
+                Enchantment enchantment = entry.getKey();
+                int level = entry.getValue();
+
+                if (Config.Disenchantment.getEnchantmentStates().getOrDefault(enchantment, EnchantmentStateType.ENABLED) == EnchantmentStateType.DELETE)
+                    result.put(enchantment, level);
             }
 
             return result;
@@ -69,7 +75,7 @@ public class EventUtils {
 
     public static class Shatterment {
         public static Map<Enchantment, Integer> getDisenchantedEnchantments(ItemStack firstItem, ItemStack secondItem) {
-            return getDisenchantedEnchantments(firstItem, secondItem, false);
+            return EventUtils.Shatterment.getDisenchantedEnchantments(firstItem, secondItem, false);
         }
 
         public static Map<Enchantment, Integer> getDisenchantedEnchantments(ItemStack firstItem, ItemStack secondItem, boolean withDelete) {
@@ -88,10 +94,13 @@ public class EventUtils {
 
             if (firstEnchants.size() < 2) return Collections.emptyMap();
 
-            Config.Shatterment.getEnchantmentStates().forEach((enchantment, state) -> {
+            for (Map.Entry<Enchantment, EnchantmentStateType> entry : Config.Shatterment.getEnchantmentStates().entrySet()) {
+                Enchantment enchantment = entry.getKey();
+                EnchantmentStateType state = entry.getValue();
+
                 if (EnchantmentStateType.KEEP.equals(state) || (withDelete && EnchantmentStateType.DELETE.equals(state)))
                     firstEnchants.remove(enchantment);
-            });
+            }
 
             return firstEnchants;
         }
@@ -100,8 +109,11 @@ public class EventUtils {
             HashMap<Enchantment, Integer> result = new HashMap<>();
 
             for (Map.Entry<Enchantment, Integer> entry : enchantments.entrySet()) {
-                if (Config.Shatterment.getEnchantmentStates().getOrDefault(entry.getKey(), EnchantmentStateType.ENABLED) == EnchantmentStateType.DELETE)
-                    result.put(entry.getKey(), entry.getValue());
+                Enchantment enchantment = entry.getKey();
+                int level = entry.getValue();
+
+                if (Config.Shatterment.getEnchantmentStates().getOrDefault(enchantment, EnchantmentStateType.ENABLED) == EnchantmentStateType.DELETE)
+                    result.put(enchantment, level);
             }
 
             return result;

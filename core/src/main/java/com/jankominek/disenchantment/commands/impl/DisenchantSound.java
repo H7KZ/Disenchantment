@@ -2,7 +2,7 @@ package com.jankominek.disenchantment.commands.impl;
 
 import com.jankominek.disenchantment.commands.CommandBuilder;
 import com.jankominek.disenchantment.config.Config;
-import com.jankominek.disenchantment.permissions.PermissionGroups;
+import com.jankominek.disenchantment.types.PermissionGroupType;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 
@@ -89,7 +89,7 @@ public class DisenchantSound {
 
     public static final CommandBuilder command = new CommandBuilder(
             "disenchant:sound",
-            PermissionGroups.COMMAND_DISENCHANT_SOUND,
+            PermissionGroupType.COMMAND_DISENCHANT_SOUND,
             "You don't have permission to use this command.",
             new String[]{"enable", "disable", "volume", "pitch"},
             false,

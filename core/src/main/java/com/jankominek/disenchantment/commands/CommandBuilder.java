@@ -1,6 +1,6 @@
 package com.jankominek.disenchantment.commands;
 
-import com.jankominek.disenchantment.permissions.PermissionGroups;
+import com.jankominek.disenchantment.types.PermissionGroupType;
 import org.bukkit.command.CommandSender;
 
 import java.util.List;
@@ -9,14 +9,14 @@ import static com.jankominek.disenchantment.utils.TextUtils.textWithPrefixError;
 
 public class CommandBuilder {
     public final String name;
-    public final PermissionGroups permission;
+    public final PermissionGroupType permission;
     public final String permissionMessage;
     public final String[] args;
     public final Boolean reqArgs;
     public final ICommandExecutor executor;
     public final ICommandCompleter completer;
 
-    public CommandBuilder(String n, PermissionGroups p, String pm, String[] a, Boolean r, ICommandExecutor e, ICommandCompleter c) {
+    public CommandBuilder(String n, PermissionGroupType p, String pm, String[] a, Boolean r, ICommandExecutor e, ICommandCompleter c) {
         this.name = n;
         this.permission = p;
         this.permissionMessage = pm;
@@ -27,7 +27,7 @@ public class CommandBuilder {
     }
 
     public boolean execute(CommandSender sender, String[] args) {
-        if (!permission.checkPermission(sender)) {
+        if (!permission.hasPermission(sender)) {
             sender.sendMessage(textWithPrefixError(permissionMessage));
             return true;
         }

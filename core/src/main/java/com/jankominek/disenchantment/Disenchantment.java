@@ -3,13 +3,13 @@ package com.jankominek.disenchantment;
 import com.jankominek.disenchantment.commands.CommandCompleter;
 import com.jankominek.disenchantment.commands.CommandRegister;
 import com.jankominek.disenchantment.config.Config;
-import com.jankominek.disenchantment.config.ConfigMigrations;
+import com.jankominek.disenchantment.config.migration.ConfigMigrations;
 import com.jankominek.disenchantment.events.*;
-import com.jankominek.disenchantment.libs.bstats.BStatsMetrics;
-import com.jankominek.disenchantment.libs.update.UpdateChecker;
-import com.jankominek.disenchantment.nms.MinecraftVersion;
 import com.jankominek.disenchantment.nms.NMS;
+import com.jankominek.disenchantment.nms.NMSMapper;
 import com.jankominek.disenchantment.plugins.SupportedPluginManager;
+import com.jankominek.disenchantment.utils.BStatsMetrics;
+import com.jankominek.disenchantment.utils.UpdateChecker;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.Plugin;
@@ -23,39 +23,90 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public final class Disenchantment extends JavaPlugin {
+    public static final String commandName = "disenchantment";
+    public static final int spigotmcId = 110741;
+    public static final int bstatsId = 19058;
+    // Global variables (Should be used with class name, e.g. Disenchantment.enabled)
+    public static Boolean enabled = true;
+    // Globally known instances (Does not need to be used with class name)
     public static Disenchantment plugin;
     public static NMS nms;
     public static BukkitScheduler scheduler;
     public static FileConfiguration config;
     public static Logger logger;
-    public static Boolean enabled = true;
 
-    private BukkitTask checkUpdateTask;
+    // Tasks
+    private final BukkitTask[] tasks = new BukkitTask[2];
 
-    public static void toggle(boolean enable) {
+    public static void onToggle(boolean enable) {
         enabled = enable;
     }
 
     @Override
     public void onEnable() {
+        // Setup instances
         plugin = this;
-
         logger = getLogger();
+        scheduler = getServer().getScheduler();
 
-        if (!setupNMS()) {
+        // NMS net.minecraft.server
+        NMS mappedNMS = NMSMapper.setup();
+        if (mappedNMS == null) {
             logger.severe("This version of Minecraft is not compatible with Disenchantment. Sorry!");
             getServer().getPluginManager().disablePlugin(this);
             return;
         }
+        nms = mappedNMS;
 
-        scheduler = getServer().getScheduler();
+        // Config
+        setupConfig();
+        config = getConfig();
 
+        // Set config values
+        Disenchantment.enabled = Config.isPluginEnabled();
+
+        // Find and activate supported plugins
         List<String> activatedPlugins = Arrays.stream(getServer().getPluginManager().getPlugins()).toList().stream().map(Plugin::getName).toList();
         SupportedPluginManager.activatePlugins(activatedPlugins);
 
+        // Events
+        getServer().getPluginManager().registerEvents(new DisenchantEvent(), plugin);
+        getServer().getPluginManager().registerEvents(new DisenchantClickEvent(), plugin);
+        getServer().getPluginManager().registerEvents(new ShatterEvent(), plugin);
+        getServer().getPluginManager().registerEvents(new ShatterClickEvent(), plugin);
+        getServer().getPluginManager().registerEvents(new GUIClickEvent(), plugin);
+
+        // Commands
+        Objects.requireNonNull(getCommand(Disenchantment.commandName)).setExecutor(new CommandRegister());
+        Objects.requireNonNull(getCommand(Disenchantment.commandName)).setTabCompleter(new CommandCompleter());
+
+        // BStats
+        new BStatsMetrics(plugin, bstatsId);
+
+        // Automatic update check
+        tasks[0] = new UpdateChecker(spigotmcId).run(plugin, plugin.getDescription().getVersion());
+
+        logger.info("Disenchantment enabled!");
+    }
+
+    @Override
+    public void onDisable() {
+        for (BukkitTask task : tasks) {
+            task.cancel();
+        }
+
+        getServer().getScheduler().cancelTasks(plugin);
+
+        SupportedPluginManager.deactivateAllPlugins();
+
+        logger.info("Disenchantment disabled!");
+    }
+
+    private void setupConfig() {
         plugin.saveDefaultConfig();
 
         FileConfiguration oldConfig = YamlConfiguration.loadConfiguration(new File(plugin.getDataFolder(), "config.yml"));
@@ -66,65 +117,9 @@ public final class Disenchantment extends JavaPlugin {
         try {
             updatedConfig.save(new File(plugin.getDataFolder(), "config.yml"));
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.log(Level.SEVERE, "Could not save config.yml", e);
         }
 
         plugin.reloadConfig();
-
-        config = getConfig();
-
-        enabled = Config.isPluginEnabled();
-
-        getServer().getPluginManager().registerEvents(new DisenchantEvent(), this);
-        getServer().getPluginManager().registerEvents(new DisenchantClickEvent(), this);
-        getServer().getPluginManager().registerEvents(new ShatterEvent(), this);
-        getServer().getPluginManager().registerEvents(new ShatterClickEvent(), this);
-        getServer().getPluginManager().registerEvents(new GUIClickEvent(), this);
-
-        Objects.requireNonNull(getCommand("disenchantment")).setExecutor(new CommandRegister());
-        Objects.requireNonNull(getCommand("disenchantment")).setTabCompleter(new CommandCompleter());
-
-        new BStatsMetrics(this, 19058);
-
-        String version = plugin.getDescription().getVersion();
-        this.checkUpdateTask = scheduler.runTaskTimerAsynchronously(this, this.checkForUpdate(version), 3 * 20, 8 * 60 * 60 * 20); // 8 Hours
-
-        logger.info("Disenchantment enabled!");
-    }
-
-    @Override
-    public void onDisable() {
-        this.checkUpdateTask.cancel();
-
-        getServer().getScheduler().cancelTasks(this);
-
-        SupportedPluginManager.deactivateAllPlugins();
-
-        logger.info("Disenchantment disabled!");
-    }
-
-    private boolean setupNMS() {
-        try {
-            String nmsVersion = MinecraftVersion.getServerVersion().getNmsVersion();
-
-            if (nmsVersion == null) return false;
-
-            Class<?> clazz = Class.forName("com.jankominek.disenchantment.nms.NMS_" + nmsVersion);
-
-            if (NMS.class.isAssignableFrom(clazz)) {
-                nms = (NMS) clazz.getDeclaredConstructor().newInstance();
-            }
-
-            return nms != null;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
-    private Runnable checkForUpdate(String pluginVersion) {
-        return () -> new UpdateChecker(110741).getVersion(version -> {
-            if (!pluginVersion.equals(version)) logger.info("There is a new version available: " + version);
-        });
     }
 }

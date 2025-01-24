@@ -2,7 +2,7 @@ package com.jankominek.disenchantment.commands.impl;
 
 import com.jankominek.disenchantment.commands.CommandBuilder;
 import com.jankominek.disenchantment.config.Config;
-import com.jankominek.disenchantment.permissions.PermissionGroups;
+import com.jankominek.disenchantment.types.PermissionGroupType;
 import com.jankominek.disenchantment.utils.MaterialUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -17,7 +17,7 @@ import static com.jankominek.disenchantment.utils.TextUtils.textWithPrefixSucces
 public class DisenchantMaterials {
     public static final CommandBuilder command = new CommandBuilder(
             "disenchant:materials",
-            PermissionGroups.COMMAND_DISENCHANT_MATERIALS,
+            PermissionGroupType.COMMAND_DISENCHANT_MATERIALS,
             "You don't have permission to use this command.",
             new String[]{},
             false,

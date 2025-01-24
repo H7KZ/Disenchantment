@@ -41,3 +41,16 @@ shatterment:
       cost: true
       base: 10
       multiply: 0.25
+
+# ----------------------------------------------------------------------------------------
+
+i18n:
+  enabled: true
+  prefix: '&7[Disenchantment&7]&r'
+  permission: '&cYou do not have permission to use this feature.&r'
+  messages:
+  states:
+    enabled: '&aEnabled&r'
+    keep: '&bKeep&r'
+    delete: '&eDelete&r'
+    disabled: '&cDisabled&r'

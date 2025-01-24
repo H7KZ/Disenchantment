@@ -11,14 +11,21 @@ public class VanillaPlugin {
     public static ItemStack createEnchantedBook(Map<Enchantment, Integer> enchantments) {
         ItemStack book = new ItemStack(Material.ENCHANTED_BOOK);
 
-        enchantments.forEach((en, l) -> EnchantmentUtils.addStoredEnchantment(book, en, l));
+        for (Map.Entry<Enchantment, Integer> entry : enchantments.entrySet()) {
+            Enchantment enchantment = entry.getKey();
+            int level = entry.getValue();
+
+            EnchantmentUtils.addStoredEnchantment(book, enchantment, level);
+        }
 
         return book;
     }
 
     public static ItemStack addEnchantmentToBook(ItemStack firstItem, Enchantment enchantment, int level) {
         ItemStack item = firstItem.clone();
+
         EnchantmentUtils.addStoredEnchantment(item, enchantment, level);
+
         return item;
     }
 
@@ -27,6 +34,7 @@ public class VanillaPlugin {
 
         for (Map.Entry<Enchantment, Integer> entry : enchantments.entrySet()) {
             Enchantment enchantment = entry.getKey();
+
             EnchantmentUtils.removeStoredEnchantment(item, enchantment);
         }
 
@@ -35,7 +43,9 @@ public class VanillaPlugin {
 
     public static ItemStack removeEnchantment(ItemStack firstItem, Enchantment enchantment) {
         ItemStack item = firstItem.clone();
+
         EnchantmentUtils.removeStoredEnchantment(item, enchantment);
+
         return item;
     }
 }

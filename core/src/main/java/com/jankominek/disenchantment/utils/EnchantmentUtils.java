@@ -1,6 +1,5 @@
 package com.jankominek.disenchantment.utils;
 
-import com.jankominek.disenchantment.Disenchantment;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
@@ -9,6 +8,8 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.HashMap;
 import java.util.List;
+
+import static com.jankominek.disenchantment.Disenchantment.nms;
 
 public class EnchantmentUtils {
     public static void addEnchantment(ItemStack item, Enchantment enchantment, Integer level) {
@@ -50,7 +51,7 @@ public class EnchantmentUtils {
     }
 
     public static boolean canItemBeEnchanted(ItemStack item) {
-        return Disenchantment.nms.canItemBeEnchanted(item);
+        return nms.canItemBeEnchanted(item);
     }
 
     public static HashMap<Enchantment, Integer> getItemEnchantments(ItemStack item) {
@@ -66,6 +67,6 @@ public class EnchantmentUtils {
     }
 
     public static List<Enchantment> getRegisteredEnchantments() {
-        return Disenchantment.nms.getRegisteredEnchantments();
+        return nms.getRegisteredEnchantments();
     }
 }

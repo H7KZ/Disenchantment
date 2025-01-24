@@ -1,10 +1,10 @@
 package com.jankominek.disenchantment.events;
 
 import com.jankominek.disenchantment.config.Config;
-import com.jankominek.disenchantment.permissions.PermissionGroups;
 import com.jankominek.disenchantment.plugins.ISupportedPlugin;
 import com.jankominek.disenchantment.plugins.SupportedPluginManager;
 import com.jankominek.disenchantment.plugins.VanillaPlugin;
+import com.jankominek.disenchantment.types.PermissionGroupType;
 import com.jankominek.disenchantment.utils.AnvilCostUtils;
 import com.jankominek.disenchantment.utils.EnchantmentUtils;
 import com.jankominek.disenchantment.utils.EventUtils;
@@ -55,7 +55,7 @@ public class DisenchantClickEvent implements Listener {
 
         if (enchantments.isEmpty()) return;
 
-        if (!PermissionGroups.DISENCHANT_EVENT.checkPermission(p)) return;
+        if (!PermissionGroupType.DISENCHANT_EVENT.hasPermission(p)) return;
 
         EnchantmentStorageMeta resultItemMeta = (EnchantmentStorageMeta) result.getItemMeta();
 

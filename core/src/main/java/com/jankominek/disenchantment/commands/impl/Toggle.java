@@ -3,7 +3,7 @@ package com.jankominek.disenchantment.commands.impl;
 import com.jankominek.disenchantment.Disenchantment;
 import com.jankominek.disenchantment.commands.CommandBuilder;
 import com.jankominek.disenchantment.config.Config;
-import com.jankominek.disenchantment.permissions.PermissionGroups;
+import com.jankominek.disenchantment.types.PermissionGroupType;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 
@@ -13,7 +13,7 @@ import java.util.List;
 public class Toggle {
     public static final CommandBuilder command = new CommandBuilder(
             "toggle",
-            PermissionGroups.COMMAND_TOGGLE,
+            PermissionGroupType.COMMAND_TOGGLE,
             "You don't have permission to use this command.",
             new String[]{},
             false,
@@ -24,7 +24,7 @@ public class Toggle {
     public static void execute(CommandSender s, String[] args) {
         boolean pluginEnabled = !Config.isPluginEnabled();
 
-        Disenchantment.toggle(pluginEnabled);
+        Disenchantment.onToggle(pluginEnabled);
         Config.setPluginEnabled(pluginEnabled);
 
         String builder = "";

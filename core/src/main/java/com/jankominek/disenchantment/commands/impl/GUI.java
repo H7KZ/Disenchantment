@@ -2,7 +2,7 @@ package com.jankominek.disenchantment.commands.impl;
 
 import com.jankominek.disenchantment.commands.CommandBuilder;
 import com.jankominek.disenchantment.guis.impl.NavigationGUI;
-import com.jankominek.disenchantment.permissions.PermissionGroups;
+import com.jankominek.disenchantment.types.PermissionGroupType;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -12,7 +12,7 @@ import java.util.List;
 public class GUI {
     public static final CommandBuilder command = new CommandBuilder(
             "gui",
-            PermissionGroups.COMMAND_GUI,
+            PermissionGroupType.COMMAND_GUI,
             "You don't have permission to use this command.",
             new String[]{},
             false,

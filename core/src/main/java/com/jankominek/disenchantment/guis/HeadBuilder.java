@@ -6,7 +6,6 @@ import org.bukkit.Material;
 import org.bukkit.inventory.meta.SkullMeta;
 
 import java.lang.reflect.Field;
-import java.util.Arrays;
 import java.util.UUID;
 
 import static com.jankominek.disenchantment.Disenchantment.logger;
@@ -30,7 +29,7 @@ public class HeadBuilder extends ItemBuilder {
             profileField.setAccessible(true);
             profileField.set(meta, profile);
         } catch (Exception e) {
-            logger.warning(Arrays.toString(e.getStackTrace()));
+            logger.warning("Failed to set texture for skull item: " + e.getMessage());
         }
 
         this.setItemMeta(meta);
@@ -44,6 +43,7 @@ public class HeadBuilder extends ItemBuilder {
 
     public HeadBuilder setSkullMeta(SkullMeta meta) {
         this.setItemMeta(meta);
+
         return this;
     }
 }

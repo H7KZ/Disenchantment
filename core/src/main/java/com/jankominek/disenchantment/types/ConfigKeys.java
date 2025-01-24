@@ -1,4 +1,4 @@
-package com.jankominek.disenchantment.config;
+package com.jankominek.disenchantment.types;
 
 public enum ConfigKeys {
     ENABLED("enabled"),
@@ -31,6 +31,15 @@ public enum ConfigKeys {
     SHATTERMENT_REPAIR_COST_ENABLED("shatterment.anvil.repair.cost"),
     SHATTERMENT_REPAIR_COST_BASE("shatterment.anvil.repair.base"),
     SHATTERMENT_REPAIR_COST_MULTIPLIER("shatterment.anvil.repair.multiply"),
+
+    // i18n messages
+    I18N_ENABLED("i18n.enabled"),
+    I18N_PREFIX("i18n.prefix"),
+    I18N_PERMISSION("i18n.permission"),
+    I18N_STATES_ENABLED("i18n.states.enabled"),
+    I18N_STATES_KEEP("i18n.states.keep"),
+    I18N_STATES_DELETE("i18n.states.delete"),
+    I18N_STATES_DISABLED("i18n.states.disabled"),
     ;
 
     private final String key;

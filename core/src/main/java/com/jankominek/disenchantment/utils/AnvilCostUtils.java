@@ -1,7 +1,6 @@
 package com.jankominek.disenchantment.utils;
 
 import com.google.common.util.concurrent.AtomicDouble;
-import com.jankominek.disenchantment.Disenchantment;
 import com.jankominek.disenchantment.config.Config;
 import com.jankominek.disenchantment.types.AnvilEventType;
 import org.bukkit.enchantments.Enchantment;
@@ -9,25 +8,26 @@ import org.bukkit.inventory.AnvilInventory;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.Comparator;
 import java.util.Map;
+
+import static com.jankominek.disenchantment.Disenchantment.nms;
 
 public class AnvilCostUtils {
     public static int getRepairCost(AnvilInventory anvilInventory, InventoryView inventoryView) {
-        return Disenchantment.nms.getRepairCost(anvilInventory, inventoryView);
+        return nms.getRepairCost(anvilInventory, inventoryView);
     }
 
     public static void setItemRepairCost(ItemStack item, int repairCost) {
-        Disenchantment.nms.setItemRepairCost(item, repairCost);
+        nms.setItemRepairCost(item, repairCost);
     }
 
     public static void setAnvilRepairCost(AnvilInventory anvilInventory, InventoryView inventoryView, int repairCost) {
-        Disenchantment.nms.setAnvilRepairCost(anvilInventory, inventoryView, repairCost);
+        nms.setAnvilRepairCost(anvilInventory, inventoryView, repairCost);
     }
 
     public static Integer countAnvilCost(Map<Enchantment, Integer> enchantments, AnvilEventType anvilEventType) {
-        double enchantmentCost = 0;
-        double baseMultiplier = 0;
+        double enchantmentCost;
+        double baseMultiplier;
 
         switch (anvilEventType) {
             case DISENCHANTMENT:
@@ -50,8 +50,12 @@ public class AnvilCostUtils {
 
         AtomicDouble multiplier = new AtomicDouble(baseMultiplier);
 
-        for (Map.Entry<Enchantment, Integer> entry : enchantments.entrySet().stream().sorted(Map.Entry.comparingByValue(Comparator.reverseOrder())).toList()) {
-            enchantmentCost += entry.getValue() * multiplier.get();
+        Map<Enchantment, Integer> sortedEnchantments = MapUtils.sortByValue(enchantments, true);
+
+        for (Map.Entry<Enchantment, Integer> entry : sortedEnchantments.entrySet()) {
+            int level = entry.getValue();
+
+            enchantmentCost += level * multiplier.get();
             multiplier.set(multiplier.get() + baseMultiplier);
         }
 

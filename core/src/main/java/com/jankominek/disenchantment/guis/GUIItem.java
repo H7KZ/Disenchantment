@@ -7,6 +7,7 @@ public class GUIItem {
     private final Integer slot;
     private final ItemStack item;
     private final IOnClickEvent onClick;
+
     private long lastClick = 0;
 
     public GUIItem(int slot, ItemStack item, IOnClickEvent onClick) {
@@ -24,7 +25,7 @@ public class GUIItem {
     }
 
     public void onClick(InventoryClickEvent event) {
-        // avoid double-clicking
+        // Avoid double-clicking
         long timeMilli = System.currentTimeMillis();
 
         if (timeMilli - lastClick < 100) {

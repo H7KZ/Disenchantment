@@ -1,15 +1,15 @@
 package com.jankominek.disenchantment.plugins;
 
-import com.jankominek.disenchantment.Disenchantment;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.jankominek.disenchantment.Disenchantment.nms;
 
 public class SupportedPluginManager {
     private static final List<ISupportedPlugin> activatedPlugins = new ArrayList<>();
 
     public static List<ISupportedPlugin> getAllSupportedPlugins() {
-        return Disenchantment.nms.getSupportedPlugins();
+        return nms.getSupportedPlugins();
     }
 
     public static ISupportedPlugin getSupportedPluginByName(String pluginName) {
