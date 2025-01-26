@@ -10,7 +10,7 @@
 ## How to setup project?
 
 - Download Maven
-- Download Java 17
+- Download Java JDK 21+
 - Download Spigot BuildTools
-- Install 1.21.4, 1.20.5 & 1.18 Versions through Spigot BuildTools
-- Build project
+- Install BuildTools versions 1.21, 1.20.5 & 1.18
+- Build project with JDK 21+
