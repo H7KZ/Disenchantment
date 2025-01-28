@@ -1,7 +1,6 @@
 package com.jankominek.disenchantment.types;
 
 import com.jankominek.disenchantment.config.I18n;
-import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.permissions.Permissible;
 
@@ -146,7 +145,7 @@ public enum PermissionGroupType {
         if (Stream.of(permissions).anyMatch(p -> p.hasPermission(permissible))) return true;
 
         if (permissible instanceof CommandSender sender && feedback)
-            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', I18n.Messages.getPermission()));
+            sender.sendMessage(I18n.Messages.requiresPermission());
 
         return false;
     }

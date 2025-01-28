@@ -27,11 +27,12 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public final class Disenchantment extends JavaPlugin {
+    // Global variables (Should be used with class name, e.g. Disenchantment.enabled)
     public static final String commandName = "disenchantment";
     public static final int spigotmcId = 110741;
     public static final int bstatsId = 19058;
-    // Global variables (Should be used with class name, e.g. Disenchantment.enabled)
     public static Boolean enabled = true;
+
     // Globally known instances (Does not need to be used with class name)
     public static Disenchantment plugin;
     public static NMS nms;

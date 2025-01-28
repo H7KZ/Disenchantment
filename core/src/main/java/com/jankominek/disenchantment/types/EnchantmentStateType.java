@@ -1,5 +1,7 @@
 package com.jankominek.disenchantment.types;
 
+import com.jankominek.disenchantment.config.I18n;
+
 public enum EnchantmentStateType {
     ENABLED(null),
     KEEP("keep"),
@@ -34,10 +36,10 @@ public enum EnchantmentStateType {
 
     public String getDisplayName() {
         return switch (this) {
-            case ENABLED -> ConfigKeys.I18N_STATES_ENABLED.getKey();
-            case KEEP -> ConfigKeys.I18N_STATES_KEEP.getKey();
-            case DELETE -> ConfigKeys.I18N_STATES_DELETE.getKey();
-            case DISABLED -> ConfigKeys.I18N_STATES_DISABLED.getKey();
+            case ENABLED -> I18n.States.enabled();
+            case KEEP -> I18n.States.keep();
+            case DELETE -> I18n.States.delete();
+            case DISABLED -> I18n.States.disabled();
         };
     }
 

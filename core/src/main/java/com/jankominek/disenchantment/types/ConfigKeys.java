@@ -33,13 +33,95 @@ public enum ConfigKeys {
     SHATTERMENT_REPAIR_COST_MULTIPLIER("shatterment.anvil.repair.multiply"),
 
     // i18n messages
-    I18N_ENABLED("i18n.enabled"),
     I18N_PREFIX("i18n.prefix"),
-    I18N_PERMISSION("i18n.permission"),
+
+    I18N_MESSAGES_REQUIRES_PERMISSION("i18n.messages.requires-permission"),
+
     I18N_STATES_ENABLED("i18n.states.enabled"),
     I18N_STATES_KEEP("i18n.states.keep"),
     I18N_STATES_DELETE("i18n.states.delete"),
     I18N_STATES_DISABLED("i18n.states.disabled"),
+
+    I18N_GUI_BACK("i18n.gui.back"),
+    I18N_GUI_PREVIOUS("i18n.gui.previous"),
+    I18N_GUI_NEXT("i18n.gui.next"),
+
+    I18N_GUI_NAVIGATION_INVENTORY("i18n.gui.navigation.inventory"),
+    I18N_GUI_NAVIGATION_PLUGIN_TITLE("i18n.gui.navigation.plugin.title"),
+    I18N_GUI_NAVIGATION_PLUGIN_LORE_ENABLED("i18n.gui.navigation.plugin.lore.enabled"),
+    I18N_GUI_NAVIGATION_PLUGIN_LORE_DISABLED("i18n.gui.navigation.plugin.lore.disabled"),
+    I18N_GUI_NAVIGATION_WORLDS_TITLE("i18n.gui.navigation.worlds.title"),
+    I18N_GUI_NAVIGATION_WORLDS_LORE("i18n.gui.navigation.worlds.lore"),
+    I18N_GUI_NAVIGATION_REPAIR_TITLE("i18n.gui.navigation.repair.title"),
+    I18N_GUI_NAVIGATION_REPAIR_LORE("i18n.gui.navigation.repair.lore"),
+    I18N_GUI_NAVIGATION_ENCHANTMENTS_TITLE("i18n.gui.navigation.enchantments.title"),
+    I18N_GUI_NAVIGATION_ENCHANTMENTS_LORE("i18n.gui.navigation.enchantments.lore"),
+    I18N_GUI_NAVIGATION_MATERIALS_TITLE("i18n.gui.navigation.materials.title"),
+    I18N_GUI_NAVIGATION_MATERIALS_LORE("i18n.gui.navigation.materials.lore"),
+    I18N_GUI_NAVIGATION_SOUND_TITLE("i18n.gui.navigation.sound.title"),
+    I18N_GUI_NAVIGATION_SOUND_LORE("i18n.gui.navigation.sound.lore"),
+    I18N_GUI_NAVIGATION_SPIGOT_TITLE("i18n.gui.navigation.spigot.title"),
+    I18N_GUI_NAVIGATION_SPIGOT_LORE("i18n.gui.navigation.spigot.lore"),
+
+    I18N_GUI_WORLDS_INVENTORY("i18n.gui.worlds.inventory"),
+    I18N_GUI_WORLDS_LORE_DISENCHANTMENT_ENABLED("i18n.gui.worlds.lore.disenchantment.enabled"),
+    I18N_GUI_WORLDS_LORE_DISENCHANTMENT_DISABLED("i18n.gui.worlds.lore.disenchantment.disabled"),
+    I18N_GUI_WORLDS_LORE_SHATTERMENT_ENABLED("i18n.gui.worlds.lore.shatterment.enabled"),
+    I18N_GUI_WORLDS_LORE_SHATTERMENT_DISABLED("i18n.gui.worlds.lore.shatterment.disabled"),
+    I18N_GUI_WORLDS_HELP_TITLE("i18n.gui.worlds.help.title"),
+    I18N_GUI_WORLDS_HELP_LORE("i18n.gui.worlds.help.lore"),
+
+    I18N_GUI_REPAIR_DISENCHANTMENT_INVENTORY("i18n.gui.repair.disenchantment.inventory"),
+    I18N_GUI_REPAIR_DISENCHANTMENT_TITLE("i18n.gui.repair.disenchantment.title"),
+    I18N_GUI_REPAIR_DISENCHANTMENT_LORE_ENABLED("i18n.gui.repair.disenchantment.lore.enabled"),
+    I18N_GUI_REPAIR_DISENCHANTMENT_LORE_DISABLED("i18n.gui.repair.disenchantment.lore.disabled"),
+    I18N_GUI_REPAIR_DISENCHANTMENT_BASE_TITLE("i18n.gui.repair.disenchantment.base.title"),
+    I18N_GUI_REPAIR_DISENCHANTMENT_BASE_LORE("i18n.gui.repair.disenchantment.base.lore"),
+    I18N_GUI_REPAIR_DISENCHANTMENT_MULTIPLIER_TITLE("i18n.gui.repair.disenchantment.multiplier.title"),
+    I18N_GUI_REPAIR_DISENCHANTMENT_MULTIPLIER_LORE("i18n.gui.repair.disenchantment.multiplier.lore"),
+
+    I18N_GUI_REPAIR_SHATTERMENT_INVENTORY("i18n.gui.repair.shatterment.inventory"),
+    I18N_GUI_REPAIR_SHATTERMENT_TITLE("i18n.gui.repair.shatterment.title"),
+    I18N_GUI_REPAIR_SHATTERMENT_LORE_ENABLED("i18n.gui.repair.shatterment.lore.enabled"),
+    I18N_GUI_REPAIR_SHATTERMENT_LORE_DISABLED("i18n.gui.repair.shatterment.lore.disabled"),
+    I18N_GUI_REPAIR_SHATTERMENT_BASE_TITLE("i18n.gui.repair.shatterment.base.title"),
+    I18N_GUI_REPAIR_SHATTERMENT_BASE_LORE("i18n.gui.repair.shatterment.base.lore"),
+    I18N_GUI_REPAIR_SHATTERMENT_MULTIPLIER_TITLE("i18n.gui.repair.shatterment.multiplier.title"),
+    I18N_GUI_REPAIR_SHATTERMENT_MULTIPLIER_LORE("i18n.gui.repair.shatterment.multiplier.lore"),
+
+    I18N_GUI_ENCHANTMENTS_INVENTORY("i18n.gui.enchantments.inventory"),
+    I18N_GUI_ENCHANTMENTS_LORE_DISENCHANTMENT("i18n.gui.enchantments.lore.disenchantment"),
+    I18N_GUI_ENCHANTMENTS_LORE_SHATTERMENT("i18n.gui.enchantments.lore.shatterment"),
+    I18N_GUI_ENCHANTMENTS_HELP_TITLE("i18n.gui.enchantments.help.title"),
+    I18N_GUI_ENCHANTMENTS_HELP_LORE("i18n.gui.enchantments.help.lore"),
+
+    I18N_GUI_MATERIALS_INVENTORY("i18n.gui.materials.inventory"),
+    I18N_GUI_MATERIALS_LORE_DISENCHANTMENT_ENABLED("i18n.gui.materials.lore.disenchantment.enabled"),
+    I18N_GUI_MATERIALS_LORE_DISENCHANTMENT_DISABLED("i18n.gui.materials.lore.disenchantment.disabled"),
+    I18N_GUI_MATERIALS_LORE_SHATTERMENT_ENABLED("i18n.gui.materials.lore.shatterment.enabled"),
+    I18N_GUI_MATERIALS_LORE_SHATTERMENT_DISABLED("i18n.gui.materials.lore.shatterment.disabled"),
+    I18N_GUI_MATERIALS_HELP_TITLE("i18n.gui.materials.help.title"),
+    I18N_GUI_MATERIALS_HELP_LORE("i18n.gui.materials.help.lore"),
+
+    I18N_GUI_SOUND_DISENCHANTMENT_INVENTORY("i18n.gui.sound.disenchantment.inventory"),
+    I18N_GUI_SOUND_DISENCHANTMENT_TITLE("i18n.gui.sound.disenchantment.title"),
+    I18N_GUI_SOUND_DISENCHANTMENT_LORE_ENABLED("i18n.gui.sound.disenchantment.lore.enabled"),
+    I18N_GUI_SOUND_DISENCHANTMENT_LORE_DISABLED("i18n.gui.sound.disenchantment.lore.disabled"),
+    I18N_GUI_SOUND_DISENCHANTMENT_VOLUME_TITLE("i18n.gui.sound.disenchantment.volume.title"),
+    I18N_GUI_SOUND_DISENCHANTMENT_VOLUME_LORE("i18n.gui.sound.disenchantment.volume.lore"),
+    I18N_GUI_SOUND_DISENCHANTMENT_PITCH_TITLE("i18n.gui.sound.disenchantment.pitch.title"),
+    I18N_GUI_SOUND_DISENCHANTMENT_PITCH_LORE("i18n.gui.sound.disenchantment.pitch.lore"),
+
+    I18N_GUI_SOUND_SHATTERMENT_INVENTORY("i18n.gui.sound.shatterment.inventory"),
+    I18N_GUI_SOUND_SHATTERMENT_TITLE("i18n.gui.sound.shatterment.title"),
+    I18N_GUI_SOUND_SHATTERMENT_LORE_ENABLED("i18n.gui.sound.shatterment.lore.enabled"),
+    I18N_GUI_SOUND_SHATTERMENT_LORE_DISABLED("i18n.gui.sound.shatterment.lore.disabled"),
+    I18N_GUI_SOUND_SHATTERMENT_VOLUME_TITLE("i18n.gui.sound.shatterment.volume.title"),
+    I18N_GUI_SOUND_SHATTERMENT_VOLUME_LORE("i18n.gui.sound.shatterment.volume.lore"),
+    I18N_GUI_SOUND_SHATTERMENT_PITCH_TITLE("i18n.gui.sound.shatterment.pitch.title"),
+    I18N_GUI_SOUND_SHATTERMENT_PITCH_LORE("i18n.gui.sound.shatterment.pitch.lore"),
+
+
     ;
 
     private final String key;

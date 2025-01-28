@@ -1,9 +1,9 @@
 package com.jankominek.disenchantment.guis.impl;
 
 import com.jankominek.disenchantment.config.Config;
+import com.jankominek.disenchantment.guis.GUIComponent;
 import com.jankominek.disenchantment.guis.GUIItem;
 import com.jankominek.disenchantment.guis.InventoryBuilder;
-import com.jankominek.disenchantment.guis.components.GUIElements;
 import com.jankominek.disenchantment.utils.PrecisionUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.bukkit.Bukkit;
@@ -15,24 +15,24 @@ public class DisenchantmentSoundGUI implements InventoryHolder {
     private final Integer size = 27;
     private final String title = "Disenchantment | Sound";
     private final GUIItem[] items = ArrayUtils.addAll(
-            GUIElements.border9x3(new Integer[]{0}),
-            new GUIItem(0, GUIElements.backItem(), event -> {
+            GUIComponent.border9x3(new Integer[]{0}),
+            new GUIItem(0, GUIComponent.backItem(), event -> {
                 event.setCancelled(true);
                 event.getWhoClicked().openInventory(new NavigationGUI().getInventory());
             }),
-            GUIElements.border(10),
-            new GUIItem(11, Config.Disenchantment.Anvil.Sound.isEnabled() ? GUIElements.enabledDisenchantmentAnvilSoundItem() : GUIElements.disabledDisenchantmentAnvilSoundItem(), event -> {
+            GUIComponent.border(10),
+            new GUIItem(11, Config.Disenchantment.Anvil.Sound.isEnabled() ? GUIComponent.enabledDisenchantmentAnvilSoundItem() : GUIComponent.disabledDisenchantmentAnvilSoundItem(), event -> {
                 event.setCancelled(true);
 
                 boolean anvilSoundEnabled = !Config.Disenchantment.Anvil.Sound.isEnabled();
 
                 Config.Disenchantment.Anvil.Sound.setEnabled(anvilSoundEnabled);
 
-                event.setCurrentItem(anvilSoundEnabled ? GUIElements.enabledDisenchantmentAnvilSoundItem() : GUIElements.disabledDisenchantmentAnvilSoundItem());
+                event.setCurrentItem(anvilSoundEnabled ? GUIComponent.enabledDisenchantmentAnvilSoundItem() : GUIComponent.disabledDisenchantmentAnvilSoundItem());
             }),
-            GUIElements.border(12),
-            GUIElements.border(13),
-            new GUIItem(14, GUIElements.disenchantmentAnvilSoundVolumeItem(Config.Disenchantment.Anvil.Sound.getVolume(), Math.min((int) (Config.Disenchantment.Anvil.Sound.getVolume() * 10), 64)), event -> {
+            GUIComponent.border(12),
+            GUIComponent.border(13),
+            new GUIItem(14, GUIComponent.disenchantmentAnvilSoundVolumeItem(Config.Disenchantment.Anvil.Sound.getVolume(), Math.min((int) (Config.Disenchantment.Anvil.Sound.getVolume() * 10), 64)), event -> {
                 event.setCancelled(true);
 
                 double volume = Config.Disenchantment.Anvil.Sound.getVolume();
@@ -50,9 +50,9 @@ public class DisenchantmentSoundGUI implements InventoryHolder {
 
                 Config.Disenchantment.Anvil.Sound.setVolume(volume);
 
-                event.setCurrentItem(GUIElements.disenchantmentAnvilSoundVolumeItem(volume, Math.min((int) (volume * 10), 64)));
+                event.setCurrentItem(GUIComponent.disenchantmentAnvilSoundVolumeItem(volume, Math.min((int) (volume * 10), 64)));
             }),
-            new GUIItem(15, GUIElements.disenchantmentAnvilSoundPitchItem(Config.Disenchantment.Anvil.Sound.getPitch(), Math.min((int) (Config.Disenchantment.Anvil.Sound.getPitch() * 10), 64)), event -> {
+            new GUIItem(15, GUIComponent.disenchantmentAnvilSoundPitchItem(Config.Disenchantment.Anvil.Sound.getPitch(), Math.min((int) (Config.Disenchantment.Anvil.Sound.getPitch() * 10), 64)), event -> {
                 event.setCancelled(true);
 
                 double pitch = Config.Disenchantment.Anvil.Sound.getPitch();
@@ -70,10 +70,10 @@ public class DisenchantmentSoundGUI implements InventoryHolder {
 
                 Config.Disenchantment.Anvil.Sound.setPitch(pitch);
 
-                event.setCurrentItem(GUIElements.disenchantmentAnvilSoundPitchItem(pitch, Math.min((int) (pitch * 10), 64)));
+                event.setCurrentItem(GUIComponent.disenchantmentAnvilSoundPitchItem(pitch, Math.min((int) (pitch * 10), 64)));
             }),
-            GUIElements.border(16),
-            GUIElements.border(17)
+            GUIComponent.border(16),
+            GUIComponent.border(17)
     );
     private final Inventory inventory;
 

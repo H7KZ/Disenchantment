@@ -45,12 +45,195 @@ shatterment:
 # ----------------------------------------------------------------------------------------
 
 i18n:
-  enabled: true
-  prefix: '&7[Disenchantment&7]&r'
-  permission: '&cYou do not have permission to use this feature.&r'
+  prefix: '&7[Disenchantment]&r'
   messages:
+    requires-permission: '&cYou do not have permission to use this feature.&r'
   states:
     enabled: '&aEnabled&r'
     keep: '&bKeep&r'
     delete: '&eDelete&r'
     disabled: '&cDisabled&r'
+  gui:
+    back: '&8Back&r'
+    previous: '&6Previous&r'
+    next: '&6Next&r'
+    navigation:
+      inventory: '&7&lNavigation&r'
+      plugin:
+        title: '&7&lPlugin&r'
+        lore:
+          enabled:
+            - '&aEnabled&r'
+            - '&7Click to Disable&r'
+          disabled:
+            - '&cDisabled&r'
+            - '&7Click to Enable&r'
+      worlds:
+        title: '&a&lWorlds&r'
+        lore:
+          - '&7Enable or disable specific worlds'
+      repair:
+        title: '&e&lRepair&r'
+        lore:
+          - '&7Edit the repair settings'
+          - '&7LEFT CLICK to edit disenchantment'
+          - '&7RIGHT CLICK to edit shatterment'
+      enchantments:
+        title: '&d&lEnchantments&r'
+        lore:
+          - '&7Edit enchantment behavior'
+      materials:
+        title: '&9&lMaterials&r'
+        lore:
+          - '&7Enable or disable specific materials'
+      sound:
+        title: '&f&lSound&r'
+        lore:
+          - '&7Edit the sound settings'
+          - '&7LEFT CLICK to edit disenchantment'
+          - '&7RIGHT CLICK to edit shatterment'
+      spigot:
+        title: '&6&lLink to spigot&r'
+        lore:
+          - '&7Redirects to the plugin page on spigotmc.org'
+    worlds:
+      inventory: '&7&lWorlds&r'
+      lore:
+        disenchantment:
+          enabled: '&7Disenchantment: &aEnabled&r'
+          disabled: '&7Disenchantment: &cDisabled&r'
+        shatterment:
+          enabled: '&7Shatterment: &aEnabled&r'
+          disabled: '&7Shatterment: &cDisabled&r'
+      help:
+        title: '&d&lHelp&r'
+        lore:
+          - '&7Click to toggle worlds on or off'
+          - '&7LEFT CLICK for disenchantment'
+          - '&7RIGHT CLICK for shatterment'
+    repair:
+      disenchantment:
+        inventory: '&7&lRepair | Disenchantment&r'
+        title: '&7&lRepair Cost&r'
+        lore:
+          enabled:
+            - '&aEnabled&r'
+            - '&7Click to Disable&r'
+          disabled:
+            - '&cDisabled&r'
+            - '&7Click to Enable&r'
+        base:
+          title: '&7&lBase Cost&r'
+          lore:
+            - '&7Current value: &f{cost}&r'
+            - '&7LEFT CLICK to increase'
+            - '&7RIGHT CLICK to decrease'
+        multiplier:
+          title: '&7&lMultiplier&r'
+          lore:
+            - '&7Current value: &f{multiplier}&r'
+            - '&7LEFT CLICK to increase'
+            - '&7RIGHT CLICK to decrease'
+            - '&7[ base + (level * multiply) ]'
+      shatterment:
+        inventory: '&7&lRepair | Shatterment&r'
+        title: '&7&lRepair Cost&r'
+        lore:
+          enabled:
+            - '&aEnabled&r'
+            - '&7Click to Disable&r'
+          disabled:
+            - '&cDisabled&r'
+            - '&7Click to Enable&r'
+        base:
+          title: '&7&lBase Cost&r'
+          lore:
+            - '&7Current value: &f{cost}&r'
+            - '&7LEFT CLICK to increase'
+            - '&7RIGHT CLICK to decrease'
+        multiplier:
+          title: '&7&lMultiplier&r'
+          lore:
+            - '&7Current value: &f{multiplier}&r'
+            - '&7LEFT CLICK to increase'
+            - '&7RIGHT CLICK to decrease'
+            - '&7[ base + (level * multiply) ]'
+    enchantments:
+      inventory: '&7&lEnchantments&r'
+      lore:
+        disenchantment: '&7Disenchantment: {state}&r'
+        shatterment: '&7Shatterment: {state}&r'
+      help:
+        title: '&d&lHelp&r'
+        lore:
+          - '&7Click to change enchantment behavior&r'
+          - '&7Enabled > Keep > Delete > Disabled > Enabled&r'
+          - '&7LEFT CLICK for disenchantment&r'
+          - '&7RIGHT CLICK for shatterment&r'
+          - '&7-----------------------------&r'
+          - '&aEnabled&7: Enchantment is disenchantable/shatterable&r'
+          - '&bKeep&7: Enchantment is kept on an item&r'
+          - '&eDelete&7: Enchantment is removed from an item&r'
+          - '&cDisabled&7: Disenchantment/Shatterment with this enchantment is disabled&r'
+    materials:
+      inventory: '&7&lMaterials&r'
+      lore:
+        disenchantment:
+          enabled: '&7Disenchantment: &aEnabled&r'
+          disabled: '&7Disenchantment: &cDisabled&r'
+        shatterment:
+          enabled: '&7Shatterment: &aEnabled&r'
+          disabled: '&7Shatterment: &cDisabled&r'
+      help:
+        title: '&d&lHelp&r'
+        lore:
+          - '&7Click to toggle materials on or off'
+          - '&7LEFT CLICK for disenchantment'
+          - '&7RIGHT CLICK for shatterment'
+          - '&7To edit other materials, use the&r'
+          - '&7command: /disenchantment disenchantment:materials&r'
+    sound:
+      disenchantment:
+        inventory: '&7&lSound | Disenchantment&r'
+        title: '&7&lSound&r'
+        lore:
+          enabled:
+            - '&aEnabled&r'
+            - '&7Click to Disable&r'
+          disabled:
+            - '&cDisabled&r'
+            - '&7Click to Enable&r'
+        volume:
+          title: '&7&lVolume&r'
+          lore:
+            - '&7Current value: &f{volume}&r'
+            - '&7LEFT CLICK to increase'
+            - '&7RIGHT CLICK to decrease'
+        pitch:
+          title: '&7&lPitch&r'
+          lore:
+            - '&7Current value: &f{pitch}&r'
+            - '&7LEFT CLICK to increase'
+            - '&7RIGHT CLICK to decrease'
+        shatterment:
+          inventory: '&7&lSound | Shatterment&r'
+          title: '&7&lSound&r'
+          lore:
+            enabled:
+              - '&aEnabled&r'
+              - '&7Click to Disable&r'
+            disabled:
+              - '&cDisabled&r'
+              - '&7Click to Enable&r'
+          volume:
+            title: '&7&lVolume&r'
+            lore:
+              - '&7Current value: &f{volume}&r'
+              - '&7LEFT CLICK to increase'
+              - '&7RIGHT CLICK to decrease'
+          pitch:
+            title: '&7&lPitch&r'
+            lore:
+              - '&7Current value: &f{pitch}&r'
+              - '&7LEFT CLICK to increase'
+              - '&7RIGHT CLICK to decrease'

@@ -1,7 +1,5 @@
-package com.jankominek.disenchantment.guis.components;
+package com.jankominek.disenchantment.guis;
 
-import com.jankominek.disenchantment.guis.GUIItem;
-import com.jankominek.disenchantment.guis.ItemBuilder;
 import org.apache.commons.lang.ArrayUtils;
 import org.bukkit.Material;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -9,8 +7,8 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.stream.Stream;
 
-public class BorderComponent {
-    public static void cancelOnClick(InventoryClickEvent event) {
+public class GUIBorderComponent {
+    private static void cancelOnClick(InventoryClickEvent event) {
         event.setCancelled(true);
     }
 
@@ -19,14 +17,14 @@ public class BorderComponent {
     }
 
     public static GUIItem border(int slot) {
-        return new GUIItem(slot, borderItem(), BorderComponent::cancelOnClick);
+        return new GUIItem(slot, borderItem(), GUIBorderComponent::cancelOnClick);
     }
 
     public static GUIItem[] rowBorder(int start, int end, ItemStack item) {
         GUIItem[] border = new GUIItem[end - start + 1];
 
         for (int i = start; i <= end; i++) {
-            border[i - start] = new GUIItem(i, item, BorderComponent::cancelOnClick);
+            border[i - start] = new GUIItem(i, item, GUIBorderComponent::cancelOnClick);
         }
 
         return border;

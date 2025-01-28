@@ -1,9 +1,9 @@
 package com.jankominek.disenchantment.guis.impl;
 
 import com.jankominek.disenchantment.config.Config;
+import com.jankominek.disenchantment.guis.GUIComponent;
 import com.jankominek.disenchantment.guis.GUIItem;
 import com.jankominek.disenchantment.guis.InventoryBuilder;
-import com.jankominek.disenchantment.guis.components.GUIElements;
 import com.jankominek.disenchantment.utils.PrecisionUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.bukkit.Bukkit;
@@ -15,32 +15,32 @@ public class ShattermentRepairGUI implements InventoryHolder {
     private final Integer size = 27;
     private final String title = "Shatterment | Repair";
     private final GUIItem[] items = ArrayUtils.addAll(
-            GUIElements.border9x3(new Integer[]{0}),
-            new GUIItem(0, GUIElements.backItem(), event -> {
+            GUIComponent.border9x3(new Integer[]{0}),
+            new GUIItem(0, GUIComponent.backItem(), event -> {
                 event.setCancelled(true);
                 event.getWhoClicked().openInventory(new NavigationGUI().getInventory());
             }),
-            GUIElements.border(10),
-            new GUIItem(11, Config.Shatterment.Anvil.Repair.isCostEnabled() ? GUIElements.enabledShattermentRepairCostItem() : GUIElements.disabledShattermentRepairCostItem(), event -> {
+            GUIComponent.border(10),
+            new GUIItem(11, Config.Shatterment.Anvil.Repair.isCostEnabled() ? GUIComponent.enabledShattermentRepairCostItem() : GUIComponent.disabledShattermentRepairCostItem(), event -> {
                 event.setCancelled(true);
 
                 boolean repairCostEnabled = !Config.Shatterment.Anvil.Repair.isCostEnabled();
 
                 Config.Shatterment.Anvil.Repair.setCostEnabled(repairCostEnabled);
 
-                event.setCurrentItem(repairCostEnabled ? GUIElements.enabledShattermentRepairCostItem() : GUIElements.disabledShattermentRepairCostItem());
+                event.setCurrentItem(repairCostEnabled ? GUIComponent.enabledShattermentRepairCostItem() : GUIComponent.disabledShattermentRepairCostItem());
             }),
-            GUIElements.border(12),
-            new GUIItem(13, Config.Shatterment.Anvil.Repair.isResetEnabled() ? GUIElements.enabledShattermentRepairCostResetItem() : GUIElements.disabledShattermentRepairCostResetItem(), event -> {
+            GUIComponent.border(12),
+            new GUIItem(13, Config.Shatterment.Anvil.Repair.isResetEnabled() ? GUIComponent.enabledShattermentRepairCostResetItem() : GUIComponent.disabledShattermentRepairCostResetItem(), event -> {
                 event.setCancelled(true);
 
                 boolean repairResetEnabled = !Config.Shatterment.Anvil.Repair.isResetEnabled();
 
                 Config.Shatterment.Anvil.Repair.setResetEnabled(repairResetEnabled);
 
-                event.setCurrentItem(repairResetEnabled ? GUIElements.enabledShattermentRepairCostResetItem() : GUIElements.disabledShattermentRepairCostResetItem());
+                event.setCurrentItem(repairResetEnabled ? GUIComponent.enabledShattermentRepairCostResetItem() : GUIComponent.disabledShattermentRepairCostResetItem());
             }),
-            new GUIItem(14, GUIElements.shattermentRepairCostBaseItem((int) Math.round(Config.Shatterment.Anvil.Repair.getBaseCost()), Math.min((int) Math.round(Config.Shatterment.Anvil.Repair.getBaseCost()), 64)), event -> {
+            new GUIItem(14, GUIComponent.shattermentRepairCostBaseItem((int) Math.round(Config.Shatterment.Anvil.Repair.getBaseCost()), Math.min((int) Math.round(Config.Shatterment.Anvil.Repair.getBaseCost()), 64)), event -> {
                 event.setCancelled(true);
 
                 double cost = Config.Shatterment.Anvil.Repair.getBaseCost();
@@ -58,9 +58,9 @@ public class ShattermentRepairGUI implements InventoryHolder {
 
                 Config.Shatterment.Anvil.Repair.setBaseCost(cost);
 
-                event.setCurrentItem(GUIElements.shattermentRepairCostBaseItem((int) Math.round(cost), Math.min((int) Math.round(cost), 64)));
+                event.setCurrentItem(GUIComponent.shattermentRepairCostBaseItem((int) Math.round(cost), Math.min((int) Math.round(cost), 64)));
             }),
-            new GUIItem(15, GUIElements.shattermentRepairCostMultiplierItem(Config.Shatterment.Anvil.Repair.getCostMultiplier(), Math.min((int) (Config.Shatterment.Anvil.Repair.getCostMultiplier() * 10), 64)), event -> {
+            new GUIItem(15, GUIComponent.shattermentRepairCostMultiplierItem(Config.Shatterment.Anvil.Repair.getCostMultiplier(), Math.min((int) (Config.Shatterment.Anvil.Repair.getCostMultiplier() * 10), 64)), event -> {
                 event.setCancelled(true);
 
                 double multiplier = Config.Shatterment.Anvil.Repair.getCostMultiplier();
@@ -78,10 +78,10 @@ public class ShattermentRepairGUI implements InventoryHolder {
 
                 Config.Shatterment.Anvil.Repair.setCostMultiplier(multiplier);
 
-                event.setCurrentItem(GUIElements.shattermentRepairCostMultiplierItem(multiplier, Math.min((int) (multiplier * 10), 64)));
+                event.setCurrentItem(GUIComponent.shattermentRepairCostMultiplierItem(multiplier, Math.min((int) (multiplier * 10), 64)));
             }),
-            GUIElements.border(16),
-            GUIElements.border(17)
+            GUIComponent.border(16),
+            GUIComponent.border(17)
     );
     private final Inventory inventory;
 

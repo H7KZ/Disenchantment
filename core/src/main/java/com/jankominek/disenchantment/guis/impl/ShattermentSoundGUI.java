@@ -1,9 +1,9 @@
 package com.jankominek.disenchantment.guis.impl;
 
 import com.jankominek.disenchantment.config.Config;
+import com.jankominek.disenchantment.guis.GUIComponent;
 import com.jankominek.disenchantment.guis.GUIItem;
 import com.jankominek.disenchantment.guis.InventoryBuilder;
-import com.jankominek.disenchantment.guis.components.GUIElements;
 import com.jankominek.disenchantment.utils.PrecisionUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.bukkit.Bukkit;
@@ -15,24 +15,24 @@ public class ShattermentSoundGUI implements InventoryHolder {
     private final Integer size = 27;
     private final String title = "Shatterment | Sound";
     private final GUIItem[] items = ArrayUtils.addAll(
-            GUIElements.border9x3(new Integer[]{0}),
-            new GUIItem(0, GUIElements.backItem(), event -> {
+            GUIComponent.border9x3(new Integer[]{0}),
+            new GUIItem(0, GUIComponent.backItem(), event -> {
                 event.setCancelled(true);
                 event.getWhoClicked().openInventory(new NavigationGUI().getInventory());
             }),
-            GUIElements.border(10),
-            new GUIItem(11, Config.Shatterment.Anvil.Sound.isEnabled() ? GUIElements.enabledShattermentAnvilSoundItem() : GUIElements.disabledShattermentAnvilSoundItem(), event -> {
+            GUIComponent.border(10),
+            new GUIItem(11, Config.Shatterment.Anvil.Sound.isEnabled() ? GUIComponent.enabledShattermentAnvilSoundItem() : GUIComponent.disabledShattermentAnvilSoundItem(), event -> {
                 event.setCancelled(true);
 
                 boolean anvilSoundEnabled = !Config.Shatterment.Anvil.Sound.isEnabled();
 
                 Config.Shatterment.Anvil.Sound.setEnabled(anvilSoundEnabled);
 
-                event.setCurrentItem(anvilSoundEnabled ? GUIElements.enabledShattermentAnvilSoundItem() : GUIElements.disabledShattermentAnvilSoundItem());
+                event.setCurrentItem(anvilSoundEnabled ? GUIComponent.enabledShattermentAnvilSoundItem() : GUIComponent.disabledShattermentAnvilSoundItem());
             }),
-            GUIElements.border(12),
-            GUIElements.border(13),
-            new GUIItem(14, GUIElements.shattermentAnvilSoundVolumeItem(Config.Shatterment.Anvil.Sound.getVolume(), Math.min((int) (Config.Shatterment.Anvil.Sound.getVolume() * 10), 64)), event -> {
+            GUIComponent.border(12),
+            GUIComponent.border(13),
+            new GUIItem(14, GUIComponent.shattermentAnvilSoundVolumeItem(Config.Shatterment.Anvil.Sound.getVolume(), Math.min((int) (Config.Shatterment.Anvil.Sound.getVolume() * 10), 64)), event -> {
                 event.setCancelled(true);
 
                 double volume = Config.Shatterment.Anvil.Sound.getVolume();
@@ -50,9 +50,9 @@ public class ShattermentSoundGUI implements InventoryHolder {
 
                 Config.Shatterment.Anvil.Sound.setVolume(volume);
 
-                event.setCurrentItem(GUIElements.shattermentAnvilSoundVolumeItem(volume, Math.min((int) (volume * 10), 64)));
+                event.setCurrentItem(GUIComponent.shattermentAnvilSoundVolumeItem(volume, Math.min((int) (volume * 10), 64)));
             }),
-            new GUIItem(15, GUIElements.shattermentAnvilSoundPitchItem(Config.Shatterment.Anvil.Sound.getPitch(), Math.min((int) (Config.Shatterment.Anvil.Sound.getPitch() * 10), 64)), event -> {
+            new GUIItem(15, GUIComponent.shattermentAnvilSoundPitchItem(Config.Shatterment.Anvil.Sound.getPitch(), Math.min((int) (Config.Shatterment.Anvil.Sound.getPitch() * 10), 64)), event -> {
                 event.setCancelled(true);
 
                 double pitch = Config.Shatterment.Anvil.Sound.getPitch();
@@ -70,10 +70,10 @@ public class ShattermentSoundGUI implements InventoryHolder {
 
                 Config.Shatterment.Anvil.Sound.setPitch(pitch);
 
-                event.setCurrentItem(GUIElements.shattermentAnvilSoundPitchItem(pitch, Math.min((int) (pitch * 10), 64)));
+                event.setCurrentItem(GUIComponent.shattermentAnvilSoundPitchItem(pitch, Math.min((int) (pitch * 10), 64)));
             }),
-            GUIElements.border(16),
-            GUIElements.border(17)
+            GUIComponent.border(16),
+            GUIComponent.border(17)
     );
     private final Inventory inventory;
 

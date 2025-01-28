@@ -1,9 +1,9 @@
 package com.jankominek.disenchantment.guis.impl;
 
 import com.jankominek.disenchantment.config.Config;
+import com.jankominek.disenchantment.guis.GUIComponent;
 import com.jankominek.disenchantment.guis.GUIItem;
 import com.jankominek.disenchantment.guis.InventoryBuilder;
-import com.jankominek.disenchantment.guis.components.GUIElements;
 import org.apache.commons.lang3.ArrayUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -38,14 +38,14 @@ public class WorldsGUI implements InventoryHolder {
     private final Integer page;
     private final Inventory inventory;
     private GUIItem[] items = ArrayUtils.addAll(
-            GUIElements.border9x6(new Integer[]{0, 49}),
-            new GUIItem(0, GUIElements.backItem(), event -> {
+            GUIComponent.border9x6(new Integer[]{0, 49}),
+            new GUIItem(0, GUIComponent.backItem(), event -> {
                 event.setCancelled(true);
                 event.getWhoClicked().openInventory(new NavigationGUI().getInventory());
             }),
             new GUIItem(
                     49,
-                    GUIElements.infoItem(
+                    GUIComponent.infoItem(
                             ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + "Help",
                             new ArrayList<>(Arrays.asList(
                                     ChatColor.GRAY + "Click on a world to toggle it on/off",
@@ -55,7 +55,7 @@ public class WorldsGUI implements InventoryHolder {
                                     ChatColor.RED + "Disabled" + ChatColor.GRAY + " = Disabled in the world"
                             ))
                     ),
-                    GUIElements::cancelOnClick
+                    GUIComponent::cancelOnClick
             )
     );
 
@@ -77,14 +77,14 @@ public class WorldsGUI implements InventoryHolder {
 
             this.items = ArrayUtils.addAll(
                     this.items,
-                    new GUIItem(47, GUIElements.previousPageItem(), event -> {
+                    new GUIItem(47, GUIComponent.previousPageItem(), event -> {
                         event.setCancelled(true);
 
                         if (this.page == 0) return;
 
                         event.getWhoClicked().openInventory(new WorldsGUI(this.page - 1).getInventory());
                     }),
-                    new GUIItem(51, GUIElements.nextPageItem(), event -> {
+                    new GUIItem(51, GUIComponent.nextPageItem(), event -> {
                         event.setCancelled(true);
 
                         if (this.page == worlds.size() / 28) return;
@@ -119,7 +119,7 @@ public class WorldsGUI implements InventoryHolder {
 
             worldItems[i] = new GUIItem(
                     freeSlots[i],
-                    GUIElements.headWorldItem(
+                    GUIComponent.headWorldItem(
                             ChatColor.GRAY + "" + ChatColor.BOLD + world.getName(),
                             this.worldHeads.get(environment),
                             ChatColor.GRAY + "Disenchantment: " + (disenchantmentDisabled.get() ? ChatColor.RED + "Disabled" : ChatColor.GREEN + "Enabled"),
@@ -151,7 +151,7 @@ public class WorldsGUI implements InventoryHolder {
                                 return;
                         }
 
-                        event.setCurrentItem(GUIElements.headWorldItem(
+                        event.setCurrentItem(GUIComponent.headWorldItem(
                                 ChatColor.GRAY + "" + ChatColor.BOLD + world.getName(),
                                 this.worldHeads.get(environment),
                                 ChatColor.GRAY + "Disenchantment: " + (disenchantmentDisabled.get() ? ChatColor.RED + "Disabled" : ChatColor.GREEN + "Enabled"),

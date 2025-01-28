@@ -2,9 +2,9 @@ package com.jankominek.disenchantment.guis.impl;
 
 import com.jankominek.disenchantment.Disenchantment;
 import com.jankominek.disenchantment.config.Config;
+import com.jankominek.disenchantment.guis.GUIComponent;
 import com.jankominek.disenchantment.guis.GUIItem;
 import com.jankominek.disenchantment.guis.InventoryBuilder;
-import com.jankominek.disenchantment.guis.components.GUIElements;
 import com.jankominek.disenchantment.types.PermissionGroupType;
 import org.apache.commons.lang3.ArrayUtils;
 import org.bukkit.Bukkit;
@@ -14,8 +14,8 @@ import org.bukkit.inventory.InventoryHolder;
 
 public class NavigationGUI implements InventoryHolder {
     private final GUIItem[] items = ArrayUtils.addAll(
-            GUIElements.border9x3(),
-            new GUIItem(10, Config.isPluginEnabled() ? GUIElements.enabledPluginItem() : GUIElements.disabledPluginItem(), event -> {
+            GUIComponent.border9x3(),
+            new GUIItem(10, Config.isPluginEnabled() ? GUIComponent.enabledPluginItem() : GUIComponent.disabledPluginItem(), event -> {
                 event.setCancelled(true);
 
                 if (!PermissionGroupType.GUI_STATUS.hasPermission(event.getWhoClicked(), true)) return;
@@ -25,16 +25,16 @@ public class NavigationGUI implements InventoryHolder {
                 Disenchantment.onToggle(pluginEnabled);
                 Config.setPluginEnabled(pluginEnabled);
 
-                event.setCurrentItem(pluginEnabled ? GUIElements.enabledPluginItem() : GUIElements.disabledPluginItem());
+                event.setCurrentItem(pluginEnabled ? GUIComponent.enabledPluginItem() : GUIComponent.disabledPluginItem());
             }),
-            new GUIItem(11, GUIElements.worldsItem(), event -> {
+            new GUIItem(11, GUIComponent.worldsItem(), event -> {
                 event.setCancelled(true);
 
                 if (!PermissionGroupType.GUI_WORLDS.hasPermission(event.getWhoClicked(), true)) return;
 
                 event.getWhoClicked().openInventory(new WorldsGUI(0).getInventory());
             }),
-            new GUIItem(12, GUIElements.repairItem(), event -> {
+            new GUIItem(12, GUIComponent.repairItem(), event -> {
                 event.setCancelled(true);
 
                 switch (event.getClick()) {
@@ -52,14 +52,14 @@ public class NavigationGUI implements InventoryHolder {
                         break;
                 }
             }),
-            new GUIItem(13, GUIElements.enchantmentsItem(), event -> {
+            new GUIItem(13, GUIComponent.enchantmentsItem(), event -> {
                 event.setCancelled(true);
 
                 if (!PermissionGroupType.GUI_ENCHANTMENTS.hasPermission(event.getWhoClicked(), true)) return;
 
                 event.getWhoClicked().openInventory(new EnchantmentsGUI(0).getInventory());
             }),
-            new GUIItem(14, GUIElements.materialsItem(), event -> {
+            new GUIItem(14, GUIComponent.materialsItem(), event -> {
                 event.setCancelled(true);
 
                 if (!PermissionGroupType.GUI_MATERIALS.hasPermission(event.getWhoClicked(), true))
@@ -67,7 +67,7 @@ public class NavigationGUI implements InventoryHolder {
 
                 event.getWhoClicked().openInventory(new MaterialsGUI(0).getInventory());
             }),
-            new GUIItem(15, GUIElements.soundItem(), event -> {
+            new GUIItem(15, GUIComponent.soundItem(), event -> {
                 event.setCancelled(true);
 
                 switch (event.getClick()) {
@@ -85,7 +85,7 @@ public class NavigationGUI implements InventoryHolder {
                         break;
                 }
             }),
-            new GUIItem(16, GUIElements.spigotItem(), event -> {
+            new GUIItem(16, GUIComponent.spigotItem(), event -> {
                 event.setCancelled(true);
 
                 event.getWhoClicked().sendMessage("https://www.spigotmc.org/resources/110741/");

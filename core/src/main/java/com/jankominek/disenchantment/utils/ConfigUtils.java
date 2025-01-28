@@ -2,8 +2,10 @@ package com.jankominek.disenchantment.utils;
 
 import org.bukkit.configuration.file.FileConfiguration;
 
+import java.util.Set;
+
 public class ConfigUtils {
-    public static void copyKeys(String[] keys, FileConfiguration oldConfig, FileConfiguration configTemplate) {
+    public static void copyKeys(Set<String> keys, FileConfiguration oldConfig, FileConfiguration configTemplate) {
         for (String key : keys) {
             if (!oldConfig.contains(key)) continue;
 

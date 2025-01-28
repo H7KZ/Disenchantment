@@ -2,6 +2,7 @@ package com.jankominek.disenchantment.config.migration;
 
 import com.jankominek.disenchantment.config.migration.steps.Migration1;
 import com.jankominek.disenchantment.config.migration.steps.Migration2;
+import com.jankominek.disenchantment.config.migration.steps.Migration3;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.Plugin;
@@ -14,7 +15,8 @@ import java.util.Objects;
 public class ConfigMigrations {
     private static final Map<Integer, IConfigMigration> migrations = Map.of(
             1, new Migration1(),
-            2, new Migration2()
+            2, new Migration2(),
+            3, new Migration3()
     );
 
     public static FileConfiguration apply(Plugin plugin, FileConfiguration oldConfig, FileConfiguration newConfig) {

@@ -1,9 +1,9 @@
 package com.jankominek.disenchantment.guis.impl;
 
 import com.jankominek.disenchantment.config.Config;
+import com.jankominek.disenchantment.guis.GUIComponent;
 import com.jankominek.disenchantment.guis.GUIItem;
 import com.jankominek.disenchantment.guis.InventoryBuilder;
-import com.jankominek.disenchantment.guis.components.GUIElements;
 import com.jankominek.disenchantment.types.EnchantmentStateType;
 import com.jankominek.disenchantment.utils.EnchantmentUtils;
 import org.apache.commons.lang3.ArrayUtils;
@@ -29,14 +29,14 @@ public class EnchantmentsGUI implements InventoryHolder {
     private final Integer page;
     private final Inventory inventory;
     private GUIItem[] items = org.apache.commons.lang3.ArrayUtils.addAll(
-            GUIElements.border9x6(new Integer[]{0, 49}),
-            new GUIItem(0, GUIElements.backItem(), event -> {
+            GUIComponent.border9x6(new Integer[]{0, 49}),
+            new GUIItem(0, GUIComponent.backItem(), event -> {
                 event.setCancelled(true);
                 event.getWhoClicked().openInventory(new NavigationGUI().getInventory());
             }),
             new GUIItem(
                     49,
-                    GUIElements.infoItem(
+                    GUIComponent.infoItem(
                             ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + "Help",
                             new ArrayList<>(Arrays.asList(
                                     ChatColor.GRAY + "Click on an enchantment to change its behavior",
@@ -48,7 +48,7 @@ public class EnchantmentsGUI implements InventoryHolder {
                                     ChatColor.RED + "Cancel" + ChatColor.GRAY + " = Cancels the entire disenchantment process."
                             ))
                     ),
-                    GUIElements::cancelOnClick
+                    GUIComponent::cancelOnClick
             )
     );
 
@@ -71,14 +71,14 @@ public class EnchantmentsGUI implements InventoryHolder {
 
             this.items = ArrayUtils.addAll(
                     this.items,
-                    new GUIItem(47, GUIElements.previousPageItem(), event -> {
+                    new GUIItem(47, GUIComponent.previousPageItem(), event -> {
                         event.setCancelled(true);
 
                         if (this.page == 0) return;
 
                         event.getWhoClicked().openInventory(new EnchantmentsGUI(this.page - 1).getInventory());
                     }),
-                    new GUIItem(51, GUIElements.nextPageItem(), event -> {
+                    new GUIItem(51, GUIComponent.nextPageItem(), event -> {
                         event.setCancelled(true);
 
                         if (this.page == enchantments.size() / 28) return;
@@ -111,7 +111,7 @@ public class EnchantmentsGUI implements InventoryHolder {
 
             worldItems[i] = new GUIItem(
                     freeSlots[i],
-                    GUIElements.enchantmentItem(
+                    GUIComponent.enchantmentItem(
                             ChatColor.GRAY + "" + ChatColor.BOLD + enchantment.getKey().getKey(),
                             ChatColor.GRAY + "Disenchantment: " + disenchantmentState.get().getDisplayName(),
                             ChatColor.GRAY + "Shatterment: " + shattermentState.get().getDisplayName()
@@ -150,7 +150,7 @@ public class EnchantmentsGUI implements InventoryHolder {
                                 return;
                         }
 
-                        event.setCurrentItem(GUIElements.enchantmentItem(
+                        event.setCurrentItem(GUIComponent.enchantmentItem(
                                 ChatColor.GRAY + "" + ChatColor.BOLD + enchantment.getKey().getKey(),
                                 ChatColor.GRAY + "Disenchantment: " + disenchantmentState.get().getDisplayName(),
                                 ChatColor.GRAY + "Shatterment: " + shattermentState.get().getDisplayName()
