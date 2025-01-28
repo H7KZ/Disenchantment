@@ -14,7 +14,6 @@ public class Toggle {
     public static final CommandBuilder command = new CommandBuilder(
             "toggle",
             PermissionGroupType.COMMAND_TOGGLE,
-            "You don't have permission to use this command.",
             new String[]{},
             false,
             Toggle::execute,

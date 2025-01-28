@@ -25,7 +25,7 @@ public class AnvilCostUtils {
         nms.setAnvilRepairCost(anvilInventory, inventoryView, repairCost);
     }
 
-    public static Integer countAnvilCost(Map<Enchantment, Integer> enchantments, AnvilEventType anvilEventType) {
+    public static int countAnvilCost(Map<Enchantment, Integer> enchantments, AnvilEventType anvilEventType) {
         double enchantmentCost;
         double baseMultiplier;
 

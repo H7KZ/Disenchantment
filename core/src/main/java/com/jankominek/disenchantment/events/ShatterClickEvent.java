@@ -53,11 +53,7 @@ public class ShatterClickEvent implements Listener {
 
         if (enchantments.isEmpty()) return;
 
-        if (!PermissionGroupType.SHATTER_EVENT.hasPermission(p)) return;
-
         if (result.getType() != Material.ENCHANTED_BOOK) return;
-
-        EnchantmentStorageMeta resultItemMeta = (EnchantmentStorageMeta) result.getItemMeta();
 
         if (AnvilCostUtils.getRepairCost(anvilInventory, e.getView()) > p.getLevel() && p.getGameMode() != org.bukkit.GameMode.CREATIVE) {
             e.setCancelled(true);
@@ -69,6 +65,8 @@ public class ShatterClickEvent implements Listener {
             return;
         }
 
+        if (!PermissionGroupType.SHATTER_EVENT.hasPermission(p)) return;
+
         int exp = p.getLevel() - AnvilCostUtils.getRepairCost(anvilInventory, e.getView());
 
         // ----------------------------------------------------------------------------------------------------
@@ -79,6 +77,8 @@ public class ShatterClickEvent implements Listener {
         Map<Enchantment, Integer> enchantmentsToDelete = EventUtils.Shatterment.findEnchantmentsToDelete(enchantments);
 
         List<ISupportedPlugin> activatedPlugins = SupportedPluginManager.getAllActivatedPlugins();
+
+        EnchantmentStorageMeta resultItemMeta = (EnchantmentStorageMeta) result.getItemMeta();
 
         if (activatedPlugins.isEmpty()) {
             if (resultItemMeta == null) return;

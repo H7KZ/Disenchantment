@@ -1,6 +1,8 @@
 package com.jankominek.disenchantment.guis.impl;
 
 import com.jankominek.disenchantment.config.Config;
+import com.jankominek.disenchantment.config.I18n;
+import com.jankominek.disenchantment.guis.GUIBorderComponent;
 import com.jankominek.disenchantment.guis.GUIComponent;
 import com.jankominek.disenchantment.guis.GUIItem;
 import com.jankominek.disenchantment.guis.InventoryBuilder;
@@ -12,93 +14,74 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class WorldsGUI implements InventoryHolder {
-    private final Integer size = 54;
-    private final String title;
-    private final HashMap<World.Environment, String> worldHeads = new HashMap<>() {
-        {
-            put(World.Environment.NORMAL, "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNWVhYTlhYzE1NzU4ZDUxNzdhODk2NjA1OTg1ZTk4YmVhYzhmZWUwZTZiMmM2OGE4ZGMxZjNjOTFjMDc5ZmI4OSJ9fX0=");
-            put(World.Environment.NETHER, "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNzkzYmZjNDMxOTAwNzIzZjdmYTI4Nzg2NDk2MzgwMTdjZTYxNWQ4ZDhjYWI4ZDJmMDcwYTYxZWIxYWEwMGQwMiJ9fX0=");
-            put(World.Environment.THE_END, "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNGFlYTI3YWE5M2M5NDRjNDYzMDJiZjRlYTkyMjg4NWZlZWE3MDlmNDFjMWRmNzYxNjMzMmViMjQ2ZjkwZDM4ZSJ9fX0=");
-            put(World.Environment.CUSTOM, "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNDM4Y2YzZjhlNTRhZmMzYjNmOTFkMjBhNDlmMzI0ZGNhMTQ4NjAwN2ZlNTQ1Mzk5MDU1NTI0YzE3OTQxZjRkYyJ9fX0=");
-        }
-    };
-    private final Integer[] freeSlots = {
+    private final int[] freeSlots = {
             10, 11, 12, 13, 14, 15, 16,
             19, 20, 21, 22, 23, 24, 25,
             28, 29, 30, 31, 32, 33, 34,
             37, 38, 39, 40, 41, 42, 43
     };
-    private final Integer page;
     private final Inventory inventory;
+    private int page;
+    private List<World> worlds;
     private GUIItem[] items = ArrayUtils.addAll(
-            GUIComponent.border9x6(new Integer[]{0, 49}),
-            new GUIItem(0, GUIComponent.backItem(), event -> {
-                event.setCancelled(true);
-                event.getWhoClicked().openInventory(new NavigationGUI().getInventory());
-            }),
+            GUIBorderComponent.border9x6(new Integer[]{0, 47, 49, 51}),
             new GUIItem(
-                    49,
-                    GUIComponent.infoItem(
-                            ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + "Help",
-                            new ArrayList<>(Arrays.asList(
-                                    ChatColor.GRAY + "Click on a world to toggle it on/off",
-                                    ChatColor.GRAY + "Left click for " + ChatColor.GOLD + "Disenchantment",
-                                    ChatColor.GRAY + "Right click for " + ChatColor.AQUA + "Shatterment",
-                                    ChatColor.GREEN + "Enabled" + ChatColor.GRAY + " = Enabled in the world",
-                                    ChatColor.RED + "Disabled" + ChatColor.GRAY + " = Disabled in the world"
-                            ))
-                    ),
-                    GUIComponent::cancelOnClick
-            )
-    );
+                    0,
+                    GUIComponent.back(),
+                    event -> {
+                        event.setCancelled(true);
 
-    public WorldsGUI(int page) {
-        List<World> worlds = Bukkit.getWorlds();
-
-        this.page = page;
-        this.title = "Worlds " + (page + 1) + "/" + (worlds.size() / 28 + 1);
-
-        Inventory inv = Bukkit.createInventory(this, this.size, this.title);
-
-        this.inventory = InventoryBuilder.fillItems(inv, this.items);
-        this.items = ArrayUtils.addAll(this.items, this.getWorldsItems(worlds));
-
-        InventoryBuilder.fillItems(this.inventory, this.items);
-
-        if (worlds.size() > 28) {
-            this.items = Arrays.stream(this.items.clone()).filter(item -> item.getSlot() != 47 && item.getSlot() != 51).toArray(GUIItem[]::new);
-
-            this.items = ArrayUtils.addAll(
-                    this.items,
-                    new GUIItem(47, GUIComponent.previousPageItem(), event -> {
+                        event.getWhoClicked().openInventory(new NavigationGUI().getInventory());
+                    }
+            ),
+            new GUIItem(
+                    47,
+                    GUIComponent.previous(),
+                    event -> {
                         event.setCancelled(true);
 
                         if (this.page == 0) return;
 
                         event.getWhoClicked().openInventory(new WorldsGUI(this.page - 1).getInventory());
-                    }),
-                    new GUIItem(51, GUIComponent.nextPageItem(), event -> {
+                    }
+            ),
+            new GUIItem(
+                    49,
+                    GUIComponent.Worlds.help(),
+                    event -> event.setCancelled(true)
+            ),
+            new GUIItem(
+                    51,
+                    GUIComponent.next(),
+                    event -> {
                         event.setCancelled(true);
 
-                        if (this.page == worlds.size() / 28) return;
+                        if (this.page == this.worlds.size() / 28) return;
 
                         event.getWhoClicked().openInventory(new WorldsGUI(this.page + 1).getInventory());
-                    })
-            );
+                    }
+            )
+    );
 
-            InventoryBuilder.fillItems(this.inventory, this.items);
-        }
+    public WorldsGUI(int page) {
+        this.page = page;
+        this.worlds = Bukkit.getWorlds();
+
+        String title = I18n.GUI.Worlds.inventory() + " " + (page + 1) + "/" + (this.worlds.size() / 28 + 1);
+
+        Inventory inventory = Bukkit.createInventory(this, 54, title);
+
+        this.items = ArrayUtils.addAll(this.items, this.fillPageWithWorlds());
+
+        this.inventory = InventoryBuilder.fillItems(inventory, this.items);
     }
 
-    public final GUIItem[] getWorldsItems(List<World> worlds) {
-        int pageSize = Math.min(worlds.size() - (this.page * 28), 28);
+    public final GUIItem[] fillPageWithWorlds() {
+        int pageSize = Math.min(this.worlds.size() - (this.page * 28), 28);
 
         GUIItem[] worldItems = new GUIItem[pageSize];
 
@@ -108,7 +91,7 @@ public class WorldsGUI implements InventoryHolder {
         for (int i = 0; i < pageSize; i++) {
             int slot = i + this.page * 28;
 
-            World world = worlds.get(slot);
+            World world = this.worlds.get(slot);
 
             if (world == null) continue;
 
@@ -119,17 +102,17 @@ public class WorldsGUI implements InventoryHolder {
 
             worldItems[i] = new GUIItem(
                     freeSlots[i],
-                    GUIComponent.headWorldItem(
+                    GUIComponent.Worlds.worldByEnvironment(
+                            environment,
                             ChatColor.GRAY + "" + ChatColor.BOLD + world.getName(),
-                            this.worldHeads.get(environment),
-                            ChatColor.GRAY + "Disenchantment: " + (disenchantmentDisabled.get() ? ChatColor.RED + "Disabled" : ChatColor.GREEN + "Enabled"),
-                            ChatColor.GRAY + "Shatterment: " + (shattermentDisabled.get() ? ChatColor.RED + "Disabled" : ChatColor.GREEN + "Enabled")
+                            disenchantmentDisabled.get(),
+                            shattermentDisabled.get()
                     ),
                     event -> {
                         event.setCancelled(true);
 
                         switch (event.getClick()) {
-                            case LEFT:
+                            case LEFT: {
                                 disenchantmentDisabled.set(!disenchantmentDisabled.get());
 
                                 if (disenchantmentDisabled.get()) disenchantmentDisabledWorlds.add(world);
@@ -138,7 +121,8 @@ public class WorldsGUI implements InventoryHolder {
                                 Config.Disenchantment.setDisabledWorlds(disenchantmentDisabledWorlds);
 
                                 break;
-                            case RIGHT:
+                            }
+                            case RIGHT: {
                                 shattermentDisabled.set(!shattermentDisabled.get());
 
                                 if (shattermentDisabled.get()) shattermentDisabledWorlds.add(world);
@@ -147,16 +131,19 @@ public class WorldsGUI implements InventoryHolder {
                                 Config.Shatterment.setDisabledWorlds(shattermentDisabledWorlds);
 
                                 break;
+                            }
                             default:
                                 return;
                         }
 
-                        event.setCurrentItem(GUIComponent.headWorldItem(
-                                ChatColor.GRAY + "" + ChatColor.BOLD + world.getName(),
-                                this.worldHeads.get(environment),
-                                ChatColor.GRAY + "Disenchantment: " + (disenchantmentDisabled.get() ? ChatColor.RED + "Disabled" : ChatColor.GREEN + "Enabled"),
-                                ChatColor.GRAY + "Shatterment: " + (shattermentDisabled.get() ? ChatColor.RED + "Disabled" : ChatColor.GREEN + "Enabled")
-                        ));
+                        event.setCurrentItem(
+                                GUIComponent.Worlds.worldByEnvironment(
+                                        environment,
+                                        ChatColor.GRAY + "" + ChatColor.BOLD + world.getName(),
+                                        disenchantmentDisabled.get(),
+                                        shattermentDisabled.get()
+                                )
+                        );
                     }
             );
         }

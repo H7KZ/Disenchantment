@@ -31,7 +31,7 @@ public final class Disenchantment extends JavaPlugin {
     public static final String commandName = "disenchantment";
     public static final int spigotmcId = 110741;
     public static final int bstatsId = 19058;
-    public static Boolean enabled = true;
+    public static boolean enabled = true;
 
     // Globally known instances (Does not need to be used with class name)
     public static Disenchantment plugin;

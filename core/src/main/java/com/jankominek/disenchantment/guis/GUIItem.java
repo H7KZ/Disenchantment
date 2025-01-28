@@ -4,7 +4,7 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 
 public class GUIItem {
-    private final Integer slot;
+    private final int slot;
     private final ItemStack item;
     private final IOnClickEvent onClick;
 

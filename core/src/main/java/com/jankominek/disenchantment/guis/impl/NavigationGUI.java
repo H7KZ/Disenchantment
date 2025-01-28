@@ -2,6 +2,8 @@ package com.jankominek.disenchantment.guis.impl;
 
 import com.jankominek.disenchantment.Disenchantment;
 import com.jankominek.disenchantment.config.Config;
+import com.jankominek.disenchantment.config.I18n;
+import com.jankominek.disenchantment.guis.GUIBorderComponent;
 import com.jankominek.disenchantment.guis.GUIComponent;
 import com.jankominek.disenchantment.guis.GUIItem;
 import com.jankominek.disenchantment.guis.InventoryBuilder;
@@ -14,92 +16,119 @@ import org.bukkit.inventory.InventoryHolder;
 
 public class NavigationGUI implements InventoryHolder {
     private final GUIItem[] items = ArrayUtils.addAll(
-            GUIComponent.border9x3(),
-            new GUIItem(10, Config.isPluginEnabled() ? GUIComponent.enabledPluginItem() : GUIComponent.disabledPluginItem(), event -> {
-                event.setCancelled(true);
+            GUIBorderComponent.border9x3(),
+            new GUIItem(
+                    10,
+                    Config.isPluginEnabled() ? GUIComponent.Navigation.Plugin.enabled() : GUIComponent.Navigation.Plugin.disabled(),
+                    event -> {
+                        event.setCancelled(true);
 
-                if (!PermissionGroupType.GUI_STATUS.hasPermission(event.getWhoClicked(), true)) return;
+                        if (!PermissionGroupType.GUI_STATUS.hasPermission(event.getWhoClicked(), true)) return;
 
-                boolean pluginEnabled = !Config.isPluginEnabled();
+                        boolean pluginEnabled = !Config.isPluginEnabled();
 
-                Disenchantment.onToggle(pluginEnabled);
-                Config.setPluginEnabled(pluginEnabled);
+                        Disenchantment.onToggle(pluginEnabled);
 
-                event.setCurrentItem(pluginEnabled ? GUIComponent.enabledPluginItem() : GUIComponent.disabledPluginItem());
-            }),
-            new GUIItem(11, GUIComponent.worldsItem(), event -> {
-                event.setCancelled(true);
+                        Config.setPluginEnabled(pluginEnabled);
 
-                if (!PermissionGroupType.GUI_WORLDS.hasPermission(event.getWhoClicked(), true)) return;
+                        event.setCurrentItem(pluginEnabled ? GUIComponent.Navigation.Plugin.enabled() : GUIComponent.Navigation.Plugin.disabled());
+                    }
+            ),
+            new GUIItem(
+                    11,
+                    GUIComponent.Navigation.worlds(),
+                    event -> {
+                        event.setCancelled(true);
 
-                event.getWhoClicked().openInventory(new WorldsGUI(0).getInventory());
-            }),
-            new GUIItem(12, GUIComponent.repairItem(), event -> {
-                event.setCancelled(true);
+                        if (!PermissionGroupType.GUI_WORLDS.hasPermission(event.getWhoClicked(), true)) return;
 
-                switch (event.getClick()) {
-                    case LEFT:
-                        if (!PermissionGroupType.GUI_DISENCHANT_REPAIR.hasPermission(event.getWhoClicked(), true))
-                            return;
+                        event.getWhoClicked().openInventory(new WorldsGUI(0).getInventory());
+                    }
+            ),
+            new GUIItem(
+                    12,
+                    GUIComponent.Navigation.repair(),
+                    event -> {
+                        event.setCancelled(true);
 
-                        event.getWhoClicked().openInventory(new DisenchantmentRepairGUI().getInventory());
-                        break;
-                    case RIGHT:
-                        if (!PermissionGroupType.GUI_SHATTER_REPAIR.hasPermission(event.getWhoClicked(), true))
-                            return;
+                        switch (event.getClick()) {
+                            case LEFT: {
+                                if (!PermissionGroupType.GUI_DISENCHANT_REPAIR.hasPermission(event.getWhoClicked(), true))
+                                    return;
 
-                        event.getWhoClicked().openInventory(new ShattermentRepairGUI().getInventory());
-                        break;
-                }
-            }),
-            new GUIItem(13, GUIComponent.enchantmentsItem(), event -> {
-                event.setCancelled(true);
+                                event.getWhoClicked().openInventory(new DisenchantmentRepairGUI().getInventory());
+                            }
+                            case RIGHT: {
+                                if (!PermissionGroupType.GUI_SHATTER_REPAIR.hasPermission(event.getWhoClicked(), true))
+                                    return;
 
-                if (!PermissionGroupType.GUI_ENCHANTMENTS.hasPermission(event.getWhoClicked(), true)) return;
+                                event.getWhoClicked().openInventory(new ShattermentRepairGUI().getInventory());
+                            }
+                        }
+                    }
+            ),
+            new GUIItem(
+                    13,
+                    GUIComponent.Navigation.enchantments(),
+                    event -> {
+                        event.setCancelled(true);
 
-                event.getWhoClicked().openInventory(new EnchantmentsGUI(0).getInventory());
-            }),
-            new GUIItem(14, GUIComponent.materialsItem(), event -> {
-                event.setCancelled(true);
+                        if (!PermissionGroupType.GUI_ENCHANTMENTS.hasPermission(event.getWhoClicked(), true)) return;
 
-                if (!PermissionGroupType.GUI_MATERIALS.hasPermission(event.getWhoClicked(), true))
-                    return;
+                        event.getWhoClicked().openInventory(new EnchantmentsGUI(0).getInventory());
+                    }
+            ),
+            new GUIItem(
+                    14,
+                    GUIComponent.Navigation.materials(),
+                    event -> {
+                        event.setCancelled(true);
 
-                event.getWhoClicked().openInventory(new MaterialsGUI(0).getInventory());
-            }),
-            new GUIItem(15, GUIComponent.soundItem(), event -> {
-                event.setCancelled(true);
+                        if (!PermissionGroupType.GUI_MATERIALS.hasPermission(event.getWhoClicked(), true)) return;
 
-                switch (event.getClick()) {
-                    case LEFT:
-                        if (!PermissionGroupType.GUI_DISENCHANT_SOUND.hasPermission(event.getWhoClicked(), true))
-                            return;
+                        event.getWhoClicked().openInventory(new MaterialsGUI(0).getInventory());
+                    }
+            ),
+            new GUIItem(
+                    15,
+                    GUIComponent.Navigation.sound(),
+                    event -> {
+                        event.setCancelled(true);
 
-                        event.getWhoClicked().openInventory(new DisenchantmentSoundGUI().getInventory());
-                        break;
-                    case RIGHT:
-                        if (!PermissionGroupType.GUI_SHATTER_SOUND.hasPermission(event.getWhoClicked(), true))
-                            return;
+                        switch (event.getClick()) {
+                            case LEFT: {
+                                if (!PermissionGroupType.GUI_DISENCHANT_SOUND.hasPermission(event.getWhoClicked(), true))
+                                    return;
 
-                        event.getWhoClicked().openInventory(new ShattermentSoundGUI().getInventory());
-                        break;
-                }
-            }),
-            new GUIItem(16, GUIComponent.spigotItem(), event -> {
-                event.setCancelled(true);
+                                event.getWhoClicked().openInventory(new DisenchantmentSoundGUI().getInventory());
+                            }
+                            case RIGHT: {
+                                if (!PermissionGroupType.GUI_SHATTER_SOUND.hasPermission(event.getWhoClicked(), true))
+                                    return;
 
-                event.getWhoClicked().sendMessage("https://www.spigotmc.org/resources/110741/");
-                event.getWhoClicked().closeInventory();
-            })
+                                event.getWhoClicked().openInventory(new ShattermentSoundGUI().getInventory());
+                            }
+                        }
+                    }
+            ),
+            new GUIItem(
+                    16,
+                    GUIComponent.Navigation.spigot(),
+                    event -> {
+                        event.setCancelled(true);
+
+                        event.getWhoClicked().sendMessage("https://www.spigotmc.org/resources/110741");
+                        event.getWhoClicked().closeInventory();
+                    }
+            )
     );
-    private final Integer size = 27;
-    private final String title = "Navigation";
+
     private final Inventory inventory;
 
     public NavigationGUI() {
-        Inventory inv = Bukkit.createInventory(this, this.size, this.title);
+        Inventory inventory = Bukkit.createInventory(this, 27, I18n.GUI.Navigation.inventory());
 
-        this.inventory = InventoryBuilder.fillItems(inv, this.items);
+        this.inventory = InventoryBuilder.fillItems(inventory, this.items);
     }
 
     public void onInventoryClick(InventoryClickEvent event) {

@@ -142,43 +142,61 @@ public class GUIComponent {
 
     public static class Repair {
         public static class Disenchantment {
-            public static class Cost {
-                public static ItemStack disabled() {
-                    return new ItemBuilder(Material.RED_TERRACOTTA)
-                            .setDisplayName(I18n.GUI.Repair.Disenchantment.title())
-                            .setLore(I18n.GUI.Repair.Disenchantment.Lore.disabled())
-                            .addAllFlags()
-                            .build();
-                }
+            public static ItemStack base(int cost, int amount) {
+                return new ItemBuilder(Material.EXPERIENCE_BOTTLE)
+                        .setAmount(amount)
+                        .setDisplayName(I18n.GUI.Repair.Disenchantment.Base.title())
+                        .setLore(
+                                I18n.GUI.Repair.Disenchantment.Base.lore()
+                                        .stream().map(s -> s.replace("{cost}", String.valueOf(cost))).toList()
+                        )
+                        .addAllFlags()
+                        .build();
+            }
 
+            public static ItemStack multiplier(double cost, int amount) {
+                return new ItemBuilder(Material.DRAGON_BREATH)
+                        .setAmount(amount)
+                        .setDisplayName(I18n.GUI.Repair.Disenchantment.Multiplier.title())
+                        .setLore(
+                                I18n.GUI.Repair.Disenchantment.Multiplier.lore()
+                                        .stream().map(s -> s.replace("{multiplier}", String.valueOf(cost))).toList()
+                        )
+                        .addAllFlags()
+                        .build();
+            }
+
+            public static class Cost {
                 public static ItemStack enabled() {
                     return new ItemBuilder(Material.LIME_TERRACOTTA)
-                            .setDisplayName(I18n.GUI.Repair.Disenchantment.title())
-                            .setLore(I18n.GUI.Repair.Disenchantment.Lore.enabled())
+                            .setDisplayName(I18n.GUI.Repair.Disenchantment.Cost.title())
+                            .setLore(I18n.GUI.Repair.Disenchantment.Cost.Lore.enabled())
                             .addAllFlags()
                             .build();
                 }
 
-                public static ItemStack base(int cost, int amount) {
-                    return new ItemBuilder(Material.EXPERIENCE_BOTTLE)
-                            .setAmount(amount)
-                            .setDisplayName(I18n.GUI.Repair.Disenchantment.Base.title())
-                            .setLore(
-                                    I18n.GUI.Repair.Disenchantment.Base.lore()
-                                            .stream().map(s -> s.replace("{cost}", String.valueOf(cost))).toList()
-                            )
+                public static ItemStack disabled() {
+                    return new ItemBuilder(Material.RED_TERRACOTTA)
+                            .setDisplayName(I18n.GUI.Repair.Disenchantment.Cost.title())
+                            .setLore(I18n.GUI.Repair.Disenchantment.Cost.Lore.disabled())
+                            .addAllFlags()
+                            .build();
+                }
+            }
+
+            public static class Reset {
+                public static ItemStack enabled() {
+                    return new ItemBuilder(Material.LIME_TERRACOTTA)
+                            .setDisplayName(I18n.GUI.Repair.Disenchantment.Reset.title())
+                            .setLore(I18n.GUI.Repair.Disenchantment.Reset.Lore.enabled())
                             .addAllFlags()
                             .build();
                 }
 
-                public static ItemStack multiplier(double cost, int amount) {
-                    return new ItemBuilder(Material.DRAGON_BREATH)
-                            .setAmount(amount)
-                            .setDisplayName(I18n.GUI.Repair.Disenchantment.Multiplier.title())
-                            .setLore(
-                                    I18n.GUI.Repair.Disenchantment.Multiplier.lore()
-                                            .stream().map(s -> s.replace("{multiplier}", String.valueOf(cost))).toList()
-                            )
+                public static ItemStack disabled() {
+                    return new ItemBuilder(Material.RED_TERRACOTTA)
+                            .setDisplayName(I18n.GUI.Repair.Disenchantment.Reset.title())
+                            .setLore(I18n.GUI.Repair.Disenchantment.Reset.Lore.disabled())
                             .addAllFlags()
                             .build();
                 }
@@ -186,43 +204,61 @@ public class GUIComponent {
         }
 
         public static class Shatterment {
-            public static class Cost {
-                public static ItemStack disabled() {
-                    return new ItemBuilder(Material.RED_TERRACOTTA)
-                            .setDisplayName(I18n.GUI.Repair.Shatterment.title())
-                            .setLore(I18n.GUI.Repair.Shatterment.Lore.disabled())
-                            .addAllFlags()
-                            .build();
-                }
+            public static ItemStack base(int cost, int amount) {
+                return new ItemBuilder(Material.EXPERIENCE_BOTTLE)
+                        .setAmount(amount)
+                        .setDisplayName(I18n.GUI.Repair.Shatterment.Base.title())
+                        .setLore(
+                                I18n.GUI.Repair.Shatterment.Base.lore()
+                                        .stream().map(s -> s.replace("{cost}", String.valueOf(cost))).toList()
+                        )
+                        .addAllFlags()
+                        .build();
+            }
 
+            public static ItemStack multiplier(double cost, int amount) {
+                return new ItemBuilder(Material.DRAGON_BREATH)
+                        .setAmount(amount)
+                        .setDisplayName(I18n.GUI.Repair.Shatterment.Multiplier.title())
+                        .setLore(
+                                I18n.GUI.Repair.Shatterment.Multiplier.lore()
+                                        .stream().map(s -> s.replace("{multiplier}", String.valueOf(cost))).toList()
+                        )
+                        .addAllFlags()
+                        .build();
+            }
+
+            public static class Cost {
                 public static ItemStack enabled() {
                     return new ItemBuilder(Material.LIME_TERRACOTTA)
-                            .setDisplayName(I18n.GUI.Repair.Shatterment.title())
-                            .setLore(I18n.GUI.Repair.Shatterment.Lore.enabled())
+                            .setDisplayName(I18n.GUI.Repair.Shatterment.Cost.title())
+                            .setLore(I18n.GUI.Repair.Shatterment.Cost.Lore.enabled())
                             .addAllFlags()
                             .build();
                 }
 
-                public static ItemStack base(int cost, int amount) {
-                    return new ItemBuilder(Material.EXPERIENCE_BOTTLE)
-                            .setAmount(amount)
-                            .setDisplayName(I18n.GUI.Repair.Shatterment.Base.title())
-                            .setLore(
-                                    I18n.GUI.Repair.Shatterment.Base.lore()
-                                            .stream().map(s -> s.replace("{cost}", String.valueOf(cost))).toList()
-                            )
+                public static ItemStack disabled() {
+                    return new ItemBuilder(Material.RED_TERRACOTTA)
+                            .setDisplayName(I18n.GUI.Repair.Shatterment.Cost.title())
+                            .setLore(I18n.GUI.Repair.Shatterment.Cost.Lore.disabled())
+                            .addAllFlags()
+                            .build();
+                }
+            }
+
+            public static class Reset {
+                public static ItemStack enabled() {
+                    return new ItemBuilder(Material.LIME_TERRACOTTA)
+                            .setDisplayName(I18n.GUI.Repair.Shatterment.Reset.title())
+                            .setLore(I18n.GUI.Repair.Shatterment.Reset.Lore.enabled())
                             .addAllFlags()
                             .build();
                 }
 
-                public static ItemStack multiplier(double cost, int amount) {
-                    return new ItemBuilder(Material.DRAGON_BREATH)
-                            .setAmount(amount)
-                            .setDisplayName(I18n.GUI.Repair.Shatterment.Multiplier.title())
-                            .setLore(
-                                    I18n.GUI.Repair.Shatterment.Multiplier.lore()
-                                            .stream().map(s -> s.replace("{multiplier}", String.valueOf(cost))).toList()
-                            )
+                public static ItemStack disabled() {
+                    return new ItemBuilder(Material.RED_TERRACOTTA)
+                            .setDisplayName(I18n.GUI.Repair.Shatterment.Reset.title())
+                            .setLore(I18n.GUI.Repair.Shatterment.Reset.Lore.disabled())
                             .addAllFlags()
                             .build();
                 }
@@ -254,14 +290,11 @@ public class GUIComponent {
     }
 
     public static class Materials {
-        public static ItemStack material(Material material, boolean disenchantment, boolean shatterment) {
+        public static ItemStack material(Material material, boolean disenchantment) {
             List<String> lore = new ArrayList<>();
 
-            if (disenchantment) lore.add(I18n.GUI.Materials.Lore.Disenchantment.enabled());
-            else lore.add(I18n.GUI.Materials.Lore.Disenchantment.disabled());
-
-            if (shatterment) lore.add(I18n.GUI.Materials.Lore.Shatterment.enabled());
-            else lore.add(I18n.GUI.Materials.Lore.Shatterment.disabled());
+            if (disenchantment) lore.add(I18n.GUI.Materials.Lore.enabled());
+            else lore.add(I18n.GUI.Materials.Lore.disabled());
 
             return new ItemBuilder(material)
                     .setDisplayName(ChatColor.GRAY + material.getKey().getKey())

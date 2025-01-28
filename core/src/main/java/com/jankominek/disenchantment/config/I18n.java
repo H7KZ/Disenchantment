@@ -20,6 +20,10 @@ public class I18n {
         public static String requiresPermission() {
             return I18n.translateColors(config.getString(ConfigKeys.I18N_MESSAGES_REQUIRES_PERMISSION.getKey()));
         }
+
+        public static String invalidArgument() {
+            return I18n.translateColors(config.getString(ConfigKeys.I18N_MESSAGES_INVALID_ARGUMENT.getKey()));
+        }
     }
 
     public static class States {
@@ -188,19 +192,39 @@ public class I18n {
                     return I18n.translateColors(config.getString(ConfigKeys.I18N_GUI_REPAIR_DISENCHANTMENT_INVENTORY.getKey()));
                 }
 
-                public static String title() {
-                    return I18n.translateColors(config.getString(ConfigKeys.I18N_GUI_REPAIR_DISENCHANTMENT_TITLE.getKey()));
-                }
-
-                public static class Lore {
-                    public static List<String> enabled() {
-                        return config.getStringList(ConfigKeys.I18N_GUI_REPAIR_DISENCHANTMENT_LORE_ENABLED.getKey())
-                                .stream().map(I18n::translateColors).toList();
+                public static class Cost {
+                    public static String title() {
+                        return I18n.translateColors(config.getString(ConfigKeys.I18N_GUI_REPAIR_DISENCHANTMENT_COST_LORE_TITLE.getKey()));
                     }
 
-                    public static List<String> disabled() {
-                        return config.getStringList(ConfigKeys.I18N_GUI_REPAIR_DISENCHANTMENT_LORE_DISABLED.getKey())
-                                .stream().map(I18n::translateColors).toList();
+                    public static class Lore {
+                        public static List<String> enabled() {
+                            return config.getStringList(ConfigKeys.I18N_GUI_REPAIR_DISENCHANTMENT_COST_LORE_ENABLED.getKey())
+                                    .stream().map(I18n::translateColors).toList();
+                        }
+
+                        public static List<String> disabled() {
+                            return config.getStringList(ConfigKeys.I18N_GUI_REPAIR_DISENCHANTMENT_COST_LORE_DISABLED.getKey())
+                                    .stream().map(I18n::translateColors).toList();
+                        }
+                    }
+                }
+
+                public static class Reset {
+                    public static String title() {
+                        return I18n.translateColors(config.getString(ConfigKeys.I18N_GUI_REPAIR_DISENCHANTMENT_RESET_LORE_TITLE.getKey()));
+                    }
+
+                    public static class Lore {
+                        public static List<String> enabled() {
+                            return config.getStringList(ConfigKeys.I18N_GUI_REPAIR_DISENCHANTMENT_RESET_LORE_ENABLED.getKey())
+                                    .stream().map(I18n::translateColors).toList();
+                        }
+
+                        public static List<String> disabled() {
+                            return config.getStringList(ConfigKeys.I18N_GUI_REPAIR_DISENCHANTMENT_RESET_LORE_DISABLED.getKey())
+                                    .stream().map(I18n::translateColors).toList();
+                        }
                     }
                 }
 
@@ -232,19 +256,39 @@ public class I18n {
                     return I18n.translateColors(config.getString(ConfigKeys.I18N_GUI_REPAIR_SHATTERMENT_INVENTORY.getKey()));
                 }
 
-                public static String title() {
-                    return I18n.translateColors(config.getString(ConfigKeys.I18N_GUI_REPAIR_SHATTERMENT_TITLE.getKey()));
-                }
-
-                public static class Lore {
-                    public static List<String> enabled() {
-                        return config.getStringList(ConfigKeys.I18N_GUI_REPAIR_SHATTERMENT_LORE_ENABLED.getKey())
-                                .stream().map(I18n::translateColors).toList();
+                public static class Cost {
+                    public static String title() {
+                        return I18n.translateColors(config.getString(ConfigKeys.I18N_GUI_REPAIR_SHATTERMENT_COST_LORE_TITLE.getKey()));
                     }
 
-                    public static List<String> disabled() {
-                        return config.getStringList(ConfigKeys.I18N_GUI_REPAIR_SHATTERMENT_LORE_DISABLED.getKey())
-                                .stream().map(I18n::translateColors).toList();
+                    public static class Lore {
+                        public static List<String> enabled() {
+                            return config.getStringList(ConfigKeys.I18N_GUI_REPAIR_SHATTERMENT_COST_LORE_ENABLED.getKey())
+                                    .stream().map(I18n::translateColors).toList();
+                        }
+
+                        public static List<String> disabled() {
+                            return config.getStringList(ConfigKeys.I18N_GUI_REPAIR_SHATTERMENT_COST_LORE_DISABLED.getKey())
+                                    .stream().map(I18n::translateColors).toList();
+                        }
+                    }
+                }
+
+                public static class Reset {
+                    public static String title() {
+                        return I18n.translateColors(config.getString(ConfigKeys.I18N_GUI_REPAIR_SHATTERMENT_RESET_LORE_TITLE.getKey()));
+                    }
+
+                    public static class Lore {
+                        public static List<String> enabled() {
+                            return config.getStringList(ConfigKeys.I18N_GUI_REPAIR_SHATTERMENT_RESET_LORE_ENABLED.getKey())
+                                    .stream().map(I18n::translateColors).toList();
+                        }
+
+                        public static List<String> disabled() {
+                            return config.getStringList(ConfigKeys.I18N_GUI_REPAIR_SHATTERMENT_RESET_LORE_DISABLED.getKey())
+                                    .stream().map(I18n::translateColors).toList();
+                        }
                     }
                 }
 
@@ -305,24 +349,12 @@ public class I18n {
             }
 
             public static class Lore {
-                public static class Disenchantment {
-                    public static String enabled() {
-                        return I18n.translateColors(config.getString(ConfigKeys.I18N_GUI_MATERIALS_LORE_DISENCHANTMENT_ENABLED.getKey()));
-                    }
-
-                    public static String disabled() {
-                        return I18n.translateColors(config.getString(ConfigKeys.I18N_GUI_MATERIALS_LORE_DISENCHANTMENT_DISABLED.getKey()));
-                    }
+                public static String enabled() {
+                    return I18n.translateColors(config.getString(ConfigKeys.I18N_GUI_MATERIALS_LORE_ENABLED.getKey()));
                 }
 
-                public static class Shatterment {
-                    public static String enabled() {
-                        return I18n.translateColors(config.getString(ConfigKeys.I18N_GUI_MATERIALS_LORE_SHATTERMENT_ENABLED.getKey()));
-                    }
-
-                    public static String disabled() {
-                        return I18n.translateColors(config.getString(ConfigKeys.I18N_GUI_MATERIALS_LORE_SHATTERMENT_DISABLED.getKey()));
-                    }
+                public static String disabled() {
+                    return I18n.translateColors(config.getString(ConfigKeys.I18N_GUI_MATERIALS_LORE_DISABLED.getKey()));
                 }
             }
 

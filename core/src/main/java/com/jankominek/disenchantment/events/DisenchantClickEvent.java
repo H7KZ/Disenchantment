@@ -55,10 +55,6 @@ public class DisenchantClickEvent implements Listener {
 
         if (enchantments.isEmpty()) return;
 
-        if (!PermissionGroupType.DISENCHANT_EVENT.hasPermission(p)) return;
-
-        EnchantmentStorageMeta resultItemMeta = (EnchantmentStorageMeta) result.getItemMeta();
-
         if (AnvilCostUtils.getRepairCost(anvilInventory, e.getView()) > p.getLevel() && p.getGameMode() != org.bukkit.GameMode.CREATIVE) {
             e.setCancelled(true);
             return;
@@ -68,6 +64,8 @@ public class DisenchantClickEvent implements Listener {
             e.setCancelled(true);
             return;
         }
+
+        if (!PermissionGroupType.DISENCHANT_EVENT.hasPermission(p)) return;
 
         int exp = p.getLevel() - AnvilCostUtils.getRepairCost(anvilInventory, e.getView());
 
@@ -79,6 +77,8 @@ public class DisenchantClickEvent implements Listener {
         Map<Enchantment, Integer> enchantmentsToDelete = EventUtils.Disenchantment.findEnchantmentsToDelete(enchantments);
 
         List<ISupportedPlugin> activatedPlugins = SupportedPluginManager.getAllActivatedPlugins();
+
+        EnchantmentStorageMeta resultItemMeta = (EnchantmentStorageMeta) result.getItemMeta();
 
         if (activatedPlugins.isEmpty()) {
             if (resultItemMeta == null) return;
