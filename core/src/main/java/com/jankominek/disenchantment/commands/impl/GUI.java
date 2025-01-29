@@ -13,7 +13,6 @@ public class GUI {
     public static final CommandBuilder command = new CommandBuilder(
             "gui",
             PermissionGroupType.COMMAND_GUI,
-            "You don't have permission to use this command.",
             new String[]{},
             false,
             GUI::execute,

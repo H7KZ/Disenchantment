@@ -61,7 +61,7 @@ public class EventUtils {
             Map<Enchantment, EnchantmentStateType> states = Config.Disenchantment.getEnchantmentStates();
 
             for (Enchantment enchantment : enchantments.keySet()) {
-                if (states.getOrDefault(enchantment, EnchantmentStateType.ENABLED) == EnchantmentStateType.DISABLED)
+                if (states.getOrDefault(enchantment, EnchantmentStateType.ENABLED) == EnchantmentStateType.DISABLE)
                     return true;
             }
 
@@ -123,7 +123,7 @@ public class EventUtils {
             Map<Enchantment, EnchantmentStateType> states = Config.Shatterment.getEnchantmentStates();
 
             for (Enchantment enchantment : enchantments.keySet()) {
-                if (states.getOrDefault(enchantment, EnchantmentStateType.ENABLED) == EnchantmentStateType.DISABLED)
+                if (states.getOrDefault(enchantment, EnchantmentStateType.ENABLED) == EnchantmentStateType.DISABLE)
                     return true;
             }
 

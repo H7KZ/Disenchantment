@@ -49,14 +49,31 @@ i18n:
   messages:
     requires-permission: "&cYou do not have permission to use this feature/command.&r"
     invalid-argument: "&cInvalid argument!&r"
+    unknown-enchantment: "&cUnknown enchantment!&r"
+    specify-enchantment-state: "&cPlease specify an enchantment state!&r"
+    enchantment-is-enabled: "&a{enchantment} &7is enabled!&r"
+    enchantment-is-kept: "&b{enchantment} &7is kept!&r"
+    enchantment-is-deleted: "&e{enchantment} &7is deleted!&r"
+    enchantment-is-disabled: "&e{enchantment} &7is disabled!&r"
+    material-is-enabled: "&a{material} &7is enabled!&r"
+    material-is-disabled: "&c{material} &7is disabled!&r"
+    specify-repair-value: "&cPlease specify a repair value!&r"
+    specify-valid-integer: "&cPlease specify a valid whole number!&r"
+    specify-valid-double: "&cPlease specify a valid decimal number!&r"
+    repair-cost-is-enabled: "&aRepair cost is enabled!&r"
+    repair-cost-is-disabled: "&cRepair cost is disabled!&r"
+    repair-cost-reset-is-enabled: "&aRepair cost reset is enabled!&r"
+    repair-cost-reset-is-disabled: "&cRepair cost reset is disabled!&r"
+    repair-base-cost-is-set: "&7Base cost is set to &f{cost}&7!&r"
+    repair-multiplier-is-set: "&7Multiplier is set to &f{multiply}&7!&r"
   states:
     enabled: "&aEnabled&r"
     keep: "&bKeep&r"
     delete: "&eDelete&r"
-    disabled: "&cDisabled&r"
+    disable: "&cDisable&r"
   commands:
     help:
-      title: "&7&lDisenchantment help page&r"
+      title: "&7&lDisenchantment help page"
       pages:
         1:
           - "&f[ /disenchantment, /disenchant ]"
@@ -65,7 +82,7 @@ i18n:
           - "&8/disenchant gui &7- Opens a GUI to edit plugin's settings"
         2:
           - "&8/disenchant status &7- Displays the plugin's status"
-          - "&8/disenchant toggle &7- Toggles the plugin on or off"
+          - "&8/disenchant toggle ['global', 'disenchantment', 'shatterment'] &7- Toggles the plugin on or off"
         3:
           - "&8/disenchant disenchant:enchantments &7- View list of enchantment states"
           - "&8/disenchant disenchant:enchantments [enchantment name] ['enable', 'keep', 'delete', 'cancel'] &7- Edit enchantment behavior"
@@ -108,6 +125,41 @@ i18n:
       states:
         enabled: "&aEnabled&r"
         disabled: "&cDisabled&r"
+    enchantments:
+      disenchantment:
+        title: "&7&lDisenchantment enchantment states&r"
+        empty: "&7No enchantments found!&r"
+        enchantment: "&7{enchantment}: {state}&r"
+      shatterment:
+        title: "&7&lShatterment enchantment states&r"
+        empty: "&7No enchantments found!&r"
+        enchantment: "&7{enchantment}: {state}&r"
+    materials:
+      disenchantment:
+        title: "&7&lDisenchantment materials&r"
+        empty: "&7No materials found!&r"
+        material: "&7{material}: {state}&r"
+        states:
+          disabled: "&cDisabled&r"
+    repair:
+      disenchantment:
+        title: "&7&lDisenchantment repair settings&r"
+        reset: "&7Cost reset: {state}&r"
+        cost: "&7Cost: {state}&r"
+        base: "&7Base cost: {cost}&r"
+        multiply: "&7Multiplier: {multiply}&r"
+        states:
+          enabled: "&aEnabled&r"
+          disabled: "&cDisabled&r"
+      shatterment:
+        title: "&7&lShatterment repair settings&r"
+        reset: "&7Cost reset: {state}&r"
+        cost: "&7Cost: {state}&r"
+        base: "&7Base cost: {cost}&r"
+        multiply: "&7Multiplier: {multiply}&r"
+        states:
+          enabled: "&aEnabled&r"
+          disabled: "&cDisabled&r"
   gui:
     back: "&8Back&r"
     previous: "&6Previous&r"

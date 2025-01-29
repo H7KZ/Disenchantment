@@ -146,10 +146,7 @@ public class GUIComponent {
                 return new ItemBuilder(Material.EXPERIENCE_BOTTLE)
                         .setAmount(amount)
                         .setDisplayName(I18n.GUI.Repair.Disenchantment.Base.title())
-                        .setLore(
-                                I18n.GUI.Repair.Disenchantment.Base.lore()
-                                        .stream().map(s -> s.replace("{cost}", String.valueOf(cost))).toList()
-                        )
+                        .setLore(I18n.GUI.Repair.Disenchantment.Base.lore(String.valueOf(cost)))
                         .addAllFlags()
                         .build();
             }
@@ -158,10 +155,7 @@ public class GUIComponent {
                 return new ItemBuilder(Material.DRAGON_BREATH)
                         .setAmount(amount)
                         .setDisplayName(I18n.GUI.Repair.Disenchantment.Multiplier.title())
-                        .setLore(
-                                I18n.GUI.Repair.Disenchantment.Multiplier.lore()
-                                        .stream().map(s -> s.replace("{multiplier}", String.valueOf(cost))).toList()
-                        )
+                        .setLore(I18n.GUI.Repair.Disenchantment.Multiplier.lore(String.valueOf(cost)))
                         .addAllFlags()
                         .build();
             }
@@ -208,10 +202,7 @@ public class GUIComponent {
                 return new ItemBuilder(Material.EXPERIENCE_BOTTLE)
                         .setAmount(amount)
                         .setDisplayName(I18n.GUI.Repair.Shatterment.Base.title())
-                        .setLore(
-                                I18n.GUI.Repair.Shatterment.Base.lore()
-                                        .stream().map(s -> s.replace("{cost}", String.valueOf(cost))).toList()
-                        )
+                        .setLore(I18n.GUI.Repair.Shatterment.Base.lore(String.valueOf(cost)))
                         .addAllFlags()
                         .build();
             }
@@ -220,10 +211,7 @@ public class GUIComponent {
                 return new ItemBuilder(Material.DRAGON_BREATH)
                         .setAmount(amount)
                         .setDisplayName(I18n.GUI.Repair.Shatterment.Multiplier.title())
-                        .setLore(
-                                I18n.GUI.Repair.Shatterment.Multiplier.lore()
-                                        .stream().map(s -> s.replace("{multiplier}", String.valueOf(cost))).toList()
-                        )
+                        .setLore(I18n.GUI.Repair.Shatterment.Multiplier.lore(String.valueOf(cost)))
                         .addAllFlags()
                         .build();
             }
@@ -270,8 +258,8 @@ public class GUIComponent {
         public static ItemStack enchantment(String name, EnchantmentStateType disenchantment, EnchantmentStateType shatterment) {
             List<String> lore = new ArrayList<>();
 
-            lore.add(I18n.GUI.Enchantments.Lore.disenchantment().replace("{state}", disenchantment.getDisplayName()));
-            lore.add(I18n.GUI.Enchantments.Lore.shatterment().replace("{state}", shatterment.getDisplayName()));
+            lore.add(I18n.GUI.Enchantments.Lore.disenchantment(disenchantment.getDisplayName()));
+            lore.add(I18n.GUI.Enchantments.Lore.shatterment(shatterment.getDisplayName()));
 
             return new ItemBuilder(Material.ENCHANTED_BOOK)
                     .setDisplayName(name)
@@ -334,10 +322,7 @@ public class GUIComponent {
                 return new ItemBuilder(Material.FIRE_CHARGE)
                         .setAmount(amount)
                         .setDisplayName(I18n.GUI.Sound.Disenchantment.Volume.title())
-                        .setLore(
-                                I18n.GUI.Sound.Disenchantment.Volume.lore()
-                                        .stream().map(s -> s.replace("{volume}", String.valueOf(volume))).toList()
-                        )
+                        .setLore(I18n.GUI.Sound.Disenchantment.Volume.lore(String.valueOf(volume)))
                         .addAllFlags()
                         .build();
             }
@@ -346,10 +331,7 @@ public class GUIComponent {
                 return new ItemBuilder(Material.SLIME_BALL)
                         .setAmount(amount)
                         .setDisplayName(I18n.GUI.Sound.Disenchantment.Pitch.title())
-                        .setLore(
-                                I18n.GUI.Sound.Disenchantment.Pitch.lore()
-                                        .stream().map(s -> s.replace("{pitch}", String.valueOf(pitch))).toList()
-                        )
+                        .setLore(I18n.GUI.Sound.Disenchantment.Pitch.lore(String.valueOf(pitch)))
                         .addAllFlags()
                         .build();
             }
@@ -376,10 +358,7 @@ public class GUIComponent {
                 return new ItemBuilder(Material.FIRE_CHARGE)
                         .setAmount(amount)
                         .setDisplayName(I18n.GUI.Sound.Shatterment.Volume.title())
-                        .setLore(
-                                I18n.GUI.Sound.Shatterment.Volume.lore()
-                                        .stream().map(s -> s.replace("{volume}", String.valueOf(volume))).toList()
-                        )
+                        .setLore(I18n.GUI.Sound.Shatterment.Volume.lore(String.valueOf(volume)))
                         .addAllFlags()
                         .build();
             }
@@ -388,10 +367,7 @@ public class GUIComponent {
                 return new ItemBuilder(Material.SLIME_BALL)
                         .setAmount(amount)
                         .setDisplayName(I18n.GUI.Sound.Shatterment.Pitch.title())
-                        .setLore(
-                                I18n.GUI.Sound.Shatterment.Pitch.lore()
-                                        .stream().map(s -> s.replace("{pitch}", String.valueOf(pitch))).toList()
-                        )
+                        .setLore(I18n.GUI.Sound.Shatterment.Pitch.lore(String.valueOf(pitch)))
                         .addAllFlags()
                         .build();
             }

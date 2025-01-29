@@ -12,14 +12,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.jankominek.disenchantment.Disenchantment.plugin;
-import static com.jankominek.disenchantment.utils.TextUtils.textWithPrefixError;
-import static com.jankominek.disenchantment.utils.TextUtils.textWithPrefixSuccess;
 
 public class DisenchantWorlds {
     public static final CommandBuilder command = new CommandBuilder(
             "disenchant:worlds",
             PermissionGroupType.COMMAND_DISENCHANT_WORLDS,
-            "You don't have permission to use this command.",
             new String[]{},
             false,
             DisenchantWorlds::execute,

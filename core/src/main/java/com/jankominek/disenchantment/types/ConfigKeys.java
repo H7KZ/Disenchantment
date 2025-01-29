@@ -37,11 +37,73 @@ public enum ConfigKeys {
 
     I18N_MESSAGES_REQUIRES_PERMISSION("i18n.messages.requires-permission"),
     I18N_MESSAGES_INVALID_ARGUMENT("i18n.messages.invalid-argument"),
+    I18N_MESSAGES_UNKNOWN_ENCHANTMENT("i18n.messages.unknown-enchantment"),
+    I18N_MESSAGES_SPECIFY_ENCHANTMENT_STATE("i18n.messages.specify-enchantment-state"),
+    I18N_MESSAGES_ENCHANTMENT_IS_ENABLED("i18n.messages.enchantment-is-enabled"),
+    I18N_MESSAGES_ENCHANTMENT_IS_KEPT("i18n.messages.enchantment-is-kept"),
+    I18N_MESSAGES_ENCHANTMENT_IS_DELETED("i18n.messages.enchantment-is-deleted"),
+    I18N_MESSAGES_ENCHANTMENT_IS_DISABLED("i18n.messages.enchantment-is-disabled"),
+    I18N_MESSAGES_MATERIAL_IS_ENABLED("i18n.messages.material-is-enabled"),
+    I18N_MESSAGES_MATERIAL_IS_DISABLED("i18n.messages.material-is-disabled"),
+    I18N_MESSAGES_SPECIFY_REPAIR_VALUE("i18n.messages.specify-repair-value"),
+    I18N_MESSAGES_SPECIFY_VALID_INTEGER("i18n.messages.specify-valid-integer"),
+    I18N_MESSAGES_SPECIFY_VALID_DOUBLE("i18n.messages.specify-valid-double"),
+    I18N_MESSAGES_REPAIR_COST_IS_ENABLED("i18n.messages.repair-cost-is-enabled"),
+    I18N_MESSAGES_REPAIR_COST_IS_DISABLED("i18n.messages.repair-cost-is-disabled"),
+    I18N_MESSAGES_REPAIR_COST_RESET_IS_ENABLED("i18n.messages.repair-cost-reset-is-enabled"),
+    I18N_MESSAGES_REPAIR_COST_RESET_IS_DISABLED("i18n.messages.repair-cost-reset-is-disabled"),
+    I18N_MESSAGES_REPAIR_BASE_COST_IS_SET("i18n.messages.repair-base-cost-is-set"),
+    I18N_MESSAGES_REPAIR_MULTIPLIER_IS_SET("i18n.messages.repair-multiplier-is-set"),
 
     I18N_STATES_ENABLED("i18n.states.enabled"),
     I18N_STATES_KEEP("i18n.states.keep"),
     I18N_STATES_DELETE("i18n.states.delete"),
-    I18N_STATES_DISABLED("i18n.states.disabled"),
+    I18N_STATES_DISABLE("i18n.states.disable"),
+
+    I18N_COMMANDS_HELP_TITLE("i18n.commands.help.title"),
+    I18N_COMMANDS_HELP_PAGES_1("i18n.commands.help.pages.1"),
+    I18N_COMMANDS_HELP_PAGES_2("i18n.commands.help.pages.2"),
+    I18N_COMMANDS_HELP_PAGES_3("i18n.commands.help.pages.3"),
+    I18N_COMMANDS_HELP_PAGES_4("i18n.commands.help.pages.4"),
+    I18N_COMMANDS_HELP_PAGES_5("i18n.commands.help.pages.5"),
+    I18N_COMMANDS_HELP_PAGES_6("i18n.commands.help.pages.6"),
+    I18N_COMMANDS_HELP_PAGES_7("i18n.commands.help.pages.7"),
+    I18N_COMMANDS_HELP_PAGES_8("i18n.commands.help.pages.8"),
+
+    I18N_COMMANDS_STATUS_TITLE("i18n.commands.status.title"),
+    I18N_COMMANDS_STATUS_GLOBAL("i18n.commands.status.global"),
+    I18N_COMMANDS_STATUS_DISENCHANTMENT("i18n.commands.status.disenchantment"),
+    I18N_COMMANDS_STATUS_SHATTERMENT("i18n.commands.status.shatterment"),
+    I18N_COMMANDS_STATUS_STATES_ENABLED("i18n.commands.status.states.enabled"),
+    I18N_COMMANDS_STATUS_STATES_DISABLED("i18n.commands.status.states.disabled"),
+
+    I18N_COMMANDS_ENCHANTMENTS_DISENCHANTMENT_TITLE("i18n.commands.enchantments.disenchantment.title"),
+    I18N_COMMANDS_ENCHANTMENTS_DISENCHANTMENT_EMPTY("i18n.commands.enchantments.disenchantment.empty"),
+    I18N_COMMANDS_ENCHANTMENTS_DISENCHANTMENT_ENCHANTMENT("i18n.commands.enchantments.disenchantment.enchantment"),
+    I18N_COMMANDS_ENCHANTMENTS_SHATTERMENT_TITLE("i18n.commands.enchantments.shatterment.title"),
+    I18N_COMMANDS_ENCHANTMENTS_SHATTERMENT_EMPTY("i18n.commands.enchantments.shatterment.empty"),
+    I18N_COMMANDS_ENCHANTMENTS_SHATTERMENT_ENCHANTMENT("i18n.commands.enchantments.shatterment.enchantment"),
+
+    I18N_COMMANDS_MATERIALS_TITLE("i18n.commands.materials.title"),
+    I18N_COMMANDS_MATERIALS_EMPTY("i18n.commands.materials.empty"),
+    I18N_COMMANDS_MATERIALS_MATERIAL("i18n.commands.materials.material"),
+    I18N_COMMANDS_MATERIALS_STATES_DISABLED("i18n.commands.materials.states.disabled"),
+
+    I18N_COMMANDS_REPAIR_DISENCHANTMENT_TITLE("i18n.commands.repair.disenchantment.title"),
+    I18N_COMMANDS_REPAIR_DISENCHANTMENT_RESET("i18n.commands.repair.disenchantment.reset"),
+    I18N_COMMANDS_REPAIR_DISENCHANTMENT_COST("i18n.commands.repair.disenchantment.cost"),
+    I18N_COMMANDS_REPAIR_DISENCHANTMENT_BASE("i18n.commands.repair.disenchantment.base"),
+    I18N_COMMANDS_REPAIR_DISENCHANTMENT_MULTIPLY("i18n.commands.repair.disenchantment.multiply"),
+    I18N_COMMANDS_REPAIR_DISENCHANTMENT_STATES_ENABLED("i18n.commands.repair.disenchantment.states.enabled"),
+    I18N_COMMANDS_REPAIR_DISENCHANTMENT_STATES_DISABLED("i18n.commands.repair.disenchantment.states.disabled"),
+
+    I18N_COMMANDS_REPAIR_SHATTERMENT_TITLE("i18n.commands.repair.shatterment.title"),
+    I18N_COMMANDS_REPAIR_SHATTERMENT_RESET("i18n.commands.repair.shatterment.reset"),
+    I18N_COMMANDS_REPAIR_SHATTERMENT_COST("i18n.commands.repair.shatterment.cost"),
+    I18N_COMMANDS_REPAIR_SHATTERMENT_BASE("i18n.commands.repair.shatterment.base"),
+    I18N_COMMANDS_REPAIR_SHATTERMENT_MULTIPLY("i18n.commands.repair.shatterment.multiply"),
+    I18N_COMMANDS_REPAIR_SHATTERMENT_STATES_ENABLED("i18n.commands.repair.shatterment.states.enabled"),
+    I18N_COMMANDS_REPAIR_SHATTERMENT_STATES_DISABLED("i18n.commands.repair.shatterment.states.disabled"),
 
     I18N_GUI_BACK("i18n.gui.back"),
     I18N_GUI_PREVIOUS("i18n.gui.previous"),
@@ -125,8 +187,6 @@ public enum ConfigKeys {
     I18N_GUI_SOUND_SHATTERMENT_VOLUME_LORE("i18n.gui.sound.shatterment.volume.lore"),
     I18N_GUI_SOUND_SHATTERMENT_PITCH_TITLE("i18n.gui.sound.shatterment.pitch.title"),
     I18N_GUI_SOUND_SHATTERMENT_PITCH_LORE("i18n.gui.sound.shatterment.pitch.lore"),
-
-
     ;
 
     private final String key;

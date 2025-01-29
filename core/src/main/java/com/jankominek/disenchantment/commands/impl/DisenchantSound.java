@@ -9,9 +9,16 @@ import org.bukkit.command.CommandSender;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.jankominek.disenchantment.utils.TextUtils.*;
-
 public class DisenchantSound {
+    public static final CommandBuilder command = new CommandBuilder(
+            "disenchant:sound",
+            PermissionGroupType.COMMAND_DISENCHANT_SOUND,
+            new String[]{"enable", "disable", "volume", "pitch"},
+            false,
+            DisenchantSound::execute,
+            DisenchantSound::complete
+    );
+
     public static void execute(CommandSender s, String[] args) {
         if (args.length == 1) {
             s.sendMessage(textWithPrefix("Anvil sound configuration"));
@@ -86,16 +93,4 @@ public class DisenchantSound {
 
         return result;
     }
-
-    public static final CommandBuilder command = new CommandBuilder(
-            "disenchant:sound",
-            PermissionGroupType.COMMAND_DISENCHANT_SOUND,
-            "You don't have permission to use this command.",
-            new String[]{"enable", "disable", "volume", "pitch"},
-            false,
-            DisenchantSound::execute,
-            DisenchantSound::complete
-    );
-
-
 }

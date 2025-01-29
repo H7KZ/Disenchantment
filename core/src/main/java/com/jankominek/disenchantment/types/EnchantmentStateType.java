@@ -6,7 +6,7 @@ public enum EnchantmentStateType {
     ENABLED(null),
     KEEP("keep"),
     DELETE("delete"),
-    DISABLED("disabled"),
+    DISABLE("disable"),
     ;
 
     private final String configName;
@@ -20,7 +20,7 @@ public enum EnchantmentStateType {
             case "enabled" -> ENABLED;
             case "keep" -> KEEP;
             case "delete" -> DELETE;
-            case "disabled" -> DISABLED;
+            case "disable" -> DISABLE;
             default -> null;
         };
     }
@@ -29,8 +29,8 @@ public enum EnchantmentStateType {
         return switch (lastStatus) {
             case ENABLED -> KEEP;
             case KEEP -> DELETE;
-            case DELETE -> DISABLED;
-            case DISABLED -> ENABLED;
+            case DELETE -> DISABLE;
+            case DISABLE -> ENABLED;
         };
     }
 
@@ -39,7 +39,7 @@ public enum EnchantmentStateType {
             case ENABLED -> I18n.States.enabled();
             case KEEP -> I18n.States.keep();
             case DELETE -> I18n.States.delete();
-            case DISABLED -> I18n.States.disabled();
+            case DISABLE -> I18n.States.disable();
         };
     }
 

@@ -2,6 +2,7 @@ package com.jankominek.disenchantment.commands.impl;
 
 import com.jankominek.disenchantment.commands.CommandBuilder;
 import com.jankominek.disenchantment.config.Config;
+import com.jankominek.disenchantment.config.I18n;
 import com.jankominek.disenchantment.types.EnchantmentStateType;
 import com.jankominek.disenchantment.types.PermissionGroupType;
 import com.jankominek.disenchantment.utils.EnchantmentUtils;
@@ -14,13 +15,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.jankominek.disenchantment.utils.TextUtils.*;
-
 public class DisenchantEnchantments {
     public static final CommandBuilder command = new CommandBuilder(
             "disenchant:enchantments",
             PermissionGroupType.COMMAND_DISENCHANT_ENCHANTMENTS,
-            "You don't have permission to use this command.",
             new String[]{},
             false,
             DisenchantEnchantments::execute,
@@ -31,21 +29,22 @@ public class DisenchantEnchantments {
         Map<Enchantment, EnchantmentStateType> enchantmentsStates = Config.Disenchantment.getEnchantmentStates();
 
         if (args.length == 1) {
-            s.sendMessage(textWithPrefix("Disabled enchantments"));
-            s.sendMessage("");
+            s.sendMessage(I18n.Commands.Enchantments.Disenchantment.title());
+
+            if (enchantmentsStates.isEmpty()) {
+                s.sendMessage(ChatColor.GRAY + I18n.Commands.Enchantments.Disenchantment.empty());
+                return;
+            }
 
             enchantmentsStates.forEach((enchantment, state) -> {
-                String builder = "";
+                String stateI18n = switch (state) {
+                    case DISABLE -> I18n.States.disable();
+                    case KEEP -> I18n.States.keep();
+                    case DELETE -> I18n.States.delete();
+                    default -> I18n.States.enabled();
+                };
 
-                switch (state) {
-                    case DISABLED -> builder += ChatColor.RED + "[cancel] ";
-                    case KEEP -> builder += ChatColor.GOLD + "[ keep ] ";
-                    case DELETE -> builder += ChatColor.YELLOW + "[delete] ";
-                }
-
-                builder += ChatColor.GRAY + enchantment.getKey().getKey().toLowerCase();
-
-                s.sendMessage(builder);
+                s.sendMessage(I18n.Commands.Enchantments.Disenchantment.enchantment(enchantment.getKey().getKey(), stateI18n));
             });
 
             return;
@@ -56,76 +55,56 @@ public class DisenchantEnchantments {
                 .findFirst().orElse(null);
 
         if (enchantment == null) {
-            s.sendMessage(textWithPrefixError("Unknown enchantment!"));
+            s.sendMessage(I18n.Messages.unknownEnchantment());
             return;
         }
 
         if (args.length == 2) {
-            s.sendMessage(textWithPrefixError("You must specify a state for this enchantment"));
+            s.sendMessage(I18n.Messages.specifyEnchantmentState());
             return;
         }
 
         String state = args[2].toLowerCase();
         HashMap<Enchantment, EnchantmentStateType> enchantments = Config.Disenchantment.getEnchantmentStates();
 
-        if (EnchantmentStateType.ENABLED.getConfigName().startsWith(state)) {
+        if (EnchantmentStateType.ENABLED.getConfigName().equalsIgnoreCase(state)) {
             enchantments.remove(enchantment);
 
             Config.Disenchantment.setEnchantmentStates(enchantments);
 
-            s.sendMessage(textWithPrefixSuccess("Enchantment enabled"));
+            s.sendMessage(I18n.Messages.enchantmentIsEnabled());
+
             return;
-        } else if (EnchantmentStateType.KEEP.getConfigName().startsWith(state)) {
-            if (enchantments.containsKey(enchantment)) {
-                enchantments.replace(enchantment, EnchantmentStateType.KEEP);
-
-                Config.Disenchantment.setEnchantmentStates(enchantments);
-
-                s.sendMessage(textWithPrefixSuccess("Enchantment state updated"));
-                return;
-            }
-
-            enchantments.put(enchantment, EnchantmentStateType.KEEP);
+        } else if (EnchantmentStateType.KEEP.getConfigName().equalsIgnoreCase(state)) {
+            if (enchantments.containsKey(enchantment)) enchantments.replace(enchantment, EnchantmentStateType.KEEP);
+            else enchantments.put(enchantment, EnchantmentStateType.KEEP);
 
             Config.Disenchantment.setEnchantmentStates(enchantments);
 
-            s.sendMessage(textWithPrefixSuccess("Enchantment kept"));
+            s.sendMessage(I18n.Messages.enchantmentIsKept());
+
             return;
-        } else if (EnchantmentStateType.DELETE.getConfigName().startsWith(state)) {
-            if (enchantments.containsKey(enchantment)) {
-                enchantments.replace(enchantment, EnchantmentStateType.DELETE);
-
-                Config.Disenchantment.setEnchantmentStates(enchantments);
-
-                s.sendMessage(textWithPrefixSuccess("Enchantment state updated"));
-                return;
-            }
-
-            enchantments.put(enchantment, EnchantmentStateType.DELETE);
+        } else if (EnchantmentStateType.DELETE.getConfigName().equalsIgnoreCase(state)) {
+            if (enchantments.containsKey(enchantment)) enchantments.replace(enchantment, EnchantmentStateType.DELETE);
+            else enchantments.put(enchantment, EnchantmentStateType.DELETE);
 
             Config.Disenchantment.setEnchantmentStates(enchantments);
 
-            s.sendMessage(textWithPrefixSuccess("Enchantment deleted"));
+            s.sendMessage(I18n.Messages.enchantmentIsDeleted());
+
             return;
-        } else if (EnchantmentStateType.DISABLED.getConfigName().startsWith(state)) {
-            if (enchantments.containsKey(enchantment)) {
-                enchantments.replace(enchantment, EnchantmentStateType.DISABLED);
-
-                Config.Disenchantment.setEnchantmentStates(enchantments);
-
-                s.sendMessage(textWithPrefixSuccess("Enchantment state updated"));
-                return;
-            }
-
-            enchantments.put(enchantment, EnchantmentStateType.DISABLED);
+        } else if (EnchantmentStateType.DISABLE.getConfigName().equalsIgnoreCase(state)) {
+            if (enchantments.containsKey(enchantment)) enchantments.replace(enchantment, EnchantmentStateType.DISABLE);
+            else enchantments.put(enchantment, EnchantmentStateType.DISABLE);
 
             Config.Disenchantment.setEnchantmentStates(enchantments);
 
-            s.sendMessage(textWithPrefixSuccess("Enchantment disabled"));
+            s.sendMessage(I18n.Messages.enchantmentIsDisabled());
+
             return;
         }
 
-        s.sendMessage(textWithPrefixError("Unknown state!"));
+        s.sendMessage(I18n.Messages.specifyEnchantmentState());
     }
 
     public static List<String> complete(CommandSender sender, String[] args) {
@@ -133,11 +112,12 @@ public class DisenchantEnchantments {
 
         if (args.length == 2) {
             for (Enchantment enchantment : EnchantmentUtils.getRegisteredEnchantments()) {
-                if (enchantment.getKey().getKey().toLowerCase().startsWith(args[1].toLowerCase())) {
+                if (enchantment.getKey().getKey().toLowerCase().startsWith(args[1].toLowerCase()))
                     result.add(enchantment.getKey().getKey());
-                }
             }
-        } else if (args.length == 3) {
+        }
+
+        if (args.length == 3) {
             if (EnchantmentStateType.ENABLED.getConfigName().startsWith(args[2].toLowerCase()))
                 result.add(EnchantmentStateType.ENABLED.getConfigName());
 
@@ -147,8 +127,8 @@ public class DisenchantEnchantments {
             if (EnchantmentStateType.DELETE.getConfigName().startsWith(args[2].toLowerCase()))
                 result.add(EnchantmentStateType.DELETE.getConfigName());
 
-            if (EnchantmentStateType.DISABLED.getConfigName().startsWith(args[2].toLowerCase()))
-                result.add(EnchantmentStateType.DISABLED.getConfigName());
+            if (EnchantmentStateType.DISABLE.getConfigName().startsWith(args[2].toLowerCase()))
+                result.add(EnchantmentStateType.DISABLE.getConfigName());
         }
 
         return result;

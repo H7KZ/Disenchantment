@@ -2,104 +2,122 @@ package com.jankominek.disenchantment.commands.impl;
 
 import com.jankominek.disenchantment.commands.CommandBuilder;
 import com.jankominek.disenchantment.config.Config;
+import com.jankominek.disenchantment.config.I18n;
 import com.jankominek.disenchantment.types.PermissionGroupType;
-import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.jankominek.disenchantment.utils.TextUtils.*;
-
 public class ShatterRepair {
+    public static final CommandBuilder command = new CommandBuilder(
+            "shatter:repair",
+            PermissionGroupType.COMMAND_SHATTER_REPAIR,
+            new String[]{"reset", "cost", "base", "multiply"},
+            false,
+            ShatterRepair::execute,
+            ShatterRepair::complete
+    );
+
     public static void execute(CommandSender s, String[] args) {
         if (args.length == 1) {
-            s.sendMessage(textWithPrefix("Repair cost configuration"));
-            s.sendMessage("");
+            s.sendMessage(I18n.Commands.Repair.Shatterment.title());
+            s.sendMessage(
+                    I18n.Commands.Repair.Shatterment.cost(
+                            Config.Shatterment.Anvil.Repair.isCostEnabled() ?
+                                    I18n.Commands.Repair.Shatterment.States.enabled() :
+                                    I18n.Commands.Repair.Shatterment.States.disabled()
+                    )
+            );
+            s.sendMessage(
+                    I18n.Commands.Repair.Shatterment.reset(
+                            Config.Shatterment.Anvil.Repair.isResetEnabled() ?
+                                    I18n.Commands.Repair.Shatterment.States.enabled() :
+                                    I18n.Commands.Repair.Shatterment.States.disabled()
+                    )
+            );
+            s.sendMessage(I18n.Commands.Repair.Shatterment.base(String.valueOf(Config.Shatterment.Anvil.Repair.getBaseCost())));
+            s.sendMessage(I18n.Commands.Repair.Shatterment.multiply(String.valueOf(Config.Shatterment.Anvil.Repair.getCostMultiplier())));
 
-            String builder = "";
+            return;
+        }
 
-            builder += ChatColor.GRAY + "Repair reset is ";
-            builder += Config.Shatterment.Anvil.Repair.isResetEnabled() ? ChatColor.GREEN + "Enabled" : ChatColor.RED + "Disabled";
-
-            builder += ChatColor.GRAY + "Repair cost is ";
-            builder += Config.Shatterment.Anvil.Repair.isCostEnabled() ? ChatColor.GREEN + "Enabled" : ChatColor.RED + "Disabled";
-
-            s.sendMessage(builder);
-            s.sendMessage(ChatColor.GRAY + "Base value: " + Config.Shatterment.Anvil.Repair.getBaseCost());
-            s.sendMessage(ChatColor.GRAY + "Multiply value: " + Config.Shatterment.Anvil.Repair.getCostMultiplier());
+        if (args.length == 2) {
+            s.sendMessage(I18n.Messages.specifyRepairValue());
             return;
         }
 
         switch (args[1].toLowerCase()) {
             case "reset": {
-                if (args.length == 2) {
-                    s.sendMessage(textWithPrefixError("You must specify a value"));
-                    break;
-                }
+                switch (args[2].toLowerCase()) {
+                    case "enable": {
+                        Config.Shatterment.Anvil.Repair.setResetEnabled(true);
 
-                if (args[2].equalsIgnoreCase("enable")) {
-                    Config.Shatterment.Anvil.Repair.setResetEnabled(true);
-                    s.sendMessage(textWithPrefixSuccess("Repair cost reset enabled"));
-                } else if (args[2].equalsIgnoreCase("disable")) {
-                    Config.Shatterment.Anvil.Repair.setResetEnabled(false);
-                    s.sendMessage(textWithPrefixSuccess("Repair cost reset disabled"));
-                } else {
-                    s.sendMessage(textWithPrefixError("You must specify 'enable' or 'disable'"));
+                        s.sendMessage(I18n.Messages.repairCostResetIsEnabled());
+
+                        break;
+                    }
+                    case "disable": {
+                        Config.Shatterment.Anvil.Repair.setResetEnabled(false);
+
+                        s.sendMessage(I18n.Messages.repairCostIsDisabled());
+
+                        break;
+                    }
+                    default: {
+                        s.sendMessage(I18n.Messages.specifyRepairValue());
+                    }
                 }
 
                 break;
             }
             case "cost": {
-                if (args.length == 2) {
-                    s.sendMessage(textWithPrefixError("You must specify a value"));
-                    break;
-                }
+                switch (args[2].toLowerCase()) {
+                    case "enable": {
+                        Config.Shatterment.Anvil.Repair.setCostEnabled(true);
 
-                if (args[2].equalsIgnoreCase("enable")) {
-                    Config.Shatterment.Anvil.Repair.setCostEnabled(true);
-                    s.sendMessage(textWithPrefixSuccess("Repair cost reset enabled"));
-                } else if (args[2].equalsIgnoreCase("disable")) {
-                    Config.Shatterment.Anvil.Repair.setCostEnabled(false);
-                    s.sendMessage(textWithPrefixSuccess("Repair cost reset disabled"));
-                } else {
-                    s.sendMessage(textWithPrefixError("You must specify 'enable' or 'disable'"));
+                        s.sendMessage(I18n.Messages.repairCostResetIsEnabled());
+
+                        break;
+                    }
+                    case "disable": {
+                        Config.Shatterment.Anvil.Repair.setCostEnabled(false);
+
+                        s.sendMessage(I18n.Messages.repairCostIsDisabled());
+
+                        break;
+                    }
+                    default: {
+                        s.sendMessage(I18n.Messages.specifyRepairValue());
+                    }
                 }
 
                 break;
             }
             case "base": {
-                if (args.length == 2) {
-                    s.sendMessage(textWithPrefixError("You must specify a value"));
-                    break;
-                }
-
                 try {
                     Config.Shatterment.Anvil.Repair.setBaseCost(Double.parseDouble(args[2]));
-                    s.sendMessage(textWithPrefixSuccess("Base value set to " + args[2]));
+
+                    s.sendMessage(I18n.Messages.repairBaseCostIsSet(Config.Shatterment.Anvil.Repair.getBaseCost().toString()));
                 } catch (NumberFormatException e) {
-                    s.sendMessage(textWithPrefixError("You must specify a valid number"));
+                    s.sendMessage(I18n.Messages.specifyValidDouble());
                 }
 
                 break;
             }
             case "multiply": {
-                if (args.length == 2) {
-                    s.sendMessage(textWithPrefixError("You must specify a value"));
-                    break;
-                }
-
                 try {
                     Config.Shatterment.Anvil.Repair.setCostMultiplier(Double.parseDouble(args[2]));
-                    s.sendMessage(textWithPrefixSuccess("Multiply value set to " + args[2]));
+
+                    s.sendMessage(I18n.Messages.repairMultiplierIsSet(Config.Shatterment.Anvil.Repair.getCostMultiplier().toString()));
                 } catch (NumberFormatException e) {
-                    s.sendMessage(textWithPrefixError("You must specify a valid number"));
+                    s.sendMessage(I18n.Messages.specifyValidDouble());
                 }
 
                 break;
             }
             default: {
-                s.sendMessage(textWithPrefixError("Unknown argument"));
+                s.sendMessage(I18n.Messages.invalidArgument());
             }
         }
     }
@@ -109,38 +127,20 @@ public class ShatterRepair {
 
         if (args.length == 2) {
             for (String arg : ShatterRepair.command.args) {
-                if (arg.toLowerCase().startsWith(args[1].toLowerCase())) {
-                    result.add(arg);
-                }
+                if (arg.toLowerCase().startsWith(args[1].toLowerCase())) result.add(arg);
             }
-        } else if (args.length == 3) {
+        }
+
+        if (args.length == 3) {
             switch (args[1].toLowerCase()) {
                 case "reset":
                 case "cost":
-                    if ("enable".startsWith(args[2].toLowerCase())) {
-                        result.add("enable");
-                    }
-
-                    if ("disable".startsWith(args[2].toLowerCase())) {
-                        result.add("disable");
-                    }
-
+                    if ("enable".startsWith(args[2].toLowerCase())) result.add("enable");
+                    if ("disable".startsWith(args[2].toLowerCase())) result.add("disable");
                     break;
             }
         }
 
         return result;
     }
-
-    public static final CommandBuilder command = new CommandBuilder(
-            "shatter:repair",
-            PermissionGroupType.COMMAND_SHATTER_REPAIR,
-            "You don't have permission to use this command.",
-            new String[]{"reset", "cost", "base", "multiply"},
-            false,
-            ShatterRepair::execute,
-            ShatterRepair::complete
-    );
-
-
 }
