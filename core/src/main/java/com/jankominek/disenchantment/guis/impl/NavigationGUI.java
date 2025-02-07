@@ -57,12 +57,14 @@ public class NavigationGUI implements InventoryHolder {
                                     return;
 
                                 event.getWhoClicked().openInventory(new DisenchantmentRepairGUI().getInventory());
+                                break;
                             }
                             case RIGHT: {
                                 if (!PermissionGroupType.GUI_SHATTER_REPAIR.hasPermission(event.getWhoClicked(), true))
                                     return;
 
                                 event.getWhoClicked().openInventory(new ShattermentRepairGUI().getInventory());
+                                break;
                             }
                         }
                     }
@@ -101,12 +103,14 @@ public class NavigationGUI implements InventoryHolder {
                                     return;
 
                                 event.getWhoClicked().openInventory(new DisenchantmentSoundGUI().getInventory());
+                                break;
                             }
                             case RIGHT: {
                                 if (!PermissionGroupType.GUI_SHATTER_SOUND.hasPermission(event.getWhoClicked(), true))
                                     return;
 
                                 event.getWhoClicked().openInventory(new ShattermentSoundGUI().getInventory());
+                                break;
                             }
                         }
                     }

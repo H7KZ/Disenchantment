@@ -105,7 +105,7 @@ public class DisenchantmentSoundGUI implements InventoryHolder {
     private final Inventory inventory;
 
     public DisenchantmentSoundGUI() {
-        Inventory inv = Bukkit.createInventory(this, 54, I18n.GUI.Sound.Disenchantment.inventory());
+        Inventory inv = Bukkit.createInventory(this, 27, I18n.GUI.Sound.Disenchantment.inventory());
 
         this.inventory = InventoryBuilder.fillItems(inv, this.items);
     }

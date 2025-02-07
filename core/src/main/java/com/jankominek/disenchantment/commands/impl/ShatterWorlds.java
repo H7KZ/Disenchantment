@@ -2,57 +2,46 @@ package com.jankominek.disenchantment.commands.impl;
 
 import com.jankominek.disenchantment.commands.CommandBuilder;
 import com.jankominek.disenchantment.config.Config;
+import com.jankominek.disenchantment.config.I18n;
 import com.jankominek.disenchantment.types.PermissionGroupType;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 
 import java.util.List;
 
-import static com.jankominek.disenchantment.utils.TextUtils.textWithPrefixError;
-import static com.jankominek.disenchantment.utils.TextUtils.textWithPrefixSuccess;
-
 public class ShatterWorlds {
     public static final CommandBuilder command = new CommandBuilder(
             "shatter:worlds",
             PermissionGroupType.COMMAND_SHATTER_WORLDS,
-            "You don't have permission to use this command.",
             new String[]{},
             false,
             ShatterWorlds::execute,
             ShatterWorlds::complete
     );
 
-    public static void execute(CommandSender s, String[] args) {
+    public static void execute(CommandSender sender, String[] args) {
         if (args.length == 1) {
             List<World> disabledWorlds = Config.Shatterment.getDisabledWorlds();
 
             if (disabledWorlds.isEmpty()) {
-                s.sendMessage(ChatColor.GRAY + "No worlds are disabled");
+                sender.sendMessage(I18n.Commands.Worlds.Shatterment.empty());
                 return;
             }
 
-            s.sendMessage(ChatColor.GRAY + "Disabled worlds:");
-            s.sendMessage("");
+            sender.sendMessage(I18n.Commands.Worlds.Shatterment.title());
 
             for (World world : disabledWorlds) {
-                String builder = "";
-                builder += ChatColor.RED + "[X] ";
-                builder += ChatColor.GRAY + "\"" + world.getName() + "\"";
-
-                s.sendMessage(builder);
+                sender.sendMessage(I18n.Commands.Worlds.Shatterment.world(world.getName(), I18n.Commands.Worlds.Shatterment.States.disabled()));
             }
         }
 
         if (args.length != 2) return;
 
-        String wrl = args[1];
-
-        World world = Bukkit.getWorld(wrl);
+        World world = Bukkit.getWorld(args[1]);
 
         if (world == null) {
-            s.sendMessage(textWithPrefixError("World \"" + wrl + "\" does not exist!"));
+            sender.sendMessage(I18n.Messages.worldNotFound(args[1]));
             return;
         }
 
@@ -61,11 +50,11 @@ public class ShatterWorlds {
         if (disabledWorlds.contains(world)) {
             disabledWorlds.remove(world);
 
-            s.sendMessage(textWithPrefixSuccess("Enabled in world \"" + world + "\""));
+            sender.sendMessage(I18n.Messages.worldIsEnabled(world.getName()));
         } else {
             disabledWorlds.add(world);
 
-            s.sendMessage(textWithPrefixSuccess("Disabled in world \"" + world + "\""));
+            sender.sendMessage(I18n.Messages.worldIsDisabled(world.getName()));
         }
 
         Config.Shatterment.setDisabledWorlds(disabledWorlds);

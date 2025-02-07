@@ -10,6 +10,7 @@ import java.util.Set;
 public class Migration3 implements IConfigMigration {
     public FileConfiguration migrate(FileConfiguration oldConfig, FileConfiguration configTemplate) {
         Set<String> keys = oldConfig.getKeys(true);
+        keys.remove("migration");
 
         keys.remove("disenchantment.enchantments-states");
 

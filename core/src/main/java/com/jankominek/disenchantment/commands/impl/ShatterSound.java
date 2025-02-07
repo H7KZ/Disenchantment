@@ -2,75 +2,78 @@ package com.jankominek.disenchantment.commands.impl;
 
 import com.jankominek.disenchantment.commands.CommandBuilder;
 import com.jankominek.disenchantment.config.Config;
+import com.jankominek.disenchantment.config.I18n;
 import com.jankominek.disenchantment.types.PermissionGroupType;
-import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.jankominek.disenchantment.utils.TextUtils.*;
-
 public class ShatterSound {
+    public static final CommandBuilder command = new CommandBuilder(
+            "shatter:sound",
+            PermissionGroupType.COMMAND_SHATTER_SOUND,
+            new String[]{"enable", "disable", "volume", "pitch"},
+            false,
+            ShatterSound::execute,
+            ShatterSound::complete
+    );
+
     public static void execute(CommandSender s, String[] args) {
         if (args.length == 1) {
-            s.sendMessage(textWithPrefix("Anvil sound configuration"));
-            s.sendMessage("");
+            s.sendMessage(I18n.Commands.Sound.Shatterment.title());
 
-            String builder = "";
-
-            builder += ChatColor.GRAY + "Anvil sound is ";
-            builder += Config.Shatterment.Anvil.Sound.isEnabled() ? ChatColor.GREEN + "Enabled" : ChatColor.RED + "Disabled";
-
-            s.sendMessage(builder);
-            s.sendMessage(ChatColor.GRAY + "Anvil volume: " + Config.Shatterment.Anvil.Sound.getVolume());
-            s.sendMessage(ChatColor.GRAY + "Anvil pitch: " + Config.Shatterment.Anvil.Sound.getPitch());
+            s.sendMessage(
+                    I18n.Commands.Sound.Shatterment.sound(
+                            Config.Shatterment.Anvil.Sound.isEnabled() ?
+                                    I18n.Commands.Sound.Shatterment.States.enabled() :
+                                    I18n.Commands.Sound.Shatterment.States.disabled()
+                    )
+            );
+            s.sendMessage(I18n.Commands.Sound.Shatterment.volume(String.valueOf(Config.Shatterment.Anvil.Sound.getVolume())));
+            s.sendMessage(I18n.Commands.Sound.Shatterment.pitch(String.valueOf(Config.Shatterment.Anvil.Sound.getPitch())));
             return;
         }
 
         switch (args[1].toLowerCase()) {
             case "enable": {
                 Config.Shatterment.Anvil.Sound.setEnabled(true);
-                s.sendMessage(textWithPrefixSuccess("Anvil sound enabled"));
+
+                s.sendMessage(I18n.Messages.soundIsEnabled());
+
                 break;
             }
             case "disable": {
                 Config.Shatterment.Anvil.Sound.setEnabled(false);
-                s.sendMessage(textWithPrefixSuccess("Anvil sound disabled"));
+
+                s.sendMessage(I18n.Messages.soundIsDisabled());
+
                 break;
             }
             case "volume": {
-                if (args.length == 2) {
-                    s.sendMessage(textWithPrefixError("You must specify a value"));
-                    break;
-                }
-
                 try {
                     Config.Shatterment.Anvil.Sound.setVolume(Double.parseDouble(args[2]));
-                    s.sendMessage(textWithPrefixSuccess("Anvil volume set to " + args[2]));
+
+                    s.sendMessage(I18n.Messages.soundVolumeIsSet(args[2]));
                 } catch (NumberFormatException e) {
-                    s.sendMessage(textWithPrefixError("You must specify a valid number"));
+                    s.sendMessage(I18n.Messages.specifyValidDouble());
                 }
 
                 break;
             }
             case "pitch": {
-                if (args.length == 2) {
-                    s.sendMessage(textWithPrefixError("You must specify a value"));
-                    break;
-                }
-
                 try {
                     Config.Shatterment.Anvil.Sound.setPitch(Double.parseDouble(args[2]));
-                    s.sendMessage(textWithPrefixSuccess("Anvil pitch set to " + args[2]));
+
+                    s.sendMessage(I18n.Messages.soundPitchIsSet(args[2]));
                 } catch (NumberFormatException e) {
-                    s.sendMessage(textWithPrefixError("You must specify a valid number"));
+                    s.sendMessage(I18n.Messages.specifyValidDouble());
                 }
 
                 break;
             }
             default: {
-                s.sendMessage(textWithPrefixError("Unknown argument!"));
+                s.sendMessage(I18n.Messages.specifySoundState());
             }
         }
     }
@@ -86,16 +89,4 @@ public class ShatterSound {
 
         return result;
     }
-
-    public static final CommandBuilder command = new CommandBuilder(
-            "shatter:sound",
-            PermissionGroupType.COMMAND_SHATTER_SOUND,
-            "You don't have permission to use this command.",
-            new String[]{"enable", "disable", "volume", "pitch"},
-            false,
-            ShatterSound::execute,
-            ShatterSound::complete
-    );
-
-
 }

@@ -9,6 +9,7 @@ import java.util.Set;
 public class Migration2 implements IConfigMigration {
     public FileConfiguration migrate(FileConfiguration oldConfig, FileConfiguration configTemplate) {
         Set<String> keys = oldConfig.getKeys(true);
+        keys.remove("migration");
 
         keys.remove("logging-enable");
         keys.remove("logging-level");

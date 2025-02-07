@@ -18,6 +18,7 @@ import org.bukkit.scheduler.BukkitScheduler;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.io.File;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -38,6 +39,7 @@ public final class Disenchantment extends JavaPlugin {
     public static NMS nms;
     public static BukkitScheduler scheduler;
     public static FileConfiguration config;
+    public static FileConfiguration localeConfig;
     public static Logger logger;
 
     // Tasks
@@ -66,6 +68,27 @@ public final class Disenchantment extends JavaPlugin {
         // Config
         setupConfig();
         config = getConfig();
+
+        // Locale
+        setupLocaleConfigs();
+        String locale = Config.getLocale();
+        File localesFolder = new File(plugin.getDataFolder().getAbsolutePath() + "/locales");
+        if (!localesFolder.exists()) {
+            logger.severe("Locales folder does not exist. Please reinstall the plugin.");
+            getServer().getPluginManager().disablePlugin(this);
+            return;
+        }
+        String finalLocale = locale;
+        if (Arrays.stream(Objects.requireNonNull(localesFolder.listFiles())).noneMatch(file -> file.getName().equals(finalLocale + ".yml")))
+            locale = "en";
+        localeConfig = YamlConfiguration.loadConfiguration(
+                new InputStreamReader(
+                        Objects.requireNonNull(
+                                plugin.getResource("locales/" + locale + ".yml")
+                        ),
+                        StandardCharsets.UTF_8
+                )
+        );
 
         // Set config values
         Disenchantment.enabled = Config.isPluginEnabled();
@@ -122,5 +145,20 @@ public final class Disenchantment extends JavaPlugin {
         }
 
         plugin.reloadConfig();
+    }
+
+    private void setupLocaleConfigs() {
+        for (String locale : Config.getLocales()) {
+            File localeFile = new File(plugin.getDataFolder(), "locales/" + locale + ".yml");
+
+            try {
+                InputStream in = plugin.getResource("locales/" + locale + ".yml");
+                if (in != null) {
+                    YamlConfiguration.loadConfiguration(new InputStreamReader(in, StandardCharsets.UTF_8)).save(localeFile);
+                }
+            } catch (Exception e) {
+                logger.log(Level.SEVERE, "Could not save " + locale + ".yml", e);
+            }
+        }
     }
 }

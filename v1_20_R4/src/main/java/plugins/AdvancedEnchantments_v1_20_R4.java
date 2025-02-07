@@ -17,7 +17,6 @@ public class AdvancedEnchantments_v1_20_R4 implements ISupportedPlugin {
         ItemStack book = new ItemStack(Material.ENCHANTED_BOOK);
 
         enchantments.forEach((en, l) -> {
-            // Deprecated?! TODO: replace deprecated method
             AEAPI.applyEnchant(en.getKey().getKey(), l, book, true);
         });
         return book;

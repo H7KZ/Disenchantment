@@ -104,10 +104,10 @@ public class GUIComponent {
         public static ItemStack worldByEnvironment(World.Environment environment, String name, boolean disenchantment, boolean shatterment) {
             List<String> lore = new ArrayList<>();
 
-            if (disenchantment) lore.add(I18n.GUI.Worlds.Lore.Disenchantment.enabled());
+            if (!disenchantment) lore.add(I18n.GUI.Worlds.Lore.Disenchantment.enabled());
             else lore.add(I18n.GUI.Worlds.Lore.Disenchantment.disabled());
 
-            if (shatterment) lore.add(I18n.GUI.Worlds.Lore.Shatterment.enabled());
+            if (!shatterment) lore.add(I18n.GUI.Worlds.Lore.Shatterment.enabled());
             else lore.add(I18n.GUI.Worlds.Lore.Shatterment.disabled());
 
             return switch (environment) {
@@ -281,7 +281,7 @@ public class GUIComponent {
         public static ItemStack material(Material material, boolean disenchantment) {
             List<String> lore = new ArrayList<>();
 
-            if (disenchantment) lore.add(I18n.GUI.Materials.Lore.enabled());
+            if (!disenchantment) lore.add(I18n.GUI.Materials.Lore.enabled());
             else lore.add(I18n.GUI.Materials.Lore.disabled());
 
             return new ItemBuilder(material)

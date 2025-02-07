@@ -1,5 +1,6 @@
 package com.jankominek.disenchantment.nms;
 
+import com.jankominek.disenchantment.guis.HeadBuilder;
 import com.jankominek.disenchantment.plugins.ISupportedPlugin;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
@@ -35,5 +36,9 @@ public interface NMS {
     }
 
     default void setAnvilRepairCost(AnvilInventory anvilInventory, InventoryView inventoryView, int repairCost) {
+    }
+
+    default HeadBuilder setTexture(HeadBuilder headBuilder, String texture) {
+        return headBuilder;
     }
 }

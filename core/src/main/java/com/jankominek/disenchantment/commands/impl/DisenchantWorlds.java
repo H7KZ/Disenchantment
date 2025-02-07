@@ -2,9 +2,9 @@ package com.jankominek.disenchantment.commands.impl;
 
 import com.jankominek.disenchantment.commands.CommandBuilder;
 import com.jankominek.disenchantment.config.Config;
+import com.jankominek.disenchantment.config.I18n;
 import com.jankominek.disenchantment.types.PermissionGroupType;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 
@@ -28,19 +28,14 @@ public class DisenchantWorlds {
             List<World> disabledWorlds = Config.Disenchantment.getDisabledWorlds();
 
             if (disabledWorlds.isEmpty()) {
-                sender.sendMessage(ChatColor.GRAY + "No worlds are disabled");
+                sender.sendMessage(I18n.Commands.Worlds.Disenchantment.empty());
                 return;
             }
 
-            sender.sendMessage(ChatColor.GRAY + "Disabled worlds:");
-            sender.sendMessage("");
+            sender.sendMessage(I18n.Commands.Worlds.Disenchantment.title());
 
             for (World world : disabledWorlds) {
-                String builder = "";
-                builder += ChatColor.RED + "[X] ";
-                builder += ChatColor.GRAY + "\"" + world.getName() + "\"";
-
-                sender.sendMessage(builder);
+                sender.sendMessage(I18n.Commands.Worlds.Disenchantment.world(world.getName(), I18n.Commands.Worlds.Disenchantment.States.disabled()));
             }
         }
 
@@ -49,7 +44,7 @@ public class DisenchantWorlds {
         World world = Bukkit.getWorld(args[1]);
 
         if (world == null) {
-            sender.sendMessage(textWithPrefixError("World \"" + args[1] + "\" does not exist!"));
+            sender.sendMessage(I18n.Messages.worldNotFound(args[1]));
             return;
         }
 
@@ -58,11 +53,11 @@ public class DisenchantWorlds {
         if (disabledWorlds.contains(world)) {
             disabledWorlds.remove(world);
 
-            sender.sendMessage(textWithPrefixSuccess("Enabled in world \"" + world + "\""));
+            sender.sendMessage(I18n.Messages.worldIsEnabled(world.getName()));
         } else {
             disabledWorlds.add(world);
 
-            sender.sendMessage(textWithPrefixSuccess("Disabled in world \"" + world + "\""));
+            sender.sendMessage(I18n.Messages.worldIsDisabled(world.getName()));
         }
 
         Config.Disenchantment.setDisabledWorlds(disabledWorlds);

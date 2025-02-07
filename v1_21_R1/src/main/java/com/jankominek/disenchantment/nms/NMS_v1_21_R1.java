@@ -1,5 +1,8 @@
 package com.jankominek.disenchantment.nms;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.jankominek.disenchantment.guis.HeadBuilder;
 import com.jankominek.disenchantment.plugins.ISupportedPlugin;
 import org.bukkit.Material;
 import org.bukkit.Registry;
@@ -8,12 +11,18 @@ import org.bukkit.inventory.AnvilInventory;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Repairable;
+import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.inventory.view.AnvilView;
+import org.bukkit.profile.PlayerProfile;
+import org.bukkit.profile.PlayerTextures;
 import plugins.ExcellentEnchants_v1_21_R1;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.net.URI;
+import java.net.URL;
+import java.util.*;
+
+import static com.jankominek.disenchantment.Disenchantment.logger;
+import static org.bukkit.Bukkit.getServer;
 
 public class NMS_v1_21_R1 implements NMS {
     @Override
@@ -70,5 +79,48 @@ public class NMS_v1_21_R1 implements NMS {
         AnvilView anvilView = (AnvilView) inventoryView;
 
         anvilView.setRepairCost(repairCost);
+    }
+
+    @Override
+    public HeadBuilder setTexture(HeadBuilder headBuilder, String texture) {
+        PlayerProfile profile = getServer().createPlayerProfile(UUID.randomUUID(), "");
+
+        PlayerTextures textures = profile.getTextures();
+
+        String decodedTextureAsJson = new String(Base64.getDecoder().decode(texture));
+
+        URL url;
+
+        try {
+            JsonObject textureJson = JsonParser.parseString(decodedTextureAsJson).getAsJsonObject();
+
+            url = new URI(
+                    textureJson
+                            .get("textures")
+                            .getAsJsonObject()
+                            .get("SKIN")
+                            .getAsJsonObject()
+                            .get("url")
+                            .getAsString()
+            ).toURL();
+        } catch (Exception e) {
+            logger.warning("Failed to parse texture as JSON: " + e.getMessage());
+
+            return headBuilder;
+        }
+
+        textures.setSkin(url);
+
+        SkullMeta meta = (SkullMeta) headBuilder.getItemMeta();
+
+        try {
+            meta.setOwnerProfile(profile);
+        } catch (Exception e) {
+            logger.warning("Failed to set texture for skull item: " + e.getMessage());
+        }
+
+        headBuilder.setItemMeta(meta);
+
+        return headBuilder;
     }
 }

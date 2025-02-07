@@ -28,6 +28,14 @@ public class Config {
         return isPluginEnabled() == enabled;
     }
 
+    public static List<String> getLocales() {
+        return config.getStringList(ConfigKeys.LOCALES.getKey());
+    }
+
+    public static String getLocale() {
+        return config.getString(ConfigKeys.LOCALE.getKey());
+    }
+
     public static class Disenchantment {
         private static HashMap<Enchantment, EnchantmentStateType> ENCHANTMENT_STATES_CACHE = null;
 

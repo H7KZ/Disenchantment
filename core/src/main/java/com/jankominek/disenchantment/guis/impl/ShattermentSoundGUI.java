@@ -105,7 +105,7 @@ public class ShattermentSoundGUI implements InventoryHolder {
     private final Inventory inventory;
 
     public ShattermentSoundGUI() {
-        Inventory inv = Bukkit.createInventory(this, 54, I18n.GUI.Sound.Shatterment.inventory());
+        Inventory inv = Bukkit.createInventory(this, 27, I18n.GUI.Sound.Shatterment.inventory());
 
         this.inventory = InventoryBuilder.fillItems(inv, this.items);
     }

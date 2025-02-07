@@ -1,0 +1,356 @@
+prefix: "&7[Disenchantment]&r"
+
+messages:
+  requires-permission: "&cNemáte oprávnění použít tuto funkci/příkaz.&r"
+  invalid-argument: "&cNeplatný argument!&r"
+  unknown-enchantment: "&cNeznámé očarování!&r"
+  specify-enchantment-state: "&cProsím specifikujte stav očarování!&r"
+  enchantment-is-enabled: "&a{enchantment} &7je povoleno!&r"
+  enchantment-is-kept: "&b{enchantment} &7je zachováno!&r"
+  enchantment-is-deleted: "&e{enchantment} &7je smazáno!&r"
+  enchantment-is-disabled: "&e{enchantment} &7je zakázáno!&r"
+  material-is-enabled: "&a{material} &7je povoleno!&r"
+  material-is-disabled: "&c{material} &7je zakázáno!&r"
+  specify-repair-value: "&cProsím zadejte hodnotu opravy!&r"
+  specify-valid-integer: "&cProsím zadejte platné celé číslo!&r"
+  specify-valid-double: "&cProsím zadejte platné desetinné číslo!&r"
+  repair-cost-is-enabled: "&aCena opravy je povolena!&r"
+  repair-cost-is-disabled: "&cCena opravy je zakázána!&r"
+  repair-cost-reset-is-enabled: "&aReset ceny opravy je povolen!&r"
+  repair-cost-reset-is-disabled: "&cReset ceny opravy je zakázán!&r"
+  repair-base-cost-is-set: "&7Základní cena je nastavena na &f{cost}&7!&r"
+  repair-multiplier-is-set: "&7Násobitel je nastaven na &f{multiply}&7!&r"
+  specify-sound-state: "&cProsím specifikujte stav zvuku!&r"
+  sound-is-enabled: "&aZvuk je povolen!&r"
+  sound-is-disabled: "&cZvuk je zakázán!&r"
+  sound-volume-is-set: "&7Hlasitost je nastavena na &f{volume}&7!&r"
+  sound-pitch-is-set: "&7Výška tónu je nastavena na &f{pitch}&7!&r"
+  world-not-found: "&cSvět {world} nebyl nalezen!&r"
+  world-is-enabled: "&a{world} &7je povolen!&r"
+  world-is-disabled: "&c{world} &7je zakázán!&r"
+
+states:
+  enabled: "&aPovoleno&r"
+  keep: "&bZachovat&r"
+  delete: "&eSmazat&r"
+  disable: "&cZakázat&r"
+
+commands:
+  help:
+    title: "&7&lNápověda Disenchantment {page}"
+    pages:
+      1:
+        - "&f[ /disenchantment, /disenchant ]"
+        - ""
+        - "&8/disenchant help [page] &7- Zobrazí tuto stránku nápovědy"
+        - "&8/disenchant gui &7- Otevře GUI pro úpravu nastavení pluginu"
+      2:
+        - "&8/disenchant status &7- Zobrazí stav pluginu"
+        - "&8/disenchant toggle ['global', 'disenchantment', 'shatterment'] &7- Přepne plugin zapnuto/vypnuto"
+      3:
+        - "&8/disenchant disenchant:enchantments &7- Zobrazí seznam stavů očarování"
+        - "&8/disenchant disenchant:enchantments [enchantment name] ['enable', 'keep', 'delete', 'cancel'] &7- Upraví chování očarování"
+        - "&8/disenchant disenchant:worlds &7- Zobrazí seznam zakázaných světů"
+        - "&8/disenchant disenchant:worlds [world] &7- Přepne odčarování ve světě zapnuto/vypnuto"
+        - "&8/disenchant disenchant:materials &7- Zobrazí seznam zakázaných materiálů"
+        - "&8/disenchant disenchant:materials [material] &7- Přepne odčarování materiálu zapnuto/vypnuto"
+      4:
+        - "&8/disenchant disenchant:repair &7- Zobrazí nastavení oprav"
+        - "&8/disenchant disenchant:repair ['enable', 'disable'] &7- Přepne opravy zapnuto/vypnuto"
+        - "&8/disenchant disenchant:repair reset ['enable', 'disable'] &7- Přepne reset ceny zapnuto/vypnuto"
+        - "&8/disenchant disenchant:repair base [int] &7- Nastaví základní cenu"
+        - "&8/disenchant disenchant:repair multiply [float] &7- Nastaví násobitel"
+      5:
+        - "&8/disenchant disenchant:sound &7- Zobrazí nastavení zvuku"
+        - "&8/disenchant disenchant:sound ['enable', 'disable'] &7- Přepne zvuk zapnuto/vypnuto"
+        - "&8/disenchant disenchant:sound volume [float] &7- Nastaví hlasitost"
+        - "&8/disenchant disenchant:sound pitch [float] &7- Nastaví výšku tónu"
+      6:
+        - "&8/disenchant shatter:enchantments &7- Zobrazí seznam stavů očarování"
+        - "&8/disenchant shatter:enchantments [enchantment name] ['enable', 'keep', 'delete', 'cancel'] &7- Upraví chování očarování"
+        - "&8/disenchant shatter:worlds &7- Zobrazí seznam zakázaných světů"
+        - "&8/disenchant shatter:worlds [world] &7- Přepne roztříštění ve světě zapnuto/vypnuto"
+      7:
+        - "&8/disenchant shatter:repair &7- Zobrazí nastavení oprav"
+        - "&8/disenchant shatter:repair ['enable', 'disable'] &7- Přepne opravy zapnuto/vypnuto"
+        - "&8/disenchant shatter:repair reset ['enable', 'disable'] &7- Přepne reset ceny zapnuto/vypnuto"
+        - "&8/disenchant shatter:repair base [int] &7- Nastaví základní cenu"
+        - "&8/disenchant shatter:repair multiply [float] &7- Nastaví násobitel"
+      8:
+        - "&8/disenchant shatter:sound &7- Zobrazí nastavení zvuku"
+        - "&8/disenchant shatter:sound ['enable', 'disable'] &7- Přepne zvuk zapnuto/vypnuto"
+        - "&8/disenchant shatter:sound volume [float] &7- Nastaví hlasitost"
+        - "&8/disenchant shatter:sound pitch [float] &7- Nastaví výšku tónu"
+  status:
+    title: "&7&lStav Disenchantment&r"
+    global: "&7Globální: {state}&r"
+    disenchantment: "&7Odčarování: {state}&r"
+    shatterment: "&7Roztříštění: {state}&r"
+    states:
+      enabled: "&aPovoleno&r"
+      disabled: "&cZakázáno&r"
+  enchantments:
+    disenchantment:
+      title: "&7&lStavy očarování pro odčarování&r"
+      empty: "&7Žádná očarování nenalezena!&r"
+      enchantment: "&7{enchantment}: {state}&r"
+    shatterment:
+      title: "&7&lStavy očarování pro roztříštění&r"
+      empty: "&7Žádná očarování nenalezena!&r"
+      enchantment: "&7{enchantment}: {state}&r"
+  materials:
+    disenchantment:
+      title: "&7&lMateriály pro odčarování&r"
+      empty: "&7Žádné materiály nenalezeny!&r"
+      material: "&7{material}: {state}&r"
+      states:
+        disabled: "&cZakázáno&r"
+  repair:
+    disenchantment:
+      title: "&7&lNastavení oprav pro odčarování&r"
+      reset: "&7Reset ceny: {state}&r"
+      cost: "&7Cena: {state}&r"
+      base: "&7Základní cena: {cost}&r"
+      multiply: "&7Násobitel: {multiply}&r"
+      states:
+        enabled: "&aPovoleno&r"
+        disabled: "&cZakázáno&r"
+    shatterment:
+      title: "&7&lNastavení oprav pro roztříštění&r"
+      reset: "&7Reset ceny: {state}&r"
+      cost: "&7Cena: {state}&r"
+      base: "&7Základní cena: {cost}&r"
+      multiply: "&7Násobitel: {multiply}&r"
+      states:
+        enabled: "&aPovoleno&r"
+        disabled: "&cZakázáno&r"
+  sound:
+    disenchantment:
+      title: "&7&lNastavení zvuku pro odčarování&r"
+      sound: "&7Zvuk: {state}&r"
+      volume: "&7Hlasitost: {volume}&r"
+      pitch: "&7Výška tónu: {pitch}&r"
+      states:
+        enabled: "&aPovoleno&r"
+        disabled: "&cZakázáno&r"
+    shatterment:
+      title: "&7&lNastavení zvuku pro roztříštění&r"
+      sound: "&7Zvuk: {state}&r"
+      volume: "&7Hlasitost: {volume}&r"
+      pitch: "&7Výška tónu: {pitch}&r"
+      states:
+        enabled: "&aPovoleno&r"
+        disabled: "&cZakázáno&r"
+  worlds:
+    disenchantment:
+      title: "&7&lSvěty pro odčarování&r"
+      empty: "&7Žádné světy nenalezeny!&r"
+      world: "&7{world}: {state}&r"
+      states:
+        disabled: "&cZakázáno&r"
+    shatterment:
+      title: "&7&lSvěty pro roztříštění&r"
+      empty: "&7Žádné světy nenalezeny!&r"
+      world: "&7{world}: {state}&r"
+      states:
+        disabled: "&cZakázáno&r"
+
+gui:
+  back: "&8Zpět&r"
+  previous: "&6Předchozí&r"
+  next: "&6Další&r"
+  navigation:
+    inventory: "&7&lNavigace&r"
+    plugin:
+      title: "&7&lPlugin&r"
+      lore:
+        enabled:
+          - "&aPovoleno&r"
+          - "&7Klikněte pro zakázání&r"
+        disabled:
+          - "&cZakázáno&r"
+          - "&7Klikněte pro povolení&r"
+    worlds:
+      title: "&a&lSvěty&r"
+      lore:
+        - "&7Povolte nebo zakažte konkrétní světy"
+    repair:
+      title: "&e&lOprava&r"
+      lore:
+        - "&7Upravte nastavení oprav"
+        - "&7LEVÝ KLIK pro úpravu odčarování"
+        - "&7PRAVÝ KLIK pro úpravu roztříštění"
+    enchantments:
+      title: "&d&lOčarování&r"
+      lore:
+        - "&7Upravte chování očarování"
+    materials:
+      title: "&9&lMateriály&r"
+      lore:
+        - "&7Povolte nebo zakažte konkrétní materiály"
+    sound:
+      title: "&f&lZvuk&r"
+      lore:
+        - "&7Upravte nastavení zvuku"
+        - "&7LEVÝ KLIK pro úpravu odčarování"
+        - "&7PRAVÝ KLIK pro úpravu roztříštění"
+    spigot:
+      title: "&6&lOdkaz na spigot&r"
+      lore:
+        - "&7Přesměruje na stránku pluginu na spigotmc.org"
+  worlds:
+    inventory: "&7&lSvěty&r"
+    lore:
+      disenchantment:
+        enabled: "&7Odčarování: &aPovoleno&r"
+        disabled: "&7Odčarování: &cZakázáno&r"
+      shatterment:
+        enabled: "&7Roztříštění: &aPovoleno&r"
+        disabled: "&7Roztříštění: &cZakázáno&r"
+    help:
+      title: "&d&lNápověda&r"
+      lore:
+        - "&7Klikněte pro přepnutí světů zapnuto/vypnuto"
+        - "&7LEVÝ KLIK pro odčarování"
+        - "&7PRAVÝ KLIK pro roztříštění"
+  repair:
+    disenchantment:
+      inventory: "&7&lOprava | Odčarování&r"
+      cost:
+        title: "&7&lCena opravy&r"
+        lore:
+          enabled:
+            - "&aPovoleno&r"
+            - "&7Klikněte pro zakázání&r"
+          disabled:
+            - "&cZakázáno&r"
+            - "&7Klikněte pro povolení&r"
+      reset:
+        title: "&7&lReset ceny na 0&r"
+        lore:
+          enabled:
+            - "&aPovoleno&r"
+            - "&7Klikněte pro zakázání&r"
+          disabled:
+            - "&cZakázáno&r"
+            - "&7Klikněte pro povolení&r"
+      base:
+        title: "&7&lZákladní cena&r"
+        lore:
+          - "&7Aktuální hodnota: &f{cost}&r"
+          - "&7LEVÝ KLIK pro zvýšení"
+          - "&7PRAVÝ KLIK pro snížení"
+      multiplier:
+        title: "&7&lNásobitel&r"
+        lore:
+          - "&7Aktuální hodnota: &f{multiplier}&r"
+          - "&7LEVÝ KLIK pro zvýšení"
+          - "&7PRAVÝ KLIK pro snížení"
+          - "&7[ base + (level * multiply) ]"
+    shatterment:
+      inventory: "&7&lOprava | Roztříštění&r"
+      cost:
+        title: "&7&lCena opravy&r"
+        lore:
+          enabled:
+            - "&aPovoleno&r"
+            - "&7Klikněte pro zakázání&r"
+          disabled:
+            - "&cZakázáno&r"
+            - "&7Klikněte pro povolení&r"
+      reset:
+        title: "&7&lReset ceny na 0&r"
+        lore:
+          enabled:
+            - "&aPovoleno&r"
+            - "&7Klikněte pro zakázání&r"
+          disabled:
+            - "&cZakázáno&r"
+            - "&7Klikněte pro povolení&r"
+      base:
+        title: "&7&lZákladní cena&r"
+        lore:
+          - "&7Aktuální hodnota: &f{cost}&r"
+          - "&7LEVÝ KLIK pro zvýšení"
+          - "&7PRAVÝ KLIK pro snížení"
+      multiplier:
+        title: "&7&lNásobitel&r"
+        lore:
+          - "&7Aktuální hodnota: &f{multiplier}&r"
+          - "&7LEVÝ KLIK pro zvýšení"
+          - "&7PRAVÝ KLIK pro snížení"
+          - "&7[ base + (level * multiply) ]"
+  enchantments:
+    inventory: "&7&lOčarování&r"
+    lore:
+      disenchantment: "&7Odčarování: {state}&r"
+      shatterment: "&7Roztříštění: {state}&r"
+    help:
+      title: "&d&lNápověda&r"
+      lore:
+        - "&7Klikněte pro změnu chování očarování&r"
+        - "&7Povoleno > Zachovat > Smazat > Zakázáno > Povoleno&r"
+        - "&7LEVÝ KLIK pro odčarování&r"
+        - "&7PRAVÝ KLIK pro roztříštění&r"
+        - "&7-----------------------------&r"
+        - "&aPovoleno&7: Očarování lze odčarovat/roztříštit&r"
+        - "&bZachovat&7: Očarování zůstane na předmětu&r"
+        - "&eSmazat&7: Očarování bude odstraněno z předmětu&r"
+        - "&cZakázáno&7: Odčarování/Roztříštění s tímto očarováním je zakázáno&r"
+  materials:
+    inventory: "&7&lMateriály&r"
+    lore:
+      enabled: "&7Odčarování: &aPovoleno&r"
+      disabled: "&7Odčarování: &cZakázáno&r"
+    help:
+      title: "&d&lNápověda&r"
+      lore:
+        - "&7Klikněte pro přepnutí materiálů zapnuto/vypnuto"
+        - "&7Pouze pro funkci odčarování"
+        - "&7Pro úpravu dalších materiálů použijte&r"
+        - "&7příkaz: /disenchantment disenchant:materials&r"
+  sound:
+    disenchantment:
+      inventory: "&7&lZvuk | Odčarování&r"
+      title: "&7&lZvuk&r"
+      lore:
+        enabled:
+          - "&aPovoleno&r"
+          - "&7Klikněte pro zakázání&r"
+        disabled:
+          - "&cZakázáno&r"
+          - "&7Klikněte pro povolení&r"
+      volume:
+        title: "&7&lHlasitost&r"
+        lore:
+          - "&7Aktuální hodnota: &f{volume}&r"
+          - "&7LEVÝ KLIK pro zvýšení"
+          - "&7PRAVÝ KLIK pro snížení"
+      pitch:
+        title: "&7&lVýška tónu&r"
+        lore:
+          - "&7Aktuální hodnota: &f{pitch}&r"
+          - "&7LEVÝ KLIK pro zvýšení"
+          - "&7PRAVÝ KLIK pro snížení"
+    shatterment:
+      inventory: "&7&lZvuk | Roztříštění&r"
+      title: "&7&lZvuk&r"
+      lore:
+        enabled:
+          - "&aPovoleno&r"
+          - "&7Klikněte pro zakázání&r"
+        disabled:
+          - "&cZakázáno&r"
+          - "&7Klikněte pro povolení&r"
+      volume:
+        title: "&7&lHlasitost&r"
+        lore:
+          - "&7Aktuální hodnota: &f{volume}&r"
+          - "&7LEVÝ KLIK pro zvýšení"
+          - "&7PRAVÝ KLIK pro snížení"
+      pitch:
+        title: "&7&lVýška tónu&r"
+        lore:
+          - "&7Aktuální hodnota: &f{pitch}&r"
+          - "&7LEVÝ KLIK pro zvýšení"
+          - "&7PRAVÝ KLIK pro snížení"

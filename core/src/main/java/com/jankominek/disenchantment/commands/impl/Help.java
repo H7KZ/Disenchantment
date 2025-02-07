@@ -20,8 +20,8 @@ public class Help {
 
     public static void execute(CommandSender s, String[] args) {
         if (args.length == 1) {
-            s.sendMessage(I18n.Commands.Help.title() + "1/" + Help.command.args.length);
-            for (String help : I18n.Commands.Help.pages().get(1)) {
+            s.sendMessage(I18n.Commands.Help.title("1/" + Help.command.args.length));
+            for (String help : I18n.Commands.Help.pages().get(0)) {
                 s.sendMessage(help);
             }
 
@@ -40,9 +40,9 @@ public class Help {
         page = Math.min(page, Help.command.args.length);
         page = Math.max(page, 1);
 
-        List<String> pageItems = I18n.Commands.Help.pages().get(page);
+        List<String> pageItems = I18n.Commands.Help.pages().get(page - 1);
 
-        s.sendMessage(I18n.Commands.Help.title() + page + "/" + Help.command.args.length);
+        s.sendMessage(I18n.Commands.Help.title(page + "/" + Help.command.args.length));
         for (String help : pageItems) {
             s.sendMessage(help);
         }
