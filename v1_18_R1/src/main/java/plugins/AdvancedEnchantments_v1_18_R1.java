@@ -7,6 +7,7 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class AdvancedEnchantments_v1_18_R1 implements ISupportedPlugin {
     public String getName() {
@@ -14,13 +15,12 @@ public class AdvancedEnchantments_v1_18_R1 implements ISupportedPlugin {
     }
 
     public ItemStack createEnchantedBook(Map<Enchantment, Integer> enchantments) {
-        ItemStack book = new ItemStack(Material.ENCHANTED_BOOK);
+        AtomicReference<ItemStack> book = new AtomicReference<>(new ItemStack(Material.ENCHANTED_BOOK));
 
         enchantments.forEach((en, l) -> {
-            // Deprecated?! TODO: replace deprecated method
-            AEAPI.applyEnchant(en.getKey().getKey(), l, book, true);
+            book.set(AEAPI.applyEnchant(en.getKey().getKey(), l, book.get()));
         });
-        return book;
+        return book.get();
     }
 
     public ItemStack removeEnchantmentsFromItem(ItemStack firstItem, Map<Enchantment, Integer> enchantments) {
