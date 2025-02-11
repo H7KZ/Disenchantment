@@ -16,7 +16,7 @@ public class UberEnchant_v1_21_R1 implements ISupportedPlugin {
     public ItemStack createEnchantedBook(Map<Enchantment, Integer> enchantments) {
         ItemStack book = new ItemStack(Material.ENCHANTED_BOOK);
 
-        enchantments.forEach((en, l) -> EnchantmentUtils.setEnchantment(en, book, l));
+        enchantments.forEach((en, l) -> EnchantmentUtils.setStoredEnchantment(en, book, l));
 
         return book;
     }

@@ -60,11 +60,6 @@ public class ShatterClickEvent implements Listener {
             return;
         }
 
-        if (e.getClick().isShiftClick()) {
-            e.setCancelled(true);
-            return;
-        }
-
         if (!PermissionGroupType.SHATTER_EVENT.hasPermission(p)) return;
 
         int exp = p.getLevel() - AnvilCostUtils.getRepairCost(anvilInventory, e.getView());

@@ -60,11 +60,6 @@ public class DisenchantClickEvent implements Listener {
             return;
         }
 
-        if (e.getClick().isShiftClick()) {
-            e.setCancelled(true);
-            return;
-        }
-
         if (!PermissionGroupType.DISENCHANT_EVENT.hasPermission(p)) return;
 
         int exp = p.getLevel() - AnvilCostUtils.getRepairCost(anvilInventory, e.getView());
