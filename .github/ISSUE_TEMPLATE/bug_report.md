@@ -25,7 +25,7 @@ If applicable, add screenshots to help explain your problem.
 
 **System (please complete the following information):**
  - OS: [e.g. iOS, Windows]
- - Server: [e.g. Vanilla, Paper, Spigot]
+ - Server: [e.g. Vanilla 1.20, Paper 1.21.2, Spigot 1.21.4]
  - Java version [e.g. 17, 21, 23]
  - Plugin version [e.g. 6.0.0, 6.1.1]
 
