@@ -1,5 +1,5 @@
 # DO NOT EDIT THESE VALUES
-migration: 4
+migration: 3
 locales: [ "cs", "en" ]
 # ----------------------------------------------------------------------------------------
 # For descriptions of each option, see the wiki:
@@ -50,6 +50,6 @@ shatterment:
 event-priorities:
   disenchant-click-event: HIGHEST
   disenchant-event: HIGHEST
-  gui-click-event: NORMAL
+  gui-click-event: HIGHEST
   shatter-click-event: HIGHEST
   shatter-event: HIGHEST

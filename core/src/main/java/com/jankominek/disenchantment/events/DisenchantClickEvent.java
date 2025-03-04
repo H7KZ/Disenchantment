@@ -26,8 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 public class DisenchantClickEvent implements Listener {
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void onDisenchantmentClickEvent(InventoryClickEvent e) {
+    public static void handleEvent(InventoryClickEvent e) {
         if (!(e.getWhoClicked() instanceof Player p)) return;
 
         if (!Config.isPluginEnabled() || !Config.Disenchantment.isEnabled() || Config.Disenchantment.getDisabledWorlds().contains(p.getWorld()))
@@ -114,5 +113,29 @@ public class DisenchantClickEvent implements Listener {
         if (p.getGameMode() != org.bukkit.GameMode.CREATIVE) p.setLevel(exp);
 
         p.setItemOnCursor(result);
+    }
+    @EventHandler(priority = EventPriority.LOWEST)
+    public void onDisenchantmentClickEventLowest(InventoryClickEvent e) {
+        if (Config.getDisenchantEventPriority() == EventPriority.LOWEST) handleEvent(e);
+    }
+    @EventHandler(priority = EventPriority.LOW)
+    public void onDisenchantmentClickEventLow(InventoryClickEvent e) {
+        if (Config.getDisenchantEventPriority() == EventPriority.LOW) handleEvent(e);
+    }
+    @EventHandler(priority = EventPriority.NORMAL)
+    public void onDisenchantmentClickEventNormal(InventoryClickEvent e) {
+        if (Config.getDisenchantEventPriority() == EventPriority.NORMAL) handleEvent(e);
+    }
+    @EventHandler(priority = EventPriority.HIGH)
+    public void onDisenchantmentClickEventHigh(InventoryClickEvent e) {
+        if (Config.getDisenchantEventPriority() == EventPriority.HIGH) handleEvent(e);
+    }
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onDisenchantmentClickEventHighest(InventoryClickEvent e) {
+        if (Config.getDisenchantEventPriority() == EventPriority.HIGHEST) handleEvent(e);
+    }
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onDisenchantmentClickEventMonitor(InventoryClickEvent e) {
+        if (Config.getDisenchantEventPriority() == EventPriority.MONITOR) handleEvent(e);
     }
 }

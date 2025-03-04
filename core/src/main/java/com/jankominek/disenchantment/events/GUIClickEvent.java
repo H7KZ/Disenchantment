@@ -1,16 +1,17 @@
 package com.jankominek.disenchantment.events;
 
+import com.jankominek.disenchantment.config.Config;
 import com.jankominek.disenchantment.guis.impl.*;
 import com.jankominek.disenchantment.types.PermissionGroupType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.InventoryHolder;
 
 public class GUIClickEvent implements Listener {
-    @EventHandler
-    public void onInventoryClick(InventoryClickEvent e) {
+    private static void handleEvent(InventoryClickEvent e) {
         if (e.getClickedInventory() == null) return;
 
         if (!(e.getWhoClicked() instanceof Player p)) return;
@@ -50,5 +51,29 @@ public class GUIClickEvent implements Listener {
 
             ((EnchantmentsGUI) clickedHolder).onInventoryClick(e);
         }
+    }
+    @EventHandler (priority = EventPriority.LOWEST)
+    public void onInventoryClickLowest(InventoryClickEvent e) {
+        if (Config.getGuiClickEventPriority() == EventPriority.LOWEST) handleEvent(e);
+    }
+    @EventHandler (priority = EventPriority.LOW)
+    public void onInventoryClickLow(InventoryClickEvent e) {
+        if (Config.getGuiClickEventPriority() == EventPriority.LOW) handleEvent(e);
+    }
+    @EventHandler (priority = EventPriority.NORMAL)
+    public void onInventoryClickNormal(InventoryClickEvent e) {
+        if (Config.getGuiClickEventPriority() == EventPriority.NORMAL) handleEvent(e);
+    }
+    @EventHandler (priority = EventPriority.HIGH)
+    public void onInventoryClickHigh(InventoryClickEvent e) {
+        if (Config.getGuiClickEventPriority() == EventPriority.HIGH) handleEvent(e);
+    }
+    @EventHandler (priority = EventPriority.HIGHEST)
+    public void onInventoryClickHighest(InventoryClickEvent e) {
+        if (Config.getGuiClickEventPriority() == EventPriority.HIGHEST) handleEvent(e);
+    }
+    @EventHandler (priority = EventPriority.MONITOR)
+    public void onInventoryClickMonitor(InventoryClickEvent e) {
+        if (Config.getGuiClickEventPriority() == EventPriority.MONITOR) handleEvent(e);
     }
 }
