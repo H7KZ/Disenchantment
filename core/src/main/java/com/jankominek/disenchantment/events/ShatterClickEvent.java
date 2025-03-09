@@ -12,9 +12,7 @@ import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
+import org.bukkit.event.Event;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.AnvilInventory;
@@ -25,8 +23,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class ShatterClickEvent implements Listener {
-    private static void handleEvent(InventoryClickEvent e) {
+public class ShatterClickEvent {
+    public static void onEvent(Event event) {
+        if (!(event instanceof InventoryClickEvent e)) return;
+
         if (!(e.getWhoClicked() instanceof Player p)) return;
 
         if (!Config.isPluginEnabled() || !Config.Shatterment.isEnabled() || Config.Shatterment.getDisabledWorlds().contains(p.getWorld()))
@@ -53,6 +53,11 @@ public class ShatterClickEvent implements Listener {
         if (enchantments.isEmpty()) return;
 
         if (result.getType() != Material.ENCHANTED_BOOK) return;
+
+        if (e.isShiftClick()) {
+            e.setCancelled(true);
+            return;
+        }
 
         if (AnvilCostUtils.getRepairCost(anvilInventory, e.getView()) > p.getLevel() && p.getGameMode() != org.bukkit.GameMode.CREATIVE) {
             e.setCancelled(true);
@@ -113,29 +118,5 @@ public class ShatterClickEvent implements Listener {
         if (p.getGameMode() != org.bukkit.GameMode.CREATIVE) p.setLevel(exp);
 
         p.setItemOnCursor(result);
-    }
-    @EventHandler(priority = EventPriority.LOWEST)
-    public void onDisenchantmentClickEventLowest(InventoryClickEvent e) {
-        if (Config.getShatterClickEventPriority() == EventPriority.LOWEST) handleEvent(e);
-    }
-    @EventHandler(priority = EventPriority.LOW)
-    public void onDisenchantmentClickEventLow(InventoryClickEvent e) {
-        if (Config.getShatterClickEventPriority() == EventPriority.LOW) handleEvent(e);
-    }
-    @EventHandler(priority = EventPriority.NORMAL)
-    public void onDisenchantmentClickEventNormal(InventoryClickEvent e) {
-        if (Config.getShatterClickEventPriority() == EventPriority.NORMAL) handleEvent(e);
-    }
-    @EventHandler(priority = EventPriority.HIGH)
-    public void onDisenchantmentClickEventHigh(InventoryClickEvent e) {
-        if (Config.getShatterClickEventPriority() == EventPriority.HIGH) handleEvent(e);
-    }
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void onDisenchantmentClickEventHighest(InventoryClickEvent e) {
-        if (Config.getShatterClickEventPriority() == EventPriority.HIGHEST) handleEvent(e);
-    }
-    @EventHandler(priority = EventPriority.MONITOR)
-    public void onDisenchantmentClickEventMonitor(InventoryClickEvent e) {
-        if (Config.getShatterClickEventPriority() == EventPriority.MONITOR) handleEvent(e);
     }
 }

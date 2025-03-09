@@ -10,6 +10,12 @@ enabled: true
 
 locale: "en"
 
+event-priorities:
+  disenchant-click: HIGHEST
+  disenchant: HIGHEST
+  shatter-click: HIGHEST
+  shatter: HIGHEST
+
 # ----------------------------------------------------------------------------------------
 
 disenchantment:
@@ -44,12 +50,3 @@ shatterment:
       cost: true
       base: 10
       multiply: 0.25
-
-# ----------------------------------------------------------------------------------------
-
-event-priorities:
-  disenchant-click-event: HIGHEST
-  disenchant-event: HIGHEST
-  gui-click-event: NORMAL
-  shatter-click-event: HIGHEST
-  shatter-event: HIGHEST

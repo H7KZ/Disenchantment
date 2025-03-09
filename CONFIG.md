@@ -2,9 +2,24 @@
 
 ```yaml
 
+# Available locales - do not change this value
+locales: [ "cs", "en" ]
+
 # Boolean - Enable or disable the plugin
 enabled: true
 
+# String - Set the locale for the plugin, available locales are in the list above
+locale: "en"
+
+# EventPriority - Set the priority for the events
+# Available priorities (sorted by priority): LOWEST, LOW, NORMAL, HIGH, HIGHEST, MONITOR
+# Read more here: https://hub.spigotmc.org/javadocs/spigot/org/bukkit/event/EventPriority.html
+event-priorities:
+  disenchant-click: HIGHEST
+  disenchant: HIGHEST
+  shatter-click: HIGHEST
+  shatter: HIGHEST
+  
 # ----------------------------------------------------------------------------------------
 
 disenchantment:

@@ -1,6 +1,6 @@
 # DO NOT EDIT THESE VALUES
 migration: 3
-locales: [ "cs", "de", "en", "es" ]
+locales: [ "cs", "en" ]
 # ----------------------------------------------------------------------------------------
 # For descriptions of each option, see the wiki:
 # https://github.com/H7KZ/Disenchantment/CONFIG.md

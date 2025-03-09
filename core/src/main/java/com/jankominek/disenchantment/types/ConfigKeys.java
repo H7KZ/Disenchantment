@@ -7,6 +7,12 @@ public enum ConfigKeys {
 
     LOCALE("locale"),
 
+    // Event priority settings
+    EVENT_PRIORITIES_DISENCHANT_CLICK("event-priorities.disenchant-click"),
+    EVENT_PRIORITIES_DISENCHANT("event-priorities.disenchant"),
+    EVENT_PRIORITIES_SHATTER_CLICK("event-priorities.shatter-click"),
+    EVENT_PRIORITIES_SHATTER("event-priorities.shatter"),
+
     // Disenchantment settings
     DISENCHANTMENT_ENABLED("disenchantment.enabled"),
     DISENCHANTMENT_DISABLED_WORLDS("disenchantment.disabled-worlds"),
@@ -35,13 +41,6 @@ public enum ConfigKeys {
     SHATTERMENT_REPAIR_COST_ENABLED("shatterment.anvil.repair.cost"),
     SHATTERMENT_REPAIR_COST_BASE("shatterment.anvil.repair.base"),
     SHATTERMENT_REPAIR_COST_MULTIPLIER("shatterment.anvil.repair.multiply"),
-
-    // Event priority settings
-    PRIORITY_DISENCHANT_CLICK_EVENT("event-priorities.disenchant-click-event"),
-    PRIORITY_DISENCHANT_EVENT("event-priorities.disenchant-event"),
-    PRIORITY_GUI_CLICK_EVENT("event-priorities.gui-click-event"),
-    PRIORITY_SHATTER_CLICK_EVENT("event-priorities.shatter-click-event"),
-    PRIORITY_SHATTER_EVENT("event-priorities.shatter-event"),
     ;
 
     private final String key;

@@ -37,6 +37,40 @@ public class Config {
         return config.getString(ConfigKeys.LOCALE.getKey());
     }
 
+    public static class EventPriorities {
+        public static EventPriority getDisenchantEvent() {
+            try {
+                return EventPriority.valueOf(config.getString(ConfigKeys.EVENT_PRIORITIES_DISENCHANT.getKey(), "HIGHEST").toUpperCase());
+            } catch (IllegalArgumentException e) {
+                return EventPriority.HIGHEST;
+            }
+        }
+
+        public static EventPriority getDisenchantClickEvent() {
+            try {
+                return EventPriority.valueOf(config.getString(ConfigKeys.EVENT_PRIORITIES_DISENCHANT_CLICK.getKey(), "HIGHEST").toUpperCase());
+            } catch (IllegalArgumentException e) {
+                return EventPriority.HIGHEST;
+            }
+        }
+
+        public static EventPriority getShatterEvent() {
+            try {
+                return EventPriority.valueOf(config.getString(ConfigKeys.EVENT_PRIORITIES_SHATTER.getKey(), "HIGHEST").toUpperCase());
+            } catch (IllegalArgumentException e) {
+                return EventPriority.HIGHEST;
+            }
+        }
+
+        public static EventPriority getShatterClickEvent() {
+            try {
+                return EventPriority.valueOf(config.getString(ConfigKeys.EVENT_PRIORITIES_SHATTER_CLICK.getKey(), "HIGHEST").toUpperCase());
+            } catch (IllegalArgumentException e) {
+                return EventPriority.HIGHEST;
+            }
+        }
+    }
+
     public static class Disenchantment {
         private static HashMap<Enchantment, EnchantmentStateType> ENCHANTMENT_STATES_CACHE = null;
 
@@ -362,60 +396,5 @@ public class Config {
                 }
             }
         }
-    }
-
-    public static EventPriority getDisenchantClickEventPriority() {
-        return EventPriority.valueOf(config.getString(ConfigKeys.PRIORITY_DISENCHANT_CLICK_EVENT.getKey(), "HIGHEST").toUpperCase());
-    }
-
-    public static boolean setDisenchantClickEventPriority(EventPriority priority) {
-        config.set(ConfigKeys.PRIORITY_DISENCHANT_CLICK_EVENT.getKey(), priority.name());
-        plugin.saveConfig();
-
-        return getDisenchantClickEventPriority() == priority;
-    }
-
-    public static EventPriority getDisenchantEventPriority() {
-        return EventPriority.valueOf(config.getString(ConfigKeys.PRIORITY_DISENCHANT_EVENT.getKey(), "HIGHEST").toUpperCase());
-    }
-
-    public static boolean setDisenchantEventPriority(EventPriority priority) {
-        config.set(ConfigKeys.PRIORITY_DISENCHANT_EVENT.getKey(), priority.name());
-        plugin.saveConfig();
-
-        return getDisenchantEventPriority() == priority;
-    }
-
-    public static EventPriority getGuiClickEventPriority() {
-        return EventPriority.valueOf(config.getString(ConfigKeys.PRIORITY_GUI_CLICK_EVENT.getKey(), "NORMAL").toUpperCase());
-    }
-
-    public static boolean setGuiClickEventPriority(EventPriority priority) {
-        config.set(ConfigKeys.PRIORITY_GUI_CLICK_EVENT.getKey(), priority.name());
-        plugin.saveConfig();
-
-        return getGuiClickEventPriority() == priority;
-    }
-
-    public static EventPriority getShatterClickEventPriority() {
-        return EventPriority.valueOf(config.getString(ConfigKeys.PRIORITY_SHATTER_CLICK_EVENT.getKey(), "HIGHEST").toUpperCase());
-    }
-
-    public static boolean setShatterClickEventPriority(EventPriority priority) {
-        config.set(ConfigKeys.PRIORITY_SHATTER_CLICK_EVENT.getKey(), priority.name());
-        plugin.saveConfig();
-
-        return getShatterClickEventPriority() == priority;
-    }
-
-    public static EventPriority getShatterEventPriority() {
-        return EventPriority.valueOf(config.getString(ConfigKeys.PRIORITY_SHATTER_EVENT.getKey(), "HIGHEST").toUpperCase());
-    }
-
-    public static boolean setShatterEventPriority(EventPriority priority) {
-        config.set(ConfigKeys.PRIORITY_SHATTER_EVENT.getKey(), priority.name());
-        plugin.saveConfig();
-
-        return getShatterEventPriority() == priority;
     }
 }

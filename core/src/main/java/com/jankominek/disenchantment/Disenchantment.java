@@ -4,7 +4,11 @@ import com.jankominek.disenchantment.commands.CommandCompleter;
 import com.jankominek.disenchantment.commands.CommandRegister;
 import com.jankominek.disenchantment.config.Config;
 import com.jankominek.disenchantment.config.migration.ConfigMigrations;
-import com.jankominek.disenchantment.events.*;
+import com.jankominek.disenchantment.events.GUIClickEvent;
+import com.jankominek.disenchantment.listeners.DisenchantClickListener;
+import com.jankominek.disenchantment.listeners.DisenchantListener;
+import com.jankominek.disenchantment.listeners.ShatterClickListener;
+import com.jankominek.disenchantment.listeners.ShatterListener;
 import com.jankominek.disenchantment.nms.NMS;
 import com.jankominek.disenchantment.nms.NMSMapper;
 import com.jankominek.disenchantment.plugins.SupportedPluginManager;
@@ -21,6 +25,7 @@ import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -43,7 +48,7 @@ public final class Disenchantment extends JavaPlugin {
     public static Logger logger;
 
     // Tasks
-    private final BukkitTask[] tasks = new BukkitTask[2];
+    private final ArrayList<BukkitTask> tasks = new ArrayList<>();
 
     public static void onToggle(boolean enable) {
         enabled = enable;
@@ -98,10 +103,10 @@ public final class Disenchantment extends JavaPlugin {
         SupportedPluginManager.activatePlugins(activatedPlugins);
 
         // Events
-        getServer().getPluginManager().registerEvents(new DisenchantEvent(), plugin);
-        getServer().getPluginManager().registerEvents(new DisenchantClickEvent(), plugin);
-        getServer().getPluginManager().registerEvents(new ShatterEvent(), plugin);
-        getServer().getPluginManager().registerEvents(new ShatterClickEvent(), plugin);
+        new DisenchantListener(Config.EventPriorities.getDisenchantEvent());
+        new DisenchantClickListener(Config.EventPriorities.getDisenchantClickEvent());
+        new ShatterListener(Config.EventPriorities.getShatterEvent());
+        new ShatterClickListener(Config.EventPriorities.getShatterClickEvent());
         getServer().getPluginManager().registerEvents(new GUIClickEvent(), plugin);
 
         // Commands
@@ -112,7 +117,7 @@ public final class Disenchantment extends JavaPlugin {
         new BStatsMetrics(plugin, bstatsId);
 
         // Automatic update check
-        tasks[0] = new UpdateChecker(spigotmcId).run(plugin, plugin.getDescription().getVersion());
+        tasks.add(new UpdateChecker(spigotmcId).run(plugin, plugin.getDescription().getVersion()));
 
         logger.info("Disenchantment enabled!");
     }
@@ -120,7 +125,11 @@ public final class Disenchantment extends JavaPlugin {
     @Override
     public void onDisable() {
         for (BukkitTask task : tasks) {
-            task.cancel();
+            try {
+                task.cancel();
+            } catch (Exception e) {
+                logger.log(Level.INFO, "Could not cancel task: ", e.getMessage());
+            }
         }
 
         getServer().getScheduler().cancelTasks(plugin);

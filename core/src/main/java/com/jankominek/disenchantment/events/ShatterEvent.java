@@ -13,9 +13,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
+import org.bukkit.event.Event;
 import org.bukkit.event.inventory.PrepareAnvilEvent;
 import org.bukkit.inventory.ItemStack;
 
@@ -23,8 +21,10 @@ import java.util.*;
 
 import static com.jankominek.disenchantment.utils.AnvilCostUtils.countAnvilCost;
 
-public class ShatterEvent implements Listener {
-    private static void handleEvent(PrepareAnvilEvent e) {
+public class ShatterEvent {
+    public static void onEvent(Event event) {
+        if (!(event instanceof PrepareAnvilEvent e)) return;
+
         if (!(e.getView().getPlayer() instanceof Player p)) return;
 
         if (!Config.isPluginEnabled() || !Config.Shatterment.isEnabled() || Config.Shatterment.getDisabledWorlds().contains(p.getWorld()))
@@ -79,29 +79,5 @@ public class ShatterEvent implements Listener {
 
             p.updateInventory();
         });
-    }
-    @EventHandler(priority = EventPriority.LOWEST)
-    public void onDisenchantmentEventLowest(PrepareAnvilEvent e) {
-        if (Config.getShatterEventPriority() == EventPriority.LOWEST) handleEvent(e);
-    }
-    @EventHandler(priority = EventPriority.LOW)
-    public void onDisenchantmentEventLow(PrepareAnvilEvent e) {
-        if (Config.getShatterEventPriority() == EventPriority.LOW) handleEvent(e);
-    }
-    @EventHandler(priority = EventPriority.NORMAL)
-    public void onDisenchantmentEventNormal(PrepareAnvilEvent e) {
-        if (Config.getShatterEventPriority() == EventPriority.NORMAL) handleEvent(e);
-    }
-    @EventHandler(priority = EventPriority.HIGH)
-    public void onDisenchantmentEventHigh(PrepareAnvilEvent e) {
-        if (Config.getShatterEventPriority() == EventPriority.HIGH) handleEvent(e);
-    }
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void onDisenchantmentEventHighest(PrepareAnvilEvent e) {
-        if (Config.getShatterEventPriority() == EventPriority.HIGHEST) handleEvent(e);
-    }
-    @EventHandler(priority = EventPriority.MONITOR)
-    public void onDisenchantmentEventMonitor(PrepareAnvilEvent e) {
-        if (Config.getShatterEventPriority() == EventPriority.MONITOR) handleEvent(e);
     }
 }
