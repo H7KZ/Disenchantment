@@ -1,8 +1,10 @@
 package com.jankominek.disenchantment.commands;
 
 import com.jankominek.disenchantment.commands.impl.*;
+import com.jankominek.disenchantment.utils.ErrorUtils;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.event.Event;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -28,9 +30,15 @@ public class CommandRegister implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, org.bukkit.command.Command command, String label, String[] args) {
-        if (args.length == 0) return executeCommand("help", sender, args);
+        try {
+            if (args.length == 0) return executeCommand("help", sender, args);
 
-        return executeCommand(args[0].toLowerCase(), sender, args);
+            return executeCommand(args[0].toLowerCase(), sender, args);
+        } catch (Exception e) {
+            ErrorUtils.fullReportError(e);
+
+            return false;
+        }
     }
 
     private boolean executeCommand(String name, CommandSender sender, String[] args) {

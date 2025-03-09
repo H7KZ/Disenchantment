@@ -7,6 +7,7 @@ import com.jankominek.disenchantment.plugins.VanillaPlugin;
 import com.jankominek.disenchantment.types.PermissionGroupType;
 import com.jankominek.disenchantment.utils.AnvilCostUtils;
 import com.jankominek.disenchantment.utils.EnchantmentUtils;
+import com.jankominek.disenchantment.utils.ErrorUtils;
 import com.jankominek.disenchantment.utils.EventUtils;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -25,6 +26,14 @@ import java.util.Map;
 
 public class ShatterClickEvent {
     public static void onEvent(Event event) {
+        try {
+            handler(event);
+        } catch (Exception e) {
+            ErrorUtils.fullReportError(e);
+        }
+    }
+
+    private static void handler(Event event) {
         if (!(event instanceof InventoryClickEvent e)) return;
 
         if (!(e.getWhoClicked() instanceof Player p)) return;

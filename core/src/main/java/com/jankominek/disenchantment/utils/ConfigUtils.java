@@ -1,8 +1,20 @@
 package com.jankominek.disenchantment.utils;
 
+import com.jankominek.disenchantment.config.Config;
+import com.jankominek.disenchantment.config.migration.ConfigMigrations;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 
+import java.io.File;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.util.Objects;
 import java.util.Set;
+import java.util.logging.Level;
+
+import static com.jankominek.disenchantment.Disenchantment.logger;
+import static com.jankominek.disenchantment.Disenchantment.plugin;
 
 public class ConfigUtils {
     public static void copyKeys(Set<String> keys, FileConfiguration oldConfig, FileConfiguration configTemplate) {
@@ -22,6 +34,38 @@ public class ConfigUtils {
             else if (oldConfig.isLocation(key)) configTemplate.set(key, oldConfig.getLocation(key));
             else if (oldConfig.isConfigurationSection(key))
                 configTemplate.set(key, oldConfig.getConfigurationSection(key));
+        }
+    }
+
+    public static void setupConfig() {
+        plugin.saveDefaultConfig();
+
+        FileConfiguration oldConfig = YamlConfiguration.loadConfiguration(new File(plugin.getDataFolder(), "config.yml"));
+        FileConfiguration newConfig = YamlConfiguration.loadConfiguration(new InputStreamReader(Objects.requireNonNull(plugin.getResource("config.yml")), StandardCharsets.UTF_8));
+
+        FileConfiguration updatedConfig = ConfigMigrations.apply(plugin, oldConfig, newConfig);
+
+        try {
+            updatedConfig.save(new File(plugin.getDataFolder(), "config.yml"));
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "Could not save config.yml", e);
+        }
+
+        plugin.reloadConfig();
+    }
+
+    public static void setupLocaleConfigs() {
+        for (String locale : Config.getLocales()) {
+            File localeFile = new File(plugin.getDataFolder(), "locales/" + locale + ".yml");
+
+            try {
+                InputStream in = plugin.getResource("locales/" + locale + ".yml");
+                if (in != null) {
+                    YamlConfiguration.loadConfiguration(new InputStreamReader(in, StandardCharsets.UTF_8)).save(localeFile);
+                }
+            } catch (Exception e) {
+                logger.log(Level.SEVERE, "Could not save " + locale + ".yml", e);
+            }
         }
     }
 }

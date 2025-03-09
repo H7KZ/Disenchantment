@@ -13,6 +13,8 @@ import com.jankominek.disenchantment.nms.NMS;
 import com.jankominek.disenchantment.nms.NMSMapper;
 import com.jankominek.disenchantment.plugins.SupportedPluginManager;
 import com.jankominek.disenchantment.utils.BStatsMetrics;
+import com.jankominek.disenchantment.utils.ConfigUtils;
+import com.jankominek.disenchantment.utils.ErrorUtils;
 import com.jankominek.disenchantment.utils.UpdateChecker;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -54,8 +56,7 @@ public final class Disenchantment extends JavaPlugin {
         enabled = enable;
     }
 
-    @Override
-    public void onEnable() {
+    public void enable() {
         // Setup instances
         plugin = this;
         logger = getLogger();
@@ -71,11 +72,11 @@ public final class Disenchantment extends JavaPlugin {
         nms = mappedNMS;
 
         // Config
-        setupConfig();
+        ConfigUtils.setupConfig();
         config = getConfig();
 
         // Locale
-        setupLocaleConfigs();
+        ConfigUtils.setupLocaleConfigs();
         String locale = Config.getLocale();
         File localesFolder = new File(plugin.getDataFolder().getAbsolutePath() + "/locales");
         if (!localesFolder.exists()) {
@@ -122,14 +123,9 @@ public final class Disenchantment extends JavaPlugin {
         logger.info("Disenchantment enabled!");
     }
 
-    @Override
-    public void onDisable() {
+    public void disable() {
         for (BukkitTask task : tasks) {
-            try {
-                task.cancel();
-            } catch (Exception e) {
-                logger.log(Level.INFO, "Could not cancel task: ", e.getMessage());
-            }
+            task.cancel();
         }
 
         getServer().getScheduler().cancelTasks(plugin);
@@ -139,35 +135,22 @@ public final class Disenchantment extends JavaPlugin {
         logger.info("Disenchantment disabled!");
     }
 
-    private void setupConfig() {
-        plugin.saveDefaultConfig();
-
-        FileConfiguration oldConfig = YamlConfiguration.loadConfiguration(new File(plugin.getDataFolder(), "config.yml"));
-        FileConfiguration newConfig = YamlConfiguration.loadConfiguration(new InputStreamReader(Objects.requireNonNull(plugin.getResource("config.yml")), StandardCharsets.UTF_8));
-
-        FileConfiguration updatedConfig = ConfigMigrations.apply(plugin, oldConfig, newConfig);
-
+    @Override
+    public void onEnable() {
         try {
-            updatedConfig.save(new File(plugin.getDataFolder(), "config.yml"));
+            this.enable();
         } catch (Exception e) {
-            logger.log(Level.SEVERE, "Could not save config.yml", e);
+            ErrorUtils.fullReportError(e);
+            getServer().getPluginManager().disablePlugin(this);
         }
-
-        plugin.reloadConfig();
     }
 
-    private void setupLocaleConfigs() {
-        for (String locale : Config.getLocales()) {
-            File localeFile = new File(plugin.getDataFolder(), "locales/" + locale + ".yml");
-
-            try {
-                InputStream in = plugin.getResource("locales/" + locale + ".yml");
-                if (in != null) {
-                    YamlConfiguration.loadConfiguration(new InputStreamReader(in, StandardCharsets.UTF_8)).save(localeFile);
-                }
-            } catch (Exception e) {
-                logger.log(Level.SEVERE, "Could not save " + locale + ".yml", e);
-            }
+    @Override
+    public void onDisable() {
+        try {
+            this.disable();
+        } catch (Exception e) {
+            ErrorUtils.fullReportError(e);
         }
     }
 }

@@ -8,6 +8,7 @@ import com.jankominek.disenchantment.plugins.VanillaPlugin;
 import com.jankominek.disenchantment.types.AnvilEventType;
 import com.jankominek.disenchantment.types.PermissionGroupType;
 import com.jankominek.disenchantment.utils.AnvilCostUtils;
+import com.jankominek.disenchantment.utils.ErrorUtils;
 import com.jankominek.disenchantment.utils.EventUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -23,6 +24,14 @@ import static com.jankominek.disenchantment.utils.AnvilCostUtils.countAnvilCost;
 
 public class ShatterEvent {
     public static void onEvent(Event event) {
+        try {
+            handler(event);
+        } catch (Exception e) {
+            ErrorUtils.fullReportError(e);
+        }
+    }
+
+    private static void handler(Event event) {
         if (!(event instanceof PrepareAnvilEvent e)) return;
 
         if (!(e.getView().getPlayer() instanceof Player p)) return;

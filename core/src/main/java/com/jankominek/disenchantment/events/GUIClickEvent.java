@@ -2,7 +2,9 @@ package com.jankominek.disenchantment.events;
 
 import com.jankominek.disenchantment.guis.impl.*;
 import com.jankominek.disenchantment.types.PermissionGroupType;
+import com.jankominek.disenchantment.utils.ErrorUtils;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -11,7 +13,15 @@ import org.bukkit.inventory.InventoryHolder;
 
 public class GUIClickEvent implements Listener {
     @EventHandler(priority = EventPriority.NORMAL)
-    public void onInventoryGUIClick(InventoryClickEvent e) {
+    public void onEvent(InventoryClickEvent event) {
+        try {
+            this.handler(event);
+        } catch (Exception e) {
+            ErrorUtils.fullReportError(e);
+        }
+    }
+
+    private void handler(InventoryClickEvent e) {
         if (e.getClickedInventory() == null) return;
 
         if (!(e.getWhoClicked() instanceof Player p)) return;
