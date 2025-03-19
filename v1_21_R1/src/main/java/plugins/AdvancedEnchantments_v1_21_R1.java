@@ -1,13 +1,13 @@
 package plugins;
 
 import com.jankominek.disenchantment.plugins.ISupportedPlugin;
+import com.jankominek.disenchantment.plugins.VanillaPlugin;
 import net.advancedplugins.ae.api.AEAPI;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicReference;
 
 public class AdvancedEnchantments_v1_21_R1 implements ISupportedPlugin {
     public String getName() {
@@ -15,22 +15,36 @@ public class AdvancedEnchantments_v1_21_R1 implements ISupportedPlugin {
     }
 
     public ItemStack createEnchantedBook(Map<Enchantment, Integer> enchantments) {
-        AtomicReference<ItemStack> book = new AtomicReference<>(new ItemStack(Material.ENCHANTED_BOOK));
-
-        enchantments.forEach((en, l) -> {
-            book.set(AEAPI.applyEnchant(en.getKey().getKey(), l, book.get()));
-        });
-        return book.get();
-    }
-
-    public ItemStack removeEnchantmentsFromItem(ItemStack firstItem, Map<Enchantment, Integer> enchantments) {
-        ItemStack item = firstItem.clone();
+        ItemStack book = new ItemStack(Material.ENCHANTED_BOOK);
 
         for (Map.Entry<Enchantment, Integer> entry : enchantments.entrySet()) {
             Enchantment enchantment = entry.getKey();
-            AEAPI.removeEnchantment(item, enchantment.getKey().getKey());
+            String key = enchantment.getKey().getKey();
+            int level = entry.getValue();
+
+            if (AEAPI.isAnEnchantment(key)) {
+                book = AEAPI.applyEnchant(key, level, book);
+            } else {
+                book = VanillaPlugin.addEnchantmentToBook(book, enchantment, level);
+            }
+        }
+        return book;
+    }
+
+    public ItemStack removeEnchantmentsFromItem(ItemStack firstItem, Map<Enchantment, Integer> enchantments) {
+        ItemStack book = firstItem.clone();
+
+        for (Map.Entry<Enchantment, Integer> entry : enchantments.entrySet()) {
+            Enchantment enchantment = entry.getKey();
+            String key = enchantment.getKey().getKey();
+
+            if (AEAPI.isAnEnchantment(key)) {
+                book = AEAPI.removeEnchantment(book, key);
+            } else {
+                book = VanillaPlugin.removeEnchantment(book, enchantment);
+            }
         }
 
-        return item;
+        return book;
     }
 }
