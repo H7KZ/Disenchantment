@@ -33,7 +33,7 @@ Have an enchanted book? Want to split it and shatter into two enchanted books? Y
 - EnchantsSquared
 - UberEnchant
 
-#### 1.21 - 1.21.4
+#### 1.21 - 1.21.5
 
 - AdvancedEnchantments
 - EcoEnchants
