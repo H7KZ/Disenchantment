@@ -36,6 +36,9 @@ public abstract class EcoEnchantAbstract implements ISupportedPlugin {
         }
 
         if (ecoListener == null) {
+            // Avoid sending warning if CustomAnvil is present as it disable the listener itself
+            if(pm.isPluginEnabled("CustomAnvil")) return;
+
             Disenchantment.logger.warning("Could not find eco enchant pre anvil listener");
             return;
         }
