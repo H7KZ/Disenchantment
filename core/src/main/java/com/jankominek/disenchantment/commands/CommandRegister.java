@@ -4,7 +4,6 @@ import com.jankominek.disenchantment.commands.impl.*;
 import com.jankominek.disenchantment.utils.ErrorUtils;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.event.Event;
 
 import java.util.HashMap;
 import java.util.Map;
