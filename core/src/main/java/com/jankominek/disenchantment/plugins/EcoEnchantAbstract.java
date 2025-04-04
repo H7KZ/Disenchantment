@@ -13,25 +13,29 @@ public abstract class EcoEnchantAbstract implements ISupportedPlugin {
     @Override
     public void activate() {
         Bukkit.getScheduler().runTask(Disenchantment.plugin, this::delayedActivate);
-
     }
 
     // Just activate but later bc eco enchant is a... weirdly constructed plugin...
     public void delayedActivate() {
         PluginManager pm = Bukkit.getServer().getPluginManager();
         Plugin ecoEnchant = pm.getPlugin(getName());
+
         if (ecoEnchant == null) {
             Disenchantment.logger.warning("Could not find eco enchant plugin but eco compatibility is enabled");
+
             return;
         }
 
         // Get the annoying listener
         RegisteredListener ecoListener = null;
         HandlerList preAnvilHandler = PrepareAnvilEvent.getHandlerList();
+
         for (RegisteredListener listener : preAnvilHandler.getRegisteredListeners()) {
+
             if (ecoEnchant != listener.getPlugin()) continue;
 
             ecoListener = listener;
+
             break;
         }
 
@@ -40,6 +44,7 @@ public abstract class EcoEnchantAbstract implements ISupportedPlugin {
             if(pm.isPluginEnabled("CustomAnvil")) return;
 
             Disenchantment.logger.warning("Could not find eco enchant pre anvil listener");
+
             return;
         }
 
