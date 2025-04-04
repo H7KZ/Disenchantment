@@ -12,5 +12,6 @@ public interface ISupportedPlugin {
 
     ItemStack removeEnchantmentsFromItem(ItemStack firstItem, Map<Enchantment, Integer> enchantments);
 
-    default void activate() {}
+    default void activate() {
+    }
 }

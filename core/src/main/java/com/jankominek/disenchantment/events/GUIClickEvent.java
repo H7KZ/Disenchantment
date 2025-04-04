@@ -4,7 +4,6 @@ import com.jankominek.disenchantment.guis.impl.*;
 import com.jankominek.disenchantment.types.PermissionGroupType;
 import com.jankominek.disenchantment.utils.ErrorUtils;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
