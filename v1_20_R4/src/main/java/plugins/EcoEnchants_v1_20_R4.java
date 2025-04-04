@@ -1,6 +1,6 @@
 package plugins;
 
-import com.jankominek.disenchantment.plugins.ISupportedPlugin;
+import com.jankominek.disenchantment.plugins.EcoEnchantAbstract;
 import com.jankominek.disenchantment.plugins.VanillaPlugin;
 import com.willfp.eco.core.items.builder.EnchantedBookBuilder;
 import org.bukkit.enchantments.Enchantment;
@@ -8,7 +8,7 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.Map;
 
-public class EcoEnchants_v1_20_R4 implements ISupportedPlugin {
+public class EcoEnchants_v1_20_R4 extends EcoEnchantAbstract {
     public String getName() {
         return "EcoEnchants";
     }

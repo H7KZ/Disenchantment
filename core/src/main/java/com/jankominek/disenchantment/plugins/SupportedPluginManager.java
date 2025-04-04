@@ -28,7 +28,10 @@ public class SupportedPluginManager {
         for (String plugin : plugins) {
             ISupportedPlugin supportedPlugin = getSupportedPluginByName(plugin);
 
-            if (supportedPlugin != null) activatedPlugins.add(supportedPlugin);
+            if (supportedPlugin != null) {
+                activatedPlugins.add(supportedPlugin);
+                supportedPlugin.activate();
+            }
         }
     }
 

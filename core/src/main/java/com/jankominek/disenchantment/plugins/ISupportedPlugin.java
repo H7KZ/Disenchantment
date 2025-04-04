@@ -11,4 +11,6 @@ public interface ISupportedPlugin {
     ItemStack createEnchantedBook(Map<Enchantment, Integer> enchantments);
 
     ItemStack removeEnchantmentsFromItem(ItemStack firstItem, Map<Enchantment, Integer> enchantments);
+
+    default void activate() {}
 }
