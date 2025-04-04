@@ -3,7 +3,6 @@ package com.jankominek.disenchantment;
 import com.jankominek.disenchantment.commands.CommandCompleter;
 import com.jankominek.disenchantment.commands.CommandRegister;
 import com.jankominek.disenchantment.config.Config;
-import com.jankominek.disenchantment.config.migration.ConfigMigrations;
 import com.jankominek.disenchantment.events.GUIClickEvent;
 import com.jankominek.disenchantment.listeners.DisenchantClickListener;
 import com.jankominek.disenchantment.listeners.DisenchantListener;
@@ -24,14 +23,12 @@ import org.bukkit.scheduler.BukkitScheduler;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.io.File;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public final class Disenchantment extends JavaPlugin {
