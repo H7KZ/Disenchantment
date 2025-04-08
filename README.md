@@ -17,7 +17,7 @@ Have an enchanted book? Want to split it and shatter into two enchanted books? Y
 
 <br />
 
-### Supported (Not Tested) Custom Enchantment Plugins
+### Supported Custom Enchantment Plugins
 
 #### 1.18 - 1.20.4
 
