@@ -22,21 +22,21 @@ Have an enchanted book? Want to split it and shatter into two enchanted books? Y
 #### 1.18 - 1.20.4
 
 - AdvancedEnchantments
-- EcoEnchants
+- EcoEnchants (changes required, see: https://github.com/H7KZ/Disenchantment/issues/31)
 - EnchantsSquared
 - UberEnchant
 
 #### 1.20.5 - 1.20.6
 
 - AdvancedEnchantments
-- EcoEnchants
+- EcoEnchants (changes required, see: https://github.com/H7KZ/Disenchantment/issues/31)
 - EnchantsSquared
 - UberEnchant
 
 #### 1.21 - 1.21.5
 
 - AdvancedEnchantments
-- EcoEnchants
+- EcoEnchants (changes required, see: https://github.com/H7KZ/Disenchantment/issues/31)
 - EnchantsSquared
 - ExcellentEnchants
 - UberEnchant
