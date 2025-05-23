@@ -55,6 +55,10 @@ Have an enchanted book? Want to split it and shatter into two enchanted books? Y
 
 ![anvil.gif](assets/anvil.gif)
 
+## Known issues
+
+- [Plugin not working for non-op players](https://github.com/H7KZ/Disenchantment/issues/34)
+
 <br />
 <br />
 
