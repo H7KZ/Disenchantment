@@ -50,7 +50,7 @@ public class Diagnostic {
 
             result.append("\nServer Version: ")
                     .append(NMSMapper.hasNMS() ? ChatColor.GREEN : ChatColor.RED) // Color start
-                    .append(Bukkit.getVersion())
+                    .append(Bukkit.getVersion()).append(" (").append(Bukkit.getName()).append(')')
                     .append(ChatColor.RESET); // Color end
             result.append("\nPlugin Version: ")
                     .append(ChatColor.YELLOW) // Color start
