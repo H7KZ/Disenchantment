@@ -8,6 +8,10 @@ import com.jankominek.disenchantment.plugins.ISupportedPlugin;
 import com.jankominek.disenchantment.plugins.SupportedPluginManager;
 import com.jankominek.disenchantment.types.EnchantmentStateType;
 import com.jankominek.disenchantment.types.PermissionGroupType;
+import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.HoverEvent;
+import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.api.chat.hover.content.Text;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -216,7 +220,18 @@ public class Diagnostic {
 
         result.append(SPACER);
 
-        sender.sendMessage(result.toString());
+        if (sender instanceof Player player) {
+            // Strip color & send button to copy the diag
+            String strippedResult = ChatColor.stripColor(result.toString());
+
+            TextComponent message = new TextComponent(ChatColor.GREEN + "Click to copy diagnostic data");
+            message.setClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, strippedResult));
+            message.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("§7Click to copy")));
+
+            player.spigot().sendMessage(message);
+        } else {
+            sender.sendMessage(result.toString());
+        }
     }
 
     private static String readDisabledWorld(List<World> disabledWorlds) {
