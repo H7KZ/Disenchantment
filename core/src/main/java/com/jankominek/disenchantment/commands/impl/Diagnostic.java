@@ -189,7 +189,7 @@ public class Diagnostic {
                         .append(Config.Shatterment.Anvil.Sound.getPitch())
                         .append(ChatColor.RESET); // Color end
 
-                // Shatterment Disabled Worlds, Materials & enchantment states
+                // Shatterment Disabled Worlds & enchantment states
                 result.append(SPACER);
 
                 result.append("\nCurrent World: ")
@@ -257,6 +257,11 @@ public class Diagnostic {
     }
 
     private static void writeEnchantmentStates(StringBuilder stb, Map<Enchantment, EnchantmentStateType> enchantmentStates) {
+        if (enchantmentStates.isEmpty()) {
+            stb.append(" ").append(ChatColor.YELLOW).append("None");
+            return;
+        }
+
         enchantmentStates.forEach((key, val) -> {
             stb.append("\n-").append(key.getKey())
                     .append('=').append(val.getDisplayName()).append('\n');
