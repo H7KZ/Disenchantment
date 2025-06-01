@@ -21,7 +21,7 @@ import java.util.Map;
 
 public class Diagnostic {
     public static final CommandBuilder command = new CommandBuilder(
-            "disenchant:diagnostic",
+            "diagnostic",
             PermissionGroupType.COMMAND_DIAGNOSTIC,
             new String[]{"all"},
             false,
