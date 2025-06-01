@@ -16,6 +16,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -29,10 +30,10 @@ public class Diagnostic {
             Diagnostic::complete
     );
 
-    private static final String SPACER = "\n----------------";
+    private static final String SPACER = "\n" + ChatColor.COLOR_CHAR + ChatColor.YELLOW + "-------------------------" + ChatColor.COLOR_CHAR + ChatColor.RESET;
 
     public static void execute(CommandSender sender, String[] args) {
-        boolean allInfo = args.length > 0 && args[0].equalsIgnoreCase("all");
+        boolean allInfo = args.length > 1 && args[1].equalsIgnoreCase("all");
 
         StringBuilder result = new StringBuilder();
         result.append("Disenchantment diagnostic information:");
@@ -45,17 +46,17 @@ public class Diagnostic {
             }
 
             // Generic debug section
-            result.append(SPACER);
+            result.append("\n").append(SPACER);
 
-            result.append("\n-Server Version: ")
+            result.append("\nServer Version: ")
                     .append(ChatColor.COLOR_CHAR).append(NMSMapper.hasNMS() ? ChatColor.GREEN : ChatColor.RED) // Color start
                     .append(Bukkit.getVersion())
                     .append(ChatColor.COLOR_CHAR).append(ChatColor.RESET); // Color end
-            result.append("\n-Plugin Version: ")
+            result.append("\nPlugin Version: ")
                     .append(ChatColor.COLOR_CHAR).append(ChatColor.YELLOW) // Color start
                     .append(Disenchantment.plugin.getDescription().getVersion())
                     .append(ChatColor.COLOR_CHAR).append(ChatColor.RESET); // Color end
-            result.append("\n-Plugin Enabled: ")
+            result.append("\nPlugin Enabled: ")
                     .append(ChatColor.COLOR_CHAR).append(Config.isPluginEnabled() ? ChatColor.GREEN : ChatColor.RED) // Color start
                     .append(Config.isPluginEnabled())
                     .append(ChatColor.COLOR_CHAR).append(ChatColor.RESET); // Color end
@@ -72,7 +73,7 @@ public class Diagnostic {
                 activatedPluginStr.delete(activatedPluginStr.length() - 2, activatedPluginStr.length());
             }
 
-            result.append("\n-Activated Plugins: ")
+            result.append("\nActivated Plugins: ")
                     .append(ChatColor.COLOR_CHAR).append(ChatColor.YELLOW) // Color start
                     .append(activatedPluginStr)
                     .append(ChatColor.COLOR_CHAR).append(ChatColor.RESET); // Color end
@@ -80,24 +81,24 @@ public class Diagnostic {
             // Disenchantment debug section
             result.append(SPACER);
 
-            result.append("\n-Disenchantment Enabled: ")
+            result.append("\nDisenchantment Enabled: ")
                     .append(ChatColor.COLOR_CHAR).append(Config.Disenchantment.isEnabled() ? ChatColor.GREEN : ChatColor.RED) // Color start
                     .append(Config.Disenchantment.isEnabled())
                     .append(ChatColor.COLOR_CHAR).append(ChatColor.RESET); // Color end
 
-            result.append("\n-Disenchantment Cost Enabled: ")
+            result.append("\nDisenchantment Cost Enabled: ")
                     .append(ChatColor.COLOR_CHAR).append(Config.Disenchantment.Anvil.Repair.isCostEnabled() ? ChatColor.GREEN : ChatColor.RED) // Color start
                     .append(Config.Disenchantment.Anvil.Repair.isCostEnabled())
                     .append(ChatColor.COLOR_CHAR).append(ChatColor.RESET); // Color end
-            result.append("\n-Disenchantment Reset Enabled: ")
+            result.append("\nDisenchantment Reset Enabled: ")
                     .append(ChatColor.COLOR_CHAR).append(Config.Disenchantment.Anvil.Repair.isCostEnabled() ? ChatColor.GREEN : ChatColor.RED) // Color start
                     .append(Config.Disenchantment.Anvil.Repair.isResetEnabled())
                     .append(ChatColor.COLOR_CHAR).append(ChatColor.RESET); // Color end
-            result.append("\n-Disenchantment Base cost: ")
+            result.append("\nDisenchantment Base cost: ")
                     .append(ChatColor.COLOR_CHAR).append(Config.Disenchantment.Anvil.Repair.isCostEnabled() ? ChatColor.GREEN : ChatColor.RED) // Color start
                     .append(Config.Disenchantment.Anvil.Repair.getBaseCost())
                     .append(ChatColor.COLOR_CHAR).append(ChatColor.RESET); // Color end
-            result.append("\n-Disenchantment Cost multiplier: ")
+            result.append("\nDisenchantment Cost multiplier: ")
                     .append(ChatColor.COLOR_CHAR).append(ChatColor.YELLOW) // Color start
                     .append(Config.Disenchantment.Anvil.Repair.getBaseCost())
                     .append(ChatColor.COLOR_CHAR).append(ChatColor.RESET); // Color end
@@ -105,15 +106,15 @@ public class Diagnostic {
             if (allInfo) {
                 // Disenchantment sound section
                 result.append(SPACER);
-                result.append("\n-Disenchantment Sound Enabled: ")
+                result.append("\nDisenchantment Sound Enabled: ")
                         .append(ChatColor.COLOR_CHAR).append(Config.Disenchantment.Anvil.Sound.isEnabled() ? ChatColor.GREEN : ChatColor.RED) // Color start
                         .append(Config.Disenchantment.Anvil.Sound.isEnabled())
                         .append(ChatColor.COLOR_CHAR).append(ChatColor.RESET); // Color end
-                result.append("\n-Disenchantment Sound Volume: ")
+                result.append("\nDisenchantment Sound Volume: ")
                         .append(ChatColor.COLOR_CHAR).append(ChatColor.YELLOW) // Color start
                         .append(Config.Disenchantment.Anvil.Sound.getVolume())
                         .append(ChatColor.COLOR_CHAR).append(ChatColor.RESET); // Color end
-                result.append("\n-Disenchantment Sound Pitch: ")
+                result.append("\nDisenchantment Sound Pitch: ")
                         .append(ChatColor.COLOR_CHAR).append(ChatColor.YELLOW) // Color start
                         .append(Config.Disenchantment.Anvil.Sound.getPitch())
                         .append(ChatColor.COLOR_CHAR).append(ChatColor.RESET); // Color end
@@ -121,45 +122,45 @@ public class Diagnostic {
                 // Disenchantment Disabled Worlds, Materials & enchantment states
                 result.append(SPACER);
 
-                result.append("\n-Disenchantment Disabled Worlds: ")
+                result.append("\nDisenchantment Disabled Worlds: ")
                         .append(ChatColor.COLOR_CHAR).append(ChatColor.YELLOW) // Color start
                         .append(readDisabledWorld(Config.Disenchantment.getDisabledWorlds()))
                         .append(ChatColor.COLOR_CHAR).append(ChatColor.RESET); // Color end
-                result.append("\n-Current World: ")
+                result.append("\nCurrent World: ")
                         .append(ChatColor.COLOR_CHAR).append(ChatColor.YELLOW) // Color start
                         .append(currentWorld)
                         .append(ChatColor.COLOR_CHAR).append(ChatColor.RESET); // Color end
 
-                result.append("\n-Disenchantment Disabled Materials: ")
+                result.append("\nDisenchantment Disabled Materials: ")
                         .append(ChatColor.COLOR_CHAR).append(ChatColor.YELLOW) // Color start
                         .append(readDisabledMaterials(Config.Disenchantment.getDisabledMaterials()))
                         .append(ChatColor.COLOR_CHAR).append(ChatColor.RESET); // Color end
 
-                result.append("\n-Disenchantment Enchantment States:");
-                writeEnchantmentSates(result, "disenchantment", Config.Disenchantment.getEnchantmentStates());
+                result.append("\nDisenchantment Enchantment States:");
+                writeEnchantmentSates(result, Config.Disenchantment.getEnchantmentStates());
             }
 
             // Shatterment debug section
             result.append(SPACER);
 
-            result.append("\n-Shatterment Enabled: ")
+            result.append("\nShatterment Enabled: ")
                     .append(ChatColor.COLOR_CHAR).append(Config.Shatterment.isEnabled() ? ChatColor.GREEN : ChatColor.RED) // Color start
                     .append(Config.Shatterment.isEnabled())
                     .append(ChatColor.COLOR_CHAR).append(ChatColor.RESET); // Color end
 
-            result.append("\n-Shatterment Cost Enabled: ")
+            result.append("\nShatterment Cost Enabled: ")
                     .append(ChatColor.COLOR_CHAR).append(Config.Shatterment.Anvil.Repair.isCostEnabled() ? ChatColor.GREEN : ChatColor.RED) // Color start
                     .append(Config.Shatterment.Anvil.Repair.isCostEnabled())
                     .append(ChatColor.COLOR_CHAR).append(ChatColor.RESET); // Color end
-            result.append("\n-Shatterment Reset Enabled: ")
+            result.append("\nShatterment Reset Enabled: ")
                     .append(ChatColor.COLOR_CHAR).append(Config.Shatterment.Anvil.Repair.isCostEnabled() ? ChatColor.GREEN : ChatColor.RED) // Color start
                     .append(Config.Shatterment.Anvil.Repair.isResetEnabled())
                     .append(ChatColor.COLOR_CHAR).append(ChatColor.RESET); // Color end
-            result.append("\n-Shatterment Base cost: ")
+            result.append("\nShatterment Base cost: ")
                     .append(ChatColor.COLOR_CHAR).append(Config.Shatterment.Anvil.Repair.isCostEnabled() ? ChatColor.GREEN : ChatColor.RED) // Color start
                     .append(Config.Shatterment.Anvil.Repair.getBaseCost())
                     .append(ChatColor.COLOR_CHAR).append(ChatColor.RESET); // Color end
-            result.append("\n-Shatterment Cost multiplier: ")
+            result.append("\nShatterment Cost multiplier: ")
                     .append(ChatColor.COLOR_CHAR).append(ChatColor.YELLOW) // Color start
                     .append(Config.Shatterment.Anvil.Repair.getBaseCost())
                     .append(ChatColor.COLOR_CHAR).append(ChatColor.RESET); // Color end
@@ -167,15 +168,15 @@ public class Diagnostic {
             if (allInfo) {
                 // Shatterment sound section
                 result.append(SPACER);
-                result.append("\n-Shatterment Sound Enabled: ")
+                result.append("\nShatterment Sound Enabled: ")
                         .append(ChatColor.COLOR_CHAR).append(Config.Shatterment.Anvil.Sound.isEnabled() ? ChatColor.GREEN : ChatColor.RED) // Color start
                         .append(Config.Shatterment.Anvil.Sound.isEnabled())
                         .append(ChatColor.COLOR_CHAR).append(ChatColor.RESET); // Color end
-                result.append("\n-Shatterment Sound Volume: ")
+                result.append("\nShatterment Sound Volume: ")
                         .append(ChatColor.COLOR_CHAR).append(ChatColor.YELLOW) // Color start
                         .append(Config.Shatterment.Anvil.Sound.getVolume())
                         .append(ChatColor.COLOR_CHAR).append(ChatColor.RESET); // Color end
-                result.append("\n-Shatterment Sound Pitch: ")
+                result.append("\nShatterment Sound Pitch: ")
                         .append(ChatColor.COLOR_CHAR).append(ChatColor.YELLOW) // Color start
                         .append(Config.Shatterment.Anvil.Sound.getPitch())
                         .append(ChatColor.COLOR_CHAR).append(ChatColor.RESET); // Color end
@@ -183,17 +184,17 @@ public class Diagnostic {
                 // Shatterment Disabled Worlds, Materials & enchantment states
                 result.append(SPACER);
 
-                result.append("\n-Shatterment Disabled Worlds: ")
+                result.append("\nShatterment Disabled Worlds: ")
                         .append(ChatColor.COLOR_CHAR).append(ChatColor.YELLOW) // Color start
                         .append(readDisabledWorld(Config.Shatterment.getDisabledWorlds()))
                         .append(ChatColor.COLOR_CHAR).append(ChatColor.RESET); // Color end
-                result.append("\n-Current World: ")
+                result.append("\nCurrent World: ")
                         .append(ChatColor.COLOR_CHAR).append(ChatColor.YELLOW) // Color start
                         .append(currentWorld)
                         .append(ChatColor.COLOR_CHAR).append(ChatColor.RESET); // Color end
 
-                result.append("\n-Shatterment Enchantment States:");
-                writeEnchantmentSates(result, "shatterment", Config.Shatterment.getEnchantmentStates());
+                result.append("\nShatterment Enchantment States:");
+                writeEnchantmentSates(result, Config.Shatterment.getEnchantmentStates());
             }
 
             // Permission test section
@@ -249,15 +250,18 @@ public class Diagnostic {
     }
 
 
-    public static void writeEnchantmentSates(StringBuilder stb, String prefix, Map<Enchantment, EnchantmentStateType> enchantmentStates) {
+    public static void writeEnchantmentSates(StringBuilder stb, Map<Enchantment, EnchantmentStateType> enchantmentStates) {
         enchantmentStates.forEach((key, val) -> {
-            stb.append('\n').append(prefix).append('.').append(key.getKey())
+            stb.append("\n-").append(key.getKey())
                     .append('=').append(val.getDisplayName()).append('\n');
         });
     }
 
     public static List<String> complete(CommandSender sender, String[] args) {
-        return null;
+        if (args.length == 2 && "all".startsWith(args[1].toLowerCase())) {
+            return List.of("all");
+        }
+        return Collections.emptyList();
     }
 
 
