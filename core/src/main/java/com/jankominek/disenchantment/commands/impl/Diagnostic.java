@@ -16,7 +16,7 @@ import java.util.List;
 public class Diagnostic {
     public static final CommandBuilder command = new CommandBuilder(
             "disenchant:diagnostic",
-            PermissionGroupType.COMMAND_DISENCHANT_SOUND, //TODO define perm for diag
+            PermissionGroupType.COMMAND_DIAGNOSTIC,
             new String[]{"all"},
             false,
             Diagnostic::execute,

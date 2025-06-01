@@ -59,6 +59,9 @@ disenchantment.command.shatter.repair:
 disenchantment.command.shatter.sound:
    description: Access to the shatter sound command.
    default: op
+disenchantment.command.diagnostic:
+   description: Access to the Diagnostic command.
+   default: op
 disenchantment.gui:
    description: Allows the player to open the GUI.
    default: op
