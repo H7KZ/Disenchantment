@@ -24,4 +24,19 @@ public class NMSMapper {
             return null;
         }
     }
+
+    public static boolean hasNMS() {
+        try {
+            String nmsVersion = MinecraftVersion.getServerVersion().getNmsVersion();
+
+            if (nmsVersion == null) return false;
+
+            Class<?> clazz = Class.forName("com.jankominek.disenchantment.nms.NMS_" + nmsVersion);
+
+            return NMS.class.isAssignableFrom(clazz);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
 }

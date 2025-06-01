@@ -24,6 +24,7 @@ public class CommandRegister implements CommandExecutor {
             put(ShatterWorlds.command.name, ShatterWorlds.command);
             put(ShatterRepair.command.name, ShatterRepair.command);
             put(ShatterSound.command.name, ShatterSound.command);
+            put(Diagnostic.command.name, Diagnostic.command);
         }
     };
 
