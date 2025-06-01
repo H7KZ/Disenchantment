@@ -15,10 +15,14 @@ import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.PrepareAnvilEvent;
+import org.bukkit.generator.WorldInfo;
+import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.RegisteredListener;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class Diagnostic {
     public static final CommandBuilder command = new CommandBuilder(
@@ -56,44 +60,54 @@ public class Diagnostic {
                     .append(ChatColor.YELLOW) // Color start
                     .append(Disenchantment.plugin.getDescription().getVersion())
                     .append(ChatColor.RESET); // Color end
-            result.append("\nPlugin Enabled: ")
-                    .append(Config.isPluginEnabled() ? ChatColor.GREEN : ChatColor.RED) // Color start
-                    .append(Config.isPluginEnabled())
-                    .append(ChatColor.RESET); // Color end
+            result.append("\nPlugin Enabled: ").append(stylizedBool(Config.isPluginEnabled()));
 
-            // Get currently activated plugin(s) or None if none enabled
+            // Plugins section
+            result.append(SPACER);
             List<ISupportedPlugin> activatedPlugins = SupportedPluginManager.getAllActivatedPlugins();
-            StringBuilder activatedPluginStr = new StringBuilder();
-            if (activatedPlugins.isEmpty()) {
-                activatedPluginStr.append("None");
-            } else {
-                for (ISupportedPlugin plugin : activatedPlugins) {
-                    activatedPluginStr.append(plugin.getName()).append(", ");
-                }
-                activatedPluginStr.delete(activatedPluginStr.length() - 2, activatedPluginStr.length());
-            }
-
             result.append("\nActivated Plugins: ")
                     .append(ChatColor.YELLOW) // Color start
-                    .append(activatedPluginStr)
+                    .append(extractValueFromList(activatedPlugins, ISupportedPlugin::getName))
+                    .append(ChatColor.RESET); // Color end
+
+            List<Plugin> enabledPlugins = new ArrayList<>();
+            List<Plugin> disabledPlugins = new ArrayList<>();
+            for (Plugin plugin : Bukkit.getPluginManager().getPlugins()) {
+                if (plugin.isEnabled()) {
+                    enabledPlugins.add(plugin);
+                } else {
+                    disabledPlugins.add(plugin);
+                }
+            }
+
+            result.append("\nEnabled Plugins: ")
+                    .append(ChatColor.GREEN) // Color start
+                    .append(extractValueFromList(enabledPlugins, Plugin::getName))
+                    .append(ChatColor.RESET); // Color end
+            result.append("\nDisabled Plugins: ")
+                    .append(ChatColor.RED) // Color start
+                    .append(extractValueFromList(disabledPlugins, Plugin::getName))
+                    .append(ChatColor.RESET); // Color end
+
+            Set<Plugin> eventListeners = Arrays.stream(PrepareAnvilEvent.getHandlerList().getRegisteredListeners())
+                    .map(RegisteredListener::getPlugin).collect(Collectors.toSet());
+            eventListeners.remove(Disenchantment.plugin);
+
+            result.append("\nPrepare Anvil Listeners: ")
+                    .append(ChatColor.YELLOW) // Color start
+                    .append(extractValueFromList(disabledPlugins, Plugin::getName))
                     .append(ChatColor.RESET); // Color end
 
             // Disenchantment debug section
             result.append(SPACER);
 
             result.append("\nDisenchantment Enabled: ")
-                    .append(Config.Disenchantment.isEnabled() ? ChatColor.GREEN : ChatColor.RED) // Color start
-                    .append(Config.Disenchantment.isEnabled())
-                    .append(ChatColor.RESET); // Color end
+                    .append(stylizedBool(Config.Disenchantment.isEnabled()));
 
             result.append("\nDisenchantment Cost Enabled: ")
-                    .append(Config.Disenchantment.Anvil.Repair.isCostEnabled() ? ChatColor.GREEN : ChatColor.RED) // Color start
-                    .append(Config.Disenchantment.Anvil.Repair.isCostEnabled())
-                    .append(ChatColor.RESET); // Color end
+                    .append(stylizedBool(Config.Disenchantment.Anvil.Repair.isCostEnabled()));
             result.append("\nDisenchantment Reset Enabled: ")
-                    .append(Config.Disenchantment.Anvil.Repair.isCostEnabled() ? ChatColor.GREEN : ChatColor.RED) // Color start
-                    .append(Config.Disenchantment.Anvil.Repair.isResetEnabled())
-                    .append(ChatColor.RESET); // Color end
+                    .append(stylizedBool(Config.Disenchantment.Anvil.Repair.isResetEnabled()));
             result.append("\nDisenchantment Base cost: ")
                     .append(ChatColor.YELLOW) // Color start
                     .append(Config.Disenchantment.Anvil.Repair.getBaseCost())
@@ -107,9 +121,7 @@ public class Diagnostic {
                 // Disenchantment sound section
                 result.append(SPACER);
                 result.append("\nDisenchantment Sound Enabled: ")
-                        .append(Config.Disenchantment.Anvil.Sound.isEnabled() ? ChatColor.GREEN : ChatColor.RED) // Color start
-                        .append(Config.Disenchantment.Anvil.Sound.isEnabled())
-                        .append(ChatColor.RESET); // Color end
+                        .append(stylizedBool(Config.Disenchantment.Anvil.Sound.isEnabled()));
                 result.append("\nDisenchantment Sound Volume: ")
                         .append(ChatColor.YELLOW) // Color start
                         .append(Config.Disenchantment.Anvil.Sound.getVolume())
@@ -122,13 +134,13 @@ public class Diagnostic {
                 // Disenchantment Disabled Worlds, Materials & enchantment states
                 result.append(SPACER);
 
-                result.append("\nDisenchantment Disabled Worlds: ")
-                        .append(ChatColor.YELLOW) // Color start
-                        .append(readDisabledWorld(Config.Disenchantment.getDisabledWorlds()))
-                        .append(ChatColor.RESET); // Color end
                 result.append("\nCurrent World: ")
                         .append(ChatColor.YELLOW) // Color start
                         .append(currentWorld)
+                        .append(ChatColor.RESET); // Color end
+                result.append("\nDisenchantment Disabled Worlds: ")
+                        .append(ChatColor.YELLOW) // Color start
+                        .append(readDisabledWorld(Config.Disenchantment.getDisabledWorlds()))
                         .append(ChatColor.RESET); // Color end
 
                 result.append("\nDisenchantment Disabled Materials: ")
@@ -137,25 +149,19 @@ public class Diagnostic {
                         .append(ChatColor.RESET); // Color end
 
                 result.append("\nDisenchantment Enchantment States:");
-                writeEnchantmentSates(result, Config.Disenchantment.getEnchantmentStates());
+                writeEnchantmentStates(result, Config.Disenchantment.getEnchantmentStates());
             }
 
             // Shatterment debug section
             result.append(SPACER);
 
             result.append("\nShatterment Enabled: ")
-                    .append(Config.Shatterment.isEnabled() ? ChatColor.GREEN : ChatColor.RED) // Color start
-                    .append(Config.Shatterment.isEnabled())
-                    .append(ChatColor.RESET); // Color end
+                    .append(stylizedBool(Config.Shatterment.isEnabled()));
 
             result.append("\nShatterment Cost Enabled: ")
-                    .append(Config.Shatterment.Anvil.Repair.isCostEnabled() ? ChatColor.GREEN : ChatColor.RED) // Color start
-                    .append(Config.Shatterment.Anvil.Repair.isCostEnabled())
-                    .append(ChatColor.RESET); // Color end
+                    .append(stylizedBool(Config.Shatterment.Anvil.Repair.isCostEnabled()));
             result.append("\nShatterment Reset Enabled: ")
-                    .append(Config.Shatterment.Anvil.Repair.isCostEnabled() ? ChatColor.GREEN : ChatColor.RED) // Color start
-                    .append(Config.Shatterment.Anvil.Repair.isResetEnabled())
-                    .append(ChatColor.RESET); // Color end
+                    .append(stylizedBool(Config.Shatterment.Anvil.Repair.isResetEnabled()));
             result.append("\nShatterment Base cost: ")
                     .append(ChatColor.YELLOW) // Color start
                     .append(Config.Shatterment.Anvil.Repair.getBaseCost())
@@ -169,9 +175,7 @@ public class Diagnostic {
                 // Shatterment sound section
                 result.append(SPACER);
                 result.append("\nShatterment Sound Enabled: ")
-                        .append(Config.Shatterment.Anvil.Sound.isEnabled() ? ChatColor.GREEN : ChatColor.RED) // Color start
-                        .append(Config.Shatterment.Anvil.Sound.isEnabled())
-                        .append(ChatColor.RESET); // Color end
+                        .append(stylizedBool(Config.Shatterment.Anvil.Sound.isEnabled()));
                 result.append("\nShatterment Sound Volume: ")
                         .append(ChatColor.YELLOW) // Color start
                         .append(Config.Shatterment.Anvil.Sound.getVolume())
@@ -184,31 +188,25 @@ public class Diagnostic {
                 // Shatterment Disabled Worlds, Materials & enchantment states
                 result.append(SPACER);
 
-                result.append("\nShatterment Disabled Worlds: ")
-                        .append(ChatColor.YELLOW) // Color start
-                        .append(readDisabledWorld(Config.Shatterment.getDisabledWorlds()))
-                        .append(ChatColor.RESET); // Color end
                 result.append("\nCurrent World: ")
                         .append(ChatColor.YELLOW) // Color start
                         .append(currentWorld)
                         .append(ChatColor.RESET); // Color end
+                result.append("\nShatterment Disabled Worlds: ")
+                        .append(ChatColor.YELLOW) // Color start
+                        .append(readDisabledWorld(Config.Shatterment.getDisabledWorlds()))
+                        .append(ChatColor.RESET); // Color end
 
                 result.append("\nShatterment Enchantment States:");
-                writeEnchantmentSates(result, Config.Shatterment.getEnchantmentStates());
+                writeEnchantmentStates(result, Config.Shatterment.getEnchantmentStates());
             }
 
             // Permission test section
             result.append(SPACER);
             boolean hasDisenchantmentPerm = PermissionGroupType.DISENCHANT_EVENT.hasPermission(sender);
             boolean hasShattermentPerm = PermissionGroupType.DISENCHANT_EVENT.hasPermission(sender);
-            result.append("\nHas Disenchantment Permission: ")
-                    .append(hasDisenchantmentPerm ? ChatColor.GREEN : ChatColor.RED) // Color start
-                    .append(hasDisenchantmentPerm)
-                    .append(ChatColor.RESET); // Color end
-            result.append("\nHas Shatterment Permission: ")
-                    .append(hasShattermentPerm ? ChatColor.GREEN : ChatColor.RED) // Color start
-                    .append(hasShattermentPerm)
-                    .append(ChatColor.RESET); // Color end
+            result.append("\nHas Disenchantment Permission: ").append(stylizedBool(hasDisenchantmentPerm));
+            result.append("\nHas Shatterment Permission: ").append(stylizedBool(hasShattermentPerm));
 
         } catch (Exception e) {
             result.append(SPACER);
@@ -221,36 +219,29 @@ public class Diagnostic {
         sender.sendMessage(result.toString());
     }
 
-    public static String readDisabledWorld(List<World> disabledWorlds) {
-        StringBuilder dsbWorlds = new StringBuilder();
-        if (disabledWorlds.isEmpty()) {
-            dsbWorlds.append("None");
-        } else {
-            for (World world : disabledWorlds) {
-                dsbWorlds.append(world.getName()).append(", ");
-            }
-            dsbWorlds.delete(dsbWorlds.length() - 2, dsbWorlds.length());
-        }
-
-        return dsbWorlds.toString();
+    private static String readDisabledWorld(List<World> disabledWorlds) {
+        return extractValueFromList(disabledWorlds, WorldInfo::getName);
     }
 
-    public static String readDisabledMaterials(List<Material> disabledMaterials) {
-        StringBuilder dsbWorlds = new StringBuilder();
-        if (disabledMaterials.isEmpty()) {
-            dsbWorlds.append("None");
-        } else {
-            for (Material material : disabledMaterials) {
-                dsbWorlds.append(material).append(", ");
-            }
-            dsbWorlds.delete(dsbWorlds.length() - 2, dsbWorlds.length());
-        }
-
-        return dsbWorlds.toString();
+    private static String readDisabledMaterials(List<Material> disabledMaterials) {
+        return extractValueFromList(disabledMaterials, Enum::toString);
     }
 
+    private static <T> String extractValueFromList(List<T> list, Function<T, String> convert) {
+        StringBuilder stb = new StringBuilder();
+        if (list.isEmpty()) {
+            stb.append("None");
+        } else {
+            for (T element : list) {
+                stb.append(convert.apply(element)).append(", ");
+            }
+            stb.delete(stb.length() - 2, stb.length());
+        }
 
-    public static void writeEnchantmentSates(StringBuilder stb, Map<Enchantment, EnchantmentStateType> enchantmentStates) {
+        return stb.toString();
+    }
+
+    private static void writeEnchantmentStates(StringBuilder stb, Map<Enchantment, EnchantmentStateType> enchantmentStates) {
         enchantmentStates.forEach((key, val) -> {
             stb.append("\n-").append(key.getKey())
                     .append('=').append(val.getDisplayName()).append('\n');
@@ -264,5 +255,11 @@ public class Diagnostic {
         return Collections.emptyList();
     }
 
+    private static String stylizedBool(boolean val) {
+        if (val)
+            return ChatColor.GREEN + "True" + ChatColor.RESET;
+        else
+            return ChatColor.RED + "False" + ChatColor.RESET;
+    }
 
 }
