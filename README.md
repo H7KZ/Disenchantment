@@ -58,6 +58,7 @@ Have an enchanted book? Want to split it and shatter into two enchanted books? Y
 ## Known issues
 
 - [Plugin not working for non-op players](https://github.com/H7KZ/Disenchantment/issues/34)
+- [EcoEnchants are not working](https://github.com/H7KZ/Disenchantment/issues/31)
 
 <br />
 <br />
