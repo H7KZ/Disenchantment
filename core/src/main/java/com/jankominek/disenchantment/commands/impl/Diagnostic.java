@@ -6,12 +6,18 @@ import com.jankominek.disenchantment.config.Config;
 import com.jankominek.disenchantment.nms.NMSMapper;
 import com.jankominek.disenchantment.plugins.ISupportedPlugin;
 import com.jankominek.disenchantment.plugins.SupportedPluginManager;
+import com.jankominek.disenchantment.types.EnchantmentStateType;
 import com.jankominek.disenchantment.types.PermissionGroupType;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.command.CommandSender;
+import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Player;
 
 import java.util.List;
+import java.util.Map;
 
 public class Diagnostic {
     public static final CommandBuilder command = new CommandBuilder(
@@ -25,12 +31,19 @@ public class Diagnostic {
 
     private static final String SPACER = "\n----------------";
 
-    public static void execute(CommandSender s, String[] args) {
+    public static void execute(CommandSender sender, String[] args) {
         boolean allInfo = args.length > 0 && args[0].equalsIgnoreCase("all");
 
         StringBuilder result = new StringBuilder();
         result.append("Disenchantment diagnostic information:");
         try {
+            String currentWorld;
+            if (sender instanceof Player player) {
+                currentWorld = player.getWorld().getName();
+            } else {
+                currentWorld = "None (not a player)";
+            }
+
             // Generic debug section
             result.append(SPACER);
 
@@ -105,7 +118,25 @@ public class Diagnostic {
                         .append(Config.Disenchantment.Anvil.Sound.getPitch())
                         .append(ChatColor.COLOR_CHAR).append(ChatColor.RESET); // Color end
 
-                // Disenchantment Disabled Worlds & Materials TODO
+                // Disenchantment Disabled Worlds, Materials & enchantment states
+                result.append(SPACER);
+
+                result.append("\n-Disenchantment Disabled Worlds: ")
+                        .append(ChatColor.COLOR_CHAR).append(ChatColor.YELLOW) // Color start
+                        .append(readDisabledWorld(Config.Disenchantment.getDisabledWorlds()))
+                        .append(ChatColor.COLOR_CHAR).append(ChatColor.RESET); // Color end
+                result.append("\n-Current World: ")
+                        .append(ChatColor.COLOR_CHAR).append(ChatColor.YELLOW) // Color start
+                        .append(currentWorld)
+                        .append(ChatColor.COLOR_CHAR).append(ChatColor.RESET); // Color end
+
+                result.append("\n-Disenchantment Disabled Materials: ")
+                        .append(ChatColor.COLOR_CHAR).append(ChatColor.YELLOW) // Color start
+                        .append(readDisabledMaterials(Config.Disenchantment.getDisabledMaterials()))
+                        .append(ChatColor.COLOR_CHAR).append(ChatColor.RESET); // Color end
+
+                result.append("\n-Disenchantment Enchantment States:");
+                writeEnchantmentSates(result, "disenchantment", Config.Disenchantment.getEnchantmentStates());
             }
 
             // Shatterment debug section
@@ -149,13 +180,26 @@ public class Diagnostic {
                         .append(Config.Shatterment.Anvil.Sound.getPitch())
                         .append(ChatColor.COLOR_CHAR).append(ChatColor.RESET); // Color end
 
-                // Shatterment Disabled Worlds & Materials TODO
+                // Shatterment Disabled Worlds, Materials & enchantment states
+                result.append(SPACER);
+
+                result.append("\n-Shatterment Disabled Worlds: ")
+                        .append(ChatColor.COLOR_CHAR).append(ChatColor.YELLOW) // Color start
+                        .append(readDisabledWorld(Config.Shatterment.getDisabledWorlds()))
+                        .append(ChatColor.COLOR_CHAR).append(ChatColor.RESET); // Color end
+                result.append("\n-Current World: ")
+                        .append(ChatColor.COLOR_CHAR).append(ChatColor.YELLOW) // Color start
+                        .append(currentWorld)
+                        .append(ChatColor.COLOR_CHAR).append(ChatColor.RESET); // Color end
+
+                result.append("\n-Shatterment Enchantment States:");
+                writeEnchantmentSates(result, "shatterment", Config.Shatterment.getEnchantmentStates());
             }
 
             // Permission test section
             result.append(SPACER);
-            boolean hasDisenchantmentPerm = PermissionGroupType.DISENCHANT_EVENT.hasPermission(s);
-            boolean hasShattermentPerm = PermissionGroupType.DISENCHANT_EVENT.hasPermission(s);
+            boolean hasDisenchantmentPerm = PermissionGroupType.DISENCHANT_EVENT.hasPermission(sender);
+            boolean hasShattermentPerm = PermissionGroupType.DISENCHANT_EVENT.hasPermission(sender);
             result.append("\nHas Disenchantment Permission: ")
                     .append(ChatColor.COLOR_CHAR).append(hasDisenchantmentPerm ? ChatColor.GREEN : ChatColor.RED) // Color start
                     .append(hasDisenchantmentPerm)
@@ -173,7 +217,43 @@ public class Diagnostic {
 
         result.append(SPACER);
 
-        s.sendMessage(result.toString());
+        sender.sendMessage(result.toString());
+    }
+
+    public static String readDisabledWorld(List<World> disabledWorlds) {
+        StringBuilder dsbWorlds = new StringBuilder();
+        if (disabledWorlds.isEmpty()) {
+            dsbWorlds.append("None");
+        } else {
+            for (World world : disabledWorlds) {
+                dsbWorlds.append(world.getName()).append(", ");
+            }
+            dsbWorlds.delete(dsbWorlds.length() - 2, dsbWorlds.length());
+        }
+
+        return dsbWorlds.toString();
+    }
+
+    public static String readDisabledMaterials(List<Material> disabledMaterials) {
+        StringBuilder dsbWorlds = new StringBuilder();
+        if (disabledMaterials.isEmpty()) {
+            dsbWorlds.append("None");
+        } else {
+            for (Material material : disabledMaterials) {
+                dsbWorlds.append(material).append(", ");
+            }
+            dsbWorlds.delete(dsbWorlds.length() - 2, dsbWorlds.length());
+        }
+
+        return dsbWorlds.toString();
+    }
+
+
+    public static void writeEnchantmentSates(StringBuilder stb, String prefix, Map<Enchantment, EnchantmentStateType> enchantmentStates) {
+        enchantmentStates.forEach((key, val) -> {
+            stb.append('\n').append(prefix).append('.').append(key.getKey())
+                    .append('=').append(val.getDisplayName()).append('\n');
+        });
     }
 
     public static List<String> complete(CommandSender sender, String[] args) {
