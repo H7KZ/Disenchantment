@@ -4,6 +4,8 @@ import com.jankominek.disenchantment.Disenchantment;
 import com.jankominek.disenchantment.commands.CommandBuilder;
 import com.jankominek.disenchantment.config.Config;
 import com.jankominek.disenchantment.nms.NMSMapper;
+import com.jankominek.disenchantment.plugins.ISupportedPlugin;
+import com.jankominek.disenchantment.plugins.SupportedPluginManager;
 import com.jankominek.disenchantment.types.PermissionGroupType;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -43,6 +45,23 @@ public class Diagnostic {
             result.append("\n-Plugin Enabled: ")
                     .append(ChatColor.COLOR_CHAR).append(Config.isPluginEnabled() ? ChatColor.GREEN : ChatColor.RED) // Color start
                     .append(Config.isPluginEnabled())
+                    .append(ChatColor.COLOR_CHAR).append(ChatColor.RESET); // Color end
+
+            // Get currently activated plugin(s) or None if none enabled
+            List<ISupportedPlugin> activatedPlugins = SupportedPluginManager.getAllActivatedPlugins();
+            StringBuilder activatedPluginStr = new StringBuilder();
+            if (activatedPlugins.isEmpty()) {
+                activatedPluginStr.append("None");
+            } else {
+                for (ISupportedPlugin plugin : activatedPlugins) {
+                    activatedPluginStr.append(plugin.getName()).append(", ");
+                }
+                activatedPluginStr.delete(activatedPluginStr.length() - 2, activatedPluginStr.length());
+            }
+
+            result.append("\n-Activated Plugins: ")
+                    .append(ChatColor.COLOR_CHAR).append(ChatColor.YELLOW) // Color start
+                    .append(activatedPluginStr)
                     .append(ChatColor.COLOR_CHAR).append(ChatColor.RESET); // Color end
 
             // Disenchantment debug section
