@@ -95,12 +95,12 @@ public class Diagnostic {
                     .append(Config.Disenchantment.Anvil.Repair.isResetEnabled())
                     .append(ChatColor.RESET); // Color end
             result.append("\nDisenchantment Base cost: ")
-                    .append(Config.Disenchantment.Anvil.Repair.isCostEnabled() ? ChatColor.GREEN : ChatColor.RED) // Color start
+                    .append(ChatColor.YELLOW) // Color start
                     .append(Config.Disenchantment.Anvil.Repair.getBaseCost())
                     .append(ChatColor.RESET); // Color end
             result.append("\nDisenchantment Cost multiplier: ")
                     .append(ChatColor.YELLOW) // Color start
-                    .append(Config.Disenchantment.Anvil.Repair.getBaseCost())
+                    .append(Config.Disenchantment.Anvil.Repair.getCostMultiplier())
                     .append(ChatColor.RESET); // Color end
 
             if (allInfo) {
@@ -157,12 +157,12 @@ public class Diagnostic {
                     .append(Config.Shatterment.Anvil.Repair.isResetEnabled())
                     .append(ChatColor.RESET); // Color end
             result.append("\nShatterment Base cost: ")
-                    .append(Config.Shatterment.Anvil.Repair.isCostEnabled() ? ChatColor.GREEN : ChatColor.RED) // Color start
+                    .append(ChatColor.YELLOW) // Color start
                     .append(Config.Shatterment.Anvil.Repair.getBaseCost())
                     .append(ChatColor.RESET); // Color end
             result.append("\nShatterment Cost multiplier: ")
                     .append(ChatColor.YELLOW) // Color start
-                    .append(Config.Shatterment.Anvil.Repair.getBaseCost())
+                    .append(Config.Shatterment.Anvil.Repair.getCostMultiplier())
                     .append(ChatColor.RESET); // Color end
 
             if (allInfo) {
