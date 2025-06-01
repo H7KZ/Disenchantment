@@ -34,7 +34,7 @@ public class Diagnostic {
             Diagnostic::complete
     );
 
-    private static final String SPACER = "\n" + ChatColor.YELLOW + "-------------------------" + ChatColor.RESET;
+    private static final String SPACER = "\n" + ChatColor.YELLOW + "-------------------------------" + ChatColor.RESET;
 
     public static void execute(CommandSender sender, String[] args) {
         boolean allInfo = args.length > 1 && args[1].equalsIgnoreCase("all");
