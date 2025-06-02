@@ -18,8 +18,8 @@ import org.bukkit.event.Event;
 import org.bukkit.event.inventory.PrepareAnvilEvent;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static com.jankominek.disenchantment.utils.AnvilCostUtils.countAnvilCost;
 
@@ -43,7 +43,17 @@ public class DisenchantEvent {
         ItemStack firstItem = e.getInventory().getItem(0);
         ItemStack secondItem = e.getInventory().getItem(1);
 
-        Map<Enchantment, Integer> enchantments = EventUtils.Disenchantment.getDisenchantedEnchantments(firstItem, secondItem, true);
+        List<ISupportedPlugin> activatedPlugins = SupportedPluginManager.getAllActivatedPlugins();
+
+        HashMap<Enchantment, Integer> enchantments = new HashMap<>();
+
+        if (activatedPlugins.isEmpty()) {
+            enchantments.putAll(EventUtils.Disenchantment.getDisenchantedEnchantments(firstItem, secondItem, true));
+        } else {
+            for (ISupportedPlugin plugin : activatedPlugins) {
+                enchantments.putAll(EventUtils.Disenchantment.getDisenchantedEnchantments(firstItem, secondItem, true, plugin));
+            }
+        }
 
         if (enchantments.isEmpty()) return;
 
@@ -53,8 +63,6 @@ public class DisenchantEvent {
         // Disenchantment plugins
 
         ItemStack book = new ItemStack(Material.ENCHANTED_BOOK);
-
-        List<ISupportedPlugin> activatedPlugins = SupportedPluginManager.getAllActivatedPlugins();
 
         if (activatedPlugins.isEmpty()) {
             book = VanillaPlugin.createEnchantedBook(enchantments);

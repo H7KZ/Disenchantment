@@ -15,6 +15,7 @@
 - `/disenchantment` - Help page 1
 - `/disenchantment help [<1,...,8>]` - Help pages 1-8
 ---
+- `/disenchantment diagnostic ['all']` - Show diagnostic information about the plugin. Use 'all' to show all information.
 - `/disenchantment gui` - Open GUI for disenchantment configuration.
 - `/disenchantment status` - Show if the plugin is enabled or disabled.
 - `/disenchantment toggle` - Toggle the plugin on/off.

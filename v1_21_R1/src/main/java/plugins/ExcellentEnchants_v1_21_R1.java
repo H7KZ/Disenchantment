@@ -13,6 +13,10 @@ public class ExcellentEnchants_v1_21_R1 implements ISupportedPlugin {
         return "ExcellentEnchants";
     }
 
+    public Map<Enchantment, Integer> getItemEnchantments(ItemStack item) {
+        return EnchantUtils.getEnchantments(item);
+    }
+
     public ItemStack createEnchantedBook(Map<Enchantment, Integer> enchantments) {
         ItemStack book = new ItemStack(Material.ENCHANTED_BOOK);
 

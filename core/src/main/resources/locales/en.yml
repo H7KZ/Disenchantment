@@ -43,6 +43,7 @@ commands:
         - "&f[ /disenchantment, /disenchant ]"
         - ""
         - "&8/disenchant help [page] &7- Displays this help page"
+        - "&8/disenchant diagnostic ['all'] &7- Show diagnostic information about the plugin. Use 'all' to show all information."
         - "&8/disenchant gui &7- Opens a GUI to edit plugin's settings"
       2:
         - "&8/disenchant status &7- Displays the plugin's status"

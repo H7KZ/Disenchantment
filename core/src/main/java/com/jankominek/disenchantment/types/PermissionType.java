@@ -28,6 +28,7 @@ public enum PermissionType {
     COMMAND_SHATTER_WORLDS("disenchantment.command.shatter.worlds"),
     COMMAND_SHATTER_REPAIR("disenchantment.command.shatter.repair"),
     COMMAND_SHATTER_SOUND("disenchantment.command.shatter.sound"),
+
     COMMAND_DIAGNOSTIC("disenchantment.command.diagnostic"),
 
     GUI("disenchantment.gui"),

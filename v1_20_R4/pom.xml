@@ -36,21 +36,21 @@
         <dependency>
             <groupId>com.willfp</groupId>
             <artifactId>eco</artifactId>
-            <version>6.74.5</version>
+            <version>6.75.2</version>
         </dependency>
         <dependency>
             <groupId>me.athlaeos</groupId>
             <artifactId>enchantssquared</artifactId>
-            <version>2.5.15</version>
+            <version>2.5.16</version>
             <scope>system</scope>
-            <systemPath>${pom.basedir}/libs/EnchantsSquared-2.5.15.jar</systemPath>
+            <systemPath>${pom.basedir}/libs/EnchantsSquared-2.5.16.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>me.sciguymjm</groupId>
             <artifactId>uberenchant</artifactId>
-            <version>8.11.5</version>
+            <version>8.11.7</version>
             <scope>system</scope>
-            <systemPath>${pom.basedir}/libs/UberEnchant-8.11.5.jar</systemPath>
+            <systemPath>${pom.basedir}/libs/UberEnchant-8.11.7.jar</systemPath>
         </dependency>
     </dependencies>
 
@@ -65,7 +65,7 @@
         <plugins>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.8.1</version>
+                <version>3.14.0</version>
                 <configuration>
                     <source>21</source>
                     <target>21</target>

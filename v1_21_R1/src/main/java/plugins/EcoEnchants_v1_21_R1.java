@@ -2,6 +2,7 @@ package plugins;
 
 import com.jankominek.disenchantment.plugins.ISupportedPlugin;
 import com.jankominek.disenchantment.plugins.VanillaPlugin;
+import com.jankominek.disenchantment.utils.EnchantmentUtils;
 import com.willfp.eco.core.items.builder.EnchantedBookBuilder;
 import org.bukkit.Bukkit;
 import org.bukkit.enchantments.Enchantment;
@@ -20,6 +21,10 @@ import static com.jankominek.disenchantment.Disenchantment.plugin;
 public class EcoEnchants_v1_21_R1 implements ISupportedPlugin {
     public String getName() {
         return "EcoEnchants";
+    }
+
+    public Map<Enchantment, Integer> getItemEnchantments(ItemStack item) {
+        return EnchantmentUtils.getItemEnchantments(item);
     }
 
     public ItemStack createEnchantedBook(Map<Enchantment, Integer> enchantments) {

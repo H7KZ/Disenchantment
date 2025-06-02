@@ -8,6 +8,8 @@ import java.util.Map;
 public interface ISupportedPlugin {
     String getName();
 
+    Map<Enchantment, Integer> getItemEnchantments(ItemStack item);
+
     ItemStack createEnchantedBook(Map<Enchantment, Integer> enchantments);
 
     ItemStack removeEnchantmentsFromItem(ItemStack firstItem, Map<Enchantment, Integer> enchantments);

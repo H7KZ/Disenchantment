@@ -43,6 +43,7 @@ commands:
         - "&f[ /disenchantment, /disenchant ]"
         - ""
         - "&8/disenchant help [page] &7- Zobrazí tuto stránku nápovědy"
+        - "&8/disenchant diagnostic ['all'] &7- Zobrazí diagnostické informace o pluginu. Použijte 'all' pro zobrazení všech informací."
         - "&8/disenchant gui &7- Otevře GUI pro úpravu nastavení pluginu"
       2:
         - "&8/disenchant status &7- Zobrazí stav pluginu"

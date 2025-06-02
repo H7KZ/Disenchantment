@@ -1,6 +1,7 @@
 package plugins;
 
 import com.jankominek.disenchantment.plugins.ISupportedPlugin;
+import me.sciguymjm.uberenchant.api.utils.UberUtils;
 import me.sciguymjm.uberenchant.utils.enchanting.EnchantmentUtils;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
@@ -11,6 +12,10 @@ import java.util.Map;
 public class UberEnchant_v1_20_R4 implements ISupportedPlugin {
     public String getName() {
         return "UberEnchant";
+    }
+
+    public Map<Enchantment, Integer> getItemEnchantments(ItemStack item) {
+        return UberUtils.getAllMap(item);
     }
 
     public ItemStack createEnchantedBook(Map<Enchantment, Integer> enchantments) {
