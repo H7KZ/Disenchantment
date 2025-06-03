@@ -8,7 +8,7 @@ import com.jankominek.disenchantment.plugins.VanillaPlugin;
 import com.jankominek.disenchantment.types.AnvilEventType;
 import com.jankominek.disenchantment.types.PermissionGroupType;
 import com.jankominek.disenchantment.utils.AnvilCostUtils;
-import com.jankominek.disenchantment.utils.ErrorUtils;
+import com.jankominek.disenchantment.utils.DiagnosticUtils;
 import com.jankominek.disenchantment.utils.EventUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -28,7 +28,7 @@ public class DisenchantEvent {
         try {
             handler(event);
         } catch (Exception e) {
-            ErrorUtils.fullReportError(e);
+            DiagnosticUtils.throwReport(e);
         }
     }
 
@@ -50,8 +50,8 @@ public class DisenchantEvent {
         if (activatedPlugins.isEmpty()) {
             enchantments.putAll(EventUtils.Disenchantment.getDisenchantedEnchantments(firstItem, secondItem, true));
         } else {
-            for (ISupportedPlugin plugin : activatedPlugins) {
-                enchantments.putAll(EventUtils.Disenchantment.getDisenchantedEnchantments(firstItem, secondItem, true, plugin));
+            for (ISupportedPlugin activatedPlugin : activatedPlugins) {
+                enchantments.putAll(EventUtils.Disenchantment.getDisenchantedEnchantments(firstItem, secondItem, true, activatedPlugin));
             }
         }
 
@@ -67,9 +67,9 @@ public class DisenchantEvent {
         if (activatedPlugins.isEmpty()) {
             book = VanillaPlugin.createEnchantedBook(enchantments);
         } else {
-            for (ISupportedPlugin plugin : activatedPlugins) {
+            for (ISupportedPlugin activatedPlugin : activatedPlugins) {
                 // won't 2 plugin activated on the same time would only use the last book ?
-                book = plugin.createEnchantedBook(enchantments);
+                book = activatedPlugin.createEnchantedBook(enchantments);
             }
         }
 

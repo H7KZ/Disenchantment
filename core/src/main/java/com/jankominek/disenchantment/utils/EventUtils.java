@@ -98,10 +98,6 @@ public class EventUtils {
     }
 
     public static class Shatterment {
-        public static Map<Enchantment, Integer> getDisenchantedEnchantments(ItemStack firstItem, ItemStack secondItem) {
-            return EventUtils.Shatterment.getDisenchantedEnchantments(firstItem, secondItem, false);
-        }
-
         public static Map<Enchantment, Integer> getDisenchantedEnchantments(ItemStack firstItem, ItemStack secondItem, boolean withDelete) {
             if (firstItem == null || secondItem == null) return Collections.emptyMap();
 
@@ -113,6 +109,33 @@ public class EventUtils {
             if (!secondEnchants.isEmpty()) return Collections.emptyMap();
 
             Map<Enchantment, Integer> firstEnchants = EnchantmentUtils.getItemEnchantments(firstItem);
+
+            if (EventUtils.Shatterment.isAtLeastOneEnchantmentDisabled(firstEnchants)) return Collections.emptyMap();
+
+            if (firstEnchants.size() < 2) return Collections.emptyMap();
+
+            for (Map.Entry<Enchantment, EnchantmentStateType> entry : Config.Shatterment.getEnchantmentStates().entrySet()) {
+                Enchantment enchantment = entry.getKey();
+                EnchantmentStateType state = entry.getValue();
+
+                if (EnchantmentStateType.KEEP.equals(state) || (withDelete && EnchantmentStateType.DELETE.equals(state)))
+                    firstEnchants.remove(enchantment);
+            }
+
+            return firstEnchants;
+        }
+
+        public static Map<Enchantment, Integer> getDisenchantedEnchantments(ItemStack firstItem, ItemStack secondItem, boolean withDelete, ISupportedPlugin activatedPlugin) {
+            if (firstItem == null || secondItem == null) return Collections.emptyMap();
+
+            if (firstItem.getType() != Material.ENCHANTED_BOOK) return Collections.emptyMap();
+            if (secondItem.getType() != Material.BOOK) return Collections.emptyMap();
+
+            Map<Enchantment, Integer> secondEnchants = activatedPlugin.getItemEnchantments(secondItem);
+
+            if (!secondEnchants.isEmpty()) return Collections.emptyMap();
+
+            Map<Enchantment, Integer> firstEnchants = activatedPlugin.getItemEnchantments(firstItem);
 
             if (EventUtils.Shatterment.isAtLeastOneEnchantmentDisabled(firstEnchants)) return Collections.emptyMap();
 

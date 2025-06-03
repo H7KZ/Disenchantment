@@ -1,17 +1,14 @@
 package plugins;
 
 import com.jankominek.disenchantment.plugins.ISupportedPlugin;
-import com.jankominek.disenchantment.plugins.SupportedPluginCustomEnchantment;
 import me.sciguymjm.uberenchant.api.utils.UberUtils;
 import me.sciguymjm.uberenchant.utils.enchanting.EnchantmentUtils;
 import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 public class UberEnchant_v1_21_R1 implements ISupportedPlugin {
     public String getName() {
@@ -19,7 +16,12 @@ public class UberEnchant_v1_21_R1 implements ISupportedPlugin {
     }
 
     public Map<Enchantment, Integer> getItemEnchantments(ItemStack item) {
-        return UberUtils.getAllMap(item);
+        HashMap<Enchantment, Integer> enchantments = new HashMap<>();
+
+        enchantments.putAll(UberUtils.getAllMap(item));
+        enchantments.putAll(UberUtils.getAllStoredMap(item));
+
+        return enchantments;
     }
 
     public ItemStack createEnchantedBook(Map<Enchantment, Integer> enchantments) {

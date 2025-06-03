@@ -7,6 +7,7 @@ import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public class UberEnchant_v1_18_R1 implements ISupportedPlugin {
@@ -15,7 +16,12 @@ public class UberEnchant_v1_18_R1 implements ISupportedPlugin {
     }
 
     public Map<Enchantment, Integer> getItemEnchantments(ItemStack item) {
-        return UberUtils.getAllMap(item);
+        HashMap<Enchantment, Integer> enchantments = new HashMap<>();
+
+        enchantments.putAll(UberUtils.getAllMap(item));
+        enchantments.putAll(UberUtils.getStoredMap(item));
+
+        return enchantments;
     }
 
     public ItemStack createEnchantedBook(Map<Enchantment, Integer> enchantments) {

@@ -2,7 +2,7 @@ package com.jankominek.disenchantment.events;
 
 import com.jankominek.disenchantment.guis.impl.*;
 import com.jankominek.disenchantment.types.PermissionGroupType;
-import com.jankominek.disenchantment.utils.ErrorUtils;
+import com.jankominek.disenchantment.utils.DiagnosticUtils;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -16,7 +16,7 @@ public class GUIClickEvent implements Listener {
         try {
             this.handler(event);
         } catch (Exception e) {
-            ErrorUtils.fullReportError(e);
+            DiagnosticUtils.throwReport(e);
         }
     }
 

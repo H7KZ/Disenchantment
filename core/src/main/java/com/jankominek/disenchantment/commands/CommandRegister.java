@@ -1,7 +1,7 @@
 package com.jankominek.disenchantment.commands;
 
 import com.jankominek.disenchantment.commands.impl.*;
-import com.jankominek.disenchantment.utils.ErrorUtils;
+import com.jankominek.disenchantment.utils.DiagnosticUtils;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 
@@ -35,7 +35,7 @@ public class CommandRegister implements CommandExecutor {
 
             return executeCommand(args[0].toLowerCase(), sender, args);
         } catch (Exception e) {
-            ErrorUtils.fullReportError(e);
+            DiagnosticUtils.throwReport(e);
 
             return false;
         }

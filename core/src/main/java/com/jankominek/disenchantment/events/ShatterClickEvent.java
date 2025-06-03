@@ -6,8 +6,7 @@ import com.jankominek.disenchantment.plugins.SupportedPluginManager;
 import com.jankominek.disenchantment.plugins.VanillaPlugin;
 import com.jankominek.disenchantment.types.PermissionGroupType;
 import com.jankominek.disenchantment.utils.AnvilCostUtils;
-import com.jankominek.disenchantment.utils.EnchantmentUtils;
-import com.jankominek.disenchantment.utils.ErrorUtils;
+import com.jankominek.disenchantment.utils.DiagnosticUtils;
 import com.jankominek.disenchantment.utils.EventUtils;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -29,7 +28,7 @@ public class ShatterClickEvent {
         try {
             handler(event);
         } catch (Exception e) {
-            ErrorUtils.fullReportError(e);
+            DiagnosticUtils.throwReport(e);
         }
     }
 
@@ -57,7 +56,17 @@ public class ShatterClickEvent {
         ItemStack firstItem = anvilInventory.getItem(0);
         ItemStack secondItem = anvilInventory.getItem(1);
 
-        Map<Enchantment, Integer> enchantments = EventUtils.Shatterment.getDisenchantedEnchantments(firstItem, secondItem);
+        List<ISupportedPlugin> activatedPlugins = SupportedPluginManager.getAllActivatedPlugins();
+
+        HashMap<Enchantment, Integer> enchantments = new HashMap<>();
+
+        if (activatedPlugins.isEmpty()) {
+            enchantments.putAll(EventUtils.Disenchantment.getDisenchantedEnchantments(firstItem, secondItem, false));
+        } else {
+            for (ISupportedPlugin activatedPlugin : activatedPlugins) {
+                enchantments.putAll(EventUtils.Disenchantment.getDisenchantedEnchantments(firstItem, secondItem, false, activatedPlugin));
+            }
+        }
 
         if (enchantments.isEmpty()) return;
 
@@ -84,8 +93,6 @@ public class ShatterClickEvent {
         ItemStack item = firstItem.clone();
         Map<Enchantment, Integer> enchantmentsToDelete = EventUtils.Shatterment.findEnchantmentsToDelete(enchantments);
 
-        List<ISupportedPlugin> activatedPlugins = SupportedPluginManager.getAllActivatedPlugins();
-
         EnchantmentStorageMeta resultItemMeta = (EnchantmentStorageMeta) result.getItemMeta();
 
         if (activatedPlugins.isEmpty()) {
@@ -93,11 +100,11 @@ public class ShatterClickEvent {
             item = VanillaPlugin.removeEnchantments(item, resultItemMeta.getStoredEnchants());
             item = VanillaPlugin.removeEnchantments(item, enchantmentsToDelete);
         } else {
-            HashMap<Enchantment, Integer> pluginEnchantments = EnchantmentUtils.getItemEnchantments(result);
+            for (ISupportedPlugin activatedPlugin : activatedPlugins) {
+                Map<Enchantment, Integer> pluginEnchantments = activatedPlugin.getItemEnchantments(result);
 
-            for (ISupportedPlugin plugin : activatedPlugins) {
-                item = plugin.removeEnchantmentsFromItem(item, pluginEnchantments);
-                item = plugin.removeEnchantmentsFromItem(item, enchantmentsToDelete);
+                item = activatedPlugin.removeEnchantmentsFromItem(item, pluginEnchantments);
+                item = activatedPlugin.removeEnchantmentsFromItem(item, enchantmentsToDelete);
             }
         }
 

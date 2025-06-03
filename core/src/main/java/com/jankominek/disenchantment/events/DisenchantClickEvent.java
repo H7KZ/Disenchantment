@@ -6,8 +6,7 @@ import com.jankominek.disenchantment.plugins.SupportedPluginManager;
 import com.jankominek.disenchantment.plugins.VanillaPlugin;
 import com.jankominek.disenchantment.types.PermissionGroupType;
 import com.jankominek.disenchantment.utils.AnvilCostUtils;
-import com.jankominek.disenchantment.utils.EnchantmentUtils;
-import com.jankominek.disenchantment.utils.ErrorUtils;
+import com.jankominek.disenchantment.utils.DiagnosticUtils;
 import com.jankominek.disenchantment.utils.EventUtils;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -29,7 +28,7 @@ public class DisenchantClickEvent {
         try {
             handler(event);
         } catch (Exception e) {
-            ErrorUtils.fullReportError(e);
+            DiagnosticUtils.throwReport(e);
         }
     }
 
@@ -66,8 +65,8 @@ public class DisenchantClickEvent {
         if (activatedPlugins.isEmpty()) {
             enchantments.putAll(EventUtils.Disenchantment.getDisenchantedEnchantments(firstItem, secondItem, false));
         } else {
-            for (ISupportedPlugin plugin : activatedPlugins) {
-                enchantments.putAll(EventUtils.Disenchantment.getDisenchantedEnchantments(firstItem, secondItem, false, plugin));
+            for (ISupportedPlugin activatedPlugin : activatedPlugins) {
+                enchantments.putAll(EventUtils.Disenchantment.getDisenchantedEnchantments(firstItem, secondItem, false, activatedPlugin));
             }
         }
 
@@ -96,11 +95,11 @@ public class DisenchantClickEvent {
             item = VanillaPlugin.removeEnchantments(item, resultItemMeta.getStoredEnchants());
             item = VanillaPlugin.removeEnchantments(item, enchantmentsToDelete);
         } else {
-            HashMap<Enchantment, Integer> pluginEnchantments = EnchantmentUtils.getItemEnchantments(result);
+            for (ISupportedPlugin activatedPlugin : activatedPlugins) {
+                Map<Enchantment, Integer> pluginEnchantments = activatedPlugin.getItemEnchantments(result);
 
-            for (ISupportedPlugin plugin : activatedPlugins) {
-                item = plugin.removeEnchantmentsFromItem(item, pluginEnchantments);
-                item = plugin.removeEnchantmentsFromItem(item, enchantmentsToDelete);
+                item = activatedPlugin.removeEnchantmentsFromItem(item, pluginEnchantments);
+                item = activatedPlugin.removeEnchantmentsFromItem(item, enchantmentsToDelete);
             }
         }
 

@@ -8,7 +8,7 @@ import com.jankominek.disenchantment.plugins.VanillaPlugin;
 import com.jankominek.disenchantment.types.AnvilEventType;
 import com.jankominek.disenchantment.types.PermissionGroupType;
 import com.jankominek.disenchantment.utils.AnvilCostUtils;
-import com.jankominek.disenchantment.utils.ErrorUtils;
+import com.jankominek.disenchantment.utils.DiagnosticUtils;
 import com.jankominek.disenchantment.utils.EventUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -18,7 +18,10 @@ import org.bukkit.event.Event;
 import org.bukkit.event.inventory.PrepareAnvilEvent;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
 
 import static com.jankominek.disenchantment.utils.AnvilCostUtils.countAnvilCost;
 
@@ -27,7 +30,7 @@ public class ShatterEvent {
         try {
             handler(event);
         } catch (Exception e) {
-            ErrorUtils.fullReportError(e);
+            DiagnosticUtils.throwReport(e);
         }
     }
 
@@ -42,7 +45,17 @@ public class ShatterEvent {
         ItemStack firstItem = e.getInventory().getItem(0);
         ItemStack secondItem = e.getInventory().getItem(1);
 
-        Map<Enchantment, Integer> enchantments = EventUtils.Shatterment.getDisenchantedEnchantments(firstItem, secondItem, true);
+        List<ISupportedPlugin> activatedPlugins = SupportedPluginManager.getAllActivatedPlugins();
+
+        HashMap<Enchantment, Integer> enchantments = new HashMap<>();
+
+        if (activatedPlugins.isEmpty()) {
+            enchantments.putAll(EventUtils.Disenchantment.getDisenchantedEnchantments(firstItem, secondItem, false));
+        } else {
+            for (ISupportedPlugin activatedPlugin : activatedPlugins) {
+                enchantments.putAll(EventUtils.Disenchantment.getDisenchantedEnchantments(firstItem, secondItem, false, activatedPlugin));
+            }
+        }
 
         if (enchantments.isEmpty()) return;
 
@@ -65,14 +78,12 @@ public class ShatterEvent {
 
         ItemStack book = new ItemStack(Material.ENCHANTED_BOOK);
 
-        List<ISupportedPlugin> activatedPlugins = SupportedPluginManager.getAllActivatedPlugins();
-
         if (activatedPlugins.isEmpty()) {
             book = VanillaPlugin.createEnchantedBook(randomEnchantmentShatter);
         } else {
-            for (ISupportedPlugin plugin : activatedPlugins) {
+            for (ISupportedPlugin activatedPlugin : activatedPlugins) {
                 // won't 2 plugin activated on the same time would only use the last book ?
-                book = plugin.createEnchantedBook(randomEnchantmentShatter);
+                book = activatedPlugin.createEnchantedBook(randomEnchantmentShatter);
             }
         }
 

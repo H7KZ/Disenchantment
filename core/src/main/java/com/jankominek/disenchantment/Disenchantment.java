@@ -13,7 +13,7 @@ import com.jankominek.disenchantment.nms.NMSMapper;
 import com.jankominek.disenchantment.plugins.SupportedPluginManager;
 import com.jankominek.disenchantment.utils.BStatsMetrics;
 import com.jankominek.disenchantment.utils.ConfigUtils;
-import com.jankominek.disenchantment.utils.ErrorUtils;
+import com.jankominek.disenchantment.utils.DiagnosticUtils;
 import com.jankominek.disenchantment.utils.UpdateChecker;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -137,7 +137,7 @@ public final class Disenchantment extends JavaPlugin {
         try {
             this.enable();
         } catch (Exception e) {
-            ErrorUtils.fullReportError(e);
+            DiagnosticUtils.throwReport(e);
             getServer().getPluginManager().disablePlugin(this);
         }
     }
@@ -147,7 +147,7 @@ public final class Disenchantment extends JavaPlugin {
         try {
             this.disable();
         } catch (Exception e) {
-            ErrorUtils.fullReportError(e);
+            DiagnosticUtils.throwReport(e);
         }
     }
 }
