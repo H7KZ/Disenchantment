@@ -22,24 +22,24 @@ Have an enchanted book? Want to split it and shatter into two enchanted books? Y
 #### 1.18 - 1.20.4
 
 - AdvancedEnchantments
-- EcoEnchants (changes required, see: https://github.com/H7KZ/Disenchantment/issues/31)
+- EcoEnchants (changes required, see Issue [#31](https://github.com/H7KZ/Disenchantment/issues/31))
 - EnchantsSquared
-- UberEnchant
+- UberEnchant (changes required, see Issue [#37](https://github.com/H7KZ/Disenchantment/issues/37))
 
 #### 1.20.5 - 1.20.6
 
 - AdvancedEnchantments
-- EcoEnchants (changes required, see: https://github.com/H7KZ/Disenchantment/issues/31)
+- EcoEnchants (changes required, see Issue [#31](https://github.com/H7KZ/Disenchantment/issues/31))
 - EnchantsSquared
-- UberEnchant
+- UberEnchant (changes required, see Issue [#37](https://github.com/H7KZ/Disenchantment/issues/37))
 
 #### 1.21 - 1.21.5
 
 - AdvancedEnchantments
-- EcoEnchants (changes required, see: https://github.com/H7KZ/Disenchantment/issues/31)
+- EcoEnchants (changes required, see Issue [#31](https://github.com/H7KZ/Disenchantment/issues/31))
 - EnchantsSquared
 - ExcellentEnchants
-- UberEnchant
+- UberEnchant (changes required, see Issue [#37](https://github.com/H7KZ/Disenchantment/issues/37))
 
 <br />
 
@@ -59,6 +59,7 @@ Have an enchanted book? Want to split it and shatter into two enchanted books? Y
 
 - [Plugin not working for non-op players](https://github.com/H7KZ/Disenchantment/issues/34)
 - [EcoEnchants are not working](https://github.com/H7KZ/Disenchantment/issues/31)
+- [UberEnchants are not working](https://github.com/H7KZ/Disenchantment/issues/37)
 
 <br />
 <br />
