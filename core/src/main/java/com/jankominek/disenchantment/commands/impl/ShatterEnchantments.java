@@ -42,7 +42,7 @@ public class ShatterEnchantments {
                     case DISABLE -> I18n.States.disable();
                     case KEEP -> I18n.States.keep();
                     case DELETE -> I18n.States.delete();
-                    default -> I18n.States.enabled();
+                    default -> I18n.States.enable();
                 };
 
                 s.sendMessage(I18n.Commands.Enchantments.Shatterment.enchantment(enchantment.getKey().getKey(), stateI18n));
@@ -68,12 +68,12 @@ public class ShatterEnchantments {
         String state = args[2].toLowerCase();
         HashMap<Enchantment, EnchantmentStateType> enchantments = Config.Shatterment.getEnchantmentStates();
 
-        if (EnchantmentStateType.ENABLED.getConfigName().equalsIgnoreCase(state)) {
+        if (EnchantmentStateType.ENABLE.getConfigName().equalsIgnoreCase(state)) {
             enchantments.remove(enchantment);
 
             Config.Shatterment.setEnchantmentStates(enchantments);
 
-            s.sendMessage(I18n.Messages.enchantmentIsEnabled());
+            s.sendMessage(I18n.Messages.enchantmentIsEnabled(enchantment.getKey().getKey()));
 
             return;
         } else if (EnchantmentStateType.KEEP.getConfigName().equalsIgnoreCase(state)) {
@@ -82,7 +82,7 @@ public class ShatterEnchantments {
 
             Config.Shatterment.setEnchantmentStates(enchantments);
 
-            s.sendMessage(I18n.Messages.enchantmentIsKept());
+            s.sendMessage(I18n.Messages.enchantmentIsKept(enchantment.getKey().getKey()));
 
             return;
         } else if (EnchantmentStateType.DELETE.getConfigName().equalsIgnoreCase(state)) {
@@ -91,7 +91,7 @@ public class ShatterEnchantments {
 
             Config.Shatterment.setEnchantmentStates(enchantments);
 
-            s.sendMessage(I18n.Messages.enchantmentIsDeleted());
+            s.sendMessage(I18n.Messages.enchantmentIsDeleted(enchantment.getKey().getKey()));
 
             return;
         } else if (EnchantmentStateType.DISABLE.getConfigName().equalsIgnoreCase(state)) {
@@ -100,7 +100,7 @@ public class ShatterEnchantments {
 
             Config.Shatterment.setEnchantmentStates(enchantments);
 
-            s.sendMessage(I18n.Messages.enchantmentIsDisabled());
+            s.sendMessage(I18n.Messages.enchantmentIsDisabled(enchantment.getKey().getKey()));
 
             return;
         }

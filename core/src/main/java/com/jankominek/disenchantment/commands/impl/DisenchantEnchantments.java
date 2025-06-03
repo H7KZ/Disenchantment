@@ -43,7 +43,7 @@ public class DisenchantEnchantments {
                     case DISABLE -> I18n.States.disable();
                     case KEEP -> I18n.States.keep();
                     case DELETE -> I18n.States.delete();
-                    default -> I18n.States.enabled();
+                    default -> I18n.States.enable();
                 };
 
                 s.sendMessage(I18n.Commands.Enchantments.Disenchantment.enchantment(enchantment.getKey().getKey(), stateI18n));
@@ -69,12 +69,12 @@ public class DisenchantEnchantments {
         String state = args[2].toLowerCase();
         HashMap<Enchantment, EnchantmentStateType> enchantments = Config.Disenchantment.getEnchantmentStates();
 
-        if (EnchantmentStateType.ENABLED.getConfigName().equalsIgnoreCase(state)) {
+        if (EnchantmentStateType.ENABLE.getConfigName().equalsIgnoreCase(state)) {
             enchantments.remove(enchantment);
 
             Config.Disenchantment.setEnchantmentStates(enchantments);
 
-            s.sendMessage(I18n.Messages.enchantmentIsEnabled());
+            s.sendMessage(I18n.Messages.enchantmentIsEnabled(enchantment.getKey().getKey()));
 
             return;
         } else if (EnchantmentStateType.KEEP.getConfigName().equalsIgnoreCase(state)) {
@@ -83,7 +83,7 @@ public class DisenchantEnchantments {
 
             Config.Disenchantment.setEnchantmentStates(enchantments);
 
-            s.sendMessage(I18n.Messages.enchantmentIsKept());
+            s.sendMessage(I18n.Messages.enchantmentIsKept(enchantment.getKey().getKey()));
 
             return;
         } else if (EnchantmentStateType.DELETE.getConfigName().equalsIgnoreCase(state)) {
@@ -92,7 +92,7 @@ public class DisenchantEnchantments {
 
             Config.Disenchantment.setEnchantmentStates(enchantments);
 
-            s.sendMessage(I18n.Messages.enchantmentIsDeleted());
+            s.sendMessage(I18n.Messages.enchantmentIsDeleted(enchantment.getKey().getKey()));
 
             return;
         } else if (EnchantmentStateType.DISABLE.getConfigName().equalsIgnoreCase(state)) {
@@ -101,7 +101,7 @@ public class DisenchantEnchantments {
 
             Config.Disenchantment.setEnchantmentStates(enchantments);
 
-            s.sendMessage(I18n.Messages.enchantmentIsDisabled());
+            s.sendMessage(I18n.Messages.enchantmentIsDisabled(enchantment.getKey().getKey()));
 
             return;
         }
@@ -120,8 +120,8 @@ public class DisenchantEnchantments {
         }
 
         if (args.length == 3) {
-            if (EnchantmentStateType.ENABLED.getConfigName().startsWith(args[2].toLowerCase()))
-                result.add(EnchantmentStateType.ENABLED.getConfigName());
+            if (EnchantmentStateType.ENABLE.getConfigName().startsWith(args[2].toLowerCase()))
+                result.add(EnchantmentStateType.ENABLE.getConfigName());
 
             if (EnchantmentStateType.KEEP.getConfigName().startsWith(args[2].toLowerCase()))
                 result.add(EnchantmentStateType.KEEP.getConfigName());

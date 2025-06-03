@@ -46,13 +46,15 @@ public class DisenchantMaterials {
 
             Config.Disenchantment.setDisabledMaterials(materials);
 
-            s.sendMessage(I18n.Messages.materialIsEnabled());
+            assert material != null;
+            s.sendMessage(I18n.Messages.materialIsEnabled(material.getKey().getKey()));
         } else {
             materials.add(material);
 
             Config.Disenchantment.setDisabledMaterials(materials);
 
-            s.sendMessage(I18n.Messages.materialIsDisabled());
+            assert material != null;
+            s.sendMessage(I18n.Messages.materialIsDisabled(material.getKey().getKey()));
         }
     }
 

@@ -2,8 +2,10 @@ package com.jankominek.disenchantment.types;
 
 import com.jankominek.disenchantment.config.I18n;
 
+import java.util.Objects;
+
 public enum EnchantmentStateType {
-    ENABLED(null),
+    ENABLE(null),
     KEEP("keep"),
     DELETE("delete"),
     DISABLE("disable"),
@@ -17,7 +19,7 @@ public enum EnchantmentStateType {
 
     public static EnchantmentStateType getStateByName(String name) {
         return switch (name.toLowerCase()) {
-            case "enabled" -> ENABLED;
+            case "enable" -> ENABLE;
             case "keep" -> KEEP;
             case "delete" -> DELETE;
             case "disable" -> DISABLE;
@@ -27,16 +29,16 @@ public enum EnchantmentStateType {
 
     public static EnchantmentStateType getNextState(EnchantmentStateType lastStatus) {
         return switch (lastStatus) {
-            case ENABLED -> KEEP;
+            case ENABLE -> KEEP;
             case KEEP -> DELETE;
             case DELETE -> DISABLE;
-            case DISABLE -> ENABLED;
+            case DISABLE -> ENABLE;
         };
     }
 
     public String getDisplayName() {
         return switch (this) {
-            case ENABLED -> I18n.States.enabled();
+            case ENABLE -> I18n.States.enable();
             case KEEP -> I18n.States.keep();
             case DELETE -> I18n.States.delete();
             case DISABLE -> I18n.States.disable();
@@ -44,6 +46,6 @@ public enum EnchantmentStateType {
     }
 
     public String getConfigName() {
-        return configName;
+        return Objects.requireNonNullElse(configName, "enable");
     }
 }

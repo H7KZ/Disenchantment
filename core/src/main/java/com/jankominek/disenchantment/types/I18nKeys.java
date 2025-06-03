@@ -32,7 +32,7 @@ public enum I18nKeys {
     MESSAGES_WORLD_IS_ENABLED("messages.world-is-enabled"),
     MESSAGES_WORLD_IS_DISABLED("messages.world-is-disabled"),
 
-    STATES_ENABLED("states.enabled"),
+    STATES_ENABLE("states.enabled"),
     STATES_KEEP("states.keep"),
     STATES_DELETE("states.delete"),
     STATES_DISABLE("states.disable"),

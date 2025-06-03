@@ -74,7 +74,7 @@ public class EventUtils {
                 Enchantment enchantment = entry.getKey();
                 int level = entry.getValue();
 
-                if (Config.Disenchantment.getEnchantmentStates().getOrDefault(enchantment, EnchantmentStateType.ENABLED) == EnchantmentStateType.DELETE)
+                if (Config.Disenchantment.getEnchantmentStates().getOrDefault(enchantment, EnchantmentStateType.ENABLE) == EnchantmentStateType.DELETE)
                     result.put(enchantment, level);
             }
 
@@ -85,7 +85,7 @@ public class EventUtils {
             Map<Enchantment, EnchantmentStateType> states = Config.Disenchantment.getEnchantmentStates();
 
             for (Enchantment enchantment : enchantments.keySet()) {
-                if (states.getOrDefault(enchantment, EnchantmentStateType.ENABLED) == EnchantmentStateType.DISABLE)
+                if (states.getOrDefault(enchantment, EnchantmentStateType.ENABLE) == EnchantmentStateType.DISABLE)
                     return true;
             }
 
@@ -159,7 +159,7 @@ public class EventUtils {
                 Enchantment enchantment = entry.getKey();
                 int level = entry.getValue();
 
-                if (Config.Shatterment.getEnchantmentStates().getOrDefault(enchantment, EnchantmentStateType.ENABLED) == EnchantmentStateType.DELETE)
+                if (Config.Shatterment.getEnchantmentStates().getOrDefault(enchantment, EnchantmentStateType.ENABLE) == EnchantmentStateType.DELETE)
                     result.put(enchantment, level);
             }
 
@@ -170,7 +170,7 @@ public class EventUtils {
             Map<Enchantment, EnchantmentStateType> states = Config.Shatterment.getEnchantmentStates();
 
             for (Enchantment enchantment : enchantments.keySet()) {
-                if (states.getOrDefault(enchantment, EnchantmentStateType.ENABLED) == EnchantmentStateType.DISABLE)
+                if (states.getOrDefault(enchantment, EnchantmentStateType.ENABLE) == EnchantmentStateType.DISABLE)
                     return true;
             }
 

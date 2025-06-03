@@ -100,8 +100,8 @@ public class EnchantmentsGUI implements InventoryHolder {
 
             if (enchantment == null) continue;
 
-            AtomicReference<EnchantmentStateType> disenchantmentState = new AtomicReference<>(disenchantmentEnchantmentsStates.getOrDefault(enchantment, EnchantmentStateType.ENABLED));
-            AtomicReference<EnchantmentStateType> shattermentState = new AtomicReference<>(shattermentEnchantmentsStates.getOrDefault(enchantment, EnchantmentStateType.ENABLED));
+            AtomicReference<EnchantmentStateType> disenchantmentState = new AtomicReference<>(disenchantmentEnchantmentsStates.getOrDefault(enchantment, EnchantmentStateType.ENABLE));
+            AtomicReference<EnchantmentStateType> shattermentState = new AtomicReference<>(shattermentEnchantmentsStates.getOrDefault(enchantment, EnchantmentStateType.ENABLE));
 
             worldItems[i] = new GUIItem(
                     freeSlots[i],
@@ -118,7 +118,7 @@ public class EnchantmentsGUI implements InventoryHolder {
                                 EnchantmentStateType newDisenchantmentStateType = EnchantmentStateType.getNextState(disenchantmentState.get());
                                 disenchantmentState.set(newDisenchantmentStateType);
 
-                                if (newDisenchantmentStateType.equals(EnchantmentStateType.ENABLED))
+                                if (newDisenchantmentStateType.equals(EnchantmentStateType.ENABLE))
                                     disenchantmentEnchantmentsStates.remove(enchantment);
                                 else if (!disenchantmentEnchantmentsStates.containsKey(enchantment))
                                     disenchantmentEnchantmentsStates.put(enchantment, newDisenchantmentStateType);
@@ -132,7 +132,7 @@ public class EnchantmentsGUI implements InventoryHolder {
                                 EnchantmentStateType newShattermentState = EnchantmentStateType.getNextState(shattermentState.get());
                                 shattermentState.set(newShattermentState);
 
-                                if (newShattermentState.equals(EnchantmentStateType.ENABLED))
+                                if (newShattermentState.equals(EnchantmentStateType.ENABLE))
                                     shattermentEnchantmentsStates.remove(enchantment);
                                 else if (!shattermentEnchantmentsStates.containsKey(enchantment))
                                     shattermentEnchantmentsStates.put(enchantment, newShattermentState);

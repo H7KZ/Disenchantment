@@ -26,36 +26,50 @@ public class I18n {
             return I18n.translateColors(localeConfig.getString(I18nKeys.MESSAGES_INVALID_ARGUMENT.getKey()));
         }
 
-        public static String unknownEnchantment() {
-            return I18n.translateColors(localeConfig.getString(I18nKeys.MESSAGES_UNKNOWN_ENCHANTMENT.getKey()));
-        }
-
         public static String specifyEnchantmentState() {
             return I18n.translateColors(localeConfig.getString(I18nKeys.MESSAGES_SPECIFY_ENCHANTMENT_STATE.getKey()));
         }
 
-        public static String enchantmentIsEnabled() {
-            return I18n.translateColors(localeConfig.getString(I18nKeys.MESSAGES_ENCHANTMENT_IS_ENABLED.getKey()));
+        public static String enchantmentIsEnabled(String enchantment) {
+            return I18n.translateColors(
+                    localeConfig.getString(I18nKeys.MESSAGES_ENCHANTMENT_IS_ENABLED.getKey(), "default")
+                            .replace("{enchantment}", enchantment)
+            );
         }
 
-        public static String enchantmentIsKept() {
-            return I18n.translateColors(localeConfig.getString(I18nKeys.MESSAGES_ENCHANTMENT_IS_KEPT.getKey()));
+        public static String enchantmentIsKept(String enchantment) {
+            return I18n.translateColors(
+                    localeConfig.getString(I18nKeys.MESSAGES_ENCHANTMENT_IS_KEPT.getKey(), "default")
+                            .replace("{enchantment}", enchantment)
+            );
         }
 
-        public static String enchantmentIsDeleted() {
-            return I18n.translateColors(localeConfig.getString(I18nKeys.MESSAGES_ENCHANTMENT_IS_DELETED.getKey()));
+        public static String enchantmentIsDeleted(String enchantment) {
+            return I18n.translateColors(
+                    localeConfig.getString(I18nKeys.MESSAGES_ENCHANTMENT_IS_DELETED.getKey(), "default")
+                            .replace("{enchantment}", enchantment)
+            );
         }
 
-        public static String enchantmentIsDisabled() {
-            return I18n.translateColors(localeConfig.getString(I18nKeys.MESSAGES_ENCHANTMENT_IS_DISABLED.getKey()));
+        public static String enchantmentIsDisabled(String enchantment) {
+            return I18n.translateColors(
+                    localeConfig.getString(I18nKeys.MESSAGES_ENCHANTMENT_IS_DISABLED.getKey(), "default")
+                            .replace("{enchantment}", enchantment)
+            );
         }
 
-        public static String materialIsEnabled() {
-            return I18n.translateColors(localeConfig.getString(I18nKeys.MESSAGES_MATERIAL_IS_ENABLED.getKey()));
+        public static String materialIsEnabled(String material) {
+            return I18n.translateColors(
+                    localeConfig.getString(I18nKeys.MESSAGES_MATERIAL_IS_ENABLED.getKey(), "default")
+                            .replace("{material}", material)
+            );
         }
 
-        public static String materialIsDisabled() {
-            return I18n.translateColors(localeConfig.getString(I18nKeys.MESSAGES_MATERIAL_IS_DISABLED.getKey()));
+        public static String materialIsDisabled(String material) {
+            return I18n.translateColors(
+                    localeConfig.getString(I18nKeys.MESSAGES_MATERIAL_IS_DISABLED.getKey(), "default")
+                            .replace("{material}", material)
+            );
         }
 
         public static String specifyRepairValue() {
@@ -149,8 +163,8 @@ public class I18n {
     }
 
     public static class States {
-        public static String enabled() {
-            return I18n.translateColors(localeConfig.getString(I18nKeys.STATES_ENABLED.getKey()));
+        public static String enable() {
+            return I18n.translateColors(localeConfig.getString(I18nKeys.STATES_ENABLE.getKey()));
         }
 
         public static String keep() {
