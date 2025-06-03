@@ -1,10 +1,12 @@
 package com.jankominek.disenchantment.config;
 
+import com.jankominek.disenchantment.plugins.SupportedPluginCustomEnchantment;
 import com.jankominek.disenchantment.types.ConfigKeys;
 import com.jankominek.disenchantment.types.EnchantmentStateType;
 import com.jankominek.disenchantment.utils.EnchantmentUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.World;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.event.EventPriority;
@@ -127,8 +129,9 @@ public class Config {
                         .filter(e -> e.getKey().getKey().equalsIgnoreCase(enchantmentName))
                         .findFirst().orElse(null);
 
-                // It is possible that the user miss-wrote an enchantment if he edited config.yml by hand.
-                if (enchantment == null) continue;
+                // Not every enchantment is registered in Bukkit, e.g. custom enchantments.
+                if (enchantment == null)
+                    enchantment = new SupportedPluginCustomEnchantment(NamespacedKey.minecraft(enchantmentName.toLowerCase()));
 
                 enchantmentStates.put(
                         enchantment,
@@ -285,8 +288,9 @@ public class Config {
                         .filter(e -> e.getKey().getKey().equalsIgnoreCase(enchantmentName))
                         .findFirst().orElse(null);
 
-                // It is possible that the user miss-wrote an enchantment if he edited config.yml by hand.
-                if (enchantment == null) continue;
+                // Not every enchantment is registered in Bukkit, e.g. custom enchantments.
+                if (enchantment == null)
+                    enchantment = new SupportedPluginCustomEnchantment(NamespacedKey.minecraft(enchantmentName.toLowerCase()));
 
                 enchantmentStates.put(
                         enchantment,

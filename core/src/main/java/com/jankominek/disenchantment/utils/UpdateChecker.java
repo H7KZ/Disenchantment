@@ -37,7 +37,7 @@ public class UpdateChecker {
 
     public Runnable runnableUpdateTask(String version) {
         return () -> this.getVersion(newVersion -> {
-            if (!version.equals(newVersion)) logger.info("There is a new version available: " + newVersion);
+            if (!version.equals(newVersion)) logger.info("There is a new version available: v" + newVersion);
         });
     }
 

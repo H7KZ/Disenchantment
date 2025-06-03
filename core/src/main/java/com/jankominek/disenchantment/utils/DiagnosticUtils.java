@@ -154,6 +154,19 @@ public class DiagnosticUtils {
             report.append("Plugin Configuration\n");
             report.append("=====================\n\n");
 
+            report.append("Available locales: ").append(String.join(", ", Config.getLocales())).append("\n");
+            report.append("Locale: ").append(Config.getLocale()).append("\n");
+
+            report.append("\n");
+
+            report.append("Event Priorities:\n");
+            report.append(" - Disenchantment: ").append(Config.EventPriorities.getDisenchantEvent().name()).append("\n");
+            report.append(" - Disenchantment Click: ").append(Config.EventPriorities.getDisenchantClickEvent().name()).append("\n");
+            report.append(" - Shatterment: ").append(Config.EventPriorities.getShatterEvent().name()).append("\n");
+            report.append(" - Shatterment Click: ").append(Config.EventPriorities.getShatterClickEvent().name()).append("\n");
+
+            report.append("\n");
+
             report.append("Disenchantment\n");
             report.append("Is Enabled: ").append(Config.Disenchantment.isEnabled() ? "Yes" : "No").append("\n");
             report.append("Is Cost Enabled: ").append(Config.Disenchantment.Anvil.Repair.isCostEnabled() ? "Yes" : "No").append("\n");

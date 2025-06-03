@@ -1,9 +1,6 @@
 package com.jankominek.disenchantment.config.migration;
 
-import com.jankominek.disenchantment.config.migration.steps.Migration1;
-import com.jankominek.disenchantment.config.migration.steps.Migration2;
-import com.jankominek.disenchantment.config.migration.steps.Migration3;
-import com.jankominek.disenchantment.config.migration.steps.Migration4;
+import com.jankominek.disenchantment.config.migration.steps.*;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.Plugin;
@@ -18,7 +15,8 @@ public class ConfigMigrations {
             1, new Migration1(),
             2, new Migration2(),
             3, new Migration3(),
-            4, new Migration4()
+            4, new Migration4(),
+            5, new Migration5()
     );
 
     public static FileConfiguration apply(Plugin plugin, FileConfiguration oldConfig, FileConfiguration newConfig) {

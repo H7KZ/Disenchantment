@@ -3,10 +3,12 @@ package com.jankominek.disenchantment.commands.impl;
 import com.jankominek.disenchantment.commands.CommandBuilder;
 import com.jankominek.disenchantment.config.Config;
 import com.jankominek.disenchantment.config.I18n;
+import com.jankominek.disenchantment.plugins.SupportedPluginCustomEnchantment;
 import com.jankominek.disenchantment.types.EnchantmentStateType;
 import com.jankominek.disenchantment.types.PermissionGroupType;
 import com.jankominek.disenchantment.utils.EnchantmentUtils;
 import org.bukkit.ChatColor;
+import org.bukkit.NamespacedKey;
 import org.bukkit.command.CommandSender;
 import org.bukkit.enchantments.Enchantment;
 
@@ -55,8 +57,8 @@ public class DisenchantEnchantments {
                 .findFirst().orElse(null);
 
         if (enchantment == null) {
-            s.sendMessage(I18n.Messages.unknownEnchantment());
-            return;
+            // Not every enchantment is registered in Bukkit, e.g. custom enchantments.
+            enchantment = new SupportedPluginCustomEnchantment(NamespacedKey.minecraft(args[1].toLowerCase()));
         }
 
         if (args.length == 2) {

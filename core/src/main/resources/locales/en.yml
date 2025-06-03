@@ -50,7 +50,7 @@ commands:
         - "&8/disenchant toggle ['global', 'disenchantment', 'shatterment'] &7- Toggles the plugin on or off"
       3:
         - "&8/disenchant disenchant:enchantments &7- View list of enchantment states"
-        - "&8/disenchant disenchant:enchantments [enchantment name] ['enable', 'keep', 'delete', 'cancel'] &7- Edit enchantment behavior"
+        - "&8/disenchant disenchant:enchantments [enchantment name] ['enable', 'keep', 'delete', 'disable'] &7- Edit enchantment behavior"
         - "&8/disenchant disenchant:worlds &7- View list of disabled worlds"
         - "&8/disenchant disenchant disenchant:worlds [world] &7- Toggle disenchantment in a world on or off"
         - "&8/disenchant disenchant:materials &7- View list of disabled materials"
@@ -68,7 +68,7 @@ commands:
         - "&8/disenchant disenchant:sound pitch [float] &7- Set the pitch"
       6:
         - "&8/disenchant shatter:enchantments &7- View list of enchantment states"
-        - "&8/disenchant shatter:enchantments [enchantment name] ['enable', 'keep', 'delete', 'cancel'] &7- Edit enchantment behavior"
+        - "&8/disenchant shatter:enchantments [enchantment name] ['enable', 'keep', 'delete', 'disable'] &7- Edit enchantment behavior"
         - "&8/disenchant shatter:worlds &7- View list of disabled worlds"
         - "&8/disenchant shatter:worlds [world] &7- Toggle shatterment in a world on or off"
       7:

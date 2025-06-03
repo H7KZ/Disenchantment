@@ -50,7 +50,7 @@ commands:
         - "&8/disenchant toggle ['global', 'disenchantment', 'shatterment'] &7- Přepne plugin zapnuto/vypnuto"
       3:
         - "&8/disenchant disenchant:enchantments &7- Zobrazí seznam stavů očarování"
-        - "&8/disenchant disenchant:enchantments [enchantment name] ['enable', 'keep', 'delete', 'cancel'] &7- Upraví chování očarování"
+        - "&8/disenchant disenchant:enchantments [enchantment name] ['enable', 'keep', 'delete', 'disable'] &7- Upraví chování očarování"
         - "&8/disenchant disenchant:worlds &7- Zobrazí seznam zakázaných světů"
         - "&8/disenchant disenchant:worlds [world] &7- Přepne odčarování ve světě zapnuto/vypnuto"
         - "&8/disenchant disenchant:materials &7- Zobrazí seznam zakázaných materiálů"
@@ -68,7 +68,7 @@ commands:
         - "&8/disenchant disenchant:sound pitch [float] &7- Nastaví výšku tónu"
       6:
         - "&8/disenchant shatter:enchantments &7- Zobrazí seznam stavů očarování"
-        - "&8/disenchant shatter:enchantments [enchantment name] ['enable', 'keep', 'delete', 'cancel'] &7- Upraví chování očarování"
+        - "&8/disenchant shatter:enchantments [enchantment name] ['enable', 'keep', 'delete', 'disable'] &7- Upraví chování očarování"
         - "&8/disenchant shatter:worlds &7- Zobrazí seznam zakázaných světů"
         - "&8/disenchant shatter:worlds [world] &7- Přepne roztříštění ve světě zapnuto/vypnuto"
       7:
