@@ -60,5 +60,10 @@
             <artifactId>disenchantment-v1_21_R1</artifactId>
             <version>${revision}</version>
         </dependency>
+        <dependency>
+            <groupId>com.jankominek</groupId>
+            <artifactId>disenchantment-v1_21_R4</artifactId>
+            <version>${revision}</version>
+        </dependency>
     </dependencies>
 </project>

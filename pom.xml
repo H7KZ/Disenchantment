@@ -14,6 +14,7 @@
 
     <modules>
         <module>core</module>
+        <module>v1_21_R4</module>
         <module>v1_21_R1</module>
         <module>v1_20_R4</module>
         <module>v1_18_R1</module>
@@ -36,7 +37,7 @@
     </build>
 
     <properties>
-        <revision>6.1.9</revision>
+        <revision>6.1.10</revision>
 
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>

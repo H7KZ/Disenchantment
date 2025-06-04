@@ -3,8 +3,8 @@ package com.jankominek.disenchantment.nms;
 import com.jankominek.disenchantment.Disenchantment;
 
 public enum MinecraftVersion {
-    MINECRAFT_1_21_6((byte) 22, "1_21_6", "1.21.6", "v1_21_R1"),
-    MINECRAFT_1_21_5((byte) 21, "1_21_5", "1.21.5", "v1_21_R1"),
+    MINECRAFT_1_21_6((byte) 22, "1_21_6", "1.21.6", "v1_21_R4"),
+    MINECRAFT_1_21_5((byte) 21, "1_21_5", "1.21.5", "v1_21_R4"),
     MINECRAFT_1_21_4((byte) 20, "1_21_4", "1.21.4", "v1_21_R1"),
     MINECRAFT_1_21_3((byte) 19, "1_21_3", "1.21.3", "v1_21_R1"),
     MINECRAFT_1_21_2((byte) 18, "1_21_2", "1.21.2", "v1_21_R1"),

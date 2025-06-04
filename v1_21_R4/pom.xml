@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>disenchantment-v1_21_R4</artifactId>
+
+    <parent>
+        <groupId>com.jankominek</groupId>
+        <artifactId>disenchantment-parent</artifactId>
+        <version>${revision}</version>
+    </parent>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.spigotmc</groupId>
+            <artifactId>spigot</artifactId>
+            <version>1.21.1-R0.1-SNAPSHOT</version>
+            <scope>provided</scope>
+            <classifier>remapped-mojang</classifier>
+        </dependency>
+        <dependency>
+            <groupId>com.jankominek</groupId>
+            <artifactId>disenchantment-core</artifactId>
+            <version>${revision}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>net.advancedplugins</groupId>
+            <artifactId>ae</artifactId>
+            <version>9.15.4</version>
+            <scope>system</scope>
+            <systemPath>${pom.basedir}/libs/AdvancedEnchantments-9.15.4.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>com.willfp</groupId>
+            <artifactId>eco</artifactId>
+            <version>6.75.2</version>
+        </dependency>
+        <dependency>
+            <groupId>me.athlaeos</groupId>
+            <artifactId>enchantssquared</artifactId>
+            <version>2.5.16</version>
+            <scope>system</scope>
+            <systemPath>${pom.basedir}/libs/EnchantsSquared-2.5.16.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>su.nightexpress</groupId>
+            <artifactId>excellentenchants</artifactId>
+            <version>5.0.0</version>
+            <scope>system</scope>
+            <systemPath>${pom.basedir}/libs/ExcellentEnchants-5.0.0.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>me.sciguymjm</groupId>
+            <artifactId>uberenchant</artifactId>
+            <version>8.11.7</version>
+            <scope>system</scope>
+            <systemPath>${pom.basedir}/libs/UberEnchant-8.11.7.jar</systemPath>
+        </dependency>
+    </dependencies>
+
+    <repositories>
+        <repository>
+            <id>auxilor-repo</id>
+            <url>https://repo.auxilor.io/repository/maven-public/</url>
+        </repository>
+    </repositories>
+
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.14.0</version>
+                <configuration>
+                    <source>21</source>
+                    <target>21</target>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <properties>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
+    </properties>
+</project>
