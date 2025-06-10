@@ -98,7 +98,7 @@ public class EventUtils {
     }
 
     public static class Shatterment {
-        public static Map<Enchantment, Integer> getDisenchantedEnchantments(ItemStack firstItem, ItemStack secondItem, boolean withDelete) {
+        public static Map<Enchantment, Integer> getShattermentEnchantments(ItemStack firstItem, ItemStack secondItem, boolean withDelete) {
             if (firstItem == null || secondItem == null) return Collections.emptyMap();
 
             if (firstItem.getType() != Material.ENCHANTED_BOOK) return Collections.emptyMap();
@@ -125,7 +125,7 @@ public class EventUtils {
             return firstEnchants;
         }
 
-        public static Map<Enchantment, Integer> getDisenchantedEnchantments(ItemStack firstItem, ItemStack secondItem, boolean withDelete, ISupportedPlugin activatedPlugin) {
+        public static Map<Enchantment, Integer> getShattermentEnchantments(ItemStack firstItem, ItemStack secondItem, boolean withDelete, ISupportedPlugin activatedPlugin) {
             if (firstItem == null || secondItem == null) return Collections.emptyMap();
 
             if (firstItem.getType() != Material.ENCHANTED_BOOK) return Collections.emptyMap();

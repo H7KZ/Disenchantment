@@ -61,10 +61,10 @@ public class ShatterClickEvent {
         HashMap<Enchantment, Integer> enchantments = new HashMap<>();
 
         if (activatedPlugins.isEmpty()) {
-            enchantments.putAll(EventUtils.Disenchantment.getDisenchantedEnchantments(firstItem, secondItem, false));
+            enchantments.putAll(EventUtils.Shatterment.getShattermentEnchantments(firstItem, secondItem, false));
         } else {
             for (ISupportedPlugin activatedPlugin : activatedPlugins) {
-                enchantments.putAll(EventUtils.Disenchantment.getDisenchantedEnchantments(firstItem, secondItem, false, activatedPlugin));
+                enchantments.putAll(EventUtils.Shatterment.getShattermentEnchantments(firstItem, secondItem, false, activatedPlugin));
             }
         }
 
