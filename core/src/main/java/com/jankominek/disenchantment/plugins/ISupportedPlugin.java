@@ -1,18 +1,13 @@
 package com.jankominek.disenchantment.plugins;
 
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.Map;
+import java.util.List;
 
 public interface ISupportedPlugin {
     String getName();
 
-    Map<Enchantment, Integer> getItemEnchantments(ItemStack item);
-
-    ItemStack createEnchantedBook(Map<Enchantment, Integer> enchantments);
-
-    ItemStack removeEnchantmentsFromItem(ItemStack firstItem, Map<Enchantment, Integer> enchantments);
+    List<IPluginEnchantment> getItemEnchantments(ItemStack item);
 
     default void activate() {
     }

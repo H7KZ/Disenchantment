@@ -1,13 +1,15 @@
 package com.jankominek.disenchantment.utils;
 
+import com.jankominek.disenchantment.plugins.IPluginEnchantment;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import static com.jankominek.disenchantment.Disenchantment.nms;
 
@@ -27,6 +29,18 @@ public class EnchantmentUtils {
         }
 
         item.setItemMeta(meta);
+    }
+
+    public static ItemStack removeEnchantments(ItemStack firstItem, Map<Enchantment, Integer> enchantments) {
+        ItemStack item = firstItem.clone();
+
+        for (Map.Entry<Enchantment, Integer> entry : enchantments.entrySet()) {
+            Enchantment enchantment = entry.getKey();
+
+            EnchantmentUtils.removeStoredEnchantment(item, enchantment);
+        }
+
+        return item;
     }
 
     public static void removeEnchantment(ItemStack item, Enchantment enchantment) {
@@ -54,13 +68,23 @@ public class EnchantmentUtils {
         return nms.canItemBeEnchanted(item);
     }
 
-    public static HashMap<Enchantment, Integer> getItemEnchantments(ItemStack item) {
-        HashMap<Enchantment, Integer> enchantments;
+    public static List<IPluginEnchantment> getItemEnchantments(ItemStack item) {
+        List<IPluginEnchantment> enchantments;
 
         if (item.hasItemMeta() && item.getItemMeta() instanceof EnchantmentStorageMeta meta) {
-            enchantments = new HashMap<>(meta.getStoredEnchants());
+            enchantments = meta.getStoredEnchants()
+                    .entrySet()
+                    .stream()
+                    .filter(entry -> entry.getKey() != null && entry.getValue() > 0)
+                    .map(entry -> remapEnchantment(entry.getKey(), entry.getValue()))
+                    .collect(Collectors.toList());
         } else {
-            enchantments = new HashMap<>(item.getEnchantments());
+            enchantments = item.getEnchantments()
+                    .entrySet()
+                    .stream()
+                    .filter(entry -> entry.getKey() != null && entry.getValue() > 0)
+                    .map(entry -> remapEnchantment(entry.getKey(), entry.getValue()))
+                    .collect(Collectors.toList());
         }
 
         return enchantments;
@@ -68,5 +92,47 @@ public class EnchantmentUtils {
 
     public static List<Enchantment> getRegisteredEnchantments() {
         return nms.getRegisteredEnchantments();
+    }
+
+    public static IPluginEnchantment remapEnchantment(Enchantment enchantment, int level) {
+        return new IPluginEnchantment() {
+            @Override
+            public String getKey() {
+                return enchantment.getKey().getKey().toLowerCase();
+            }
+
+            @Override
+            public int getLevel() {
+                return level;
+            }
+
+            @Override
+            public ItemStack addToBook(ItemStack book) {
+                ItemStack item = book.clone();
+                EnchantmentUtils.addStoredEnchantment(item, enchantment, this.getLevel());
+                return item;
+            }
+
+            @Override
+            public ItemStack removeFromBook(ItemStack book) {
+                ItemStack item = book.clone();
+                EnchantmentUtils.removeStoredEnchantment(item, enchantment);
+                return item;
+            }
+
+            @Override
+            public ItemStack addToItem(ItemStack item) {
+                ItemStack result = item.clone();
+                EnchantmentUtils.addStoredEnchantment(result, enchantment, this.getLevel());
+                return result;
+            }
+
+            @Override
+            public ItemStack removeFromItem(ItemStack item) {
+                ItemStack result = item.clone();
+                EnchantmentUtils.removeStoredEnchantment(result, enchantment);
+                return result;
+            }
+        };
     }
 }

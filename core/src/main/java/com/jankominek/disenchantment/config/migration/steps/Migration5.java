@@ -16,8 +16,6 @@ public class Migration5 implements IConfigMigration {
         keys.remove("disenchantment.enchantments-states");
         keys.remove("shatterment.enchantments-states");
 
-        System.out.println(keys);
-
         ConfigUtils.copyKeys(keys, oldConfig, configTemplate);
 
         if (oldConfig.contains("disenchantment.enchantments-states")) {
@@ -49,8 +47,6 @@ public class Migration5 implements IConfigMigration {
             if (state.equalsIgnoreCase("disabled")) state = "disable";
             else if (state.equalsIgnoreCase("cancel")) state = "disable";
             else continue;
-
-            System.out.println("Migration5: Migrating enchantment state: " + enchantmentName + " to " + state);
 
             newList.add(enchantmentName + ":" + state);
         }

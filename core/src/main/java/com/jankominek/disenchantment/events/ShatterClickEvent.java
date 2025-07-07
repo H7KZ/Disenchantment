@@ -1,16 +1,16 @@
 package com.jankominek.disenchantment.events;
 
 import com.jankominek.disenchantment.config.Config;
+import com.jankominek.disenchantment.plugins.IPluginEnchantment;
 import com.jankominek.disenchantment.plugins.ISupportedPlugin;
 import com.jankominek.disenchantment.plugins.SupportedPluginManager;
-import com.jankominek.disenchantment.plugins.VanillaPlugin;
 import com.jankominek.disenchantment.types.PermissionGroupType;
 import com.jankominek.disenchantment.utils.AnvilCostUtils;
 import com.jankominek.disenchantment.utils.DiagnosticUtils;
+import com.jankominek.disenchantment.utils.EnchantmentUtils;
 import com.jankominek.disenchantment.utils.EventUtils;
 import org.bukkit.Material;
 import org.bukkit.Sound;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -19,9 +19,8 @@ import org.bukkit.inventory.AnvilInventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class ShatterClickEvent {
     public static void onEvent(Event event) {
@@ -58,13 +57,13 @@ public class ShatterClickEvent {
 
         List<ISupportedPlugin> activatedPlugins = SupportedPluginManager.getAllActivatedPlugins();
 
-        HashMap<Enchantment, Integer> enchantments = new HashMap<>();
+        List<IPluginEnchantment> enchantments = new ArrayList<>();
 
         if (activatedPlugins.isEmpty()) {
-            enchantments.putAll(EventUtils.Shatterment.getShattermentEnchantments(firstItem, secondItem, false));
+            enchantments.addAll(EventUtils.Shatterment.getShattermentEnchantments(firstItem, secondItem, false));
         } else {
             for (ISupportedPlugin activatedPlugin : activatedPlugins) {
-                enchantments.putAll(EventUtils.Shatterment.getShattermentEnchantments(firstItem, secondItem, false, activatedPlugin));
+                enchantments.addAll(EventUtils.Shatterment.getShattermentEnchantments(firstItem, secondItem, false, activatedPlugin));
             }
         }
 
@@ -91,20 +90,29 @@ public class ShatterClickEvent {
 
         if (firstItem == null) return;
         ItemStack item = firstItem.clone();
-        Map<Enchantment, Integer> enchantmentsToDelete = EventUtils.Shatterment.findEnchantmentsToDelete(enchantments);
+        List<IPluginEnchantment> enchantmentsToDelete = EventUtils.Shatterment.findEnchantmentsToDelete(enchantments);
 
         EnchantmentStorageMeta resultItemMeta = (EnchantmentStorageMeta) result.getItemMeta();
 
         if (activatedPlugins.isEmpty()) {
             if (resultItemMeta == null) return;
-            item = VanillaPlugin.removeEnchantments(item, resultItemMeta.getStoredEnchants());
-            item = VanillaPlugin.removeEnchantments(item, enchantmentsToDelete);
+
+            item = EnchantmentUtils.removeEnchantments(item, resultItemMeta.getStoredEnchants());
+
+            for (IPluginEnchantment enchantment : enchantmentsToDelete) {
+                item = enchantment.removeFromItem(item);
+            }
         } else {
             for (ISupportedPlugin activatedPlugin : activatedPlugins) {
-                Map<Enchantment, Integer> pluginEnchantments = activatedPlugin.getItemEnchantments(result);
+                List<IPluginEnchantment> pluginEnchantments = activatedPlugin.getItemEnchantments(result);
 
-                item = activatedPlugin.removeEnchantmentsFromItem(item, pluginEnchantments);
-                item = activatedPlugin.removeEnchantmentsFromItem(item, enchantmentsToDelete);
+                for (IPluginEnchantment enchantment : pluginEnchantments) {
+                    item = enchantment.removeFromItem(item);
+                }
+
+                for (IPluginEnchantment enchantment : enchantmentsToDelete) {
+                    item = enchantment.removeFromItem(item);
+                }
             }
         }
 
@@ -123,6 +131,10 @@ public class ShatterClickEvent {
             anvilInventory.setItem(1, null);
         }
 
+        if (p.getGameMode() != org.bukkit.GameMode.CREATIVE) p.setLevel(exp);
+
+        p.setItemOnCursor(result);
+
         if (Config.Shatterment.Anvil.Sound.isEnabled())
             p.playSound(
                     p.getLocation(),
@@ -130,9 +142,5 @@ public class ShatterClickEvent {
                     Float.parseFloat(Config.Shatterment.Anvil.Sound.getVolume().toString()),
                     Float.parseFloat(Config.Shatterment.Anvil.Sound.getPitch().toString())
             );
-
-        if (p.getGameMode() != org.bukkit.GameMode.CREATIVE) p.setLevel(exp);
-
-        p.setItemOnCursor(result);
     }
 }

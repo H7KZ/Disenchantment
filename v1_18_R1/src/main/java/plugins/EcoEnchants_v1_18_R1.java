@@ -1,7 +1,7 @@
 package plugins;
 
+import com.jankominek.disenchantment.plugins.IPluginEnchantment;
 import com.jankominek.disenchantment.plugins.ISupportedPlugin;
-import com.jankominek.disenchantment.plugins.VanillaPlugin;
 import com.jankominek.disenchantment.utils.EnchantmentUtils;
 import com.willfp.eco.core.items.builder.EnchantedBookBuilder;
 import org.bukkit.Bukkit;
@@ -9,11 +9,13 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.inventory.PrepareAnvilEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.RegisteredListener;
 
-import java.util.Map;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.jankominek.disenchantment.Disenchantment.logger;
 import static com.jankominek.disenchantment.Disenchantment.plugin;
@@ -23,24 +25,76 @@ public class EcoEnchants_v1_18_R1 implements ISupportedPlugin {
         return "EcoEnchants";
     }
 
-    public Map<Enchantment, Integer> getItemEnchantments(ItemStack item) {
-        return EnchantmentUtils.getItemEnchantments(item);
+    public List<IPluginEnchantment> getItemEnchantments(ItemStack item) {
+        List<IPluginEnchantment> enchantments;
+
+        if (item.hasItemMeta() && item.getItemMeta() instanceof EnchantmentStorageMeta meta) {
+            enchantments = meta.getStoredEnchants()
+                    .entrySet()
+                    .stream()
+                    .map(entry -> remapEnchantment(entry.getKey(), entry.getValue()))
+                    .collect(Collectors.toList());
+        } else {
+            enchantments = item.getEnchantments()
+                    .entrySet()
+                    .stream()
+                    .map(entry -> remapEnchantment(entry.getKey(), entry.getValue()))
+                    .collect(Collectors.toList());
+        }
+
+        return enchantments;
     }
 
-    public ItemStack createEnchantedBook(Map<Enchantment, Integer> enchantments) {
-        ItemStack book;
+    private static IPluginEnchantment remapEnchantment(Enchantment enchantment, int level) {
+        return new IPluginEnchantment() {
+            @Override
+            public String getKey() {
+                return enchantment.getKey().getKey().toLowerCase();
+            }
 
-        EnchantedBookBuilder builder = new EnchantedBookBuilder();
+            @Override
+            public int getLevel() {
+                return level;
+            }
 
-        enchantments.forEach(builder::addStoredEnchantment);
+            @Override
+            public ItemStack addToBook(ItemStack book) {
+                ItemStack item = book.clone();
 
-        book = builder.build();
+                EnchantedBookBuilder builder = new EnchantedBookBuilder();
 
-        return book;
-    }
+                builder.addStoredEnchantment(enchantment, level);
 
-    public ItemStack removeEnchantmentsFromItem(ItemStack firstItem, Map<Enchantment, Integer> enchantments) {
-        return VanillaPlugin.removeEnchantments(firstItem, enchantments);
+                return item;
+            }
+
+            @Override
+            public ItemStack removeFromBook(ItemStack book) {
+                ItemStack item = book.clone();
+
+                EnchantmentUtils.removeStoredEnchantment(item, enchantment);
+
+                return item;
+            }
+
+            @Override
+            public ItemStack addToItem(ItemStack item) {
+                ItemStack result = item.clone();
+
+                EnchantmentUtils.addEnchantment(result, enchantment, level);
+
+                return result;
+            }
+
+            @Override
+            public ItemStack removeFromItem(ItemStack item) {
+                ItemStack result = item.clone();
+
+                EnchantmentUtils.removeEnchantment(item, enchantment);
+
+                return result;
+            }
+        };
     }
 
     public void activate() {

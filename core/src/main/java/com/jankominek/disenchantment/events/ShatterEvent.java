@@ -2,9 +2,9 @@ package com.jankominek.disenchantment.events;
 
 import com.jankominek.disenchantment.Disenchantment;
 import com.jankominek.disenchantment.config.Config;
+import com.jankominek.disenchantment.plugins.IPluginEnchantment;
 import com.jankominek.disenchantment.plugins.ISupportedPlugin;
 import com.jankominek.disenchantment.plugins.SupportedPluginManager;
-import com.jankominek.disenchantment.plugins.VanillaPlugin;
 import com.jankominek.disenchantment.types.AnvilEventType;
 import com.jankominek.disenchantment.types.PermissionGroupType;
 import com.jankominek.disenchantment.utils.AnvilCostUtils;
@@ -12,7 +12,6 @@ import com.jankominek.disenchantment.utils.DiagnosticUtils;
 import com.jankominek.disenchantment.utils.EventUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.inventory.PrepareAnvilEvent;
@@ -20,7 +19,6 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 
 import static com.jankominek.disenchantment.utils.AnvilCostUtils.countAnvilCost;
@@ -47,13 +45,13 @@ public class ShatterEvent {
 
         List<ISupportedPlugin> activatedPlugins = SupportedPluginManager.getAllActivatedPlugins();
 
-        HashMap<Enchantment, Integer> enchantments = new HashMap<>();
+        List<IPluginEnchantment> enchantments = new ArrayList<>();
 
         if (activatedPlugins.isEmpty()) {
-            enchantments.putAll(EventUtils.Shatterment.getShattermentEnchantments(firstItem, secondItem, false));
+            enchantments.addAll(EventUtils.Shatterment.getShattermentEnchantments(firstItem, secondItem, false));
         } else {
             for (ISupportedPlugin activatedPlugin : activatedPlugins) {
-                enchantments.putAll(EventUtils.Shatterment.getShattermentEnchantments(firstItem, secondItem, false, activatedPlugin));
+                enchantments.addAll(EventUtils.Shatterment.getShattermentEnchantments(firstItem, secondItem, false, activatedPlugin));
             }
         }
 
@@ -61,16 +59,16 @@ public class ShatterEvent {
 
         if (!PermissionGroupType.SHATTER_EVENT.hasPermission(p)) return;
 
-        HashMap<Enchantment, Integer> randomEnchantmentShatter = new HashMap<>();
+        List<IPluginEnchantment> randomEnchantmentShatter = new ArrayList<>();
 
-        List<Enchantment> keys = new ArrayList<>(enchantments.keySet());
-        Collections.shuffle(keys);
+        List<IPluginEnchantment> shuffleEnchantments = new ArrayList<>(enchantments);
+        Collections.shuffle(shuffleEnchantments);
 
-        int halfSize = Math.max(1, keys.size() / 2);
+        int halfSize = Math.max(1, shuffleEnchantments.size() / 2);
 
         for (int i = 0; i < halfSize; i++) {
-            Enchantment key = keys.get(i);
-            randomEnchantmentShatter.put(key, enchantments.get(key));
+            IPluginEnchantment enchantment = shuffleEnchantments.get(i);
+            randomEnchantmentShatter.add(enchantment);
         }
 
         // ----------------------------------------------------------------------------------------------------
@@ -78,13 +76,8 @@ public class ShatterEvent {
 
         ItemStack book = new ItemStack(Material.ENCHANTED_BOOK);
 
-        if (activatedPlugins.isEmpty()) {
-            book = VanillaPlugin.createEnchantedBook(randomEnchantmentShatter);
-        } else {
-            for (ISupportedPlugin activatedPlugin : activatedPlugins) {
-                // won't 2 plugin activated on the same time would only use the last book ?
-                book = activatedPlugin.createEnchantedBook(randomEnchantmentShatter);
-            }
+        for (IPluginEnchantment enchantment : randomEnchantmentShatter) {
+            book = enchantment.addToBook(book);
         }
 
         // Disenchantment plugins

@@ -1,12 +1,10 @@
 package com.jankominek.disenchantment.config;
 
-import com.jankominek.disenchantment.plugins.SupportedPluginCustomEnchantment;
 import com.jankominek.disenchantment.types.ConfigKeys;
 import com.jankominek.disenchantment.types.EnchantmentStateType;
 import com.jankominek.disenchantment.utils.EnchantmentUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
 import org.bukkit.World;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.event.EventPriority;
@@ -74,7 +72,7 @@ public class Config {
     }
 
     public static class Disenchantment {
-        private static HashMap<Enchantment, EnchantmentStateType> ENCHANTMENT_STATES_CACHE = null;
+        private static HashMap<String, EnchantmentStateType> ENCHANTMENT_STATES_CACHE = null;
 
         public static boolean isEnabled() {
             return config.getBoolean(ConfigKeys.DISENCHANTMENT_ENABLED.getKey());
@@ -109,32 +107,22 @@ public class Config {
             return getDisabledMaterials().equals(materials);
         }
 
-        public static HashMap<Enchantment, EnchantmentStateType> getEnchantmentStates() {
+        public static HashMap<String, EnchantmentStateType> getEnchantmentStates() {
             if (ENCHANTMENT_STATES_CACHE != null) return ENCHANTMENT_STATES_CACHE;
 
             List<String> list = config.getStringList(ConfigKeys.DISENCHANTMENT_ENCHANTMENTS_STATES.getKey());
-            HashMap<Enchantment, EnchantmentStateType> enchantmentStates = new HashMap<>();
-
-            List<Enchantment> enchantments = EnchantmentUtils.getRegisteredEnchantments();
+            HashMap<String, EnchantmentStateType> enchantmentStates = new HashMap<>();
 
             for (String enchantmentState : list) {
                 String[] split = enchantmentState.split(":");
 
                 if (split.length != 2) continue;
 
-                String enchantmentName = split[0];
+                String key = split[0];
                 EnchantmentStateType state = EnchantmentStateType.getStateByName(split[1]);
 
-                Enchantment enchantment = enchantments.stream()
-                        .filter(e -> e.getKey().getKey().equalsIgnoreCase(enchantmentName))
-                        .findFirst().orElse(null);
-
-                // Not every enchantment is registered in Bukkit, e.g. custom enchantments.
-                if (enchantment == null)
-                    enchantment = new SupportedPluginCustomEnchantment(NamespacedKey.minecraft(enchantmentName.toLowerCase()));
-
                 enchantmentStates.put(
-                        enchantment,
+                        key,
                         state
                 );
             }
@@ -144,11 +132,11 @@ public class Config {
             return enchantmentStates;
         }
 
-        public static boolean setEnchantmentStates(HashMap<Enchantment, EnchantmentStateType> enchantmentStates) {
+        public static boolean setEnchantmentStates(HashMap<String, EnchantmentStateType> enchantmentStates) {
             List<String> list = new ArrayList<>();
 
-            for (Map.Entry<Enchantment, EnchantmentStateType> entry : enchantmentStates.entrySet()) {
-                list.add(entry.getKey().getKey().getKey().toLowerCase() + ":" + entry.getValue().getConfigName().toLowerCase());
+            for (Map.Entry<String, EnchantmentStateType> entry : enchantmentStates.entrySet()) {
+                list.add(entry.getKey().toLowerCase() + ":" + entry.getValue().getConfigName().toLowerCase());
             }
 
             config.set(ConfigKeys.DISENCHANTMENT_ENCHANTMENTS_STATES.getKey(), list);
@@ -244,7 +232,7 @@ public class Config {
     }
 
     public static class Shatterment {
-        private static HashMap<Enchantment, EnchantmentStateType> ENCHANTMENT_STATES_CACHE = null;
+        private static HashMap<String, EnchantmentStateType> ENCHANTMENT_STATES_CACHE = null;
 
         public static boolean isEnabled() {
             return config.getBoolean(ConfigKeys.SHATTERMENT_ENABLED.getKey());
@@ -268,11 +256,11 @@ public class Config {
             return getDisabledWorlds().equals(worlds);
         }
 
-        public static HashMap<Enchantment, EnchantmentStateType> getEnchantmentStates() {
+        public static HashMap<String, EnchantmentStateType> getEnchantmentStates() {
             if (ENCHANTMENT_STATES_CACHE != null) return ENCHANTMENT_STATES_CACHE;
 
             List<String> list = config.getStringList(ConfigKeys.SHATTERMENT_ENCHANTMENTS_STATES.getKey());
-            HashMap<Enchantment, EnchantmentStateType> enchantmentStates = new HashMap<>();
+            HashMap<String, EnchantmentStateType> enchantmentStates = new HashMap<>();
 
             List<Enchantment> enchantments = EnchantmentUtils.getRegisteredEnchantments();
 
@@ -281,19 +269,11 @@ public class Config {
 
                 if (split.length != 2) continue;
 
-                String enchantmentName = split[0];
+                String key = split[0];
                 EnchantmentStateType state = EnchantmentStateType.getStateByName(split[1]);
 
-                Enchantment enchantment = enchantments.stream()
-                        .filter(e -> e.getKey().getKey().equalsIgnoreCase(enchantmentName))
-                        .findFirst().orElse(null);
-
-                // Not every enchantment is registered in Bukkit, e.g. custom enchantments.
-                if (enchantment == null)
-                    enchantment = new SupportedPluginCustomEnchantment(NamespacedKey.minecraft(enchantmentName.toLowerCase()));
-
                 enchantmentStates.put(
-                        enchantment,
+                        key,
                         state
                 );
             }
@@ -303,11 +283,11 @@ public class Config {
             return enchantmentStates;
         }
 
-        public static boolean setEnchantmentStates(HashMap<Enchantment, EnchantmentStateType> enchantmentStates) {
+        public static boolean setEnchantmentStates(HashMap<String, EnchantmentStateType> enchantmentStates) {
             List<String> list = new ArrayList<>();
 
-            for (Map.Entry<Enchantment, EnchantmentStateType> entry : enchantmentStates.entrySet()) {
-                list.add(entry.getKey().getKey().getKey().toLowerCase() + ":" + entry.getValue().getConfigName().toLowerCase());
+            for (Map.Entry<String, EnchantmentStateType> entry : enchantmentStates.entrySet()) {
+                list.add(entry.getKey().toLowerCase() + ":" + entry.getValue().getConfigName().toLowerCase());
             }
 
             config.set(ConfigKeys.SHATTERMENT_ENCHANTMENTS_STATES.getKey(), list);

@@ -2,9 +2,9 @@ package com.jankominek.disenchantment.events;
 
 import com.jankominek.disenchantment.Disenchantment;
 import com.jankominek.disenchantment.config.Config;
+import com.jankominek.disenchantment.plugins.IPluginEnchantment;
 import com.jankominek.disenchantment.plugins.ISupportedPlugin;
 import com.jankominek.disenchantment.plugins.SupportedPluginManager;
-import com.jankominek.disenchantment.plugins.VanillaPlugin;
 import com.jankominek.disenchantment.types.AnvilEventType;
 import com.jankominek.disenchantment.types.PermissionGroupType;
 import com.jankominek.disenchantment.utils.AnvilCostUtils;
@@ -12,13 +12,12 @@ import com.jankominek.disenchantment.utils.DiagnosticUtils;
 import com.jankominek.disenchantment.utils.EventUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.inventory.PrepareAnvilEvent;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.jankominek.disenchantment.utils.AnvilCostUtils.countAnvilCost;
@@ -45,13 +44,13 @@ public class DisenchantEvent {
 
         List<ISupportedPlugin> activatedPlugins = SupportedPluginManager.getAllActivatedPlugins();
 
-        HashMap<Enchantment, Integer> enchantments = new HashMap<>();
+        List<IPluginEnchantment> enchantments = new ArrayList<>();
 
         if (activatedPlugins.isEmpty()) {
-            enchantments.putAll(EventUtils.Disenchantment.getDisenchantedEnchantments(firstItem, secondItem, true));
+            enchantments.addAll(EventUtils.Disenchantment.getDisenchantedEnchantments(firstItem, secondItem, true));
         } else {
             for (ISupportedPlugin activatedPlugin : activatedPlugins) {
-                enchantments.putAll(EventUtils.Disenchantment.getDisenchantedEnchantments(firstItem, secondItem, true, activatedPlugin));
+                enchantments.addAll(EventUtils.Disenchantment.getDisenchantedEnchantments(firstItem, secondItem, true, activatedPlugin));
             }
         }
 
@@ -64,13 +63,8 @@ public class DisenchantEvent {
 
         ItemStack book = new ItemStack(Material.ENCHANTED_BOOK);
 
-        if (activatedPlugins.isEmpty()) {
-            book = VanillaPlugin.createEnchantedBook(enchantments);
-        } else {
-            for (ISupportedPlugin activatedPlugin : activatedPlugins) {
-                // won't 2 plugin activated on the same time would only use the last book ?
-                book = activatedPlugin.createEnchantedBook(enchantments);
-            }
+        for (IPluginEnchantment enchantment : enchantments) {
+            book = enchantment.addToBook(book);
         }
 
         // Disenchantment plugins

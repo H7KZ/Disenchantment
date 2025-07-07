@@ -2,13 +2,13 @@ package com.jankominek.disenchantment.utils;
 
 import com.google.common.util.concurrent.AtomicDouble;
 import com.jankominek.disenchantment.config.Config;
+import com.jankominek.disenchantment.plugins.IPluginEnchantment;
 import com.jankominek.disenchantment.types.AnvilEventType;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.AnvilInventory;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.Map;
+import java.util.List;
 
 import static com.jankominek.disenchantment.Disenchantment.nms;
 
@@ -25,7 +25,7 @@ public class AnvilCostUtils {
         nms.setAnvilRepairCost(anvilInventory, inventoryView, repairCost);
     }
 
-    public static int countAnvilCost(Map<Enchantment, Integer> enchantments, AnvilEventType anvilEventType) {
+    public static int countAnvilCost(List<IPluginEnchantment> enchantments, AnvilEventType anvilEventType) {
         double enchantmentCost;
         double baseMultiplier;
 
@@ -50,10 +50,13 @@ public class AnvilCostUtils {
 
         AtomicDouble multiplier = new AtomicDouble(baseMultiplier);
 
-        Map<Enchantment, Integer> sortedEnchantments = MapUtils.sortByValue(enchantments, true);
+        // sort by value
+        IPluginEnchantment[] sortedEnchantments = enchantments.stream()
+                .sorted((e1, e2) -> Integer.compare(e2.getLevel(), e1.getLevel()))
+                .toArray(IPluginEnchantment[]::new);
 
-        for (Map.Entry<Enchantment, Integer> entry : sortedEnchantments.entrySet()) {
-            int level = entry.getValue();
+        for (IPluginEnchantment enchantment : sortedEnchantments) {
+            int level = enchantment.getLevel();
 
             enchantmentCost += level * multiplier.get();
             multiplier.set(multiplier.get() + baseMultiplier);

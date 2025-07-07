@@ -8,7 +8,6 @@ import com.jankominek.disenchantment.plugins.SupportedPluginManager;
 import com.jankominek.disenchantment.types.EnchantmentStateType;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.PrepareAnvilEvent;
 import org.bukkit.generator.WorldInfo;
@@ -55,9 +54,6 @@ public class DiagnosticUtils {
     private static String buildReport(Boolean extended, CommandSender sender) {
         StringBuilder report = new StringBuilder();
         try {
-            report.append("Disenchantment Diagnostic Report\n");
-            report.append("=================================\n\n");
-
             report.append("Plugin Version: ").append(plugin.getDescription().getVersion()).append("\n");
             report.append("Server Version: ").append(Bukkit.getVersion()).append(" (").append(Bukkit.getName()).append(')').append("\n");
             report.append("Plugin Enabled: ").append(plugin.isEnabled() ? "Yes" : "No").append("\n");
@@ -204,10 +200,10 @@ public class DiagnosticUtils {
                         .append("\n");
 
                 report.append("Enchantment States:\n");
-                for (Map.Entry<Enchantment, EnchantmentStateType> entry : Config.Disenchantment.getEnchantmentStates().entrySet()) {
-                    Enchantment enchantment = entry.getKey();
+                for (Map.Entry<String, EnchantmentStateType> entry : Config.Disenchantment.getEnchantmentStates().entrySet()) {
+                    String key = entry.getKey();
                     EnchantmentStateType state = entry.getValue();
-                    report.append(" - ").append(enchantment.getKey().getKey()).append(" = ").append(state.name()).append("\n");
+                    report.append(" - ").append(key).append(" = ").append(state.name()).append("\n");
                 }
             }
 
@@ -238,10 +234,10 @@ public class DiagnosticUtils {
                         .append("\n");
 
                 report.append("Enchantment States:\n");
-                for (Map.Entry<Enchantment, EnchantmentStateType> entry : Config.Shatterment.getEnchantmentStates().entrySet()) {
-                    Enchantment enchantment = entry.getKey();
+                for (Map.Entry<String, EnchantmentStateType> entry : Config.Shatterment.getEnchantmentStates().entrySet()) {
+                    String key = entry.getKey();
                     EnchantmentStateType state = entry.getValue();
-                    report.append(" - ").append(enchantment.getKey().getKey()).append(" = ").append(state.name()).append("\n");
+                    report.append(" - ").append(key).append(" = ").append(state.name()).append("\n");
                 }
             }
 

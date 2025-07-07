@@ -3,15 +3,26 @@ package com.jankominek.disenchantment.nms;
 import com.jankominek.disenchantment.Disenchantment;
 
 public enum MinecraftVersion {
+    // 1_21_R4
+    MINECRAFT_1_21_10((byte) 22, "1_21_10", "1.21.10", "v1_21_R4"),
+    MINECRAFT_1_21_9((byte) 22, "1_21_9", "1.21.9", "v1_21_R4"),
+    MINECRAFT_1_21_8((byte) 22, "1_21_8", "1.21.8", "v1_21_R4"),
+    MINECRAFT_1_21_7((byte) 22, "1_21_7", "1.21.7", "v1_21_R4"),
     MINECRAFT_1_21_6((byte) 22, "1_21_6", "1.21.6", "v1_21_R4"),
     MINECRAFT_1_21_5((byte) 21, "1_21_5", "1.21.5", "v1_21_R4"),
+
+    // 1_21_R1
     MINECRAFT_1_21_4((byte) 20, "1_21_4", "1.21.4", "v1_21_R1"),
     MINECRAFT_1_21_3((byte) 19, "1_21_3", "1.21.3", "v1_21_R1"),
     MINECRAFT_1_21_2((byte) 18, "1_21_2", "1.21.2", "v1_21_R1"),
     MINECRAFT_1_21_1((byte) 17, "1_21_1", "1.21.1", "v1_21_R1"),
     MINECRAFT_1_21((byte) 16, "1_21", "1.21", "v1_21_R1"),
+
+    // 1_20_R4
     MINECRAFT_1_20_6((byte) 15, "1_20_6", "1.20.6", "v1_20_R4"),
     MINECRAFT_1_20_5((byte) 14, "1_20_5", "1.20.5", "v1_20_R4"),
+
+    // 1_18_R1
     MINECRAFT_1_20_4((byte) 13, "1_20_4", "1.20.4", "v1_18_R1"),
     MINECRAFT_1_20_3((byte) 12, "1_20_3", "1.20.3", "v1_18_R1"),
     MINECRAFT_1_20_2((byte) 11, "1_20_2", "1.20.2", "v1_18_R1"),
@@ -25,6 +36,7 @@ public enum MinecraftVersion {
     MINECRAFT_1_18_2((byte) 3, "1_18_2", "1.18.2", "v1_18_R1"),
     MINECRAFT_1_18_1((byte) 2, "1_18_1", "1.18.1", "v1_18_R1"),
     MINECRAFT_1_18((byte) 1, "1_18", "1.18", "v1_18_R1"),
+
     INCOMPATIBLE((byte) -1, null, null, null),
     ;
 
