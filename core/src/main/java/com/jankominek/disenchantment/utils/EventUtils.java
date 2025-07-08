@@ -15,6 +15,7 @@ public class EventUtils {
     public static class Disenchantment {
         public static List<IPluginEnchantment> getDisenchantedEnchantments(ItemStack firstItem, ItemStack secondItem, boolean withDelete) {
             if (firstItem == null || secondItem == null) return List.of();
+            if (firstItem.getType() == Material.AIR || secondItem.getType() == Material.AIR) return List.of();
 
             if (firstItem.getType() == Material.ENCHANTED_BOOK) return List.of();
             if (secondItem.getType() != Material.BOOK) return List.of();
@@ -42,6 +43,7 @@ public class EventUtils {
 
         public static List<IPluginEnchantment> getDisenchantedEnchantments(ItemStack firstItem, ItemStack secondItem, boolean withDelete, ISupportedPlugin activatedPlugin) {
             if (firstItem == null || secondItem == null) return List.of();
+            if (firstItem.getType() == Material.AIR || secondItem.getType() == Material.AIR) return List.of();
 
             if (firstItem.getType() == Material.ENCHANTED_BOOK) return List.of();
             if (secondItem.getType() != Material.BOOK) return List.of();
@@ -100,6 +102,7 @@ public class EventUtils {
     public static class Shatterment {
         public static List<IPluginEnchantment> getShattermentEnchantments(ItemStack firstItem, ItemStack secondItem, boolean withDelete) {
             if (firstItem == null || secondItem == null) return List.of();
+            if (firstItem.getType() == Material.AIR || secondItem.getType() == Material.AIR) return List.of();
 
             if (firstItem.getType() != Material.ENCHANTED_BOOK) return List.of();
             if (secondItem.getType() != Material.BOOK) return List.of();
@@ -127,6 +130,7 @@ public class EventUtils {
 
         public static List<IPluginEnchantment> getShattermentEnchantments(ItemStack firstItem, ItemStack secondItem, boolean withDelete, ISupportedPlugin activatedPlugin) {
             if (firstItem == null || secondItem == null) return List.of();
+            if (firstItem.getType() == Material.AIR || secondItem.getType() == Material.AIR) return List.of();
 
             if (firstItem.getType() != Material.ENCHANTED_BOOK) return List.of();
             if (secondItem.getType() != Material.BOOK) return List.of();

@@ -1,5 +1,6 @@
 package com.jankominek.disenchantment.events;
 
+import com.jankominek.disenchantment.Disenchantment;
 import com.jankominek.disenchantment.config.Config;
 import com.jankominek.disenchantment.plugins.IPluginEnchantment;
 import com.jankominek.disenchantment.plugins.ISupportedPlugin;
@@ -9,6 +10,7 @@ import com.jankominek.disenchantment.utils.AnvilCostUtils;
 import com.jankominek.disenchantment.utils.DiagnosticUtils;
 import com.jankominek.disenchantment.utils.EnchantmentUtils;
 import com.jankominek.disenchantment.utils.EventUtils;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -89,7 +91,7 @@ public class ShatterClickEvent {
         // Disenchantment plugins
 
         if (firstItem == null) return;
-        ItemStack item = firstItem.clone();
+        ItemStack finalFirstItem = firstItem.clone();
         List<IPluginEnchantment> enchantmentsToDelete = EventUtils.Shatterment.findEnchantmentsToDelete(enchantments);
 
         EnchantmentStorageMeta resultItemMeta = (EnchantmentStorageMeta) result.getItemMeta();
@@ -97,21 +99,21 @@ public class ShatterClickEvent {
         if (activatedPlugins.isEmpty()) {
             if (resultItemMeta == null) return;
 
-            item = EnchantmentUtils.removeEnchantments(item, resultItemMeta.getStoredEnchants());
+            finalFirstItem = EnchantmentUtils.removeEnchantments(finalFirstItem, resultItemMeta.getStoredEnchants());
 
             for (IPluginEnchantment enchantment : enchantmentsToDelete) {
-                item = enchantment.removeFromItem(item);
+                finalFirstItem = enchantment.removeFromItem(finalFirstItem);
             }
         } else {
             for (ISupportedPlugin activatedPlugin : activatedPlugins) {
                 List<IPluginEnchantment> pluginEnchantments = activatedPlugin.getItemEnchantments(result);
 
                 for (IPluginEnchantment enchantment : pluginEnchantments) {
-                    item = enchantment.removeFromItem(item);
+                    finalFirstItem = enchantment.removeFromItem(finalFirstItem);
                 }
 
                 for (IPluginEnchantment enchantment : enchantmentsToDelete) {
-                    item = enchantment.removeFromItem(item);
+                    finalFirstItem = enchantment.removeFromItem(finalFirstItem);
                 }
             }
         }
@@ -119,17 +121,25 @@ public class ShatterClickEvent {
         // Disenchantment plugins
         // ----------------------------------------------------------------------------------------------------
 
-        if (Config.Shatterment.Anvil.Repair.isResetEnabled()) AnvilCostUtils.setItemRepairCost(item, 0);
+        if (Config.Shatterment.Anvil.Repair.isResetEnabled()) AnvilCostUtils.setItemRepairCost(finalFirstItem, 0);
 
-        anvilInventory.setItem(0, item);
+        anvilInventory.setItem(0, finalFirstItem);
 
         if (secondItem == null) return;
+        ItemStack finalSecondItem = secondItem.clone();
 
-        if (secondItem.getAmount() > 1) {
-            secondItem.setAmount(secondItem.getAmount() - 1);
-        } else {
-            anvilInventory.setItem(1, null);
-        }
+        // Schedule task to run 2 ticks after the event
+        // It is because of EnchantsSquared (they replace second slot to null after 1 tick)
+        // Maybe here it is not needed, but it is better to be safe than sorry
+        Bukkit.getScheduler().runTaskLater(Disenchantment.plugin, () -> {
+            if (finalSecondItem.getAmount() > 1) {
+                finalSecondItem.setAmount(finalSecondItem.getAmount() - 1);
+
+                anvilInventory.setItem(1, finalSecondItem);
+            } else {
+                anvilInventory.setItem(1, null);
+            }
+        }, 2L);
 
         if (p.getGameMode() != org.bukkit.GameMode.CREATIVE) p.setLevel(exp);
 

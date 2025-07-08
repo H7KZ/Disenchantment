@@ -50,7 +50,7 @@
             <artifactId>excellentenchants</artifactId>
             <version>5.0.0</version>
             <scope>system</scope>
-            <systemPath>${pom.basedir}/libs/ExcellentEnchants-5.0.0.jar</systemPath>
+            <systemPath>${pom.basedir}/libs/ExcellentEnchants-5.1.0.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>me.sciguymjm</groupId>
