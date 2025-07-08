@@ -19,27 +19,27 @@ Have an enchanted book? Want to split it and shatter into two enchanted books? Y
 
 ### Supported Custom Enchantment Plugins
 
-#### 1.18 - 1.20.4
+#### 1.21 - 1.21.7
 
 - AdvancedEnchantments
-- EcoEnchants (changes required, see Issue [#31](https://github.com/H7KZ/Disenchantment/issues/31))
+- EcoEnchants
 - EnchantsSquared
-- UberEnchant (changes required, see Issue [#37](https://github.com/H7KZ/Disenchantment/issues/37))
+- ExcellentEnchants
+- UberEnchant
 
 #### 1.20.5 - 1.20.6
 
 - AdvancedEnchantments
-- EcoEnchants (changes required, see Issue [#31](https://github.com/H7KZ/Disenchantment/issues/31))
+- EcoEnchants
 - EnchantsSquared
-- UberEnchant (changes required, see Issue [#37](https://github.com/H7KZ/Disenchantment/issues/37))
+- UberEnchant
 
-#### 1.21 - 1.21.5
+#### 1.18 - 1.20.4
 
 - AdvancedEnchantments
-- EcoEnchants (changes required, see Issue [#31](https://github.com/H7KZ/Disenchantment/issues/31))
+- EcoEnchants
 - EnchantsSquared
-- ExcellentEnchants
-- UberEnchant (changes required, see Issue [#37](https://github.com/H7KZ/Disenchantment/issues/37))
+- UberEnchant
 
 <br />
 
