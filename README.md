@@ -92,10 +92,6 @@ The Book Splitting feature allows for precise and strategic use of your enchante
 ## Links
 
 - [SpigotMC](https://www.spigotmc.org/resources/110741)
+- [Modrinth](https://modrinth.com/plugin/disenchantment)
 - [bStats](https://bstats.org/plugin/bukkit/Disenchantment/19058)
 - [GitHub](https://github.com/H7KZ/Disenchantment)
-- [ExcellentEnchants](https://www.spigotmc.org/resources/61693)
-- [EcoEnchants](https://www.spigotmc.org/resources/79573)
-- [AdvancedEnchantments](https://www.spigotmc.org/resources/43058)
-- [UberEnchant](https://www.spigotmc.org/resources/19448)
-- [EnchantsSquared](https://www.spigotmc.org/resources/86747)
