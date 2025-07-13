@@ -40,7 +40,15 @@ public class ConfigUtils {
     public static void setupConfig() {
         plugin.saveDefaultConfig();
 
-        FileConfiguration oldConfig = YamlConfiguration.loadConfiguration(new File(plugin.getDataFolder(), "config.yml"));
+        FileConfiguration oldConfig;
+
+        try {
+            oldConfig = YamlConfiguration.loadConfiguration(new File(plugin.getDataFolder(), "config.yml"));
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "Could not load config.yml", e);
+            throw new RuntimeException("Failed to load config.yml", e);
+        }
+
         FileConfiguration newConfig = YamlConfiguration.loadConfiguration(new InputStreamReader(Objects.requireNonNull(plugin.getResource("config.yml")), StandardCharsets.UTF_8));
 
         FileConfiguration updatedConfig = ConfigMigrations.apply(plugin, oldConfig, newConfig);
@@ -49,6 +57,7 @@ public class ConfigUtils {
             updatedConfig.save(new File(plugin.getDataFolder(), "config.yml"));
         } catch (Exception e) {
             logger.log(Level.SEVERE, "Could not save config.yml", e);
+            throw new RuntimeException("Failed to save config.yml", e);
         }
 
         plugin.reloadConfig();
