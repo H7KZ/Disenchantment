@@ -2,45 +2,34 @@
 
 ![event.png](assets/event.png)
 
-This plugin enhances the vanilla enchanting system by adding powerful, intuitive new functions to the standard anvil. Give your players the practical tools they need to manage their enchantments efficiently, without adding any new blocks or complex systems. It’s a lightweight, clear, and highly practical addition to any server.
+This plugin enhances the vanilla enchanting system by adding powerful, intuitive new functions to the standard anvil. Give your players the tools they need to manage their enchantments efficiently, without adding any new blocks or complex systems.
 
 ## Core Features
 
 ### Disenchanting: Reclaim Your Enchantments
 
-Ever crafted the perfect diamond pickaxe only to find it has an undesirable enchantment? Or found a nearly-broken tool with a rare enchantment you wish you could save?
-Our disenchanting mechanic provides a straightforward solution using the anvil you already know.
+Ever found a nearly-broken tool with a rare enchantment you wish you could save? Our disenchanting mechanic provides a straightforward solution
 
-- **Simple Anvil Process**: To disenchant an item, a player simply places the enchanted item in the first anvil slot and a standard book in the second.
-
-- **Controlled Transfer**: For a configurable experience cost, the enchantment is removed from the item and transferred directly onto the book. The original item is left clean, ready to be re-enchanted or used as a crafting ingredient.
-
-- **Preserve Your Gear**: This feature allows players to salvage valuable enchantments from worn-out or obsolete gear, preventing waste and rewarding smart resource management.
+- **Simple Anvil Process**: A player places the enchanted item in the first anvil slot and a book in the second
+- **Controlled Transfer**: For a configurable XP cost, the enchantment is removed from the item and transferred to the book, leaving the original item clean. This allows players to salvage valuable enchantments from worn-out or obsolete gear
 
 <br />
 
 ### Book Splitting: Divide Your Enchanted Books
 
-An enchanted book with multiple enchantments can be powerful, but it's not always practical. What if you only need one of the enchantments for a specific item?
-The Book Splitting feature allows for precise and strategic use of your enchanted books.
+Need just one enchantment from a book with many? The Book Splitting feature allows for precise, strategic use of your enchanted books
 
-- **Intuitive Splitting**: By combining a multi-enchantment book with a blank book on the anvil, players can lift a single enchantment off the original book.
-
-- **Strategic Application**: This process results in two books: the original book with one less enchantment, and a new book containing the single enchantment that was split off. This allows for more targeted application of enchantments across multiple items.
-
-- **Enhanced Economy**: Players can now trade for specific, individual enchantments, creating a more dynamic and flexible server economy.
+- **Intuitive Splitting**: By combining a multi-enchantment book with a blank book on the anvil, players can lift a single enchantment off the original
+- **Strategic Application**: This results in two books: the original with one less enchantment, and a new book with the single enchantment that was split off. This allows for targeted application and creates a more dynamic server economy
 
 <br />
 
 ### Why Choose This Plugin?
 
-- **Truly Vanilla-Friendly**: No new machines, items, or confusing UIs. All functions are handled through the standard anvil, making it immediately intuitive for all players.
-
-- **Lightweight & Efficient**: Designed to be as server-friendly as possible, adding valuable features without causing lag or performance issues.
-
-- **Fully Customizable**: Every aspect, from the experience point (XP) cost of disenchanting to the success rate of splitting books, can be easily configured in the server settings to ensure perfect game balance.
-
-- **Practical Gameplay Loop**: This plugin doesn't break the game; it improves it by removing frustration and adding a layer of smart, strategic choice to enchanting.
+- **Truly Vanilla-Friendly**: No new machines or confusing UIs. All functions are handled through the standard anvil
+- **Lightweight & Efficient**: Adds valuable features without causing server lag or performance issues
+- **Fully Customizable**: Easily configure XP costs and other settings to ensure perfect game balance
+- **Practical Gameplay**: Improves the enchanting system by removing frustration and adding a layer of strategic choice
 
 <br />
 
@@ -54,7 +43,15 @@ The Book Splitting feature allows for precise and strategic use of your enchante
 | [UberEnchant](https://www.spigotmc.org/resources/19448)          | &check;       | &check;         | &check;       |
 | [ExcellentEnchants](https://www.spigotmc.org/resources/61693)    | &check;       | &cross;         | &cross;       |
 
+**!** EcoEnchants needs to be built with these changes: [EcoEnchants#417](https://github.com/Auxilor/EcoEnchants/pull/417)
+
+**!** Download already built v12.24.0 here: [Disenchantment Release v6.2.2](https://github.com/H7KZ/Disenchantment/releases/tag/v6.2.2)
+
 <br />
+
+## FAQ
+
+- Visit the [FAQ.md](https://github.com/H7KZ/Disenchantment/blob/master/FAQ.md)
 
 ## Commands
 
@@ -77,14 +74,6 @@ The Book Splitting feature allows for precise and strategic use of your enchante
 ## Contributing
 
 > To contribute to this repository, please follow the [CONTRIBUTING.md](CONTRIBUTING.md) file, thank you!
-
-<br />
-
-## Known issues
-
-- [Plugin not working for non-op players](https://github.com/H7KZ/Disenchantment/issues/34)
-- [EcoEnchants are not working](https://github.com/H7KZ/Disenchantment/issues/31)
-- [UberEnchants are not working](https://github.com/H7KZ/Disenchantment/issues/37)
 
 <br />
 <br />
