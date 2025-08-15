@@ -36,7 +36,7 @@
         <dependency>
             <groupId>com.willfp</groupId>
             <artifactId>eco</artifactId>
-            <version>6.75.2</version>
+            <version>6.76.3</version>
         </dependency>
         <dependency>
             <groupId>me.athlaeos</groupId>
@@ -50,7 +50,7 @@
             <artifactId>excellentenchants</artifactId>
             <version>5.0.0</version>
             <scope>system</scope>
-            <systemPath>${pom.basedir}/libs/ExcellentEnchants-5.1.0.jar</systemPath>
+            <systemPath>${pom.basedir}/libs/ExcellentEnchants-5.2.1.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>me.sciguymjm</groupId>
