@@ -37,28 +37,36 @@ public class ExcellentEnchants_v1_21_R1 implements ISupportedPlugin {
             @Override
             public ItemStack addToBook(ItemStack book) {
                 ItemStack item = book.clone();
+
                 EnchantUtils.add(item, enchantment, level, true);
+
                 return item;
             }
 
             @Override
             public ItemStack removeFromBook(ItemStack book) {
                 ItemStack item = book.clone();
+
                 EnchantUtils.remove(item, enchantment);
+
                 return item;
             }
 
             @Override
             public ItemStack addToItem(ItemStack item) {
                 ItemStack result = item.clone();
+
                 EnchantUtils.add(result, enchantment, level, true);
+
                 return result;
             }
 
             @Override
             public ItemStack removeFromItem(ItemStack item) {
                 ItemStack result = item.clone();
+
                 EnchantUtils.remove(result, enchantment);
+
                 return result;
             }
         };

@@ -59,7 +59,7 @@ public class ShatterEvent {
 
         if (!PermissionGroupType.SHATTER_EVENT.hasPermission(p)) return;
 
-        List<IPluginEnchantment> randomEnchantmentShatter = new ArrayList<>();
+        List<IPluginEnchantment> pluginEnchantments = new ArrayList<>();
 
         List<IPluginEnchantment> shuffleEnchantments = new ArrayList<>(enchantments);
         Collections.shuffle(shuffleEnchantments);
@@ -68,7 +68,7 @@ public class ShatterEvent {
 
         for (int i = 0; i < halfSize; i++) {
             IPluginEnchantment enchantment = shuffleEnchantments.get(i);
-            randomEnchantmentShatter.add(enchantment);
+            pluginEnchantments.add(enchantment);
         }
 
         // ----------------------------------------------------------------------------------------------------
@@ -76,8 +76,8 @@ public class ShatterEvent {
 
         ItemStack book = new ItemStack(Material.ENCHANTED_BOOK);
 
-        for (IPluginEnchantment enchantment : randomEnchantmentShatter) {
-            book = enchantment.addToBook(book);
+        for (IPluginEnchantment pluginEnchantment : pluginEnchantments) {
+            book = pluginEnchantment.addToBook(book);
         }
 
         // Disenchantment plugins

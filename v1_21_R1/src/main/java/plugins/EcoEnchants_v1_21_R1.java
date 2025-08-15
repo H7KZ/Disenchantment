@@ -3,7 +3,6 @@ package plugins;
 import com.jankominek.disenchantment.plugins.IPluginEnchantment;
 import com.jankominek.disenchantment.plugins.ISupportedPlugin;
 import com.jankominek.disenchantment.utils.EnchantmentUtils;
-import com.willfp.eco.core.items.builder.EnchantedBookBuilder;
 import org.bukkit.Bukkit;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.event.HandlerList;
@@ -61,9 +60,7 @@ public class EcoEnchants_v1_21_R1 implements ISupportedPlugin {
             public ItemStack addToBook(ItemStack book) {
                 ItemStack item = book.clone();
 
-                EnchantedBookBuilder builder = new EnchantedBookBuilder();
-
-                builder.addStoredEnchantment(enchantment, level);
+                EnchantmentUtils.addStoredEnchantment(item, enchantment, level);
 
                 return item;
             }
@@ -90,7 +87,7 @@ public class EcoEnchants_v1_21_R1 implements ISupportedPlugin {
             public ItemStack removeFromItem(ItemStack item) {
                 ItemStack result = item.clone();
 
-                EnchantmentUtils.removeEnchantment(item, enchantment);
+                EnchantmentUtils.removeEnchantment(result, enchantment);
 
                 return result;
             }

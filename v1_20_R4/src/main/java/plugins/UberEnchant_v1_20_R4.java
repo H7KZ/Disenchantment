@@ -3,6 +3,7 @@ package plugins;
 import com.jankominek.disenchantment.plugins.IPluginEnchantment;
 import com.jankominek.disenchantment.plugins.ISupportedPlugin;
 import me.sciguymjm.uberenchant.api.utils.UberUtils;
+import me.sciguymjm.uberenchant.utils.enchanting.EnchantmentUtils;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 
@@ -43,28 +44,36 @@ public class UberEnchant_v1_20_R4 implements ISupportedPlugin {
             @Override
             public ItemStack addToBook(ItemStack book) {
                 ItemStack item = book.clone();
-                me.sciguymjm.uberenchant.utils.enchanting.EnchantmentUtils.setStoredEnchantment(enchantment, item, level);
+
+                EnchantmentUtils.setStoredEnchantment(enchantment, item, level);
+
                 return item;
             }
 
             @Override
             public ItemStack removeFromBook(ItemStack book) {
                 ItemStack item = book.clone();
-                me.sciguymjm.uberenchant.utils.enchanting.EnchantmentUtils.removeEnchantment(enchantment, item);
+
+                EnchantmentUtils.removeEnchantment(enchantment, item);
+
                 return item;
             }
 
             @Override
             public ItemStack addToItem(ItemStack item) {
                 ItemStack result = item.clone();
-                me.sciguymjm.uberenchant.utils.enchanting.EnchantmentUtils.setEnchantment(enchantment, result, level);
+
+                EnchantmentUtils.setEnchantment(enchantment, result, level);
+
                 return result;
             }
 
             @Override
             public ItemStack removeFromItem(ItemStack item) {
                 ItemStack result = item.clone();
-                me.sciguymjm.uberenchant.utils.enchanting.EnchantmentUtils.removeEnchantment(enchantment, result);
+
+                EnchantmentUtils.removeEnchantment(enchantment, result);
+
                 return result;
             }
         };

@@ -44,17 +44,17 @@ public class DisenchantEvent {
 
         List<ISupportedPlugin> activatedPlugins = SupportedPluginManager.getAllActivatedPlugins();
 
-        List<IPluginEnchantment> enchantments = new ArrayList<>();
+        List<IPluginEnchantment> pluginEnchantments = new ArrayList<>();
 
         if (activatedPlugins.isEmpty()) {
-            enchantments.addAll(EventUtils.Disenchantment.getDisenchantedEnchantments(firstItem, secondItem, true));
+            pluginEnchantments.addAll(EventUtils.Disenchantment.getDisenchantedEnchantments(firstItem, secondItem, true));
         } else {
             for (ISupportedPlugin activatedPlugin : activatedPlugins) {
-                enchantments.addAll(EventUtils.Disenchantment.getDisenchantedEnchantments(firstItem, secondItem, true, activatedPlugin));
+                pluginEnchantments.addAll(EventUtils.Disenchantment.getDisenchantedEnchantments(firstItem, secondItem, true, activatedPlugin));
             }
         }
 
-        if (enchantments.isEmpty()) return;
+        if (pluginEnchantments.isEmpty()) return;
 
         if (!PermissionGroupType.DISENCHANT_EVENT.hasPermission(p)) return;
 
@@ -63,8 +63,8 @@ public class DisenchantEvent {
 
         ItemStack book = new ItemStack(Material.ENCHANTED_BOOK);
 
-        for (IPluginEnchantment enchantment : enchantments) {
-            book = enchantment.addToBook(book);
+        for (IPluginEnchantment pluginEnchantment : pluginEnchantments) {
+            book = pluginEnchantment.addToBook(book);
         }
 
         // Disenchantment plugins
@@ -72,10 +72,10 @@ public class DisenchantEvent {
 
         e.setResult(book);
 
-        AnvilCostUtils.setAnvilRepairCost(e.getInventory(), e.getView(), countAnvilCost(enchantments, AnvilEventType.DISENCHANTMENT));
+        AnvilCostUtils.setAnvilRepairCost(e.getInventory(), e.getView(), countAnvilCost(pluginEnchantments, AnvilEventType.DISENCHANTMENT));
 
         Bukkit.getScheduler().runTask(Disenchantment.plugin, () -> {
-            AnvilCostUtils.setAnvilRepairCost(e.getInventory(), e.getView(), countAnvilCost(enchantments, AnvilEventType.DISENCHANTMENT));
+            AnvilCostUtils.setAnvilRepairCost(e.getInventory(), e.getView(), countAnvilCost(pluginEnchantments, AnvilEventType.DISENCHANTMENT));
 
             p.updateInventory();
         });
