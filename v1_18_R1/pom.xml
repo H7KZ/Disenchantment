@@ -29,9 +29,9 @@
         <dependency>
             <groupId>net.advancedplugins</groupId>
             <artifactId>ae</artifactId>
-            <version>9.15.4</version>
+            <version>9.21.1</version>
             <scope>system</scope>
-            <systemPath>${pom.basedir}/libs/AdvancedEnchantments-9.15.4.jar</systemPath>
+            <systemPath>${pom.basedir}/libs/AdvancedEnchantments-9.21.1.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>com.willfp</groupId>
