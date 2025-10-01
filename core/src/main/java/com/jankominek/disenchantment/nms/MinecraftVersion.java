@@ -3,11 +3,12 @@ package com.jankominek.disenchantment.nms;
 import com.jankominek.disenchantment.Disenchantment;
 
 public enum MinecraftVersion {
+    LATEST((byte) 127, null, null, "v1_21_R4"),
+
     // 1_21_R4
-    MINECRAFT_1_21_10((byte) 22, "1_21_10", "1.21.10", "v1_21_R4"),
-    MINECRAFT_1_21_9((byte) 22, "1_21_9", "1.21.9", "v1_21_R4"),
-    MINECRAFT_1_21_8((byte) 22, "1_21_8", "1.21.8", "v1_21_R4"),
-    MINECRAFT_1_21_7((byte) 22, "1_21_7", "1.21.7", "v1_21_R4"),
+    MINECRAFT_1_21_9((byte) 25, "1_21_9", "1.21.9", "v1_21_R4"),
+    MINECRAFT_1_21_8((byte) 24, "1_21_8", "1.21.8", "v1_21_R4"),
+    MINECRAFT_1_21_7((byte) 23, "1_21_7", "1.21.7", "v1_21_R4"),
     MINECRAFT_1_21_6((byte) 22, "1_21_6", "1.21.6", "v1_21_R4"),
     MINECRAFT_1_21_5((byte) 21, "1_21_5", "1.21.5", "v1_21_R4"),
 
@@ -61,6 +62,17 @@ public enum MinecraftVersion {
             if (version.versionUnderlined == null || version.versionDotted == null) continue;
             if (v.contains(version.versionUnderlined) || v.contains(version.versionDotted)) return version;
         }
+
+        try {
+            int minorVersion = Integer.parseInt(v.split("\\.")[1]);
+            if (minorVersion >= 21) return LATEST;
+        } catch (Exception ignored) {}
+
+        try {
+            int minorVersion = Integer.parseInt(v.split("_")[1]);
+            if (minorVersion >= 21) return LATEST;
+        } catch (Exception ignored) {}
+
         return INCOMPATIBLE;
     }
 
