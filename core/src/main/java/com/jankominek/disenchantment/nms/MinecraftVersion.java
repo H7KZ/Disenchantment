@@ -66,12 +66,14 @@ public enum MinecraftVersion {
         try {
             int minorVersion = Integer.parseInt(v.split("\\.")[1]);
             if (minorVersion >= 21) return LATEST;
-        } catch (Exception ignored) {}
+        } catch (Exception ignored) {
+        }
 
         try {
             int minorVersion = Integer.parseInt(v.split("_")[1]);
             if (minorVersion >= 21) return LATEST;
-        } catch (Exception ignored) {}
+        } catch (Exception ignored) {
+        }
 
         return INCOMPATIBLE;
     }

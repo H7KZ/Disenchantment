@@ -35,7 +35,7 @@ Need just one enchantment from a book with many? The Book Splitting feature allo
 
 ## Currently Supported Custom Enchantment Plugins
 
-| Plugin                                                           | 1.21.7 - 1.21 | 1.20.6 - 1.20.5 | 1.20.4 - 1.18 |
+| Plugin                                                           | 1.21.X - 1.21 | 1.20.6 - 1.20.5 | 1.20.4 - 1.18 |
 |------------------------------------------------------------------|---------------|-----------------|---------------|
 | [AdvancedEnchantments](https://www.spigotmc.org/resources/43058) | &check;       | &check;         | &check;       |
 | [EcoEnchants](https://www.spigotmc.org/resources/79573)          | &check;       | &check;         | &check;       |
