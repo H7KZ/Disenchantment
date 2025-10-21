@@ -1,5 +1,5 @@
 name: Disenchantment
-version: 6.3.0
+version: 6.3.1
 main: com.jankominek.disenchantment.Disenchantment
 api-version: 1.18
 
@@ -24,13 +24,13 @@ permissions:
     default: op
   disenchantment.anvil.all:
     description: Allows the player to disenchant items or shatter books.
-    default: op
+    default: true
   disenchantment.anvil.disenchant:
     description: Allows the player to disenchant items.
-    default: op
+    default: true
   disenchantment.anvil.shatter:
     description: Allows the player to split enchantments from books.
-    default: op
+    default: true
   disenchantment.command.use:
     description: Access to the disenchantment command.
     default: op
