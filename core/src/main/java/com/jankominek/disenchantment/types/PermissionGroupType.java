@@ -84,13 +84,7 @@ public enum PermissionGroupType {
     ),
     COMMAND_DIAGNOSTIC(
             PermissionType.COMMAND_ALL,
-            PermissionType.COMMAND_DIAGNOSTIC,
-            // We want diagnosis permission to be very lenient about what permission to use
-            // So most of the time we allow admin with only some permission to execute the diagnostic too
-            PermissionType.ALL,
-            PermissionType.ANVIL_ALL,
-            PermissionType.DEPRECATED_ANVIL_ALL,
-            PermissionType.GUI_ALL
+            PermissionType.COMMAND_DIAGNOSTIC
     ),
 
     GUI(
