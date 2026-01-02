@@ -3,6 +3,7 @@ package plugins;
 import com.jankominek.disenchantment.plugins.IPluginEnchantment;
 import com.jankominek.disenchantment.plugins.ISupportedPlugin;
 import com.jankominek.disenchantment.utils.EnchantmentUtils;
+import com.jankominek.disenchantment.utils.SchedulerUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.event.HandlerList;
@@ -95,7 +96,7 @@ public class EcoEnchants_v1_18_R1 implements ISupportedPlugin {
     }
 
     public void activate() {
-        Bukkit.getScheduler().runTask(plugin, this::delayActivation);
+        SchedulerUtils.runGlobal(plugin, this::delayActivation);
     }
 
     // Just activate but later bc eco enchant is a... weirdly constructed plugin...

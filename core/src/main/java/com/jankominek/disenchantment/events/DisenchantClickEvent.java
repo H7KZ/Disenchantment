@@ -6,11 +6,7 @@ import com.jankominek.disenchantment.plugins.IPluginEnchantment;
 import com.jankominek.disenchantment.plugins.ISupportedPlugin;
 import com.jankominek.disenchantment.plugins.SupportedPluginManager;
 import com.jankominek.disenchantment.types.PermissionGroupType;
-import com.jankominek.disenchantment.utils.AnvilCostUtils;
-import com.jankominek.disenchantment.utils.DiagnosticUtils;
-import com.jankominek.disenchantment.utils.EnchantmentUtils;
-import com.jankominek.disenchantment.utils.EventUtils;
-import org.bukkit.Bukkit;
+import com.jankominek.disenchantment.utils.*;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -125,7 +121,8 @@ public class DisenchantClickEvent {
 
         // Schedule task to run 2 ticks after the event
         // It is because of EnchantsSquared (they replace second slot to null after 1 tick)
-        Bukkit.getScheduler().runTaskLater(Disenchantment.plugin, () -> {
+        // UPDATED: Use SchedulerUtil to support Folia entity scheduling
+        SchedulerUtils.runForEntityLater(Disenchantment.plugin, p, () -> {
             if (finalSecondItem.getAmount() > 1) {
                 finalSecondItem.setAmount(finalSecondItem.getAmount() - 1);
 

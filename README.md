@@ -2,25 +2,33 @@
 
 ![event.png](assets/event.png)
 
-This plugin enhances the vanilla enchanting system by adding powerful, intuitive new functions to the standard anvil. Give your players the tools they need to manage their enchantments efficiently, without adding any new blocks or complex systems.
+This plugin enhances the vanilla enchanting system by adding powerful, intuitive new functions to the standard anvil.
+Give your players the tools they need to manage their enchantments efficiently, without adding any new blocks or complex
+systems.
 
 ## Core Features
 
 ### Disenchanting: Reclaim Your Enchantments
 
-Ever found a nearly-broken tool with a rare enchantment you wish you could save? Our disenchanting mechanic provides a straightforward solution
+Ever found a nearly-broken tool with a rare enchantment you wish you could save? Our disenchanting mechanic provides a
+straightforward solution
 
 - **Simple Anvil Process**: A player places the enchanted item in the first anvil slot and a book in the second
-- **Controlled Transfer**: For a configurable XP cost, the enchantment is removed from the item and transferred to the book, leaving the original item clean. This allows players to salvage valuable enchantments from worn-out or obsolete gear
+- **Controlled Transfer**: For a configurable XP cost, the enchantment is removed from the item and transferred to the
+  book, leaving the original item clean. This allows players to salvage valuable enchantments from worn-out or obsolete
+  gear
 
 <br />
 
 ### Book Splitting: Divide Your Enchanted Books
 
-Need just one enchantment from a book with many? The Book Splitting feature allows for precise, strategic use of your enchanted books
+Need just one enchantment from a book with many? The Book Splitting feature allows for precise, strategic use of your
+enchanted books
 
-- **Intuitive Splitting**: By combining a multi-enchantment book with a blank book on the anvil, players can lift a single enchantment off the original
-- **Strategic Application**: This results in two books: the original with one less enchantment, and a new book with the single enchantment that was split off. This allows for targeted application and creates a more dynamic server economy
+- **Intuitive Splitting**: By combining a multi-enchantment book with a blank book on the anvil, players can lift a
+  single enchantment off the original
+- **Strategic Application**: This results in two books: the original with one less enchantment, and a new book with the
+  single enchantment that was split off. This allows for targeted application and creates a more dynamic server economy
 
 <br />
 
@@ -43,9 +51,11 @@ Need just one enchantment from a book with many? The Book Splitting feature allo
 | [UberEnchant](https://www.spigotmc.org/resources/19448)          | &check;       | &check;         | &check;       |
 | [ExcellentEnchants](https://www.spigotmc.org/resources/61693)    | &check;       | &cross;         | &cross;       |
 
-**!** EcoEnchants needs to be built with these changes: [EcoEnchants#417](https://github.com/Auxilor/EcoEnchants/pull/417)
+**!** EcoEnchants needs to be built with these
+changes: [EcoEnchants#417](https://github.com/Auxilor/EcoEnchants/pull/417)
 
-**!** Download already built v12.24.0 here: [Disenchantment Release v6.2.2](https://github.com/H7KZ/Disenchantment/releases/tag/v6.2.2)
+**!** Download already built v12.24.0
+here: [Disenchantment Release v6.2.2](https://github.com/H7KZ/Disenchantment/releases/tag/v6.2.2)
 
 <br />
 

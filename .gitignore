@@ -27,3 +27,6 @@ nbdist/
 *.ctxt
 hs_err_pid*
 /target/
+
+# Docs
+.docs/

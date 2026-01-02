@@ -11,16 +11,11 @@ import com.jankominek.disenchantment.listeners.ShatterListener;
 import com.jankominek.disenchantment.nms.NMS;
 import com.jankominek.disenchantment.nms.NMSMapper;
 import com.jankominek.disenchantment.plugins.SupportedPluginManager;
-import com.jankominek.disenchantment.utils.BStatsMetrics;
-import com.jankominek.disenchantment.utils.ConfigUtils;
-import com.jankominek.disenchantment.utils.DiagnosticUtils;
-import com.jankominek.disenchantment.utils.UpdateChecker;
+import com.jankominek.disenchantment.utils.*;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitScheduler;
-import org.bukkit.scheduler.BukkitTask;
 
 import java.io.File;
 import java.io.InputStreamReader;
@@ -41,13 +36,12 @@ public final class Disenchantment extends JavaPlugin {
     // Globally known instances (Does not need to be used with class name)
     public static Disenchantment plugin;
     public static NMS nms;
-    public static BukkitScheduler scheduler;
     public static FileConfiguration config;
     public static FileConfiguration localeConfig;
     public static Logger logger;
 
     // Tasks
-    private final ArrayList<BukkitTask> tasks = new ArrayList<>();
+    private final ArrayList<Object> tasks = new ArrayList<>();
 
     public static void onToggle(boolean enable) {
         enabled = enable;
@@ -57,7 +51,6 @@ public final class Disenchantment extends JavaPlugin {
         // Setup instances
         plugin = this;
         logger = getLogger();
-        scheduler = getServer().getScheduler();
 
         // NMS net.minecraft.server
         NMS mappedNMS = NMSMapper.setup();
@@ -121,11 +114,11 @@ public final class Disenchantment extends JavaPlugin {
     }
 
     public void disable() {
-        for (BukkitTask task : tasks) {
-            task.cancel();
+        for (Object task : tasks) {
+            SchedulerUtils.cancelTask(task);
         }
 
-        getServer().getScheduler().cancelTasks(plugin);
+        SchedulerUtils.cancelAllTasks(plugin);
 
         SupportedPluginManager.deactivateAllPlugins();
 

@@ -10,7 +10,7 @@ import com.jankominek.disenchantment.types.PermissionGroupType;
 import com.jankominek.disenchantment.utils.AnvilCostUtils;
 import com.jankominek.disenchantment.utils.DiagnosticUtils;
 import com.jankominek.disenchantment.utils.EventUtils;
-import org.bukkit.Bukkit;
+import com.jankominek.disenchantment.utils.SchedulerUtils;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
@@ -74,9 +74,8 @@ public class DisenchantEvent {
 
         AnvilCostUtils.setAnvilRepairCost(e.getInventory(), e.getView(), countAnvilCost(pluginEnchantments, AnvilEventType.DISENCHANTMENT));
 
-        Bukkit.getScheduler().runTask(Disenchantment.plugin, () -> {
+        SchedulerUtils.runForEntity(Disenchantment.plugin, p, () -> {
             AnvilCostUtils.setAnvilRepairCost(e.getInventory(), e.getView(), countAnvilCost(pluginEnchantments, AnvilEventType.DISENCHANTMENT));
-
             p.updateInventory();
         });
     }

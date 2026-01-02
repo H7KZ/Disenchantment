@@ -1,7 +1,6 @@
 package com.jankominek.disenchantment.utils;
 
 import org.bukkit.plugin.Plugin;
-import org.bukkit.scheduler.BukkitTask;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -11,12 +10,10 @@ import java.util.Scanner;
 import java.util.function.Consumer;
 
 import static com.jankominek.disenchantment.Disenchantment.logger;
-import static com.jankominek.disenchantment.Disenchantment.scheduler;
 
 // From: https://www.spigotmc.org/wiki/creating-an-update-checker-that-checks-for-updates
 public class UpdateChecker {
     private final int resourceId;
-    private BukkitTask updateTask;
 
     public UpdateChecker(int resourceId) {
         this.resourceId = resourceId;
@@ -41,13 +38,7 @@ public class UpdateChecker {
         });
     }
 
-    public BukkitTask run(Plugin plugin, String version) {
-        this.updateTask = scheduler.runTaskTimerAsynchronously(plugin, this.runnableUpdateTask(version), 3 * 20, 8 * 60 * 60 * 20); // 8 Hours
-
-        return this.updateTask;
-    }
-
-    public void cancel() {
-        this.updateTask.cancel();
+    public Object run(Plugin plugin, String version) {
+        return SchedulerUtils.runAsyncTimer(plugin, this.runnableUpdateTask(version), 3 * 20, 8 * 60 * 60 * 20); // 8 Hours
     }
 }
