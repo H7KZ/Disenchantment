@@ -1,8 +1,8 @@
-blank_issues_enabled: false
+blank_issues_enabled: true
 contact_links:
+  - name: 📖 Documentation & FAQ
+    url: https://github.com/H7KZ/Disenchantment/blob/master/README.md
+    about: Check the docs first - your answer might already be here!
   - name: SpigotMC Resource Page
     url: https://www.spigotmc.org/resources/110741
-    about: View the plugin on SpigotMC, read reviews, and ask general questions
-  - name: Documentation
-    url: https://github.com/H7KZ/Disenchantment/blob/master/README.md
-    about: Read the full documentation including commands, configuration, and FAQ
+    about: View the plugin on SpigotMC, read reviews, and ask questions
