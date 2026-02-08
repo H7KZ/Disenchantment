@@ -13,6 +13,10 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 
+/**
+ * GUI for configuring shatterment anvil repair cost settings.
+ * Allows toggling repair cost, repair cost reset, and adjusting base cost and multiplier values.
+ */
 public class ShattermentRepairGUI implements InventoryHolder {
     private final GUIItem[] items = ArrayUtils.addAll(
             GUIBorderComponent.border9x3(new Integer[]{0}),
@@ -116,18 +120,29 @@ public class ShattermentRepairGUI implements InventoryHolder {
     );
     private final Inventory inventory;
 
+    /**
+     * Constructs the shatterment repair GUI, creating and populating the inventory.
+     */
     public ShattermentRepairGUI() {
         Inventory inventory = Bukkit.createInventory(this, 27, I18n.GUI.Repair.Shatterment.inventory());
 
         this.inventory = InventoryBuilder.fillItems(inventory, this.items);
     }
 
+    /**
+     * Delegates inventory click events to the appropriate GUI item handler based on the clicked slot.
+     *
+     * @param event the inventory click event
+     */
     public void onInventoryClick(InventoryClickEvent event) {
         for (GUIItem item : this.items) {
             if (item.getSlot() == event.getSlot()) item.onClick(event);
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Inventory getInventory() {
         return this.inventory;

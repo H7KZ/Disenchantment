@@ -9,7 +9,15 @@ import org.bukkit.command.CommandSender;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Handles the "disenchant:sound" subcommand for managing sound settings
+ * in the disenchantment feature. Supports viewing and modifying the sound
+ * enabled state, volume, and pitch.
+ */
 public class DisenchantSound {
+    /**
+     * The command definition for the disenchant:sound subcommand.
+     */
     public static final CommandBuilder command = new CommandBuilder(
             "disenchant:sound",
             PermissionGroupType.COMMAND_DISENCHANT_SOUND,
@@ -19,6 +27,14 @@ public class DisenchantSound {
             DisenchantSound::complete
     );
 
+    /**
+     * Executes the disenchant:sound command. With no extra arguments, displays current
+     * sound settings. With a setting name, updates the sound configuration (enable,
+     * disable, volume, or pitch).
+     *
+     * @param s    the command sender
+     * @param args the command arguments: [subcommand, setting, value]
+     */
     public static void execute(CommandSender s, String[] args) {
         if (args.length == 1) {
             s.sendMessage(I18n.Commands.Sound.Disenchantment.title());
@@ -78,10 +94,17 @@ public class DisenchantSound {
         }
     }
 
+    /**
+     * Provides tab completion suggestions for sound setting names.
+     *
+     * @param sender the command sender
+     * @param args   the current command arguments
+     * @return a list of matching sound setting suggestions
+     */
     public static List<String> complete(CommandSender sender, String[] args) {
         List<String> result = new ArrayList<>(List.of());
 
-        for (String arg : DisenchantSound.command.args) {
+        for (String arg : DisenchantSound.command.args()) {
             if (arg.toLowerCase().startsWith(args[1].toLowerCase())) {
                 result.add(arg);
             }

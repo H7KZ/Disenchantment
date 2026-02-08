@@ -18,6 +18,10 @@ import org.bukkit.inventory.InventoryHolder;
 import java.util.Comparator;
 import java.util.List;
 
+/**
+ * Paginated GUI for configuring which materials are disabled for disenchantment.
+ * Displays all enchantable materials and allows toggling each one on or off.
+ */
 public class MaterialsGUI implements InventoryHolder {
     private final int[] freeSlots = {
             10, 11, 12, 13, 14, 15, 16,
@@ -68,6 +72,11 @@ public class MaterialsGUI implements InventoryHolder {
             )
     );
 
+    /**
+     * Constructs the materials GUI for the specified page, populating it with enchantable materials.
+     *
+     * @param page the zero-based page index
+     */
     public MaterialsGUI(int page) {
         this.page = page;
         this.materials = MaterialUtils.getMaterials()
@@ -87,6 +96,13 @@ public class MaterialsGUI implements InventoryHolder {
         this.inventory = InventoryBuilder.fillItems(inventory, this.items);
     }
 
+    /**
+     * Creates GUI items for the materials on the current page, each with a click handler
+     * to toggle disabled status.
+     *
+     * @param materials the full list of materials
+     * @return an array of {@link GUIItem} elements for the current page
+     */
     public final GUIItem[] getMaterialsItems(List<Material> materials) {
         int pageSize = Math.min(materials.size() - (this.page * 28), 28);
 
@@ -120,12 +136,20 @@ public class MaterialsGUI implements InventoryHolder {
         return materialItems;
     }
 
+    /**
+     * Delegates inventory click events to the appropriate GUI item handler based on the clicked slot.
+     *
+     * @param event the inventory click event
+     */
     public void onInventoryClick(InventoryClickEvent event) {
         for (GUIItem item : this.items) {
             if (item.getSlot() == event.getSlot()) item.onClick(event);
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Inventory getInventory() {
         return this.inventory;

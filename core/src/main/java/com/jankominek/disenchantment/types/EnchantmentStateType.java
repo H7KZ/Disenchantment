@@ -4,6 +4,16 @@ import com.jankominek.disenchantment.config.I18n;
 
 import java.util.Objects;
 
+/**
+ * Represents the possible states an enchantment can be configured to during
+ * disenchantment or shatterment operations.
+ * <ul>
+ *   <li>{@link #ENABLE} - enchantment is processed normally (default)</li>
+ *   <li>{@link #KEEP} - enchantment is kept on the source item and not transferred</li>
+ *   <li>{@link #DELETE} - enchantment is removed from the source item but not transferred</li>
+ *   <li>{@link #DISABLE} - enchantment blocks the entire operation</li>
+ * </ul>
+ */
 public enum EnchantmentStateType {
     ENABLE(null),
     KEEP("keep"),
@@ -17,6 +27,12 @@ public enum EnchantmentStateType {
         this.configName = configName;
     }
 
+    /**
+     * Resolves an {@link EnchantmentStateType} from its configuration name (case-insensitive).
+     *
+     * @param name the state name to look up
+     * @return the matching state, or {@code null} if no match is found
+     */
     public static EnchantmentStateType getStateByName(String name) {
         return switch (name.toLowerCase()) {
             case "enable" -> ENABLE;
@@ -27,6 +43,12 @@ public enum EnchantmentStateType {
         };
     }
 
+    /**
+     * Returns the next state in the cyclic rotation: ENABLE -> KEEP -> DELETE -> DISABLE -> ENABLE.
+     *
+     * @param lastStatus the current state
+     * @return the next state in the cycle
+     */
     public static EnchantmentStateType getNextState(EnchantmentStateType lastStatus) {
         return switch (lastStatus) {
             case ENABLE -> KEEP;
@@ -36,6 +58,11 @@ public enum EnchantmentStateType {
         };
     }
 
+    /**
+     * Gets the localized display name for this state from the i18n configuration.
+     *
+     * @return the translated display name
+     */
     public String getDisplayName() {
         return switch (this) {
             case ENABLE -> I18n.States.enable();
@@ -45,6 +72,11 @@ public enum EnchantmentStateType {
         };
     }
 
+    /**
+     * Gets the name used to represent this state in the configuration file.
+     *
+     * @return the configuration name string
+     */
     public String getConfigName() {
         return Objects.requireNonNullElse(configName, "enable");
     }

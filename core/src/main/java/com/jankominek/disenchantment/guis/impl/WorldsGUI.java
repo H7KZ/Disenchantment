@@ -17,6 +17,10 @@ import org.bukkit.inventory.InventoryHolder;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+/**
+ * Paginated GUI for configuring which worlds have disenchantment and shatterment disabled.
+ * Left-click toggles disenchantment; right-click toggles shatterment for each world.
+ */
 public class WorldsGUI implements InventoryHolder {
     private final int[] freeSlots = {
             10, 11, 12, 13, 14, 15, 16,
@@ -67,6 +71,11 @@ public class WorldsGUI implements InventoryHolder {
             )
     );
 
+    /**
+     * Constructs the worlds GUI for the specified page, populating it with server worlds.
+     *
+     * @param page the zero-based page index
+     */
     public WorldsGUI(int page) {
         this.page = page;
         this.worlds = Bukkit.getWorlds();
@@ -80,6 +89,12 @@ public class WorldsGUI implements InventoryHolder {
         this.inventory = InventoryBuilder.fillItems(inventory, this.items);
     }
 
+    /**
+     * Creates GUI items for the worlds on the current page, each with click handlers
+     * to toggle disenchantment and shatterment disabled status.
+     *
+     * @return an array of {@link GUIItem} elements for the current page
+     */
     public final GUIItem[] fillPageWithWorlds() {
         int pageSize = Math.min(this.worlds.size() - (this.page * 28), 28);
 
@@ -151,12 +166,20 @@ public class WorldsGUI implements InventoryHolder {
         return worldItems;
     }
 
+    /**
+     * Delegates inventory click events to the appropriate GUI item handler based on the clicked slot.
+     *
+     * @param event the inventory click event
+     */
     public void onInventoryClick(InventoryClickEvent event) {
         for (GUIItem item : this.items) {
             if (item.getSlot() == event.getSlot()) item.onClick(event);
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Inventory getInventory() {
         return this.inventory;

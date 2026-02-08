@@ -7,6 +7,11 @@ import org.bukkit.plugin.Plugin;
 import java.lang.reflect.Method;
 import java.util.function.Consumer;
 
+/**
+ * Abstraction layer for task scheduling that supports both standard Bukkit/Spigot servers
+ * and Folia (Paper's regionized multithreading). Uses reflection to detect and invoke
+ * Folia-specific scheduler APIs at runtime, falling back to the Bukkit scheduler.
+ */
 public class SchedulerUtils {
     private static final boolean IS_FOLIA;
 
@@ -60,6 +65,11 @@ public class SchedulerUtils {
         IS_FOLIA = folia;
     }
 
+    /**
+     * Cancels the given scheduled task. Supports both Folia ScheduledTask and standard BukkitTask.
+     *
+     * @param task the task object to cancel, or null (no-op)
+     */
     public static void cancelTask(Object task) {
         if (task == null) return;
 
@@ -81,6 +91,13 @@ public class SchedulerUtils {
         }
     }
 
+    /**
+     * Runs a task on the entity's owning region thread (Folia) or the main server thread (Spigot).
+     *
+     * @param plugin the owning plugin
+     * @param entity the entity whose region thread to run on
+     * @param task   the task to execute
+     */
     public static void runForEntity(Plugin plugin, Entity entity, Runnable task) {
         if (IS_FOLIA) {
             try {
@@ -94,6 +111,14 @@ public class SchedulerUtils {
         }
     }
 
+    /**
+     * Runs a delayed task on the entity's owning region thread (Folia) or the main server thread (Spigot).
+     *
+     * @param plugin     the owning plugin
+     * @param entity     the entity whose region thread to run on
+     * @param task       the task to execute
+     * @param delayTicks the delay in ticks before execution
+     */
     public static void runForEntityLater(Plugin plugin, Entity entity, Runnable task, long delayTicks) {
         if (IS_FOLIA) {
             try {
@@ -107,6 +132,12 @@ public class SchedulerUtils {
         }
     }
 
+    /**
+     * Runs a task on the global region scheduler (Folia) or the main server thread (Spigot).
+     *
+     * @param plugin the owning plugin
+     * @param task   the task to execute
+     */
     public static void runGlobal(Plugin plugin, Runnable task) {
         if (IS_FOLIA) {
             try {
@@ -120,6 +151,16 @@ public class SchedulerUtils {
         }
     }
 
+    /**
+     * Runs a repeating asynchronous task. On Folia, uses the async scheduler with millisecond
+     * conversion (1 tick = 50ms). On Spigot, uses the standard async timer.
+     *
+     * @param plugin      the owning plugin
+     * @param task        the task to execute repeatedly
+     * @param delayTicks  the initial delay in ticks
+     * @param periodTicks the period in ticks between executions
+     * @return the scheduled task object, or null if scheduling failed on Folia
+     */
     public static Object runAsyncTimer(Plugin plugin, Runnable task, long delayTicks, long periodTicks) {
         if (IS_FOLIA) {
             try {
@@ -136,6 +177,11 @@ public class SchedulerUtils {
         }
     }
 
+    /**
+     * Cancels all tasks scheduled by the given plugin on both global and async schedulers.
+     *
+     * @param plugin the owning plugin whose tasks to cancel
+     */
     public static void cancelAllTasks(Plugin plugin) {
         if (IS_FOLIA) {
             try {

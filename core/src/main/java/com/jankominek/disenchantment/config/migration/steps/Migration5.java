@@ -8,7 +8,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * Migration step 5: normalizes enchantment states for both disenchantment and
+ * shatterment sections by converting legacy {@code "disabled"} and {@code "cancel"}
+ * values to the standardized {@code "disable"} state.
+ */
 public class Migration5 implements IConfigMigration {
+    /**
+     * {@inheritDoc}
+     */
     public FileConfiguration migrate(FileConfiguration oldConfig, FileConfiguration configTemplate) {
         Set<String> keys = oldConfig.getKeys(true);
         keys.remove("migration");

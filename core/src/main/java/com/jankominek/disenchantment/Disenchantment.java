@@ -26,6 +26,13 @@ import java.util.List;
 import java.util.Objects;
 import java.util.logging.Logger;
 
+/**
+ * Main plugin class for Disenchantment, a Bukkit/Spigot plugin that allows players
+ * to remove enchantments from items via an anvil-based mechanic.
+ *
+ * <p>Provides globally accessible static references to the plugin instance, NMS handler,
+ * configuration, locale, and logger for use throughout the codebase.</p>
+ */
 public final class Disenchantment extends JavaPlugin {
     // Global variables (Should be used with class name, e.g. Disenchantment.enabled)
     public static final String commandName = "disenchantment";
@@ -43,10 +50,20 @@ public final class Disenchantment extends JavaPlugin {
     // Tasks
     private final ArrayList<Object> tasks = new ArrayList<>();
 
+    /**
+     * Toggles the plugin's enabled state at runtime without unloading it.
+     *
+     * @param enable {@code true} to enable the plugin, {@code false} to disable it
+     */
     public static void onToggle(boolean enable) {
         enabled = enable;
     }
 
+    /**
+     * Initialises all plugin subsystems: NMS mapping, configuration, locale files,
+     * third-party plugin integrations, event listeners, commands, bStats metrics,
+     * and the automatic update checker.
+     */
     public void enable() {
         // Setup instances
         plugin = this;
@@ -113,6 +130,10 @@ public final class Disenchantment extends JavaPlugin {
         logger.info("Disenchantment enabled!");
     }
 
+    /**
+     * Shuts down the plugin by cancelling scheduled tasks and deactivating all
+     * third-party plugin adapters.
+     */
     public void disable() {
         for (Object task : tasks) {
             SchedulerUtils.cancelTask(task);

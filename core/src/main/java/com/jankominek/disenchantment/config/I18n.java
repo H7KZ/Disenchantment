@@ -7,16 +7,29 @@ import java.util.List;
 
 import static com.jankominek.disenchantment.Disenchantment.localeConfig;
 
+/**
+ * Internationalization (i18n) utility that provides localized, color-translated
+ * strings for plugin messages, command output, GUI labels, and status displays.
+ * All strings are read from the active locale configuration file.
+ */
 public class I18n {
     private static String translateColors(String text) {
         if (text == null) return "> Missing translation <";
         return ChatColor.translateAlternateColorCodes('&', text);
     }
 
+    /**
+     * Gets the localized chat prefix for plugin messages.
+     *
+     * @return the color-translated prefix string
+     */
     public static String getPrefix() {
         return I18n.translateColors(localeConfig.getString(I18nKeys.PREFIX.getKey()));
     }
 
+    /**
+     * Localized feedback messages sent to players and operators.
+     */
     public static class Messages {
         public static String requiresPermission() {
             return I18n.translateColors(localeConfig.getString(I18nKeys.MESSAGES_REQUIRES_PERMISSION.getKey()));
@@ -162,6 +175,9 @@ public class I18n {
         }
     }
 
+    /**
+     * Localized display names for enchantment state types.
+     */
     public static class States {
         public static String enable() {
             return I18n.translateColors(localeConfig.getString(I18nKeys.STATES_ENABLE.getKey()));
@@ -180,6 +196,9 @@ public class I18n {
         }
     }
 
+    /**
+     * Localized strings for command output (help pages, status, enchantments, etc.).
+     */
     public static class Commands {
         public static class Help {
             public static String title(String page) {
@@ -525,6 +544,9 @@ public class I18n {
         }
     }
 
+    /**
+     * Localized strings for in-game GUI inventory titles, lore, and navigation labels.
+     */
     public static class GUI {
         public static String back() {
             return I18n.translateColors(localeConfig.getString(I18nKeys.GUI_BACK.getKey()));

@@ -1,5 +1,11 @@
 package com.jankominek.disenchantment.types;
 
+/**
+ * Enumerates all configuration key paths used in the plugin's {@code config.yml}.
+ * Each constant maps to a dot-separated YAML path for accessing plugin settings
+ * including global toggles, event priorities, disenchantment/shatterment options,
+ * anvil sound parameters, and repair cost settings.
+ */
 public enum ConfigKeys {
     LOCALES("locales"),
 
@@ -49,6 +55,11 @@ public enum ConfigKeys {
         this.key = key;
     }
 
+    /**
+     * Gets the dot-separated YAML path for this configuration key.
+     *
+     * @return the configuration key path
+     */
     public String getKey() {
         return key;
     }

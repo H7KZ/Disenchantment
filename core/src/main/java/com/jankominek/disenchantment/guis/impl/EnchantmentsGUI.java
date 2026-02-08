@@ -21,6 +21,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
+/**
+ * Paginated GUI for configuring enchantment states (enable, disable, keep, delete)
+ * for both disenchantment and shatterment. Left-click cycles the disenchantment state;
+ * right-click cycles the shatterment state.
+ */
 public class EnchantmentsGUI implements InventoryHolder {
     private final int[] freeSlots = {
             10, 11, 12, 13, 14, 15, 16,
@@ -71,6 +76,11 @@ public class EnchantmentsGUI implements InventoryHolder {
             )
     );
 
+    /**
+     * Constructs the enchantments GUI for the specified page, populating it with registered enchantments.
+     *
+     * @param page the zero-based page index
+     */
     public EnchantmentsGUI(int page) {
         this.page = page;
         this.enchantments = EnchantmentUtils.getRegisteredEnchantments();
@@ -85,6 +95,12 @@ public class EnchantmentsGUI implements InventoryHolder {
         this.inventory = InventoryBuilder.fillItems(inventory, this.items);
     }
 
+    /**
+     * Creates GUI items for the enchantments on the current page, each with click handlers
+     * to toggle disenchantment and shatterment states.
+     *
+     * @return an array of {@link GUIItem} elements for the current page
+     */
     public final GUIItem[] fillPageWithEnchantments() {
         int pageSize = Math.min(this.enchantments.size() - (this.page * 28), 28);
 
@@ -160,12 +176,20 @@ public class EnchantmentsGUI implements InventoryHolder {
         return worldItems;
     }
 
+    /**
+     * Delegates inventory click events to the appropriate GUI item handler based on the clicked slot.
+     *
+     * @param event the inventory click event
+     */
     public void onInventoryClick(InventoryClickEvent event) {
         for (GUIItem item : this.items) {
             if (item.getSlot() == event.getSlot()) item.onClick(event);
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Inventory getInventory() {
         return this.inventory;

@@ -13,6 +13,10 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 
+/**
+ * GUI for configuring disenchantment anvil sound settings.
+ * Allows toggling sound on/off and adjusting volume and pitch values.
+ */
 public class DisenchantmentSoundGUI implements InventoryHolder {
     private final GUIItem[] items = ArrayUtils.addAll(
             GUIBorderComponent.border9x3(new Integer[]{0}),
@@ -104,18 +108,29 @@ public class DisenchantmentSoundGUI implements InventoryHolder {
 
     private final Inventory inventory;
 
+    /**
+     * Constructs the disenchantment sound GUI, creating and populating the inventory.
+     */
     public DisenchantmentSoundGUI() {
         Inventory inv = Bukkit.createInventory(this, 27, I18n.GUI.Sound.Disenchantment.inventory());
 
         this.inventory = InventoryBuilder.fillItems(inv, this.items);
     }
 
+    /**
+     * Delegates inventory click events to the appropriate GUI item handler based on the clicked slot.
+     *
+     * @param event the inventory click event
+     */
     public void onInventoryClick(InventoryClickEvent event) {
         for (GUIItem item : this.items) {
             if (item.getSlot() == event.getSlot()) item.onClick(event);
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Inventory getInventory() {
         return this.inventory;

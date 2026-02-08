@@ -7,7 +7,14 @@ import org.bukkit.configuration.file.FileConfiguration;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * Migration step 3: normalizes disenchantment enchantment states by converting
+ * the legacy {@code "disabled"} state to the standardized {@code "disable"} value.
+ */
 public class Migration3 implements IConfigMigration {
+    /**
+     * {@inheritDoc}
+     */
     public FileConfiguration migrate(FileConfiguration oldConfig, FileConfiguration configTemplate) {
         Set<String> keys = oldConfig.getKeys(true);
         keys.remove("migration");

@@ -10,11 +10,22 @@ import org.bukkit.inventory.ItemStack;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Plugin adapter for EnchantsSquared on Minecraft 1.20.5-1.20.6.
+ * Reads custom enchantments stored in PersistentDataContainers by EnchantsSquared
+ * and exposes them to Disenchantment's enchantment handling pipeline.
+ */
 public class EnchantsSquared_v1_20_R4 implements ISupportedPlugin {
+    /**
+     * {@inheritDoc}
+     */
     public String getName() {
         return "EnchantsSquared";
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public List<IPluginEnchantment> getItemEnchantments(ItemStack item) {
         Map<CustomEnchant, Integer> squaredEnchantments = CustomEnchantManager.getInstance().getItemsEnchantsFromPDC(item);
         List<IPluginEnchantment> enchantments = EnchantmentUtils.getItemEnchantments(item);

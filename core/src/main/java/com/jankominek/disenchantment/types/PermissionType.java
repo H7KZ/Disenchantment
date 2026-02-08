@@ -6,6 +6,12 @@ import static com.jankominek.disenchantment.Disenchantment.logger;
 import static com.jankominek.disenchantment.types.PermissionStateType.ACTIVE;
 import static com.jankominek.disenchantment.types.PermissionStateType.DEPRECATED;
 
+/**
+ * Enumerates all permission nodes used by the plugin, including both current
+ * and deprecated nodes. Each entry holds its Bukkit permission string and a
+ * {@link PermissionStateType} indicating whether it is active or deprecated.
+ * Deprecated permissions still grant access but trigger a warning log.
+ */
 public enum PermissionType {
     ALL("disenchantment.all"),
 
@@ -89,6 +95,14 @@ public enum PermissionType {
         this.state = state;
     }
 
+    /**
+     * Checks whether the given permissible holds this permission.
+     * If the permission is deprecated and the check succeeds, a deprecation
+     * warning is logged (rate-limited to once per 30 minutes).
+     *
+     * @param permissible the entity to check
+     * @return {@code true} if the permissible holds this permission
+     */
     public boolean hasPermission(Permissible permissible) {
         boolean hasPermission = permissible.hasPermission(permission);
 

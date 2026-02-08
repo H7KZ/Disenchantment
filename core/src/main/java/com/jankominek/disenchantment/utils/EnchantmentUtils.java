@@ -13,11 +13,30 @@ import java.util.stream.Collectors;
 
 import static com.jankominek.disenchantment.Disenchantment.nms;
 
+/**
+ * Utility class for adding, removing, and querying enchantments on items and enchanted books.
+ * Handles both regular item enchantments and stored enchantments on books.
+ */
 public class EnchantmentUtils {
+    /**
+     * Adds an enchantment directly to an item, bypassing level restrictions.
+     *
+     * @param item        the item to enchant
+     * @param enchantment the enchantment to add
+     * @param level       the enchantment level
+     */
     public static void addEnchantment(ItemStack item, Enchantment enchantment, Integer level) {
         item.addUnsafeEnchantment(enchantment, level);
     }
 
+    /**
+     * Adds a stored enchantment to an item. Uses {@link EnchantmentStorageMeta} for books,
+     * or regular enchant meta for other items.
+     *
+     * @param item        the item to enchant
+     * @param enchantment the enchantment to store
+     * @param level       the enchantment level
+     */
     public static void addStoredEnchantment(ItemStack item, Enchantment enchantment, Integer level) {
         ItemMeta meta = item.getItemMeta();
 
@@ -31,6 +50,13 @@ public class EnchantmentUtils {
         item.setItemMeta(meta);
     }
 
+    /**
+     * Creates a clone of the item with the specified enchantments removed.
+     *
+     * @param firstItem    the item to clone and modify
+     * @param enchantments the enchantments to remove
+     * @return a new item stack with the enchantments removed
+     */
     public static ItemStack removeEnchantments(ItemStack firstItem, Map<Enchantment, Integer> enchantments) {
         ItemStack item = firstItem.clone();
 
@@ -43,10 +69,23 @@ public class EnchantmentUtils {
         return item;
     }
 
+    /**
+     * Removes an enchantment directly from an item.
+     *
+     * @param item        the item to modify
+     * @param enchantment the enchantment to remove
+     */
     public static void removeEnchantment(ItemStack item, Enchantment enchantment) {
         item.removeEnchantment(enchantment);
     }
 
+    /**
+     * Removes a stored enchantment from an item. Uses {@link EnchantmentStorageMeta} for books,
+     * or regular enchant meta for other items.
+     *
+     * @param item        the item to modify
+     * @param enchantment the enchantment to remove
+     */
     public static void removeStoredEnchantment(ItemStack item, Enchantment enchantment) {
         ItemMeta meta = item.getItemMeta();
 
@@ -60,14 +99,33 @@ public class EnchantmentUtils {
         item.setItemMeta(meta);
     }
 
+    /**
+     * Checks whether items of the given material can be enchanted.
+     *
+     * @param material the material to check
+     * @return true if the material can be enchanted
+     */
     public static boolean canItemBeEnchanted(Material material) {
         return EnchantmentUtils.canItemBeEnchanted(new ItemStack(material));
     }
 
+    /**
+     * Checks whether the given item stack can be enchanted, via NMS.
+     *
+     * @param item the item to check
+     * @return true if the item can be enchanted
+     */
     public static boolean canItemBeEnchanted(ItemStack item) {
         return nms.canItemBeEnchanted(item);
     }
 
+    /**
+     * Retrieves all enchantments from an item, supporting both regular and stored enchantments.
+     * Filters out null enchantments and those with level 0 or below.
+     *
+     * @param item the item to inspect
+     * @return a mutable list of {@link IPluginEnchantment} instances
+     */
     public static List<IPluginEnchantment> getItemEnchantments(ItemStack item) {
         List<IPluginEnchantment> enchantments;
 
@@ -90,10 +148,23 @@ public class EnchantmentUtils {
         return enchantments;
     }
 
+    /**
+     * Returns all registered enchantments from the server via NMS.
+     *
+     * @return a list of all registered {@link Enchantment} instances
+     */
     public static List<Enchantment> getRegisteredEnchantments() {
         return nms.getRegisteredEnchantments();
     }
 
+    /**
+     * Wraps a vanilla {@link Enchantment} and level into an {@link IPluginEnchantment} implementation
+     * that supports adding to/removing from items and books.
+     *
+     * @param enchantment the enchantment to wrap
+     * @param level       the enchantment level
+     * @return a new {@link IPluginEnchantment} adapter
+     */
     public static IPluginEnchantment remapEnchantment(Enchantment enchantment, int level) {
         return new IPluginEnchantment() {
             @Override

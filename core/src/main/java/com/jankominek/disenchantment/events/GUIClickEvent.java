@@ -10,7 +10,19 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.InventoryHolder;
 
+/**
+ * Listener that routes inventory click events to the appropriate GUI handler.
+ * Checks the clicked inventory holder type and delegates to the matching
+ * GUI implementation (navigation, repair, sound, worlds, materials, or enchantments)
+ * after verifying the player's permissions.
+ */
 public class GUIClickEvent implements Listener {
+    /**
+     * Handles inventory click events for all plugin GUI screens.
+     * Routes the event to the correct GUI handler based on the inventory holder type.
+     *
+     * @param event the inventory click event
+     */
     @EventHandler(priority = EventPriority.NORMAL)
     public void onEvent(InventoryClickEvent event) {
         try {

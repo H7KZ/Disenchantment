@@ -14,6 +14,11 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 
+/**
+ * Main navigation GUI for the Disenchantment plugin configuration.
+ * Provides access to plugin toggle, worlds, repair, enchantments, materials, sound settings,
+ * and the Spigot resource page.
+ */
 public class NavigationGUI implements InventoryHolder {
     private final GUIItem[] items = ArrayUtils.addAll(
             GUIBorderComponent.border9x3(),
@@ -129,18 +134,29 @@ public class NavigationGUI implements InventoryHolder {
 
     private final Inventory inventory;
 
+    /**
+     * Constructs the navigation GUI, creating and populating the 27-slot inventory.
+     */
     public NavigationGUI() {
         Inventory inventory = Bukkit.createInventory(this, 27, I18n.GUI.Navigation.inventory());
 
         this.inventory = InventoryBuilder.fillItems(inventory, this.items);
     }
 
+    /**
+     * Delegates inventory click events to the appropriate GUI item handler based on the clicked slot.
+     *
+     * @param event the inventory click event
+     */
     public void onInventoryClick(InventoryClickEvent event) {
         for (GUIItem item : this.items) {
             if (item.getSlot() == event.getSlot()) item.onClick(event);
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Inventory getInventory() {
         return this.inventory;

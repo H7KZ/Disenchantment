@@ -11,11 +11,22 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Plugin adapter for UberEnchant on Minecraft 1.18-1.20.4.
+ * Retrieves enchantments from items using UberEnchant's API, including both
+ * applied and stored enchantments, and adapts them for Disenchantment use.
+ */
 public class UberEnchant_v1_18_R1 implements ISupportedPlugin {
+    /**
+     * {@inheritDoc}
+     */
     public String getName() {
         return "UberEnchant";
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public List<IPluginEnchantment> getItemEnchantments(ItemStack item) {
         HashMap<Enchantment, Integer> enchantments = new HashMap<>();
 

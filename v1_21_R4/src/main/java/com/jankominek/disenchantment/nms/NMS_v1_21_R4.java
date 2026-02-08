@@ -24,7 +24,17 @@ import java.util.*;
 import static com.jankominek.disenchantment.Disenchantment.logger;
 import static org.bukkit.Bukkit.getServer;
 
+/**
+ * NMS implementation for Minecraft 1.21.5 - 1.21.7 (v1_21_R4).
+ *
+ * <p>Provides version-specific logic for enchantment checks, registry access,
+ * anvil repair cost manipulation, and player head texture application using
+ * the {@link AnvilView} API available in this version range.</p>
+ */
 public class NMS_v1_21_R4 implements NMS {
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean canItemBeEnchanted(ItemStack item) {
         Enchantment[] checkers = {
@@ -36,16 +46,25 @@ public class NMS_v1_21_R4 implements NMS {
         return Arrays.stream(checkers).anyMatch(e -> e.canEnchantItem(item));
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public List<Enchantment> getRegisteredEnchantments() {
         return new ArrayList<>(Registry.ENCHANTMENT.stream().toList());
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public List<Material> getMaterials() {
         return new ArrayList<>(Registry.MATERIAL.stream().toList());
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public List<ISupportedPlugin> getSupportedPlugins() {
         return new ArrayList<>() {
@@ -59,6 +78,9 @@ public class NMS_v1_21_R4 implements NMS {
         };
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int getRepairCost(AnvilInventory anvilInventory, InventoryView inventoryView) {
         AnvilView anvilView = (AnvilView) inventoryView;
@@ -66,6 +88,9 @@ public class NMS_v1_21_R4 implements NMS {
         return anvilView.getRepairCost();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void setItemRepairCost(ItemStack item, int repairCost) {
         if (item.getItemMeta() instanceof Repairable meta) {
@@ -74,6 +99,9 @@ public class NMS_v1_21_R4 implements NMS {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void setAnvilRepairCost(AnvilInventory anvilInventory, InventoryView inventoryView, int repairCost) {
         AnvilView anvilView = (AnvilView) inventoryView;
@@ -81,6 +109,9 @@ public class NMS_v1_21_R4 implements NMS {
         anvilView.setRepairCost(repairCost);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public HeadBuilder setTexture(HeadBuilder headBuilder, String texture) {
         PlayerProfile profile = getServer().createPlayerProfile(UUID.randomUUID(), "");

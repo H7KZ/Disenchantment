@@ -11,11 +11,24 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Adapter for the UberEnchant plugin, targeting Minecraft 1.21.5 - 1.21.7 (v1_21_R4).
+ *
+ * <p>Reads enchantments from both the regular and stored enchantment maps provided by
+ * the UberEnchant API and maps them into the Disenchantment plugin's common
+ * {@link IPluginEnchantment} format.</p>
+ */
 public class UberEnchant_v1_21_R4 implements ISupportedPlugin {
+    /**
+     * {@inheritDoc}
+     */
     public String getName() {
         return "UberEnchant";
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public List<IPluginEnchantment> getItemEnchantments(ItemStack item) {
         HashMap<Enchantment, Integer> enchantments = new HashMap<>();
 
@@ -29,6 +42,14 @@ public class UberEnchant_v1_21_R4 implements ISupportedPlugin {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Wraps a Bukkit {@link Enchantment} into an {@link IPluginEnchantment} that delegates
+     * add/remove operations to UberEnchant's {@code EnchantmentUtils}.
+     *
+     * @param enchantment the enchantment to wrap
+     * @param level       the enchantment level
+     * @return a plugin enchantment adapter for the given enchantment
+     */
     private static IPluginEnchantment remapEnchantment(Enchantment enchantment, int level) {
         return new IPluginEnchantment() {
             @Override

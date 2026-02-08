@@ -10,6 +10,11 @@ import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.Objects;
 
+/**
+ * Orchestrates sequential configuration migrations between schema versions.
+ * Loads the appropriate migration template for each version step and delegates
+ * to the corresponding {@link IConfigMigration} implementation.
+ */
 public class ConfigMigrations {
     private static final Map<Integer, IConfigMigration> migrations = Map.of(
             1, new Migration1(),
@@ -19,6 +24,14 @@ public class ConfigMigrations {
             5, new Migration5()
     );
 
+    /**
+     * Applies all pending configuration migrations from the old version to the new version.
+     *
+     * @param plugin    the plugin instance used to load migration template resources
+     * @param oldConfig the existing configuration to migrate
+     * @param newConfig the latest default configuration containing the target version
+     * @return the fully migrated configuration
+     */
     public static FileConfiguration apply(Plugin plugin, FileConfiguration oldConfig, FileConfiguration newConfig) {
         int oldVersion = oldConfig.getInt("migration", 0);
         int newVersion = newConfig.getInt("migration", 0);

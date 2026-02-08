@@ -15,7 +15,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Handles the "disenchant:enchantments" subcommand for managing enchantment states
+ * in the disenchantment feature. Supports listing current enchantment states and
+ * changing individual enchantments to enabled, disabled, kept, or deleted states.
+ */
 public class DisenchantEnchantments {
+    /**
+     * The command definition for the disenchant:enchantments subcommand.
+     */
     public static final CommandBuilder command = new CommandBuilder(
             "disenchant:enchantments",
             PermissionGroupType.COMMAND_DISENCHANT_ENCHANTMENTS,
@@ -25,6 +33,14 @@ public class DisenchantEnchantments {
             DisenchantEnchantments::complete
     );
 
+    /**
+     * Executes the disenchant:enchantments command. With no extra arguments, lists all
+     * enchantment states. With an enchantment key and state, updates the enchantment's
+     * configuration (enable, disable, keep, or delete).
+     *
+     * @param s    the command sender
+     * @param args the command arguments: [subcommand, enchantment_key, state]
+     */
     public static void execute(CommandSender s, String[] args) {
         Map<String, EnchantmentStateType> enchantmentsStates = Config.Disenchantment.getEnchantmentStates();
 
@@ -99,6 +115,14 @@ public class DisenchantEnchantments {
         s.sendMessage(I18n.Messages.specifyEnchantmentState());
     }
 
+    /**
+     * Provides tab completion suggestions. At position 2, suggests registered enchantment
+     * names; at position 3, suggests enchantment state types.
+     *
+     * @param sender the command sender
+     * @param args   the current command arguments
+     * @return a list of matching suggestions
+     */
     public static List<String> complete(CommandSender sender, String[] args) {
         List<String> result = new ArrayList<>(List.of());
 

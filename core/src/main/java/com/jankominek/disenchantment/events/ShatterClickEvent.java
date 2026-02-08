@@ -20,7 +20,19 @@ import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Handles the {@link InventoryClickEvent} when a player clicks the result slot
+ * of an anvil during a shatterment (book-splitting) operation. Removes the
+ * transferred enchantments from the source book, deducts experience, plays a
+ * sound effect, and delivers the resulting enchanted book to the player's cursor.
+ */
 public class ShatterClickEvent {
+    /**
+     * Entry point for the shatter inventory-click event.
+     * Delegates to the internal handler and reports any exceptions via diagnostics.
+     *
+     * @param event the Bukkit event to process
+     */
     public static void onEvent(Event event) {
         try {
             handler(event);

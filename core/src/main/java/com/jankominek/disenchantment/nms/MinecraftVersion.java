@@ -2,12 +2,21 @@ package com.jankominek.disenchantment.nms;
 
 import com.jankominek.disenchantment.Disenchantment;
 
+/**
+ * Enum mapping known Minecraft release versions to their corresponding NMS module identifiers.
+ *
+ * <p>On first access, the server version is detected automatically from the Bukkit server
+ * version string. Unknown versions 1.21+ fall back to {@link #LATEST}; versions below 1.18
+ * are marked {@link #INCOMPATIBLE}. Provides utility methods for version comparison.</p>
+ */
 public enum MinecraftVersion {
-    LATEST((byte) 127, null, null, "v1_21_R4"),
+    LATEST((byte) 127, null, null, "v1_21_R5"),
+
+    // 1_21_R5
+    MINECRAFT_1_21_9((byte) 25, "1_21_9", "1.21.9", "v1_21_R5"),
+    MINECRAFT_1_21_8((byte) 24, "1_21_8", "1.21.8", "v1_21_R5"),
 
     // 1_21_R4
-    MINECRAFT_1_21_9((byte) 25, "1_21_9", "1.21.9", "v1_21_R4"),
-    MINECRAFT_1_21_8((byte) 24, "1_21_8", "1.21.8", "v1_21_R4"),
     MINECRAFT_1_21_7((byte) 23, "1_21_7", "1.21.7", "v1_21_R4"),
     MINECRAFT_1_21_6((byte) 22, "1_21_6", "1.21.6", "v1_21_R4"),
     MINECRAFT_1_21_5((byte) 21, "1_21_5", "1.21.5", "v1_21_R4"),
@@ -78,24 +87,54 @@ public enum MinecraftVersion {
         return INCOMPATIBLE;
     }
 
+    /**
+     * Checks whether the current server version is older than or equal to the given version.
+     *
+     * @param version the version to compare against
+     * @return {@code true} if the server version is older than or equal to {@code version},
+     * or {@code false} if the server version is incompatible
+     */
     public static boolean currentVersionOlderThan(MinecraftVersion version) {
         if (serverVersion == MinecraftVersion.INCOMPATIBLE) return false;
         return serverVersion.value <= version.value;
     }
 
+    /**
+     * Checks whether the current server version is newer than or equal to the given version.
+     *
+     * @param version the version to compare against
+     * @return {@code true} if the server version is newer than or equal to {@code version},
+     * or {@code false} if the server version is incompatible
+     */
     public static boolean currentVersionNewerThan(MinecraftVersion version) {
         if (serverVersion == MinecraftVersion.INCOMPATIBLE) return false;
         return serverVersion.value >= version.value;
     }
 
+    /**
+     * Returns the detected Minecraft version of the running server.
+     *
+     * @return the server's {@link MinecraftVersion}, or {@link #INCOMPATIBLE} if unrecognised
+     */
     public static MinecraftVersion getServerVersion() {
         return serverVersion;
     }
 
+    /**
+     * Returns the underscored version string (e.g. {@code "1_21_4"}).
+     *
+     * @return the version string, or {@code null} for {@link #LATEST} and {@link #INCOMPATIBLE}
+     */
     public String getVersionString() {
         return versionUnderlined;
     }
 
+    /**
+     * Returns the NMS module identifier used to resolve the version-specific implementation class
+     * (e.g. {@code "v1_21_R5"}).
+     *
+     * @return the NMS module identifier, or {@code null} if the version is incompatible
+     */
     public String getNmsVersion() {
         return nmsVersion;
     }

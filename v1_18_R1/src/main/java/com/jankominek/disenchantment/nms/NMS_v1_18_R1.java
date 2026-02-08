@@ -20,7 +20,15 @@ import java.util.UUID;
 import static com.jankominek.disenchantment.Disenchantment.logger;
 import static nbt.NBT_v1_18_R1.setNBTRepairCost;
 
+/**
+ * NMS implementation for Minecraft versions 1.18 through 1.20.4.
+ * Provides version-specific logic for enchantment checks, anvil repair costs,
+ * skull texture handling, and third-party plugin adapter registration.
+ */
 public class NMS_v1_18_R1 implements NMS {
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean canItemBeEnchanted(ItemStack item) {
         Enchantment[] checkers = {
@@ -32,16 +40,25 @@ public class NMS_v1_18_R1 implements NMS {
         return Arrays.stream(checkers).anyMatch(e -> e.canEnchantItem(item));
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public List<Enchantment> getRegisteredEnchantments() {
         return List.of(Enchantment.values());
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public List<Material> getMaterials() {
         return new ArrayList<>(Arrays.asList(Material.values()));
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public List<ISupportedPlugin> getSupportedPlugins() {
         return new ArrayList<>() {
@@ -54,21 +71,33 @@ public class NMS_v1_18_R1 implements NMS {
         };
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int getRepairCost(AnvilInventory anvilInventory, InventoryView inventoryView) {
         return anvilInventory.getRepairCost();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void setItemRepairCost(ItemStack item, int repairCost) {
         setNBTRepairCost(item, 0);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void setAnvilRepairCost(AnvilInventory anvilInventory, InventoryView inventoryView, int repairCost) {
         anvilInventory.setRepairCost(repairCost);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public HeadBuilder setTexture(HeadBuilder headBuilder, String texture) {
         GameProfile profile = new GameProfile(UUID.randomUUID(), "");

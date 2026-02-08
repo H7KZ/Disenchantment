@@ -6,6 +6,12 @@ import org.bukkit.permissions.Permissible;
 
 import java.util.stream.Stream;
 
+/**
+ * Groups related {@link PermissionType} entries together for permission checks.
+ * Each group represents a logical action (e.g., using disenchant anvil, opening GUI)
+ * and grants access if the player holds any one of the permissions in the group.
+ * This allows backward compatibility with deprecated permission nodes.
+ */
 public enum PermissionGroupType {
     DISENCHANT_EVENT(
             PermissionType.ANVIL_ALL,
@@ -140,10 +146,24 @@ public enum PermissionGroupType {
         this.permissions = permissions;
     }
 
+    /**
+     * Checks if the given permissible has any permission in this group.
+     * Sends a "requires permission" message if the check fails.
+     *
+     * @param permissible the entity to check permissions for
+     * @return {@code true} if the permissible holds at least one permission in this group
+     */
     public boolean hasPermission(Permissible permissible) {
         return hasPermission(permissible, true);
     }
 
+    /**
+     * Checks if the given permissible has any permission in this group.
+     *
+     * @param permissible the entity to check permissions for
+     * @param feedback    if {@code true}, sends a "requires permission" message on failure
+     * @return {@code true} if the permissible holds at least one permission in this group
+     */
     public boolean hasPermission(Permissible permissible, boolean feedback) {
         if (Stream.of(permissions).anyMatch(p -> p == PermissionType.ALL)) return true;
         if (Stream.of(permissions).anyMatch(p -> p.hasPermission(permissible))) return true;

@@ -21,11 +21,28 @@ import java.util.stream.Collectors;
 import static com.jankominek.disenchantment.Disenchantment.logger;
 import static com.jankominek.disenchantment.Disenchantment.plugin;
 
+/**
+ * Utility class for generating diagnostic reports about the plugin's state,
+ * server environment, configuration, and player permissions.
+ */
 public class DiagnosticUtils {
+    /**
+     * Generates a diagnostic report string containing plugin, server, and configuration information.
+     *
+     * @param extended whether to include extended details (sound, worlds, enchantment states, permissions)
+     * @param sender   the command sender requesting the report (used for player-specific info), or null
+     * @return the formatted diagnostic report
+     */
     public static String getReport(Boolean extended, CommandSender sender) {
         return buildReport(extended, sender);
     }
 
+    /**
+     * Logs a severe diagnostic report to the console when the plugin encounters a critical error.
+     * Includes the full diagnostic report plus the error's stack trace.
+     *
+     * @param e the throwable that caused the error
+     */
     public static void throwReport(Throwable e) {
         StringBuilder report = new StringBuilder();
 

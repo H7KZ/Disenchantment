@@ -14,11 +14,24 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * Adapter for the AdvancedEnchantments plugin, targeting Minecraft 1.21 - 1.21.4 (v1_21_R1).
+ *
+ * <p>Bridges AdvancedEnchantments custom enchantments and vanilla enchantments into
+ * the Disenchantment plugin's common {@link IPluginEnchantment} representation. Handles
+ * the special case where AE stores book enchantments differently from item enchantments.</p>
+ */
 public class AdvancedEnchantments_v1_21_R1 implements ISupportedPlugin {
+    /**
+     * {@inheritDoc}
+     */
     public String getName() {
         return "AdvancedEnchantments";
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public List<IPluginEnchantment> getItemEnchantments(ItemStack item) {
         List<IPluginEnchantment> enchantments = getItemVanillaEnchantments(item);
 
@@ -45,6 +58,13 @@ public class AdvancedEnchantments_v1_21_R1 implements ISupportedPlugin {
         return enchantments;
     }
 
+    /**
+     * Extracts vanilla enchantments from the given item, handling both regular items
+     * and enchanted books (via {@link EnchantmentStorageMeta}).
+     *
+     * @param item the item to inspect
+     * @return a mutable list of vanilla enchantments as {@link IPluginEnchantment} instances
+     */
     private static List<IPluginEnchantment> getItemVanillaEnchantments(ItemStack item) {
         List<IPluginEnchantment> enchantments;
 
@@ -68,6 +88,14 @@ public class AdvancedEnchantments_v1_21_R1 implements ISupportedPlugin {
     }
 
 
+    /**
+     * Wraps an AdvancedEnchantments custom enchantment (identified by string key) into
+     * an {@link IPluginEnchantment} that delegates add/remove operations to the AE API.
+     *
+     * @param key   the AE enchantment key
+     * @param level the enchantment level
+     * @return a plugin enchantment adapter for the given AE enchantment
+     */
     private static IPluginEnchantment remapEnchantment(String key, int level) {
         return new IPluginEnchantment() {
             @Override
@@ -121,6 +149,14 @@ public class AdvancedEnchantments_v1_21_R1 implements ISupportedPlugin {
         };
     }
 
+    /**
+     * Wraps a vanilla {@link Enchantment} into an {@link IPluginEnchantment} that uses
+     * standard Bukkit utilities for add/remove operations, while coexisting with AE books.
+     *
+     * @param enchantment the vanilla enchantment
+     * @param level       the enchantment level
+     * @return a plugin enchantment adapter for the given vanilla enchantment
+     */
     private static IPluginEnchantment remapEnchantment(Enchantment enchantment, int level) {
         return new IPluginEnchantment() {
             @Override

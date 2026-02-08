@@ -22,7 +22,19 @@ import java.util.List;
 
 import static com.jankominek.disenchantment.utils.AnvilCostUtils.countAnvilCost;
 
+/**
+ * Handles the {@link PrepareAnvilEvent} for disenchantment operations.
+ * When a player places an enchanted item in an anvil with a book, this handler
+ * prepares an enchanted book result containing the extracted enchantments and
+ * sets the appropriate anvil repair cost.
+ */
 public class DisenchantEvent {
+    /**
+     * Entry point for the disenchant prepare-anvil event.
+     * Delegates to the internal handler and reports any exceptions via diagnostics.
+     *
+     * @param event the Bukkit event to process
+     */
     public static void onEvent(Event event) {
         try {
             handler(event);

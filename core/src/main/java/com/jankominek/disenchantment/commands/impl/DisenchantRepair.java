@@ -9,7 +9,15 @@ import org.bukkit.command.CommandSender;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Handles the "disenchant:repair" subcommand for managing anvil repair cost settings
+ * in the disenchantment feature. Supports viewing and modifying repair cost, cost reset,
+ * base cost, and cost multiplier settings.
+ */
 public class DisenchantRepair {
+    /**
+     * The command definition for the disenchant:repair subcommand.
+     */
     public static final CommandBuilder command = new CommandBuilder(
             "disenchant:repair",
             PermissionGroupType.COMMAND_DISENCHANT_REPAIR,
@@ -19,6 +27,14 @@ public class DisenchantRepair {
             DisenchantRepair::complete
     );
 
+    /**
+     * Executes the disenchant:repair command. With no extra arguments, displays current
+     * repair settings. With a setting name and value, updates the specified repair
+     * configuration (reset, cost, base, or multiply).
+     *
+     * @param s    the command sender
+     * @param args the command arguments: [subcommand, setting, value]
+     */
     public static void execute(CommandSender s, String[] args) {
         if (args.length == 1) {
             s.sendMessage(I18n.Commands.Repair.Disenchantment.title());
@@ -122,11 +138,19 @@ public class DisenchantRepair {
         }
     }
 
+    /**
+     * Provides tab completion suggestions. At position 2, suggests repair setting names;
+     * at position 3, suggests enable/disable for applicable settings.
+     *
+     * @param sender the command sender
+     * @param args   the current command arguments
+     * @return a list of matching suggestions
+     */
     public static List<String> complete(CommandSender sender, String[] args) {
         List<String> result = new ArrayList<>(List.of());
 
         if (args.length == 2) {
-            for (String arg : DisenchantRepair.command.args) {
+            for (String arg : DisenchantRepair.command.args()) {
                 if (arg.toLowerCase().startsWith(args[1].toLowerCase())) result.add(arg);
             }
         }

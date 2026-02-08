@@ -309,6 +309,11 @@ public final class NBTEditor_v1_18_R1 {
         return VERSION;
     }
 
+    /**
+     * Gets the detected Minecraft version enum.
+     *
+     * @return The current server's Minecraft version
+     */
     public static MinecraftVersion getMinecraftVersion() {
         return LOCAL_VERSION;
     }
@@ -1320,6 +1325,12 @@ public final class NBTEditor_v1_18_R1 {
         v1_21,
         v1_22;
 
+        /**
+         * Resolves a Minecraft version enum from a Bukkit version string.
+         *
+         * @param v the Bukkit package version string (e.g. "v1_18_R1")
+         * @return the matching MinecraftVersion, or null if unrecognized
+         */
         public static MinecraftVersion get(String v) {
             for (MinecraftVersion k : MinecraftVersion.values()) {
                 if (v.contains(k.name().substring(1))) {
@@ -1329,11 +1340,22 @@ public final class NBTEditor_v1_18_R1 {
             return null;
         }
 
-        // Would be really cool if we could overload operators here
+        /**
+         * Checks if this version is greater than or equal to another version.
+         *
+         * @param other the version to compare against
+         * @return true if this version is greater than or equal to the other
+         */
         public boolean greaterThanOrEqualTo(MinecraftVersion other) {
             return ordinal() >= other.ordinal();
         }
 
+        /**
+         * Checks if this version is less than or equal to another version.
+         *
+         * @param other the version to compare against
+         * @return true if this version is less than or equal to the other
+         */
         public boolean lessThanOrEqualTo(MinecraftVersion other) {
             return ordinal() <= other.ordinal();
         }
@@ -1426,6 +1448,12 @@ public final class NBTEditor_v1_18_R1 {
             this.tag = tag;
         }
 
+        /**
+         * Creates an NBTCompound by parsing a JSON/SNBT string.
+         *
+         * @param json the JSON/SNBT string to parse
+         * @return the parsed NBTCompound, or null on failure
+         */
         public static NBTCompound fromJson(String json) {
             try {
                 return new NBTCompound(getMethod(MethodId.loadNBTTagCompound).invoke(null, json));
@@ -1435,6 +1463,12 @@ public final class NBTEditor_v1_18_R1 {
             }
         }
 
+        /**
+         * Sets a value in this compound at the specified key path.
+         *
+         * @param value the value to set
+         * @param keys  the keys in descending order
+         */
         public void set(Object value, Object... keys) {
             try {
                 setTag(tag, value, keys);

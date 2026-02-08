@@ -5,7 +5,15 @@ import org.bukkit.configuration.file.FileConfiguration;
 
 import java.util.List;
 
+/**
+ * Migration step 1: transforms the original flat configuration layout into the
+ * structured format with separate disenchantment and shatterment sections.
+ * Converts legacy boolean enchantment states to the keep/cancel string format.
+ */
 public class Migration1 implements IConfigMigration {
+    /**
+     * {@inheritDoc}
+     */
     public FileConfiguration migrate(FileConfiguration oldConfig, FileConfiguration configTemplate) {
         if (oldConfig.contains("enabled")) configTemplate.set("enabled", oldConfig.getBoolean("enabled"));
         if (oldConfig.contains("enable-logging"))

@@ -14,11 +14,22 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * Plugin adapter for AdvancedEnchantments on Minecraft 1.18-1.20.4.
+ * Bridges the AdvancedEnchantments API with Disenchantment's enchantment system,
+ * allowing custom AE enchantments to be disenchanted alongside vanilla ones.
+ */
 public class AdvancedEnchantments_v1_18_R1 implements ISupportedPlugin {
+    /**
+     * {@inheritDoc}
+     */
     public String getName() {
         return "AdvancedEnchantments";
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public List<IPluginEnchantment> getItemEnchantments(ItemStack item) {
         List<IPluginEnchantment> enchantments = getItemVanillaEnchantments(item);
 

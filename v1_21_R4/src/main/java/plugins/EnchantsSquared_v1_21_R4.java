@@ -10,11 +10,24 @@ import org.bukkit.inventory.ItemStack;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Adapter for the EnchantsSquared plugin, targeting Minecraft 1.21.5 - 1.21.7 (v1_21_R4).
+ *
+ * <p>Reads custom enchantments stored in persistent data containers (PDC) by EnchantsSquared
+ * and combines them with vanilla enchantments into the Disenchantment plugin's common
+ * {@link IPluginEnchantment} format.</p>
+ */
 public class EnchantsSquared_v1_21_R4 implements ISupportedPlugin {
+    /**
+     * {@inheritDoc}
+     */
     public String getName() {
         return "EnchantsSquared";
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public List<IPluginEnchantment> getItemEnchantments(ItemStack item) {
         Map<CustomEnchant, Integer> squaredEnchantments = CustomEnchantManager.getInstance().getItemsEnchantsFromPDC(item);
         List<IPluginEnchantment> enchantments = EnchantmentUtils.getItemEnchantments(item);
@@ -30,6 +43,14 @@ public class EnchantsSquared_v1_21_R4 implements ISupportedPlugin {
         return enchantments;
     }
 
+    /**
+     * Wraps an EnchantsSquared {@link CustomEnchant} into an {@link IPluginEnchantment}
+     * that delegates add/remove operations to the {@link CustomEnchantManager}.
+     *
+     * @param enchantment the EnchantsSquared custom enchantment
+     * @param level       the enchantment level
+     * @return a plugin enchantment adapter for the given custom enchantment
+     */
     private static IPluginEnchantment remapEnchantment(CustomEnchant enchantment, int level) {
         return new IPluginEnchantment() {
             @Override

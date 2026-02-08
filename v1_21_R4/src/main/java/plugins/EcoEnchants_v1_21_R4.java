@@ -20,11 +20,24 @@ import java.util.stream.Collectors;
 import static com.jankominek.disenchantment.Disenchantment.logger;
 import static com.jankominek.disenchantment.Disenchantment.plugin;
 
+/**
+ * Adapter for the EcoEnchants plugin, targeting Minecraft 1.21.5 - 1.21.7 (v1_21_R4).
+ *
+ * <p>Maps EcoEnchants enchantments (which register as Bukkit {@link Enchantment} instances)
+ * into the Disenchantment plugin's common {@link IPluginEnchantment} format. Also re-orders
+ * the EcoEnchants anvil event listener on activation to ensure proper event execution order.</p>
+ */
 public class EcoEnchants_v1_21_R4 implements ISupportedPlugin {
+    /**
+     * {@inheritDoc}
+     */
     public String getName() {
         return "EcoEnchants";
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public List<IPluginEnchantment> getItemEnchantments(ItemStack item) {
         List<IPluginEnchantment> enchantments;
 
@@ -45,6 +58,14 @@ public class EcoEnchants_v1_21_R4 implements ISupportedPlugin {
         return enchantments;
     }
 
+    /**
+     * Wraps a Bukkit {@link Enchantment} (including EcoEnchants custom ones) into
+     * an {@link IPluginEnchantment} using standard enchantment utilities.
+     *
+     * @param enchantment the enchantment to wrap
+     * @param level       the enchantment level
+     * @return a plugin enchantment adapter for the given enchantment
+     */
     private static IPluginEnchantment remapEnchantment(Enchantment enchantment, int level) {
         return new IPluginEnchantment() {
             @Override
@@ -95,6 +116,12 @@ public class EcoEnchants_v1_21_R4 implements ISupportedPlugin {
         };
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * <p>Schedules a delayed task to re-register the EcoEnchants {@link PrepareAnvilEvent}
+     * listener so that it fires before the Disenchantment listener.</p>
+     */
     public void activate() {
         SchedulerUtils.runGlobal(plugin, this::delayActivation);
     }

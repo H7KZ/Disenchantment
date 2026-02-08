@@ -10,7 +10,15 @@ import org.bukkit.command.CommandSender;
 
 import java.util.List;
 
+/**
+ * Handles the "shatter:worlds" subcommand for managing disabled worlds
+ * in the shatterment feature. Supports listing currently disabled worlds
+ * and toggling individual worlds on or off.
+ */
 public class ShatterWorlds {
+    /**
+     * The command definition for the shatter:worlds subcommand.
+     */
     public static final CommandBuilder command = new CommandBuilder(
             "shatter:worlds",
             PermissionGroupType.COMMAND_SHATTER_WORLDS,
@@ -20,6 +28,14 @@ public class ShatterWorlds {
             ShatterWorlds::complete
     );
 
+    /**
+     * Executes the shatter:worlds command. With no extra arguments, lists all
+     * disabled worlds for the shatterment feature. With a world name, toggles
+     * it between enabled and disabled.
+     *
+     * @param sender the command sender
+     * @param args   the command arguments: [subcommand, world_name]
+     */
     public static void execute(CommandSender sender, String[] args) {
         if (args.length == 1) {
             List<World> disabledWorlds = Config.Shatterment.getDisabledWorlds();
@@ -60,6 +76,14 @@ public class ShatterWorlds {
         Config.Shatterment.setDisabledWorlds(disabledWorlds);
     }
 
+    /**
+     * Provides tab completion suggestions by delegating to
+     * {@link DisenchantWorlds#complete(CommandSender, String[])}.
+     *
+     * @param sender the command sender
+     * @param args   the current command arguments
+     * @return a list of matching world name suggestions
+     */
     public static List<String> complete(CommandSender sender, String[] args) {
         return DisenchantWorlds.complete(sender, args);
     }

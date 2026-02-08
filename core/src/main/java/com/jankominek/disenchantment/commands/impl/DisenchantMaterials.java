@@ -11,7 +11,15 @@ import org.bukkit.command.CommandSender;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Handles the "disenchant:materials" subcommand for managing disabled materials
+ * in the disenchantment feature. Supports listing currently disabled materials
+ * and toggling individual materials on or off.
+ */
 public class DisenchantMaterials {
+    /**
+     * The command definition for the disenchant:materials subcommand.
+     */
     public static final CommandBuilder command = new CommandBuilder(
             "disenchant:materials",
             PermissionGroupType.COMMAND_DISENCHANT_MATERIALS,
@@ -21,6 +29,13 @@ public class DisenchantMaterials {
             DisenchantMaterials::complete
     );
 
+    /**
+     * Executes the disenchant:materials command. With no extra arguments, lists all
+     * disabled materials. With a material name, toggles it between enabled and disabled.
+     *
+     * @param s    the command sender
+     * @param args the command arguments: [subcommand, material_name]
+     */
     public static void execute(CommandSender s, String[] args) {
         List<Material> materials = Config.Disenchantment.getDisabledMaterials();
 
@@ -58,6 +73,13 @@ public class DisenchantMaterials {
         }
     }
 
+    /**
+     * Provides tab completion suggestions for material names.
+     *
+     * @param sender the command sender
+     * @param args   the current command arguments
+     * @return a list of matching material name suggestions
+     */
     public static List<String> complete(CommandSender sender, String[] args) {
         List<String> result = new ArrayList<>(List.of());
 

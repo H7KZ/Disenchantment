@@ -20,11 +20,22 @@ import java.util.stream.Collectors;
 import static com.jankominek.disenchantment.Disenchantment.logger;
 import static com.jankominek.disenchantment.Disenchantment.plugin;
 
+/**
+ * Plugin adapter for EcoEnchants on Minecraft 1.20.5-1.20.6.
+ * Integrates EcoEnchants custom enchantments with Disenchantment's system and
+ * re-registers the EcoEnchants anvil listener to ensure correct event ordering.
+ */
 public class EcoEnchants_v1_20_R4 implements ISupportedPlugin {
+    /**
+     * {@inheritDoc}
+     */
     public String getName() {
         return "EcoEnchants";
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public List<IPluginEnchantment> getItemEnchantments(ItemStack item) {
         List<IPluginEnchantment> enchantments;
 
@@ -95,6 +106,11 @@ public class EcoEnchants_v1_20_R4 implements ISupportedPlugin {
         };
     }
 
+    /**
+     * {@inheritDoc}
+     * Delays activation to re-register EcoEnchants' PrepareAnvilEvent listener
+     * so that it fires before Disenchantment's own listener.
+     */
     public void activate() {
         SchedulerUtils.runGlobal(plugin, this::delayActivation);
     }

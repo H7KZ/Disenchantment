@@ -1,5 +1,11 @@
 package com.jankominek.disenchantment.types;
 
+/**
+ * Enumerates all internationalization (i18n) key paths used in the plugin's
+ * locale configuration files. Each constant maps to a dot-separated YAML path
+ * for accessing localized strings including messages, command output, GUI labels,
+ * and state display names.
+ */
 public enum I18nKeys {
     // i18n messages
     PREFIX("prefix"),
@@ -196,6 +202,11 @@ public enum I18nKeys {
         this.key = key;
     }
 
+    /**
+     * Gets the dot-separated YAML path for this i18n key.
+     *
+     * @return the i18n key path
+     */
     public String getKey() {
         return key;
     }

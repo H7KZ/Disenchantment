@@ -16,7 +16,19 @@ import java.util.logging.Level;
 import static com.jankominek.disenchantment.Disenchantment.logger;
 import static com.jankominek.disenchantment.Disenchantment.plugin;
 
+/**
+ * Utility class for managing plugin configuration files, including setup,
+ * migration, and locale file extraction.
+ */
 public class ConfigUtils {
+    /**
+     * Copies values from an old configuration to a new template for each key present in both.
+     * Handles all YAML-supported value types (string, int, boolean, double, list, etc.).
+     *
+     * @param keys           the set of keys to copy
+     * @param oldConfig      the source configuration
+     * @param configTemplate the target configuration template
+     */
     public static void copyKeys(Set<String> keys, FileConfiguration oldConfig, FileConfiguration configTemplate) {
         for (String key : keys) {
             if (!oldConfig.contains(key)) continue;
@@ -37,6 +49,11 @@ public class ConfigUtils {
         }
     }
 
+    /**
+     * Initializes the plugin configuration. Saves the default config if not present,
+     * applies migrations from the old config to the new template, saves the result,
+     * and reloads the configuration.
+     */
     public static void setupConfig() {
         plugin.saveDefaultConfig();
 
@@ -63,6 +80,10 @@ public class ConfigUtils {
         plugin.reloadConfig();
     }
 
+    /**
+     * Extracts locale YAML files from the plugin JAR resources into the plugin's data folder.
+     * Overwrites existing locale files with the bundled versions.
+     */
     public static void setupLocaleConfigs() {
         for (String locale : Config.getLocales()) {
             File localeFile = new File(plugin.getDataFolder(), "locales/" + locale + ".yml");
