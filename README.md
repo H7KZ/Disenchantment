@@ -4,9 +4,10 @@
 [![License](https://img.shields.io/github/license/H7KZ/Disenchantment?style=flat-square)](LICENSE)
 [![Minecraft](https://img.shields.io/badge/Minecraft-1.18--1.21.+-brightgreen?style=flat-square)](https://www.spigotmc.org/resources/110741)
 [![Java](https://img.shields.io/badge/Java-21%2B-orange?style=flat-square)](https://adoptium.net/)
-[![SpigotMC](https://img.shields.io/badge/SpigotMC-Disenchantment-yellow?style=flat-square)](https://www.spigotmc.org/resources/110741)
 [![Modrinth](https://img.shields.io/modrinth/dt/disenchantment?style=flat-square&label=Modrinth)](https://modrinth.com/plugin/disenchantment)
-[![bStats](https://img.shields.io/badge/bStats-19058-blue?style=flat-square)](https://bstats.org/plugin/bukkit/Disenchantment/19058)
+[![SpigotMC](https://img.shields.io/spiget/downloads/110741)](https://www.spigotmc.org/resources/110741)
+[![Players](https://img.shields.io/bstats/players/19058)](https://bstats.org/plugin/bukkit/Disenchantment/19058)
+[![Servers](https://img.shields.io/bstats/servers/19058)](https://bstats.org/plugin/bukkit/Disenchantment/19058)
 
 ![event.png](assets/event.png)
 
