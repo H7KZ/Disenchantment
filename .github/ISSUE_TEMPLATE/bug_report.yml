@@ -92,7 +92,6 @@ body:
       description: Are you using any custom enchantment plugins?
       multiple: true
       options:
-        - None
         - AdvancedEnchantments
         - EcoEnchants
         - EnchantsSquared
