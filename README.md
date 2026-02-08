@@ -41,7 +41,7 @@ Need just one enchantment from a book with many? Book Splitting allows for preci
 ### Requirements
 
 - Java **21** or newer
-- Spigot, Paper, or Folia server running Minecraft **1.18 - 1.21.9**
+- Spigot, Paper, or Folia server running Minecraft **1.18 - 1.21.+**
 
 ### Download
 
@@ -56,7 +56,7 @@ Get the latest release from any of these sources:
 1. Download the `Disenchantment-<version>.jar` file.
 2. Place the JAR in your server's `plugins/` directory.
 3. Restart the server.
-4. Edit `plugins/Disenchantment/config.yml` to customize settings.
+4. Edit `plugins/Disenchantment/config.yml` to customize settings or use ingame admin UI with `/disenchantment gui`.
 
 ## Supported Custom Enchantment Plugins
 
