@@ -1,0 +1,100 @@
+name: Feature Request
+description: Suggest a new feature or enhancement
+title: "[FEATURE] "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for suggesting a new feature! We appreciate your ideas for improving Disenchantment.
+
+  - type: dropdown
+    id: feature-type
+    attributes:
+      label: Feature Type
+      description: What kind of feature is this?
+      options:
+        - New mechanic (disenchanting/shattering related)
+        - Configuration option
+        - GUI enhancement
+        - Command improvement
+        - API for developers
+        - Performance improvement
+        - Compatibility with another plugin
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or Use Case
+      description: Is your feature request related to a problem? What would this feature help you accomplish?
+      placeholder: "I'm always frustrated when I can't disenchant specific enchantments individually from an item. I want to remove just Unbreaking and keep Sharpness."
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed Solution
+      description: Describe the solution you'd like to see implemented
+      placeholder: "Add a GUI that appears when right-clicking the anvil output, allowing players to select which specific enchantment(s) to remove."
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternative Solutions
+      description: Have you considered any alternative solutions or workarounds?
+      placeholder: "Alternatively, add a config option to make disenchanting remove only the lowest-level enchantment first."
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority/Impact
+      description: How important is this feature to you?
+      options:
+        - Critical (blocks my server from using the plugin)
+        - High (would significantly improve my experience)
+        - Medium (would be nice to have)
+        - Low (minor improvement)
+
+  - type: checkboxes
+    id: compatibility
+    attributes:
+      label: Compatibility Considerations
+      description: Should this feature work with specific setups?
+      options:
+        - label: Should work with custom enchantment plugins
+        - label: Should work with Folia
+        - label: Should be compatible with GeyserMC/Bedrock
+        - label: Should have per-world configuration
+        - label: Should have permission nodes
+
+  - type: textarea
+    id: examples
+    attributes:
+      label: Examples or Mockups
+      description: Provide examples, mockups, or references from other plugins if applicable
+      placeholder: "Similar to how Plugin X does it, or attach a mockup image..."
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Context
+      description: Any other information, screenshots, or context about the feature request
+      placeholder: "This would be especially useful for economy-focused servers where players trade enchanted books..."
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Pre-submission Checklist
+      options:
+        - label: I have searched existing issues to ensure this hasn't been requested
+          required: true
+        - label: This feature aligns with the plugin's vanilla-friendly philosophy
+          required: false
+        - label: I would be willing to help test this feature
+          required: false

@@ -1,0 +1,155 @@
+name: Compatibility Issue
+description: Report compatibility problems with Minecraft versions or other plugins
+title: "[COMPATIBILITY] "
+labels: ["compatibility"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this template if you're experiencing issues with specific Minecraft versions, server software, or plugin conflicts.
+
+  - type: dropdown
+    id: issue-type
+    attributes:
+      label: Compatibility Issue Type
+      description: What kind of compatibility issue are you experiencing?
+      options:
+        - Minecraft version not supported
+        - Server software incompatibility
+        - Custom enchantment plugin conflict
+        - Another plugin conflict
+        - GeyserMC/Bedrock Edition issue
+        - Other
+    validations:
+      required: true
+
+  - type: input
+    id: minecraft-version
+    attributes:
+      label: Minecraft Version
+      description: "Example: 1.21.9, 1.20.5, 1.18.2"
+      placeholder: "1.21.9"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: server-type
+    attributes:
+      label: Server Software
+      options:
+        - Paper
+        - Spigot
+        - Folia
+        - Purpur
+        - Pufferfish
+        - Other (specify below)
+    validations:
+      required: true
+
+  - type: input
+    id: server-version
+    attributes:
+      label: Server Software Version/Build
+      description: "Example: Paper 1.21.4 build 123"
+      placeholder: "Paper 1.21.4 build 123"
+    validations:
+      required: true
+
+  - type: input
+    id: plugin-version
+    attributes:
+      label: Disenchantment Version
+      placeholder: "6.3.3"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: custom-enchants-plugin
+    attributes:
+      label: Custom Enchantment Plugin (if applicable)
+      multiple: true
+      options:
+        - None
+        - AdvancedEnchantments
+        - EcoEnchants
+        - EnchantsSquared
+        - UberEnchant
+        - ExcellentEnchants
+        - Other (specify below)
+
+  - type: input
+    id: custom-enchants-version
+    attributes:
+      label: Custom Enchantment Plugin Version(s)
+      description: If you selected a custom enchantment plugin above, provide its version
+      placeholder: "EcoEnchants 12.24.0"
+
+  - type: textarea
+    id: conflicting-plugins
+    attributes:
+      label: Potentially Conflicting Plugins
+      description: List other plugins that might be causing conflicts (especially anvil-related, economy, or GUI plugins)
+      placeholder: |
+        - AnvilGUI 2.1.0
+        - ChestShop 3.12
+        - GeyserMC 2.2.0 (if relevant)
+      render: markdown
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Issue Description
+      description: Describe what's not working and what you expected to happen
+      placeholder: "When using EcoEnchants with Disenchantment, enchanted books appear in the anvil output but disappear when I try to take them."
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to Reproduce
+      placeholder: |
+        1. Install Disenchantment and EcoEnchants
+        2. Create an item with a custom enchantment
+        3. Try to disenchant it using a book
+        4. The book appears but vanishes
+      value: |
+        1. 
+        2. 
+        3. 
+        4. 
+    validations:
+      required: true
+
+  - type: textarea
+    id: error-logs
+    attributes:
+      label: Console Errors/Logs
+      description: Paste any relevant console output, errors, or warnings
+      render: shell
+
+  - type: textarea
+    id: diagnostic
+    attributes:
+      label: Diagnostic Output
+      description: Run `/disenchantment diagnostic all` and paste the output here
+      render: shell
+
+  - type: checkboxes
+    id: troubleshooting
+    attributes:
+      label: Troubleshooting Steps Taken
+      description: What have you already tried?
+      options:
+        - label: I've checked the FAQ for this issue
+        - label: I've tested with only Disenchantment installed (isolated test)
+        - label: I've tested with the latest version of Disenchantment
+        - label: I've adjusted event priorities in config.yml
+        - label: I've checked permissions are correctly set
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Context
+      description: Any other relevant information
+      placeholder: "This only happens on our production server, not in local testing..."

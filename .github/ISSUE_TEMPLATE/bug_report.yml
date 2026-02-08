@@ -1,0 +1,157 @@
+name: Bug Report
+description: Report a bug or unexpected behavior
+title: "[BUG] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report this issue! Please fill out the information below to help us diagnose and fix the problem.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug Description
+      description: A clear and concise description of what the bug is.
+      placeholder: "Example: When I try to disenchant a diamond sword with Sharpness V, the enchantment disappears without being transferred to the book."
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to Reproduce
+      description: Detailed steps to reproduce the behavior
+      placeholder: |
+        1. Place a diamond sword with Sharpness V in the first anvil slot
+        2. Place a blank book in the second anvil slot
+        3. Take the result from the output slot
+        4. The enchantment is not on the book
+      value: |
+        1. 
+        2. 
+        3. 
+        4. 
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: What did you expect to happen?
+      placeholder: "The Sharpness V enchantment should be transferred to the book."
+    validations:
+      required: true
+
+  - type: dropdown
+    id: server-type
+    attributes:
+      label: Server Type
+      description: What server software are you running?
+      options:
+        - Paper
+        - Spigot
+        - Folia
+        - Purpur
+        - Other (specify in additional context)
+    validations:
+      required: true
+
+  - type: input
+    id: minecraft-version
+    attributes:
+      label: Minecraft Version
+      description: "Example: 1.21.4, 1.20.5, 1.18.2"
+      placeholder: "1.21.4"
+    validations:
+      required: true
+
+  - type: input
+    id: plugin-version
+    attributes:
+      label: Disenchantment Version
+      description: "You can find this with `/disenchantment diagnostic` or in the plugin list"
+      placeholder: "6.3.3"
+    validations:
+      required: true
+
+  - type: input
+    id: java-version
+    attributes:
+      label: Java Version
+      description: "Run `java -version` in your terminal"
+      placeholder: "21"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: custom-enchants
+    attributes:
+      label: Custom Enchantment Plugins
+      description: Are you using any custom enchantment plugins?
+      multiple: true
+      options:
+        - None
+        - AdvancedEnchantments
+        - EcoEnchants
+        - EnchantsSquared
+        - UberEnchant
+        - ExcellentEnchants
+        - Other (list in additional context)
+
+  - type: textarea
+    id: plugin-list
+    attributes:
+      label: Other Plugins
+      description: List other plugins that might be relevant (especially anvil-related or enchantment plugins)
+      placeholder: |
+        - LuckPerms 5.4.102
+        - Vault 1.7.3
+        - AnvilMechanics 3.2.1
+      render: markdown
+
+  - type: textarea
+    id: error-logs
+    attributes:
+      label: Console Errors/Logs
+      description: If applicable, paste any relevant console errors or logs
+      placeholder: "[12:34:56 ERROR]: Could not pass event PrepareAnvilEvent to Disenchantment v6.3.3"
+      render: shell
+
+  - type: textarea
+    id: config
+    attributes:
+      label: Configuration
+      description: If relevant, paste your config.yml or specific sections that might be related
+      placeholder: |
+        disenchantment:
+          enabled: true
+          disabled-worlds: []
+      render: yaml
+
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Screenshots
+      description: Drag and drop screenshots here if they help illustrate the problem
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Pre-submission Checklist
+      description: Please confirm the following before submitting
+      options:
+        - label: I have searched existing issues to ensure this bug hasn't been reported
+          required: true
+        - label: I am using the latest version of Disenchantment
+          required: false
+        - label: I have reviewed the FAQ and documentation
+          required: false
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Context
+      description: Add any other context about the problem here
+      placeholder: "This only happens when using GeyserMC with Bedrock clients..."
