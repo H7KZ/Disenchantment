@@ -69,7 +69,8 @@ public enum MinecraftVersion {
 
         for (MinecraftVersion version : MinecraftVersion.values()) {
             if (version.versionUnderlined == null || version.versionDotted == null) continue;
-            if (v.contains(version.versionUnderlined) || v.contains(version.versionDotted)) return version;
+            if (v.equalsIgnoreCase(version.versionUnderlined) || v.equalsIgnoreCase(version.versionDotted))
+                return version;
         }
 
         try {
