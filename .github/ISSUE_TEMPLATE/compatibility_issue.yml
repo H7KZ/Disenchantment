@@ -69,7 +69,6 @@ body:
       label: Custom Enchantment Plugin (if applicable)
       multiple: true
       options:
-        - None
         - AdvancedEnchantments
         - EcoEnchants
         - EnchantsSquared
