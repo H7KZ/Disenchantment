@@ -26,6 +26,7 @@ java -jar BuildTools.jar --rev 1.18
 java -jar BuildTools.jar --rev 1.20.5
 java -jar BuildTools.jar --rev 1.21
 java -jar BuildTools.jar --rev 1.21.5
+java -jar BuildTools.jar --rev 1.21.8
 ```
 
 ### Building the Plugin
@@ -45,7 +46,7 @@ The output JAR is written to `target/Disenchantment-<version>.jar`.
 | `v1_20_R4/` | NMS implementation for Minecraft 1.20.5 - 1.20.6 |
 | `v1_21_R1/` | NMS implementation for Minecraft 1.21 - 1.21.4 |
 | `v1_21_R4/` | NMS implementation for Minecraft 1.21.5 - 1.21.7 |
-| `v1_21_R5/` | NMS implementation for Minecraft 1.21.8 - 1.21.9 |
+| `v1_21_R5/` | NMS implementation for Minecraft 1.21.8 - 1.21.+ |
 | `dist/` | Shading module that assembles all modules into the final plugin JAR |
 
 ## Pull Request Process
