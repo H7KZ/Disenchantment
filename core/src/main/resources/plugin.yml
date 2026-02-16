@@ -1,5 +1,5 @@
 name: Disenchantment
-version: 6.3.3
+version: 6.3.4
 main: com.jankominek.disenchantment.Disenchantment
 api-version: 1.18
 folia-supported: true

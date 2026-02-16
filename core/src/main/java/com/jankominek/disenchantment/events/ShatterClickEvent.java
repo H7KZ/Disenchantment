@@ -110,18 +110,21 @@ public class ShatterClickEvent {
             finalFirstItem = EnchantmentUtils.removeEnchantments(finalFirstItem, resultItemMeta.getStoredEnchants());
 
             for (IPluginEnchantment enchantment : enchantmentsToDelete) {
-                finalFirstItem = enchantment.removeFromItem(finalFirstItem);
+                // Use removeFromBook since firstItem is always an ENCHANTED_BOOK in shatterment
+                finalFirstItem = enchantment.removeFromBook(finalFirstItem);
             }
         } else {
             for (ISupportedPlugin activatedPlugin : activatedPlugins) {
                 List<IPluginEnchantment> pluginEnchantments = activatedPlugin.getItemEnchantments(result);
 
                 for (IPluginEnchantment enchantment : pluginEnchantments) {
-                    finalFirstItem = enchantment.removeFromItem(finalFirstItem);
+                    // Use removeFromBook since firstItem is always an ENCHANTED_BOOK in shatterment
+                    finalFirstItem = enchantment.removeFromBook(finalFirstItem);
                 }
 
                 for (IPluginEnchantment enchantment : enchantmentsToDelete) {
-                    finalFirstItem = enchantment.removeFromItem(finalFirstItem);
+                    // Use removeFromBook since firstItem is always an ENCHANTED_BOOK in shatterment
+                    finalFirstItem = enchantment.removeFromBook(finalFirstItem);
                 }
             }
         }

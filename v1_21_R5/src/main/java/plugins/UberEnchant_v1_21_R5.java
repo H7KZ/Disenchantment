@@ -2,13 +2,16 @@ package plugins;
 
 import com.jankominek.disenchantment.plugins.IPluginEnchantment;
 import com.jankominek.disenchantment.plugins.ISupportedPlugin;
+import me.sciguymjm.uberenchant.api.UberEnchantment;
 import me.sciguymjm.uberenchant.api.utils.UberUtils;
 import me.sciguymjm.uberenchant.utils.enchanting.EnchantmentUtils;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -75,7 +78,7 @@ public class UberEnchant_v1_21_R5 implements ISupportedPlugin {
             public ItemStack removeFromBook(ItemStack book) {
                 ItemStack item = book.clone();
 
-                EnchantmentUtils.removeEnchantment(enchantment, item);
+                this.removeStoredEnchantment(enchantment, item);
 
                 return item;
             }
@@ -96,6 +99,19 @@ public class UberEnchant_v1_21_R5 implements ISupportedPlugin {
                 EnchantmentUtils.removeEnchantment(enchantment, result);
 
                 return result;
+            }
+
+            private void removeStoredEnchantment(Enchantment enchant, ItemStack item) {
+                if (!item.hasItemMeta() || !UberUtils.getAllStoredMap(item).containsKey(enchant)) return;
+
+                if (enchant instanceof UberEnchantment enchantment) {
+                    UberUtils.removeStoredEnchantment(enchantment, item);
+                } else if (item.getItemMeta() instanceof EnchantmentStorageMeta meta) {
+                    meta.removeStoredEnchant(enchantment);
+                    item.setItemMeta(meta);
+                } else {
+                    EnchantmentUtils.removeEnchantment(enchant, item);
+                }
             }
         };
     }
