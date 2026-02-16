@@ -12,7 +12,10 @@ import com.jankominek.disenchantment.Disenchantment;
 public enum MinecraftVersion {
     LATEST((byte) 127, null, null, "v1_21_R5"),
 
+
     // 1_21_R5
+    MINECRAFT_1_21_11((byte) 25, "1_21_11", "1.21.11", "v1_21_R5"),
+    MINECRAFT_1_21_10((byte) 25, "1_21_10", "1.21.10", "v1_21_R5"),
     MINECRAFT_1_21_9((byte) 25, "1_21_9", "1.21.9", "v1_21_R5"),
     MINECRAFT_1_21_8((byte) 24, "1_21_8", "1.21.8", "v1_21_R5"),
 

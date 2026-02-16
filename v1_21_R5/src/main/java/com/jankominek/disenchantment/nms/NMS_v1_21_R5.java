@@ -24,7 +24,7 @@ import static com.jankominek.disenchantment.Disenchantment.logger;
 import static org.bukkit.Bukkit.getServer;
 
 /**
- * NMS implementation for Minecraft 1.21.8 - 1.21.9 (v1_21_R5).
+ * NMS implementation for Minecraft 1.21.8 - 1.21.+ (v1_21_R5).
  *
  * <p>Provides version-specific logic for enchantment checks, registry access,
  * anvil repair cost manipulation, and player head texture application using
@@ -73,6 +73,7 @@ public class NMS_v1_21_R5 implements NMS {
                 add(new plugins.EnchantsSquared_v1_21_R5());
                 add(new plugins.ExcellentEnchants_v1_21_R5());
                 add(new plugins.UberEnchant_v1_21_R5());
+                add(new plugins.Vane_v1_21_R5());
                 add(new plugins.Zenchantments_v1_21_R5());
             }
         };

@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Adapter for the EnchantsSquared plugin, targeting Minecraft 1.21.8 - 1.21.9 (v1_21_R5).
+ * Adapter for the EnchantsSquared plugin, targeting Minecraft 1.21.8 - 1.21.+ (v1_21_R5).
  *
  * <p>Reads custom enchantments stored in persistent data containers (PDC) by EnchantsSquared
  * and combines them with vanilla enchantments into the Disenchantment plugin's common

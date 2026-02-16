@@ -27,8 +27,8 @@ body:
     id: minecraft-version
     attributes:
       label: Minecraft Version
-      description: "Example: 1.21.9, 1.20.5, 1.18.2"
-      placeholder: "1.21.9"
+      description: "Example: 1.21.11, 1.20.5, 1.18.2"
+      placeholder: "1.21.11"
     validations:
       required: true
 

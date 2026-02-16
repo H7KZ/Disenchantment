@@ -27,15 +27,15 @@ mvn clean package
 
 Multi-module Maven project. Each NMS module provides version-specific implementations.
 
-| Module | Artifact | Purpose |
-|---|---|---|
+| Module | Artifact | Purpose                                                                                                             |
+|---|---|---------------------------------------------------------------------------------------------------------------------|
 | `core/` | `disenchantment-core` | Shared logic: plugin main class, config, commands, events, listeners, GUIs, NMS interface, plugin adapter interface |
-| `v1_18_R1/` | `disenchantment-v1_18_R1` | NMS for Minecraft 1.18 - 1.20.4 (uses NBT editing via `nbt/` package) |
-| `v1_20_R4/` | `disenchantment-v1_20_R4` | NMS for Minecraft 1.20.5 - 1.20.6 (uses NBT editing via `nbt/` package) |
-| `v1_21_R1/` | `disenchantment-v1_21_R1` | NMS for Minecraft 1.21 - 1.21.4 (no NBT package, uses Bukkit API directly) |
-| `v1_21_R4/` | `disenchantment-v1_21_R4` | NMS for Minecraft 1.21.5 - 1.21.7 |
-| `v1_21_R5/` | `disenchantment-v1_21_R5` | NMS for Minecraft 1.21.8 - 1.21.9 (and future via LATEST fallback) |
-| `dist/` | `disenchantment-dist` | Shading module - assembles all modules into the final plugin JAR using maven-shade-plugin |
+| `v1_18_R1/` | `disenchantment-v1_18_R1` | NMS for Minecraft 1.18 - 1.20.4 (uses NBT editing via `nbt/` package)                                               |
+| `v1_20_R4/` | `disenchantment-v1_20_R4` | NMS for Minecraft 1.20.5 - 1.20.6 (uses NBT editing via `nbt/` package)                                             |
+| `v1_21_R1/` | `disenchantment-v1_21_R1` | NMS for Minecraft 1.21 - 1.21.4 (no NBT package, uses Bukkit API directly)                                          |
+| `v1_21_R4/` | `disenchantment-v1_21_R4` | NMS for Minecraft 1.21.5 - 1.21.7                                                                                   |
+| `v1_21_R5/` | `disenchantment-v1_21_R5` | NMS for Minecraft 1.21.8 - 1.21.+ (and future via LATEST fallback)                                                  |
+| `dist/` | `disenchantment-dist` | Shading module - assembles all modules into the final plugin JAR using maven-shade-plugin                           |
 
 ## Architecture
 
@@ -55,6 +55,8 @@ Each NMS module contains adapters in `plugins/` for third-party enchantment plug
 - **EnchantsSquared** - all versions
 - **UberEnchant** - all versions
 - **ExcellentEnchants** - v1_21_R1, v1_21_R4, v1_21_R5 only
+- **Vane** - v1_21_R5 only
+- **Zenchantments** - v1_21_R5 only
 
 Adapters implement `ISupportedPlugin` interface. They are instantiated in each `NMS_v*` class's `getSupportedPlugins()` method. `SupportedPluginManager` activates only those whose server-side plugin is present.
 

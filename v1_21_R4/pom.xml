@@ -66,6 +66,13 @@
             <scope>system</scope>
             <systemPath>${pom.basedir}/libs/zenchantments-1.21.5.1.jar</systemPath>
         </dependency>
+        <dependency>
+            <groupId>org.oddlama.vane</groupId>
+            <artifactId>vane</artifactId>
+            <version>1.18.0</version>
+            <scope>system</scope>
+            <systemPath>${pom.basedir}/libs/vane-core-1.18.0.jar</systemPath>
+        </dependency>
     </dependencies>
 
     <repositories>

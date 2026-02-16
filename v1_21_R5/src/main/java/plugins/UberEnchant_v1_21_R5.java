@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Adapter for the UberEnchant plugin, targeting Minecraft 1.21.8 - 1.21.9 (v1_21_R5).
+ * Adapter for the UberEnchant plugin, targeting Minecraft 1.21.8 - 1.21.+ (v1_21_R5).
  *
  * <p>Reads enchantments from both the regular and stored enchantment maps provided by
  * the UberEnchant API and maps them into the Disenchantment plugin's common

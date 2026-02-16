@@ -15,7 +15,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * Adapter for the AdvancedEnchantments plugin, targeting Minecraft 1.21.8 - 1.21.9 (v1_21_R5).
+ * Adapter for the AdvancedEnchantments plugin, targeting Minecraft 1.21.8 - 1.21.+ (v1_21_R5).
  *
  * <p>Bridges AdvancedEnchantments custom enchantments and vanilla enchantments into
  * the Disenchantment plugin's common {@link IPluginEnchantment} representation. Handles

@@ -21,7 +21,7 @@ import static com.jankominek.disenchantment.Disenchantment.logger;
 import static com.jankominek.disenchantment.Disenchantment.plugin;
 
 /**
- * Adapter for the EcoEnchants plugin, targeting Minecraft 1.21.8 - 1.21.9 (v1_21_R5).
+ * Adapter for the EcoEnchants plugin, targeting Minecraft 1.21.8 - 1.21.+ (v1_21_R5).
  *
  * <p>Maps EcoEnchants enchantments (which register as Bukkit {@link Enchantment} instances)
  * into the Disenchantment plugin's common {@link IPluginEnchantment} format. Also re-orders

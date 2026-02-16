@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Adapter for the ExcellentEnchants plugin, targeting Minecraft 1.21.8 - 1.21.9 (v1_21_R5).
+ * Adapter for the ExcellentEnchants plugin, targeting Minecraft 1.21.8 - 1.21.+ (v1_21_R5).
  *
  * <p>Uses the ExcellentEnchants {@code EnchantsUtils} API to read, add, and remove
  * enchantments, mapping them into the Disenchantment plugin's common

@@ -19,3 +19,79 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+================================================================================
+THIRD-PARTY LICENSES
+================================================================================
+
+This project includes or depends on the following third-party libraries:
+
+--------------------------------------------------------------------------------
+bStats (Embedded)
+--------------------------------------------------------------------------------
+Copyright (c) 2016-2021 Bastian Oppermann
+License: MIT License
+https://github.com/Bastian/bStats-Metrics
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+--------------------------------------------------------------------------------
+Spigot API, Paper API, Folia API (Provided Dependencies - Not Distributed)
+--------------------------------------------------------------------------------
+License: GNU General Public License (GPL) Version 3
+https://github.com/SpigotMC/Spigot-API
+https://github.com/PaperMC/Paper
+https://github.com/PaperMC/Folia
+
+Note: These APIs are provided by the server runtime and are not bundled with
+this plugin. They are used only as compile-time dependencies.
+
+--------------------------------------------------------------------------------
+Custom Enchantment Plugin Adapters (Compile-time Dependencies - Not Distributed)
+--------------------------------------------------------------------------------
+This plugin includes adapters for the following custom enchantment plugins.
+These plugins are NOT bundled or distributed with Disenchantment. They are
+used only as compile-time dependencies to create integration adapters. Users
+must obtain and install these plugins separately if they wish to use the
+integration features.
+
+- AdvancedEnchantments by GC-spigot (Proprietary)
+  https://github.com/GC-spigot/AdvancedEnchantments
+
+- EcoEnchants by Auxilor (GPL-3.0)
+  https://github.com/Auxilor/EcoEnchants
+
+- EnchantsSquared by Athlaeos (No public license)
+  https://github.com/Athlaeos/EnchantsSquared
+
+- UberEnchant by sciguymjm (GPL-3.0)
+  https://github.com/Sciguymjm/UberEnchant
+
+- ExcellentEnchants by NightExpress (GPL-3.0)
+  https://github.com/nulli0n/ExcellentEnchants-spigot
+
+- Zenchantments by Zedly (GPL-3.0)
+  https://github.com/Zedly/Zenchantments
+
+- Vane by oddlama (MIT)
+  https://github.com/oddlama/vane
+
+Note: The adapters created by Disenchantment merely interface with these
+plugins' public APIs and do not contain any code from the plugins themselves.
+Each plugin retains its own independent license.

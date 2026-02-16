@@ -74,6 +74,7 @@ public class NMS_v1_21_R1 implements NMS {
                 add(new plugins.EnchantsSquared_v1_21_R1());
                 add(new plugins.ExcellentEnchants_v1_21_R1());
                 add(new plugins.UberEnchant_v1_21_R1());
+                add(new plugins.Vane_v1_21_R1());
                 add(new plugins.Zenchantments_v1_21_R1());
             }
         };
