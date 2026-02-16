@@ -75,7 +75,7 @@ public class DisenchantClickEvent {
             enchantments.addAll(EventUtils.Disenchantment.getDisenchantedEnchantments(firstItem, secondItem, false));
         } else {
             for (ISupportedPlugin activatedPlugin : activatedPlugins) {
-                enchantments.addAll(EventUtils.Disenchantment.getDisenchantedEnchantments(firstItem, secondItem, false, activatedPlugin));
+                enchantments.addAll(EventUtils.Disenchantment.getDisenchantedEnchantments(firstItem, secondItem, false, activatedPlugin, p.getWorld()));
             }
         }
 
@@ -109,7 +109,7 @@ public class DisenchantClickEvent {
             }
         } else {
             for (ISupportedPlugin activatedPlugin : activatedPlugins) {
-                List<IPluginEnchantment> pluginEnchantments = activatedPlugin.getItemEnchantments(result);
+                List<IPluginEnchantment> pluginEnchantments = activatedPlugin.getItemEnchantments(result, p.getWorld());
 
                 for (IPluginEnchantment enchantment : pluginEnchantments) {
                     finalFirstItem = enchantment.removeFromItem(finalFirstItem);

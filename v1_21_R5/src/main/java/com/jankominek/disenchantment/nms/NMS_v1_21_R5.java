@@ -15,7 +15,6 @@ import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.inventory.view.AnvilView;
 import org.bukkit.profile.PlayerProfile;
 import org.bukkit.profile.PlayerTextures;
-import plugins.ExcellentEnchants_v1_21_R5;
 
 import java.net.URI;
 import java.net.URL;
@@ -72,8 +71,9 @@ public class NMS_v1_21_R5 implements NMS {
                 add(new plugins.AdvancedEnchantments_v1_21_R5());
                 add(new plugins.EcoEnchants_v1_21_R5());
                 add(new plugins.EnchantsSquared_v1_21_R5());
-                add(new ExcellentEnchants_v1_21_R5());
+                add(new plugins.ExcellentEnchants_v1_21_R5());
                 add(new plugins.UberEnchant_v1_21_R5());
+                add(new plugins.Zenchantments_v1_21_R5());
             }
         };
     }

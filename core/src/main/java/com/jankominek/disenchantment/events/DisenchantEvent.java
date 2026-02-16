@@ -62,7 +62,7 @@ public class DisenchantEvent {
             pluginEnchantments.addAll(EventUtils.Disenchantment.getDisenchantedEnchantments(firstItem, secondItem, true));
         } else {
             for (ISupportedPlugin activatedPlugin : activatedPlugins) {
-                pluginEnchantments.addAll(EventUtils.Disenchantment.getDisenchantedEnchantments(firstItem, secondItem, true, activatedPlugin));
+                pluginEnchantments.addAll(EventUtils.Disenchantment.getDisenchantedEnchantments(firstItem, secondItem, true, activatedPlugin, p.getWorld()));
             }
         }
 

@@ -59,6 +59,13 @@
             <scope>system</scope>
             <systemPath>${pom.basedir}/libs/UberEnchant-8.11.7.jar</systemPath>
         </dependency>
+        <dependency>
+            <groupId>zedly.zenchantments</groupId>
+            <artifactId>zenchantments</artifactId>
+            <version>1.21.5.1</version>
+            <scope>system</scope>
+            <systemPath>${pom.basedir}/libs/zenchantments-1.21.5.1.jar</systemPath>
+        </dependency>
     </dependencies>
 
     <repositories>

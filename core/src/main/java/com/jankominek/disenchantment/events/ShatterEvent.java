@@ -63,7 +63,7 @@ public class ShatterEvent {
             enchantments.addAll(EventUtils.Shatterment.getShattermentEnchantments(firstItem, secondItem, false));
         } else {
             for (ISupportedPlugin activatedPlugin : activatedPlugins) {
-                enchantments.addAll(EventUtils.Shatterment.getShattermentEnchantments(firstItem, secondItem, false, activatedPlugin));
+                enchantments.addAll(EventUtils.Shatterment.getShattermentEnchantments(firstItem, secondItem, false, activatedPlugin, p.getWorld()));
             }
         }
 

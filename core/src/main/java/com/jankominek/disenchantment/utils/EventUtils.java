@@ -5,6 +5,7 @@ import com.jankominek.disenchantment.plugins.IPluginEnchantment;
 import com.jankominek.disenchantment.plugins.ISupportedPlugin;
 import com.jankominek.disenchantment.types.EnchantmentStateType;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
@@ -68,7 +69,7 @@ public class EventUtils {
          * @param activatedPlugin the third-party plugin to use for reading enchantments
          * @return the list of transferable enchantments, or an empty list if conditions are not met
          */
-        public static List<IPluginEnchantment> getDisenchantedEnchantments(ItemStack firstItem, ItemStack secondItem, boolean withDelete, ISupportedPlugin activatedPlugin) {
+        public static List<IPluginEnchantment> getDisenchantedEnchantments(ItemStack firstItem, ItemStack secondItem, boolean withDelete, ISupportedPlugin activatedPlugin, World world) {
             if (firstItem == null || secondItem == null) return List.of();
             if (firstItem.getType() == Material.AIR || secondItem.getType() == Material.AIR) return List.of();
 
@@ -77,11 +78,11 @@ public class EventUtils {
 
             if (isMaterialDisabled(firstItem)) return List.of();
 
-            List<IPluginEnchantment> secondEnchants = activatedPlugin.getItemEnchantments(secondItem);
+            List<IPluginEnchantment> secondEnchants = activatedPlugin.getItemEnchantments(secondItem, world);
 
             if (!secondEnchants.isEmpty()) return List.of();
 
-            List<IPluginEnchantment> firstEnchants = activatedPlugin.getItemEnchantments(firstItem);
+            List<IPluginEnchantment> firstEnchants = activatedPlugin.getItemEnchantments(firstItem, world);
 
             if (Disenchantment.isAtLeastOneEnchantmentDisabled(firstEnchants)) return List.of();
 
@@ -184,18 +185,18 @@ public class EventUtils {
          * @param activatedPlugin the third-party plugin to use for reading enchantments
          * @return the list of splittable enchantments, or an empty list if conditions are not met
          */
-        public static List<IPluginEnchantment> getShattermentEnchantments(ItemStack firstItem, ItemStack secondItem, boolean withDelete, ISupportedPlugin activatedPlugin) {
+        public static List<IPluginEnchantment> getShattermentEnchantments(ItemStack firstItem, ItemStack secondItem, boolean withDelete, ISupportedPlugin activatedPlugin, World world) {
             if (firstItem == null || secondItem == null) return List.of();
             if (firstItem.getType() == Material.AIR || secondItem.getType() == Material.AIR) return List.of();
 
             if (firstItem.getType() != Material.ENCHANTED_BOOK) return List.of();
             if (secondItem.getType() != Material.BOOK) return List.of();
 
-            List<IPluginEnchantment> secondEnchants = activatedPlugin.getItemEnchantments(secondItem);
+            List<IPluginEnchantment> secondEnchants = activatedPlugin.getItemEnchantments(secondItem, world);
 
             if (!secondEnchants.isEmpty()) return List.of();
 
-            List<IPluginEnchantment> firstEnchants = activatedPlugin.getItemEnchantments(firstItem);
+            List<IPluginEnchantment> firstEnchants = activatedPlugin.getItemEnchantments(firstItem, world);
 
             if (Shatterment.isAtLeastOneEnchantmentDisabled(firstEnchants)) return List.of();
 

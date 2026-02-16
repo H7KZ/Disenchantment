@@ -73,7 +73,7 @@ public class ShatterClickEvent {
             enchantments.addAll(EventUtils.Shatterment.getShattermentEnchantments(firstItem, secondItem, false));
         } else {
             for (ISupportedPlugin activatedPlugin : activatedPlugins) {
-                enchantments.addAll(EventUtils.Shatterment.getShattermentEnchantments(firstItem, secondItem, false, activatedPlugin));
+                enchantments.addAll(EventUtils.Shatterment.getShattermentEnchantments(firstItem, secondItem, false, activatedPlugin, p.getWorld()));
             }
         }
 
@@ -115,7 +115,7 @@ public class ShatterClickEvent {
             }
         } else {
             for (ISupportedPlugin activatedPlugin : activatedPlugins) {
-                List<IPluginEnchantment> pluginEnchantments = activatedPlugin.getItemEnchantments(result);
+                List<IPluginEnchantment> pluginEnchantments = activatedPlugin.getItemEnchantments(result, p.getWorld());
 
                 for (IPluginEnchantment enchantment : pluginEnchantments) {
                     // Use removeFromBook since firstItem is always an ENCHANTED_BOOK in shatterment

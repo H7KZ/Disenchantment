@@ -2,7 +2,9 @@
   "permissions": {
     "allow": [
       "Bash(mvn clean package:*)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Bash(mvn clean compile:*)",
+      "mcp__ide__getDiagnostics"
     ]
   }
 }
