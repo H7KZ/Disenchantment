@@ -15,7 +15,6 @@ import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.inventory.view.AnvilView;
 import org.bukkit.profile.PlayerProfile;
 import org.bukkit.profile.PlayerTextures;
-import plugins.ExcellentEnchants_v1_21_R4;
 
 import java.net.URI;
 import java.net.URL;

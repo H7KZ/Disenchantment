@@ -23,154 +23,154 @@ import java.util.stream.Collectors;
  * formatting.</p>
  */
 public class Vane_v1_21_R4 implements ISupportedPlugin {
-	/**
-	 * {@inheritDoc}
-	 */
-	public String getName() {
-		return "vane";
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public String getName() {
+        return "vane";
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public List<IPluginEnchantment> getItemEnchantments(ItemStack item) {
-		Map<Enchantment, Integer> enchantments;
+    /**
+     * {@inheritDoc}
+     */
+    public List<IPluginEnchantment> getItemEnchantments(ItemStack item) {
+        Map<Enchantment, Integer> enchantments;
 
-		// Get enchantments based on item type
-		if (item.getType() == Material.ENCHANTED_BOOK && item.getItemMeta() instanceof EnchantmentStorageMeta meta) {
-			enchantments = meta.getStoredEnchants();
-		} else {
-			enchantments = item.getEnchantments();
-		}
+        // Get enchantments based on item type
+        if (item.getType() == Material.ENCHANTED_BOOK && item.getItemMeta() instanceof EnchantmentStorageMeta meta) {
+            enchantments = meta.getStoredEnchants();
+        } else {
+            enchantments = item.getEnchantments();
+        }
 
-		// Filter for Vane enchantments only (namespace starts with "vane")
-		return enchantments
-			.entrySet()
-			.stream()
-			.filter(entry -> isVaneEnchantment(entry.getKey()))
-			.map(entry -> remapEnchantment(entry.getKey(), entry.getValue()))
-			.collect(Collectors.toList());
-	}
+        // Filter for Vane enchantments only (namespace starts with "vane")
+        return enchantments
+                .entrySet()
+                .stream()
+                .filter(entry -> isVaneEnchantment(entry.getKey()))
+                .map(entry -> remapEnchantment(entry.getKey(), entry.getValue()))
+                .collect(Collectors.toList());
+    }
 
-	/**
-	 * Checks if the given enchantment is a Vane enchantment by inspecting its namespace.
-	 *
-	 * @param enchantment the enchantment to check
-	 * @return true if the enchantment namespace starts with "vane", false otherwise
-	 */
-	private static boolean isVaneEnchantment(Enchantment enchantment) {
-		return enchantment.getKey().getNamespace().startsWith("vane");
-	}
+    /**
+     * Checks if the given enchantment is a Vane enchantment by inspecting its namespace.
+     *
+     * @param enchantment the enchantment to check
+     * @return true if the enchantment namespace starts with "vane", false otherwise
+     */
+    private static boolean isVaneEnchantment(Enchantment enchantment) {
+        return enchantment.getKey().getNamespace().startsWith("vane");
+    }
 
-	/**
-	 * Gets the Vane EnchantmentManager instance for updating item lore.
-	 *
-	 * @return the EnchantmentManager, or null if Vane Core is not loaded
-	 */
-	private static EnchantmentManager getEnchantmentManager() {
-		Plugin vaneCore = Bukkit.getPluginManager().getPlugin("vane-core");
+    /**
+     * Gets the Vane EnchantmentManager instance for updating item lore.
+     *
+     * @return the EnchantmentManager, or null if Vane Core is not loaded
+     */
+    private static EnchantmentManager getEnchantmentManager() {
+        Plugin vaneCore = Bukkit.getPluginManager().getPlugin("vane-core");
 
-		if (vaneCore instanceof Core core) {
-			return core.enchantment_manager;
-		}
+        if (vaneCore instanceof Core core) {
+            return core.enchantment_manager;
+        }
 
-		return null;
-	}
+        return null;
+    }
 
-	/**
-	 * Wraps a Bukkit {@link Enchantment} into an {@link IPluginEnchantment} that delegates
-	 * to standard Bukkit methods with Vane's {@link EnchantmentManager} for lore updates.
-	 *
-	 * @param enchantment the enchantment to wrap
-	 * @param level       the enchantment level
-	 * @return a plugin enchantment adapter for the given enchantment
-	 */
-	private static IPluginEnchantment remapEnchantment(Enchantment enchantment, int level) {
-		return new IPluginEnchantment() {
-			@Override
-			public String getKey() {
-				return enchantment.getKey().getKey().toLowerCase();
-			}
+    /**
+     * Wraps a Bukkit {@link Enchantment} into an {@link IPluginEnchantment} that delegates
+     * to standard Bukkit methods with Vane's {@link EnchantmentManager} for lore updates.
+     *
+     * @param enchantment the enchantment to wrap
+     * @param level       the enchantment level
+     * @return a plugin enchantment adapter for the given enchantment
+     */
+    private static IPluginEnchantment remapEnchantment(Enchantment enchantment, int level) {
+        return new IPluginEnchantment() {
+            @Override
+            public String getKey() {
+                return enchantment.getKey().getKey().toLowerCase();
+            }
 
-			@Override
-			public int getLevel() {
-				return level;
-			}
+            @Override
+            public int getLevel() {
+                return level;
+            }
 
-			@Override
-			public ItemStack addToBook(ItemStack book) {
-				ItemStack result = book.clone();
+            @Override
+            public ItemStack addToBook(ItemStack book) {
+                ItemStack result = book.clone();
 
-				// Convert book to enchanted book if necessary
-				if (result.getType() == Material.BOOK) {
-					result.setType(Material.ENCHANTED_BOOK);
-				}
+                // Convert book to enchanted book if necessary
+                if (result.getType() == Material.BOOK) {
+                    result.setType(Material.ENCHANTED_BOOK);
+                }
 
-				// Add stored enchantment to book
-				if (result.getItemMeta() instanceof EnchantmentStorageMeta meta) {
-					meta.addStoredEnchant(enchantment, level, false);
-					result.setItemMeta(meta);
-				}
+                // Add stored enchantment to book
+                if (result.getItemMeta() instanceof EnchantmentStorageMeta meta) {
+                    meta.addStoredEnchant(enchantment, level, false);
+                    result.setItemMeta(meta);
+                }
 
-				// Update lore using Vane's enchantment manager
-				EnchantmentManager manager = getEnchantmentManager();
-				if (manager != null) {
-					manager.update_enchanted_item(result);
-				}
+                // Update lore using Vane's enchantment manager
+                EnchantmentManager manager = getEnchantmentManager();
+                if (manager != null) {
+                    manager.update_enchanted_item(result);
+                }
 
-				return result;
-			}
+                return result;
+            }
 
-			@Override
-			public ItemStack removeFromBook(ItemStack book) {
-				ItemStack result = book.clone();
+            @Override
+            public ItemStack removeFromBook(ItemStack book) {
+                ItemStack result = book.clone();
 
-				// Remove stored enchantment from book
-				if (result.getItemMeta() instanceof EnchantmentStorageMeta meta) {
-					meta.removeStoredEnchant(enchantment);
-					result.setItemMeta(meta);
-				}
+                // Remove stored enchantment from book
+                if (result.getItemMeta() instanceof EnchantmentStorageMeta meta) {
+                    meta.removeStoredEnchant(enchantment);
+                    result.setItemMeta(meta);
+                }
 
-				// Update lore using Vane's enchantment manager
-				EnchantmentManager manager = getEnchantmentManager();
-				if (manager != null) {
-					manager.update_enchanted_item(result);
-				}
+                // Update lore using Vane's enchantment manager
+                EnchantmentManager manager = getEnchantmentManager();
+                if (manager != null) {
+                    manager.update_enchanted_item(result);
+                }
 
-				return result;
-			}
+                return result;
+            }
 
-			@Override
-			public ItemStack addToItem(ItemStack item) {
-				ItemStack result = item.clone();
+            @Override
+            public ItemStack addToItem(ItemStack item) {
+                ItemStack result = item.clone();
 
-				// Add enchantment to item
-				result.addEnchantment(enchantment, level);
+                // Add enchantment to item
+                result.addEnchantment(enchantment, level);
 
-				// Update lore using Vane's enchantment manager
-				EnchantmentManager manager = getEnchantmentManager();
-				if (manager != null) {
-					manager.update_enchanted_item(result);
-				}
+                // Update lore using Vane's enchantment manager
+                EnchantmentManager manager = getEnchantmentManager();
+                if (manager != null) {
+                    manager.update_enchanted_item(result);
+                }
 
-				return result;
-			}
+                return result;
+            }
 
-			@Override
-			public ItemStack removeFromItem(ItemStack item) {
-				ItemStack result = item.clone();
+            @Override
+            public ItemStack removeFromItem(ItemStack item) {
+                ItemStack result = item.clone();
 
-				// Remove enchantment from item
-				result.removeEnchantment(enchantment);
+                // Remove enchantment from item
+                result.removeEnchantment(enchantment);
 
-				// Update lore using Vane's enchantment manager
-				EnchantmentManager manager = getEnchantmentManager();
-				if (manager != null) {
-					manager.update_enchanted_item(result);
-				}
+                // Update lore using Vane's enchantment manager
+                EnchantmentManager manager = getEnchantmentManager();
+                if (manager != null) {
+                    manager.update_enchanted_item(result);
+                }
 
-				return result;
-			}
-		};
-	}
+                return result;
+            }
+        };
+    }
 }

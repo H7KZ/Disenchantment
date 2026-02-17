@@ -1,7 +1,7 @@
 name: Compatibility Issue
 description: Report compatibility problems with Minecraft versions or other plugins
 title: "[COMPATIBILITY] "
-labels: ["compatibility"]
+labels: [ "compatibility" ]
 body:
   - type: markdown
     attributes:

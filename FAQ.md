@@ -13,9 +13,11 @@ This FAQ addresses common issues and questions regarding the Disenchantment plug
 
 ### Why can't players who aren't server operators (non-ops) use the plugin?
 
-This is intended behavior. The anvil usage permissions (`disenchantment.anvil.disenchant` and `disenchantment.anvil.shatter`) default to `true` for all players. However, admin commands require `op` by default.
+This is intended behavior. The anvil usage permissions (`disenchantment.anvil.disenchant` and
+`disenchantment.anvil.shatter`) default to `true` for all players. However, admin commands require `op` by default.
 
-If anvil usage is not working for non-op players, ensure no other permission plugin is overriding these defaults. We recommend using [LuckPerms](https://luckperms.net/) to manage permissions.
+If anvil usage is not working for non-op players, ensure no other permission plugin is overriding these defaults. We
+recommend using [LuckPerms](https://luckperms.net/) to manage permissions.
 
 See the full list of permission nodes in [PERMISSIONS.md](PERMISSIONS.md).
 
@@ -23,14 +25,16 @@ See the full list of permission nodes in [PERMISSIONS.md](PERMISSIONS.md).
 
 ### Why isn't Disenchantment working with EcoEnchants?
 
-This is a known compatibility issue caused by how **EcoEnchants** handles anvil events, which conflicts with **Disenchantment**. The enchanted book appears in the anvil for a moment before vanishing.
+This is a known compatibility issue caused by how **EcoEnchants** handles anvil events, which conflicts with *
+*Disenchantment**. The enchanted book appears in the anvil for a moment before vanishing.
 
 To fix this, you need to update **Disenchantment** and use a modified version of **EcoEnchants**.
 
 **Easiest Solution (Recommended)**
 
 1. Update the **Disenchantment** plugin to version **`6.2.2`** or newer.
-2. Download the pre-compiled, fixed version of **EcoEnchants** (v12.24.0) from the [Disenchantment v6.2.2 release page](https://github.com/H7KZ/Disenchantment/releases/tag/v6.2.2).
+2. Download the pre-compiled, fixed version of **EcoEnchants** (v12.24.0) from
+   the [Disenchantment v6.2.2 release page](https://github.com/H7KZ/Disenchantment/releases/tag/v6.2.2).
 
 You must use both the updated Disenchantment plugin and the provided EcoEnchants `.jar` file for the fix to work.
 
@@ -49,15 +53,18 @@ If you're comfortable with compiling Java projects, you can build the plugin you
 
 This was a confirmed bug caused by a conflict in event priorities between the Disenchantment and UberEnchants plugins.
 
-This issue was fixed in version **`v6.1.8`**. Please update to the [latest release](https://github.com/H7KZ/Disenchantment/releases/latest) to resolve the problem.
+This issue was fixed in version **`v6.1.8`**. Please update to
+the [latest release](https://github.com/H7KZ/Disenchantment/releases/latest) to resolve the problem.
 
 ---
 
 ### I'm using GeyserMC and the plugin has issues. Is this a known problem?
 
-Yes, servers running GeyserMC can sometimes experience issues with plugins that modify anvil mechanics, especially for players connecting from Bedrock Edition. This is often caused by Geyser itself rather than a bug in Disenchantment.
+Yes, servers running GeyserMC can sometimes experience issues with plugins that modify anvil mechanics, especially for
+players connecting from Bedrock Edition. This is often caused by Geyser itself rather than a bug in Disenchantment.
 
-While a guaranteed fix is not available, you can try installing one of the following plugins designed to patch anvil-related issues on Geyser servers:
+While a guaranteed fix is not available, you can try installing one of the following plugins designed to patch
+anvil-related issues on Geyser servers:
 
 - [Geyser-Anvil-Fix](https://github.com/ssquadteam/Geyser-Anvil-Fix)
 - [CustomAnvilGUI](https://www.spigotmc.org/resources/customanvilgui.116411/)
