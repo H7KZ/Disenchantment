@@ -28,6 +28,10 @@ messages:
   world-not-found: "&cSvět {world} nebyl nalezen!&r"
   world-is-enabled: "&a{world} &7je povolen!&r"
   world-is-disabled: "&c{world} &7je zakázán!&r"
+  economy-cost: "&7Ekonomická cena: &f{cost}&r"
+  economy-insufficient-funds: "&cNedostatek prostředků! Tato operace stojí &f{cost}&c.&r"
+  economy-charged: "&7Byl vám strhnut poplatek &f{cost}&7.&r"
+  economy-not-available: "&cEkonomika je povolena v konfiguraci, ale nebyl nalezen žádný ekonomický plugin. Prosím nainstalujte Vault a ekonomický plugin.&r"
 
 states:
   enabled: "&aPovoleno&r"

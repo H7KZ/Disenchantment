@@ -116,9 +116,16 @@ public final class Disenchantment extends JavaPlugin {
         List<String> activatedPlugins = Arrays.stream(getServer().getPluginManager().getPlugins()).toList().stream().map(Plugin::getName).toList();
         SupportedPluginManager.activatePlugins(activatedPlugins);
 
+        // Economy (Vault)
+        boolean economyAvailable = EconomyUtils.setup();
+        if (!economyAvailable && (Config.Disenchantment.Economy.isEnabled() || Config.Shatterment.Economy.isEnabled())) {
+            logger.warning("Economy is enabled in config but Vault/economy plugin not found!");
+        }
+
         // Startup logging
         if (Config.Logging.getLevel().isAtLeast(LogLevelType.INFO)) {
             logger.info("NMS module: " + nms.getClass().getSimpleName());
+            logger.info("Economy (Vault): " + (economyAvailable ? "hooked" : "not available"));
 
             List<ISupportedPlugin> activatedAdapters = SupportedPluginManager.getAllActivatedPlugins();
             if (activatedAdapters.isEmpty()) {
@@ -167,6 +174,7 @@ public final class Disenchantment extends JavaPlugin {
         SchedulerUtils.cancelAllTasks(plugin);
 
         SupportedPluginManager.deactivateAllPlugins();
+        EconomyUtils.reset();
 
         logger.info("Disenchantment disabled!");
     }

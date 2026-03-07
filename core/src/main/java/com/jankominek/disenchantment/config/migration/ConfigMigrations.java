@@ -22,7 +22,8 @@ public class ConfigMigrations {
             3, new Migration3(),
             4, new Migration4(),
             5, new Migration5(),
-            6, new Migration6()
+            6, new Migration6(),
+            7, new Migration7()
     );
 
     /**

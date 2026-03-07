@@ -7,7 +7,7 @@ folia-supported: true
 author: Jan Komínek
 website: https://github.com/H7KZ/Disenchantment
 
-softdepend: [ ExcellentEnchants, EcoEnchants, eco, AdvancedEnchantments, UberEnchant, EnchantsSquared ]
+softdepend: [ Vault, ExcellentEnchants, EcoEnchants, eco, AdvancedEnchantments, UberEnchant, EnchantsSquared ]
 
 commands:
   disenchantment:

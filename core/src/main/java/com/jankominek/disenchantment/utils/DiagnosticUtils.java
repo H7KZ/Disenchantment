@@ -299,6 +299,16 @@ public class DiagnosticUtils {
             report.append("Base Repair Cost: ").append(Config.Shatterment.Anvil.Repair.getBaseCost()).append("\n");
             report.append("Cost Multiplier: ").append(Config.Shatterment.Anvil.Repair.getCostMultiplier()).append("\n");
 
+            report.append("\n");
+
+            report.append("Economy\n");
+            report.append("=======\n\n");
+            report.append("Vault available: ").append(EconomyUtils.isAvailable() ? "Yes" : "No").append("\n");
+            report.append("Disenchantment economy enabled: ").append(Config.Disenchantment.Economy.isEnabled() ? "Yes" : "No").append("\n");
+            report.append("Disenchantment economy cost: ").append(Config.Disenchantment.Economy.getCost()).append("\n");
+            report.append("Shatterment economy enabled: ").append(Config.Shatterment.Economy.isEnabled() ? "Yes" : "No").append("\n");
+            report.append("Shatterment economy cost: ").append(Config.Shatterment.Economy.getCost()).append("\n");
+
             if (extended) {
                 report.append("Is Sound Enabled: ").append(Config.Shatterment.Anvil.Sound.isEnabled() ? "Yes" : "No").append("\n");
                 report.append("Sound Volume: ").append(Config.Shatterment.Anvil.Sound.getVolume()).append("\n");

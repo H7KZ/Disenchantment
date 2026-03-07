@@ -2,6 +2,7 @@ package com.jankominek.disenchantment.events;
 
 import com.jankominek.disenchantment.Disenchantment;
 import com.jankominek.disenchantment.config.Config;
+import com.jankominek.disenchantment.config.I18n;
 import com.jankominek.disenchantment.plugins.IPluginEnchantment;
 import com.jankominek.disenchantment.plugins.ISupportedPlugin;
 import com.jankominek.disenchantment.plugins.SupportedPluginManager;
@@ -87,6 +88,25 @@ public class DisenchantClickEvent {
         }
 
         if (!PermissionGroupType.DISENCHANT_EVENT.hasPermission(p)) return;
+
+        // Economy check
+        if (Config.Disenchantment.Economy.isEnabled() && p.getGameMode() != org.bukkit.GameMode.CREATIVE) {
+            if (!EconomyUtils.isAvailable()) {
+                p.sendMessage(I18n.getPrefix() + " " + I18n.Messages.economyNotAvailable());
+                e.setCancelled(true);
+                return;
+            }
+            double economyCost = Config.Disenchantment.Economy.getCost();
+            if (!EconomyUtils.has(p, economyCost)) {
+                p.sendMessage(I18n.getPrefix() + " " + I18n.Messages.economyInsufficientFunds(EconomyUtils.format(economyCost)));
+                e.setCancelled(true);
+                return;
+            }
+            EconomyUtils.withdraw(p, economyCost);
+            if (Config.Disenchantment.Economy.isChargeMessageEnabled()) {
+                p.sendMessage(I18n.getPrefix() + " " + I18n.Messages.economyCharged(EconomyUtils.format(economyCost)));
+            }
+        }
 
         int exp = p.getLevel() - AnvilCostUtils.getRepairCost(anvilInventory, e.getView());
 

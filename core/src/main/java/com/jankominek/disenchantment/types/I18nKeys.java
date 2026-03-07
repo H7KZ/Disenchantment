@@ -38,6 +38,11 @@ public enum I18nKeys {
     MESSAGES_WORLD_IS_ENABLED("messages.world-is-enabled"),
     MESSAGES_WORLD_IS_DISABLED("messages.world-is-disabled"),
 
+    MESSAGES_ECONOMY_COST("messages.economy-cost"),
+    MESSAGES_ECONOMY_INSUFFICIENT_FUNDS("messages.economy-insufficient-funds"),
+    MESSAGES_ECONOMY_CHARGED("messages.economy-charged"),
+    MESSAGES_ECONOMY_NOT_AVAILABLE("messages.economy-not-available"),
+
     STATES_ENABLE("states.enabled"),
     STATES_KEEP("states.keep"),
     STATES_DELETE("states.delete"),

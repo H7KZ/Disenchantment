@@ -2,15 +2,16 @@ package com.jankominek.disenchantment.events;
 
 import com.jankominek.disenchantment.Disenchantment;
 import com.jankominek.disenchantment.config.Config;
+import com.jankominek.disenchantment.config.I18n;
 import com.jankominek.disenchantment.plugins.IPluginEnchantment;
 import com.jankominek.disenchantment.plugins.ISupportedPlugin;
 import com.jankominek.disenchantment.plugins.SupportedPluginManager;
 import com.jankominek.disenchantment.types.AnvilEventType;
 import com.jankominek.disenchantment.types.PermissionGroupType;
-import com.jankominek.disenchantment.utils.AnvilCostUtils;
-import com.jankominek.disenchantment.utils.DiagnosticUtils;
-import com.jankominek.disenchantment.utils.EventUtils;
-import com.jankominek.disenchantment.utils.SchedulerUtils;
+import com.jankominek.disenchantment.utils.*;
+import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.chat.TextComponent;
+import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
@@ -98,6 +99,16 @@ public class ShatterEvent {
         e.setResult(book);
 
         AnvilCostUtils.setAnvilRepairCost(e.getInventory(), e.getView(), countAnvilCost(enchantments, AnvilEventType.SHATTERMENT));
+
+        if (Config.Shatterment.Economy.isEnabled()
+                && EconomyUtils.isAvailable()
+                && Config.Shatterment.Economy.isShowCostEnabled()
+                && p.getGameMode() != GameMode.CREATIVE) {
+            p.spigot().sendMessage(
+                    ChatMessageType.ACTION_BAR,
+                    new TextComponent(I18n.Messages.economyCost(EconomyUtils.format(Config.Shatterment.Economy.getCost())))
+            );
+        }
 
         SchedulerUtils.runForEntity(Disenchantment.plugin, p, () -> {
             AnvilCostUtils.setAnvilRepairCost(e.getInventory(), e.getView(), countAnvilCost(enchantments, AnvilEventType.SHATTERMENT));

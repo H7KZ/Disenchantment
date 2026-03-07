@@ -36,12 +36,24 @@ books.
 - **Strategic Application** - Results in two books: the original with one less enchantment, and a new book with the
   single enchantment that was split off. This enables targeted application and a more dynamic server economy.
 
+### Economy Integration
+
+Server owners can optionally require players to pay an in-game currency cost for each disenchant or shatter
+operation, in addition to (or instead of) the XP cost.
+
+- Requires [Vault](https://www.spigotmc.org/resources/34315/) and any compatible economy plugin (EssentialsX, CMI,
+  PlayerPoints, etc.).
+- Configurable flat cost per operation, independently for disenchanting and book splitting.
+- Cost is previewed in the action bar while the player has a result ready in the anvil.
+- Disabled by default — zero impact if Vault is not installed.
+
 ### Why Choose This Plugin?
 
 - **Truly Vanilla-Friendly** - No new machines or confusing UIs. All functions are handled through the standard anvil.
 - **Lightweight & Efficient** - Adds valuable features without causing server lag or performance issues.
-- **Fully Customizable** - Configure XP costs, per-world/per-enchantment/per-material restrictions, event priorities,
-  and more.
+- **Fully Customizable** - Configure XP costs, economy costs, per-world/per-enchantment/per-material restrictions,
+  event priorities, and more.
+- **Economy Ready** - Optional Vault integration lets server owners add a currency cost to every operation.
 - **Folia Support** - Compatible with the Folia server software for regionized multithreading.
 
 ## Installation
@@ -134,6 +146,14 @@ These APIs are provided by the Minecraft server and are not bundled with the plu
 | Spigot API | GPL-3.0 | [github.com/SpigotMC/Spigot-API](https://github.com/SpigotMC/Spigot-API) |
 | Paper API  | GPL-3.0 | [github.com/PaperMC/Paper](https://github.com/PaperMC/Paper)             |
 | Folia API  | GPL-3.0 | [github.com/PaperMC/Folia](https://github.com/PaperMC/Folia)             |
+
+### Optional Runtime Dependencies
+
+These plugins are not required but unlock additional features when present:
+
+| Plugin | License | Link | Purpose |
+|--------|---------|------|---------|
+| Vault  | LGPL-3.0 | [github.com/MilkBowl/Vault](https://github.com/MilkBowl/Vault) | Economy integration — charge players a currency cost per operation |
 
 ### Custom Enchantment Plugin Adapters (Compile-time Only)
 

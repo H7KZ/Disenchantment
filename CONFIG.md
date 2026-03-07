@@ -10,6 +10,7 @@ via [commands](COMMANDS.md) or the [GUI](COMMANDS.md#general).
 - [Logging](#logging)
 - [Disenchantment Settings](#disenchantment-settings)
 - [Shatterment Settings](#shatterment-settings)
+- [Economy Integration](#economy-integration)
 
 ---
 
@@ -155,6 +156,32 @@ cost = cost + (level * (1 + multiply))
 Final cost: 17
 ```
 
+### Economy Cost (Disenchantment)
+
+```yaml
+disenchantment:
+  economy:
+    enabled: false
+    cost: 100.0
+    show-cost: true
+    charge-message: true
+```
+
+| Key                | Type    | Default | Description                                                                           |
+|--------------------|---------|---------|---------------------------------------------------------------------------------------|
+| `economy.enabled`  | Boolean | `false` | Charge players an in-game currency cost when disenchanting. Requires Vault.           |
+| `economy.cost`     | Double  | `100.0` | Flat currency amount charged per disenchant operation.                                |
+| `economy.show-cost`| Boolean | `true`  | Show the economy cost in an action bar message while the player has a result pending. |
+| `economy.charge-message` | Boolean | `true` | Send a chat confirmation message after the player is charged.                   |
+
+> **Requires:** [Vault](https://www.spigotmc.org/resources/34315/) and a compatible economy plugin
+> (e.g. EssentialsX, CMI, PlayerPoints). If `economy.enabled` is `true` but Vault is not installed,
+> operations will be blocked and players will see an error message. A warning is also printed to the
+> server console on startup.
+
+> **Creative mode:** Economy costs are never charged to players in Creative mode, consistent with how
+> XP costs are handled.
+
 ---
 
 ## Shatterment Settings
@@ -214,3 +241,60 @@ shatterment:
 | `anvil.repair.multiply` | Double  | `0.25`  | Multiplier applied per enchantment level.          |
 
 The cost formula is the same as for disenchantment.
+
+### Economy Cost (Shatterment)
+
+```yaml
+shatterment:
+  economy:
+    enabled: false
+    cost: 100.0
+    show-cost: true
+    charge-message: true
+```
+
+| Key                      | Type    | Default | Description                                                                           |
+|--------------------------|---------|---------|---------------------------------------------------------------------------------------|
+| `economy.enabled`        | Boolean | `false` | Charge players an in-game currency cost when splitting books. Requires Vault.         |
+| `economy.cost`           | Double  | `100.0` | Flat currency amount charged per shatter operation.                                   |
+| `economy.show-cost`      | Boolean | `true`  | Show the economy cost in an action bar message while the player has a result pending. |
+| `economy.charge-message` | Boolean | `true`  | Send a chat confirmation message after the player is charged.                         |
+
+The same Vault requirements and Creative-mode exemption apply as described for disenchantment above.
+
+---
+
+## Economy Integration
+
+Economy support is **disabled by default** and entirely optional. When enabled, it requires:
+
+1. [Vault](https://www.spigotmc.org/resources/34315/) installed on the server.
+2. A Vault-compatible economy plugin (e.g. [EssentialsX](https://essentialsx.net/),
+   [CMI](https://www.spigotmc.org/resources/3742/), [PlayerPoints](https://www.spigotmc.org/resources/80590/)).
+
+Disenchantment hooks into Vault automatically on startup if it is present. The currency format displayed in
+messages (e.g. `$100.00` vs `100 coins`) is controlled entirely by your economy plugin.
+
+### Configuration summary
+
+| Feature       | Config key                              | Default |
+|---------------|-----------------------------------------|---------|
+| Disenchant economy on/off | `disenchantment.economy.enabled` | `false` |
+| Disenchant cost           | `disenchantment.economy.cost`    | `100.0` |
+| Disenchant action bar     | `disenchantment.economy.show-cost` | `true` |
+| Disenchant charge message | `disenchantment.economy.charge-message` | `true` |
+| Shatter economy on/off    | `shatterment.economy.enabled`    | `false` |
+| Shatter cost              | `shatterment.economy.cost`       | `100.0` |
+| Shatter action bar        | `shatterment.economy.show-cost`  | `true`  |
+| Shatter charge message    | `shatterment.economy.charge-message` | `true` |
+
+### Player experience
+
+- When items are placed in the anvil and a valid result appears, the economy cost is shown in the **action bar**
+  (the line above the hotbar). This refreshes while the result is visible so the player always knows what
+  they'll be charged before clicking.
+- When the player takes the result, the cost is deducted and a **chat confirmation** is sent (if
+  `charge-message: true`).
+- If the player cannot afford the operation, it is **cancelled** and they receive an insufficient-funds
+  message in chat. No items are consumed.
+- Players in **Creative mode** are never charged.

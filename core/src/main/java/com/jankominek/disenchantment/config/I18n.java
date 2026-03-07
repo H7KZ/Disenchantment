@@ -173,6 +173,31 @@ public class I18n {
                             .replace("{world}", world)
             );
         }
+
+        public static String economyCost(String cost) {
+            return I18n.translateColors(
+                    localeConfig.getString(I18nKeys.MESSAGES_ECONOMY_COST.getKey(), "default")
+                            .replace("{cost}", cost)
+            );
+        }
+
+        public static String economyInsufficientFunds(String cost) {
+            return I18n.translateColors(
+                    localeConfig.getString(I18nKeys.MESSAGES_ECONOMY_INSUFFICIENT_FUNDS.getKey(), "default")
+                            .replace("{cost}", cost)
+            );
+        }
+
+        public static String economyCharged(String cost) {
+            return I18n.translateColors(
+                    localeConfig.getString(I18nKeys.MESSAGES_ECONOMY_CHARGED.getKey(), "default")
+                            .replace("{cost}", cost)
+            );
+        }
+
+        public static String economyNotAvailable() {
+            return I18n.translateColors(localeConfig.getString(I18nKeys.MESSAGES_ECONOMY_NOT_AVAILABLE.getKey()));
+        }
     }
 
     /**

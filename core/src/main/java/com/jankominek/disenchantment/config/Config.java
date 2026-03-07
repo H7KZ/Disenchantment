@@ -279,6 +279,55 @@ public class Config {
         }
 
         /**
+         * Economy settings for disenchantment operations.
+         */
+        public static class Economy {
+            public static boolean isEnabled() {
+                return config.getBoolean(ConfigKeys.DISENCHANTMENT_ECONOMY_ENABLED.getKey());
+            }
+
+            public static boolean setEnabled(boolean enabled) {
+                config.set(ConfigKeys.DISENCHANTMENT_ECONOMY_ENABLED.getKey(), enabled);
+                plugin.saveConfig();
+
+                return isEnabled() == enabled;
+            }
+
+            public static double getCost() {
+                return config.getDouble(ConfigKeys.DISENCHANTMENT_ECONOMY_COST.getKey());
+            }
+
+            public static boolean setCost(double cost) {
+                config.set(ConfigKeys.DISENCHANTMENT_ECONOMY_COST.getKey(), cost);
+                plugin.saveConfig();
+
+                return getCost() == cost;
+            }
+
+            public static boolean isShowCostEnabled() {
+                return config.getBoolean(ConfigKeys.DISENCHANTMENT_ECONOMY_SHOW_COST.getKey(), true);
+            }
+
+            public static boolean setShowCostEnabled(boolean enabled) {
+                config.set(ConfigKeys.DISENCHANTMENT_ECONOMY_SHOW_COST.getKey(), enabled);
+                plugin.saveConfig();
+
+                return isShowCostEnabled() == enabled;
+            }
+
+            public static boolean isChargeMessageEnabled() {
+                return config.getBoolean(ConfigKeys.DISENCHANTMENT_ECONOMY_CHARGE_MESSAGE.getKey(), true);
+            }
+
+            public static boolean setChargeMessageEnabled(boolean enabled) {
+                config.set(ConfigKeys.DISENCHANTMENT_ECONOMY_CHARGE_MESSAGE.getKey(), enabled);
+                plugin.saveConfig();
+
+                return isChargeMessageEnabled() == enabled;
+            }
+        }
+
+        /**
          * Anvil-related settings for disenchantment operations.
          */
         public static class Anvil {
@@ -551,6 +600,55 @@ public class Config {
             ENCHANTMENT_STATES_CACHE = new HashMap<>(enchantmentStates);
 
             return getEnchantmentStates().equals(enchantmentStates);
+        }
+
+        /**
+         * Economy settings for shatterment operations.
+         */
+        public static class Economy {
+            public static boolean isEnabled() {
+                return config.getBoolean(ConfigKeys.SHATTERMENT_ECONOMY_ENABLED.getKey());
+            }
+
+            public static boolean setEnabled(boolean enabled) {
+                config.set(ConfigKeys.SHATTERMENT_ECONOMY_ENABLED.getKey(), enabled);
+                plugin.saveConfig();
+
+                return isEnabled() == enabled;
+            }
+
+            public static double getCost() {
+                return config.getDouble(ConfigKeys.SHATTERMENT_ECONOMY_COST.getKey());
+            }
+
+            public static boolean setCost(double cost) {
+                config.set(ConfigKeys.SHATTERMENT_ECONOMY_COST.getKey(), cost);
+                plugin.saveConfig();
+
+                return getCost() == cost;
+            }
+
+            public static boolean isShowCostEnabled() {
+                return config.getBoolean(ConfigKeys.SHATTERMENT_ECONOMY_SHOW_COST.getKey(), true);
+            }
+
+            public static boolean setShowCostEnabled(boolean enabled) {
+                config.set(ConfigKeys.SHATTERMENT_ECONOMY_SHOW_COST.getKey(), enabled);
+                plugin.saveConfig();
+
+                return isShowCostEnabled() == enabled;
+            }
+
+            public static boolean isChargeMessageEnabled() {
+                return config.getBoolean(ConfigKeys.SHATTERMENT_ECONOMY_CHARGE_MESSAGE.getKey(), true);
+            }
+
+            public static boolean setChargeMessageEnabled(boolean enabled) {
+                config.set(ConfigKeys.SHATTERMENT_ECONOMY_CHARGE_MESSAGE.getKey(), enabled);
+                plugin.saveConfig();
+
+                return isChargeMessageEnabled() == enabled;
+            }
         }
 
         /**

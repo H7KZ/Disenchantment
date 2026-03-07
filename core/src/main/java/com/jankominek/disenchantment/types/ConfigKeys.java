@@ -38,6 +38,11 @@ public enum ConfigKeys {
     DISENCHANTMENT_REPAIR_COST_BASE("disenchantment.anvil.repair.base"),
     DISENCHANTMENT_REPAIR_COST_MULTIPLIER("disenchantment.anvil.repair.multiply"),
 
+    DISENCHANTMENT_ECONOMY_ENABLED("disenchantment.economy.enabled"),
+    DISENCHANTMENT_ECONOMY_COST("disenchantment.economy.cost"),
+    DISENCHANTMENT_ECONOMY_SHOW_COST("disenchantment.economy.show-cost"),
+    DISENCHANTMENT_ECONOMY_CHARGE_MESSAGE("disenchantment.economy.charge-message"),
+
     // Shatterment settings
     SHATTERMENT_ENABLED("shatterment.enabled"),
     SHATTERMENT_DISABLED_WORLDS("shatterment.disabled-worlds"),
@@ -51,6 +56,11 @@ public enum ConfigKeys {
     SHATTERMENT_REPAIR_COST_ENABLED("shatterment.anvil.repair.cost"),
     SHATTERMENT_REPAIR_COST_BASE("shatterment.anvil.repair.base"),
     SHATTERMENT_REPAIR_COST_MULTIPLIER("shatterment.anvil.repair.multiply"),
+
+    SHATTERMENT_ECONOMY_ENABLED("shatterment.economy.enabled"),
+    SHATTERMENT_ECONOMY_COST("shatterment.economy.cost"),
+    SHATTERMENT_ECONOMY_SHOW_COST("shatterment.economy.show-cost"),
+    SHATTERMENT_ECONOMY_CHARGE_MESSAGE("shatterment.economy.charge-message"),
     ;
 
     private final String key;
