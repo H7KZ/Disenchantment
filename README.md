@@ -151,8 +151,8 @@ These APIs are provided by the Minecraft server and are not bundled with the plu
 
 These plugins are not required but unlock additional features when present:
 
-| Plugin | License | Link | Purpose |
-|--------|---------|------|---------|
+| Plugin | License  | Link                                                           | Purpose                                                            |
+|--------|----------|----------------------------------------------------------------|--------------------------------------------------------------------|
 | Vault  | LGPL-3.0 | [github.com/MilkBowl/Vault](https://github.com/MilkBowl/Vault) | Economy integration — charge players a currency cost per operation |
 
 ### Custom Enchantment Plugin Adapters (Compile-time Only)

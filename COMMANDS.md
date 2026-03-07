@@ -46,12 +46,12 @@ When configuring per-enchantment behavior, the following states are available:
 
 Commands for generating diagnostic reports used when reporting bugs.
 
-| Command                                | Description                                                                                                               | Permission                          |
-|----------------------------------------|---------------------------------------------------------------------------------------------------------------------------|-------------------------------------|
-| `/disenchantment diagnostic`           | In-game: click to copy a GitHub-ready code block. Console: prints the standard report.                                   | `disenchantment.command.diagnostic` |
-| `/disenchantment diagnostic all`       | Same as above but includes extended details (sounds, worlds, enchantment states, player permissions).                     | `disenchantment.command.diagnostic` |
-| `/disenchantment diagnostic save`      | Writes the full report to `plugins/Disenchantment/logs/diagnostic-<timestamp>.txt` and prints the path to the sender.    | `disenchantment.command.diagnostic` |
-| `/disenchantment diagnostic log`       | Prints the full report directly to the server console. Useful for RCON users who cannot click in-game.                   | `disenchantment.command.diagnostic` |
+| Command                           | Description                                                                                                           | Permission                          |
+|-----------------------------------|-----------------------------------------------------------------------------------------------------------------------|-------------------------------------|
+| `/disenchantment diagnostic`      | In-game: click to copy a GitHub-ready code block. Console: prints the standard report.                                | `disenchantment.command.diagnostic` |
+| `/disenchantment diagnostic all`  | Same as above but includes extended details (sounds, worlds, enchantment states, player permissions).                 | `disenchantment.command.diagnostic` |
+| `/disenchantment diagnostic save` | Writes the full report to `plugins/Disenchantment/logs/diagnostic-<timestamp>.txt` and prints the path to the sender. | `disenchantment.command.diagnostic` |
+| `/disenchantment diagnostic log`  | Prints the full report directly to the server console. Useful for RCON users who cannot click in-game.                | `disenchantment.command.diagnostic` |
 
 > **Tip for bug reports:** Run `/disenchantment diagnostic save` and attach the generated file to your GitHub issue,
 > or run `/disenchantment diagnostic` in-game and paste the copied code block directly into the issue body.

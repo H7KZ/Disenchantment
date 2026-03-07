@@ -167,12 +167,12 @@ disenchantment:
     charge-message: true
 ```
 
-| Key                | Type    | Default | Description                                                                           |
-|--------------------|---------|---------|---------------------------------------------------------------------------------------|
-| `economy.enabled`  | Boolean | `false` | Charge players an in-game currency cost when disenchanting. Requires Vault.           |
-| `economy.cost`     | Double  | `100.0` | Flat currency amount charged per disenchant operation.                                |
-| `economy.show-cost`| Boolean | `true`  | Show the economy cost in an action bar message while the player has a result pending. |
-| `economy.charge-message` | Boolean | `true` | Send a chat confirmation message after the player is charged.                   |
+| Key                      | Type    | Default | Description                                                                           |
+|--------------------------|---------|---------|---------------------------------------------------------------------------------------|
+| `economy.enabled`        | Boolean | `false` | Charge players an in-game currency cost when disenchanting. Requires Vault.           |
+| `economy.cost`           | Double  | `100.0` | Flat currency amount charged per disenchant operation.                                |
+| `economy.show-cost`      | Boolean | `true`  | Show the economy cost in an action bar message while the player has a result pending. |
+| `economy.charge-message` | Boolean | `true`  | Send a chat confirmation message after the player is charged.                         |
 
 > **Requires:** [Vault](https://www.spigotmc.org/resources/34315/) and a compatible economy plugin
 > (e.g. EssentialsX, CMI, PlayerPoints). If `economy.enabled` is `true` but Vault is not installed,
@@ -277,16 +277,16 @@ messages (e.g. `$100.00` vs `100 coins`) is controlled entirely by your economy 
 
 ### Configuration summary
 
-| Feature       | Config key                              | Default |
-|---------------|-----------------------------------------|---------|
-| Disenchant economy on/off | `disenchantment.economy.enabled` | `false` |
-| Disenchant cost           | `disenchantment.economy.cost`    | `100.0` |
-| Disenchant action bar     | `disenchantment.economy.show-cost` | `true` |
-| Disenchant charge message | `disenchantment.economy.charge-message` | `true` |
-| Shatter economy on/off    | `shatterment.economy.enabled`    | `false` |
-| Shatter cost              | `shatterment.economy.cost`       | `100.0` |
-| Shatter action bar        | `shatterment.economy.show-cost`  | `true`  |
-| Shatter charge message    | `shatterment.economy.charge-message` | `true` |
+| Feature                   | Config key                              | Default |
+|---------------------------|-----------------------------------------|---------|
+| Disenchant economy on/off | `disenchantment.economy.enabled`        | `false` |
+| Disenchant cost           | `disenchantment.economy.cost`           | `100.0` |
+| Disenchant action bar     | `disenchantment.economy.show-cost`      | `true`  |
+| Disenchant charge message | `disenchantment.economy.charge-message` | `true`  |
+| Shatter economy on/off    | `shatterment.economy.enabled`           | `false` |
+| Shatter cost              | `shatterment.economy.cost`              | `100.0` |
+| Shatter action bar        | `shatterment.economy.show-cost`         | `true`  |
+| Shatter charge message    | `shatterment.economy.charge-message`    | `true`  |
 
 ### Player experience
 
