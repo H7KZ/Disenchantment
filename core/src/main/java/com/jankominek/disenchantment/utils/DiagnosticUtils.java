@@ -15,6 +15,13 @@ import org.bukkit.permissions.PermissionAttachmentInfo;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.RegisteredListener;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.nio.charset.StandardCharsets;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -39,7 +46,9 @@ public class DiagnosticUtils {
 
     /**
      * Logs a severe diagnostic report to the console when the plugin encounters a critical error.
-     * Includes the full diagnostic report plus the error's stack trace.
+     * Includes the full diagnostic report plus the full exception cause chain.
+     * If {@code logging.save-reports} is enabled (or config is not yet loaded), the report is
+     * also written to {@code plugins/Disenchantment/logs/crash-<timestamp>.txt}.
      *
      * @param e the throwable that caused the error
      */
@@ -47,37 +56,101 @@ public class DiagnosticUtils {
         StringBuilder report = new StringBuilder();
 
         report.append("Disenchantment encountered an error and had to be disabled.\n");
-        report.append("Please report this error to the plugin author.\n");
-        report.append("Link to the plugin's issue tracker: https://github.com/H7KZ/Disenchantment/issues\n");
-        report.append("Copy the following message.\n\n");
+        report.append("Please report this error at: https://github.com/H7KZ/Disenchantment/issues\n");
+        report.append("Attach the report below (or the saved file if present).\n\n");
 
-        report.append("Disenchantment Diagnostic Report\n");
-        report.append("=================================\n\n");
+        report.append("=== Disenchantment Crash Report ===\n\n");
         report.append(buildReport(true, null));
         report.append("\n");
 
-        report.append("Error Details\n");
-        report.append("==============\n\n");
+        report.append("=== Error Details ===\n\n");
+        appendThrowable(report, e, 0);
 
-        report.append("The following error occurred: ").append(e.getMessage());
-        report.append("\n\n");
-        for (StackTraceElement element : e.getStackTrace()) {
-            report.append(element.toString()).append("\n");
+        String reportStr = report.toString();
+        logger.severe(reportStr);
+
+        // Default to saving if config is not yet available (e.g. error during onEnable)
+        boolean saveToFile = true;
+        try {
+            saveToFile = Config.Logging.isSaveReportsEnabled();
+        } catch (Exception ignored) {
         }
 
-        logger.severe(report.toString());
+        if (saveToFile) {
+            String path = saveReportToFile(reportStr, "crash");
+            if (path != null) {
+                logger.severe("Crash report saved to: " + path);
+            }
+        }
+    }
+
+    /**
+     * Saves a diagnostic report string to a timestamped file under
+     * {@code plugins/Disenchantment/logs/<prefix>-<timestamp>.txt}.
+     *
+     * @param content the report content to write
+     * @param prefix  the filename prefix (e.g. {@code "crash"} or {@code "diagnostic"})
+     * @return the absolute path of the written file, or {@code null} if writing failed
+     */
+    public static String saveReportToFile(String content, String prefix) {
+        try {
+            File logsDir = new File(plugin.getDataFolder(), "logs");
+            logsDir.mkdirs();
+
+            String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss"));
+            File reportFile = new File(logsDir, prefix + "-" + timestamp + ".txt");
+
+            try (FileWriter writer = new FileWriter(reportFile, StandardCharsets.UTF_8)) {
+                writer.write(content);
+            }
+
+            return reportFile.getAbsolutePath();
+        } catch (Exception ex) {
+            logger.warning("Failed to save diagnostic report to file: " + ex.getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * Appends a throwable and its full cause chain to the given {@link StringBuilder}.
+     *
+     * @param sb    the builder to append to
+     * @param t     the throwable to append
+     * @param depth the current cause depth (0 = root, 1+ = caused by)
+     */
+    private static void appendThrowable(StringBuilder sb, Throwable t, int depth) {
+        if (depth > 0) sb.append("Caused by: ");
+        sb.append(t.getClass().getName()).append(": ").append(t.getMessage()).append("\n");
+        for (StackTraceElement element : t.getStackTrace()) {
+            sb.append("  at ").append(element).append("\n");
+        }
+        if (t.getCause() != null && t.getCause() != t) {
+            appendThrowable(sb, t.getCause(), depth + 1);
+        }
     }
 
     private static String buildReport(Boolean extended, CommandSender sender) {
         StringBuilder report = new StringBuilder();
         try {
+            report.append("Generated: ").append(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))).append("\n");
+            if (Disenchantment.startedAt != null) {
+                Duration uptime = Duration.between(Disenchantment.startedAt, Instant.now());
+                long hours = uptime.toHours();
+                long minutes = uptime.toMinutesPart();
+                long seconds = uptime.toSecondsPart();
+                report.append("Uptime: ")
+                        .append(hours > 0 ? hours + "h " : "")
+                        .append(minutes).append("m ")
+                        .append(seconds).append("s\n");
+            }
+            report.append("\n");
+
             report.append("Plugin Version: ").append(plugin.getDescription().getVersion()).append("\n");
             report.append("Server Version: ").append(Bukkit.getVersion()).append(" (").append(Bukkit.getName()).append(')').append("\n");
             report.append("Plugin Enabled: ").append(plugin.isEnabled() ? "Yes" : "No").append("\n");
-            report.append("Is Using NMS: ").append(NMSMapper.hasNMS() ? "Yes" : "No").append("\n");
-            report.append("Java Version: ").append(System.getProperty("java.version")).append("\n");
-            report.append("OS: ").append(System.getProperty("os.name")).append(" ").append(System.getProperty("os.version")).append("\n");
-            report.append("Architecture: ").append(System.getProperty("os.arch")).append("\n\n");
+            report.append("Using NMS: ").append(NMSMapper.hasNMS() ? "Yes" : "No").append("\n");
+            report.append("Java: ").append(System.getProperty("java.version")).append(" (").append(System.getProperty("java.vendor")).append(")\n");
+            report.append("OS: ").append(System.getProperty("os.name")).append(" ").append(System.getProperty("os.version")).append(" (").append(System.getProperty("os.arch")).append(")\n\n");
 
             report.append("Memory Usage\n");
             report.append("=============\n\n");
@@ -85,20 +158,11 @@ public class DiagnosticUtils {
             long totalMemory = runtime.totalMemory() / 1024 / 1024; // Convert to MB
             long freeMemory = runtime.freeMemory() / 1024 / 1024; // Convert to MB
             long maxMemory = runtime.maxMemory() / 1024 / 1024; // Convert to MB
-            report.append("Total Memory: ").append(totalMemory).append(" MB\n");
-            report.append("Free Memory: ").append(freeMemory).append(" MB\n");
-            report.append("Max Memory: ").append(maxMemory).append(" MB\n\n");
+            long usedMemory = totalMemory - freeMemory;
+            report.append("Used Memory: ").append(usedMemory).append(" MB / ").append(totalMemory).append(" MB (max: ").append(maxMemory).append(" MB)\n\n");
 
-            report.append("System Information\n");
-            report.append("===================\n\n");
-            report.append("Java Version: ").append(System.getProperty("java.version")).append("\n");
-            report.append("Java Vendor: ").append(System.getProperty("java.vendor")).append("\n");
-            report.append("OS Name: ").append(System.getProperty("os.name")).append("\n");
-            report.append("OS Version: ").append(System.getProperty("os.version")).append("\n");
-            report.append("OS Architecture: ").append(System.getProperty("os.arch")).append("\n\n");
-
-            report.append("Current Server Information\n");
-            report.append("============================\n\n");
+            report.append("Server State\n");
+            report.append("=============\n\n");
 
             String currentWorld;
             if (sender instanceof Player player) {
@@ -169,6 +233,8 @@ public class DiagnosticUtils {
 
             report.append("Available locales: ").append(String.join(", ", Config.getLocales())).append("\n");
             report.append("Locale: ").append(Config.getLocale()).append("\n");
+            report.append("Log Level: ").append(Config.Logging.getLevel().name()).append("\n");
+            report.append("Save Reports: ").append(Config.Logging.isSaveReportsEnabled() ? "Yes" : "No").append("\n");
 
             report.append("\n");
 

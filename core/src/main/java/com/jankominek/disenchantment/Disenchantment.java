@@ -10,7 +10,9 @@ import com.jankominek.disenchantment.listeners.ShatterClickListener;
 import com.jankominek.disenchantment.listeners.ShatterListener;
 import com.jankominek.disenchantment.nms.NMS;
 import com.jankominek.disenchantment.nms.NMSMapper;
+import com.jankominek.disenchantment.plugins.ISupportedPlugin;
 import com.jankominek.disenchantment.plugins.SupportedPluginManager;
+import com.jankominek.disenchantment.types.LogLevelType;
 import com.jankominek.disenchantment.utils.*;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -20,11 +22,13 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.io.File;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 /**
  * Main plugin class for Disenchantment, a Bukkit/Spigot plugin that allows players
@@ -39,6 +43,7 @@ public final class Disenchantment extends JavaPlugin {
     public static final int spigotmcId = 110741;
     public static final int bstatsId = 19058;
     public static boolean enabled = true;
+    public static Instant startedAt;
 
     // Globally known instances (Does not need to be used with class name)
     public static Disenchantment plugin;
@@ -68,6 +73,7 @@ public final class Disenchantment extends JavaPlugin {
         // Setup instances
         plugin = this;
         logger = getLogger();
+        startedAt = Instant.now();
 
         // NMS net.minecraft.server
         NMS mappedNMS = NMSMapper.setup();
@@ -109,6 +115,25 @@ public final class Disenchantment extends JavaPlugin {
         // Find and activate supported plugins
         List<String> activatedPlugins = Arrays.stream(getServer().getPluginManager().getPlugins()).toList().stream().map(Plugin::getName).toList();
         SupportedPluginManager.activatePlugins(activatedPlugins);
+
+        // Startup logging
+        if (Config.Logging.getLevel().isAtLeast(LogLevelType.INFO)) {
+            logger.info("NMS module: " + nms.getClass().getSimpleName());
+
+            List<ISupportedPlugin> activatedAdapters = SupportedPluginManager.getAllActivatedPlugins();
+            if (activatedAdapters.isEmpty()) {
+                logger.info("Plugin adapters active: none");
+            } else {
+                logger.info("Plugin adapters active: " + activatedAdapters.stream().map(ISupportedPlugin::getName).collect(Collectors.joining(", ")));
+            }
+
+            if (Config.Logging.getLevel().isAtLeast(LogLevelType.DEBUG)) {
+                logger.info("Event priorities — disenchant: " + Config.EventPriorities.getDisenchantEvent()
+                        + ", disenchant-click: " + Config.EventPriorities.getDisenchantClickEvent()
+                        + ", shatter: " + Config.EventPriorities.getShatterEvent()
+                        + ", shatter-click: " + Config.EventPriorities.getShatterClickEvent());
+            }
+        }
 
         // Events
         new DisenchantListener(Config.EventPriorities.getDisenchantEvent());

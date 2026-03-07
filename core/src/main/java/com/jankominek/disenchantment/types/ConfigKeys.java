@@ -13,6 +13,10 @@ public enum ConfigKeys {
 
     LOCALE("locale"),
 
+    // Logging settings
+    LOGGING_LEVEL("logging.level"),
+    LOGGING_SAVE_REPORTS("logging.save-reports"),
+
     // Event priority settings
     EVENT_PRIORITIES_DISENCHANT_CLICK("event-priorities.disenchant-click"),
     EVENT_PRIORITIES_DISENCHANT("event-priorities.disenchant"),

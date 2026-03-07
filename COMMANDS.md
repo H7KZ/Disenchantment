@@ -6,6 +6,7 @@ All commands use the base command `/disenchantment` (alias: `/disenchant`).
 
 - [Enchantment States](#enchantment-states)
 - [General](#general)
+- [Diagnostic](#diagnostic)
 - [Disenchant Configuration](#disenchant-configuration)
 - [Disenchant Repair](#disenchant-repair)
 - [Disenchant Sound](#disenchant-sound)
@@ -30,14 +31,30 @@ When configuring per-enchantment behavior, the following states are available:
 
 ## General
 
-| Command                              | Description                                              | Permission                          |
-|--------------------------------------|----------------------------------------------------------|-------------------------------------|
-| `/disenchantment`                    | Show help page 1.                                        | `disenchantment.command.use`        |
-| `/disenchantment help [page]`        | Show help pages 1-8.                                     | `disenchantment.command.help`       |
-| `/disenchantment diagnostic ['all']` | Show diagnostic information. Use `all` for full details. | `disenchantment.command.diagnostic` |
-| `/disenchantment gui`                | Open the in-game configuration GUI.                      | `disenchantment.command.gui`        |
-| `/disenchantment status`             | Show if the plugin is enabled or disabled.               | `disenchantment.command.status`     |
-| `/disenchantment toggle`             | Toggle the plugin on/off.                                | `disenchantment.command.toggle`     |
+| Command                       | Description                                | Permission                          |
+|-------------------------------|--------------------------------------------|-------------------------------------|
+| `/disenchantment`             | Show help page 1.                          | `disenchantment.command.use`        |
+| `/disenchantment help [page]` | Show help pages 1-8.                       | `disenchantment.command.help`       |
+| `/disenchantment diagnostic`  | See [Diagnostic](#diagnostic) section.     | `disenchantment.command.diagnostic` |
+| `/disenchantment gui`         | Open the in-game configuration GUI.        | `disenchantment.command.gui`        |
+| `/disenchantment status`      | Show if the plugin is enabled or disabled. | `disenchantment.command.status`     |
+| `/disenchantment toggle`      | Toggle the plugin on/off.                  | `disenchantment.command.toggle`     |
+
+---
+
+## Diagnostic
+
+Commands for generating diagnostic reports used when reporting bugs.
+
+| Command                                | Description                                                                                                               | Permission                          |
+|----------------------------------------|---------------------------------------------------------------------------------------------------------------------------|-------------------------------------|
+| `/disenchantment diagnostic`           | In-game: click to copy a GitHub-ready code block. Console: prints the standard report.                                   | `disenchantment.command.diagnostic` |
+| `/disenchantment diagnostic all`       | Same as above but includes extended details (sounds, worlds, enchantment states, player permissions).                     | `disenchantment.command.diagnostic` |
+| `/disenchantment diagnostic save`      | Writes the full report to `plugins/Disenchantment/logs/diagnostic-<timestamp>.txt` and prints the path to the sender.    | `disenchantment.command.diagnostic` |
+| `/disenchantment diagnostic log`       | Prints the full report directly to the server console. Useful for RCON users who cannot click in-game.                   | `disenchantment.command.diagnostic` |
+
+> **Tip for bug reports:** Run `/disenchantment diagnostic save` and attach the generated file to your GitHub issue,
+> or run `/disenchantment diagnostic` in-game and paste the copied code block directly into the issue body.
 
 ---
 

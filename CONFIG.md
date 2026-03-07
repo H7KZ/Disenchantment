@@ -7,6 +7,7 @@ via [commands](COMMANDS.md) or the [GUI](COMMANDS.md#general).
 
 - [General Settings](#general-settings)
 - [Event Priorities](#event-priorities)
+- [Logging](#logging)
 - [Disenchantment Settings](#disenchantment-settings)
 - [Shatterment Settings](#shatterment-settings)
 
@@ -43,6 +44,35 @@ Available priorities (lowest to highest): `LOWEST`, `LOW`, `NORMAL`, `HIGH`, `HI
 
 See the [Spigot EventPriority docs](https://hub.spigotmc.org/javadocs/spigot/org/bukkit/event/EventPriority.html) for
 details.
+
+---
+
+## Logging
+
+Controls how much the plugin logs to the server console and whether crash reports are saved to disk.
+
+```yaml
+logging:
+  level: INFO
+  save-reports: true
+```
+
+| Key            | Type    | Default | Description                                                                           |
+|----------------|---------|---------|---------------------------------------------------------------------------------------|
+| `level`        | String  | `INFO`  | Log verbosity. Options: `NONE`, `INFO`, `DEBUG`. See table below.                     |
+| `save-reports` | Boolean | `true`  | Write crash reports to `plugins/Disenchantment/logs/crash-<timestamp>.txt` on errors. |
+
+**Log levels:**
+
+| Level   | What is logged                                                                        |
+|---------|---------------------------------------------------------------------------------------|
+| `NONE`  | Nothing except fatal errors that disable the plugin.                                  |
+| `INFO`  | Startup summary: NMS module resolved, plugin adapters activated. *(recommended)*      |
+| `DEBUG` | Everything in `INFO`, plus active event priorities and detailed per-operation output. |
+
+> **Tip:** `save-reports: true` is strongly recommended. When something goes wrong the full diagnostic report
+> is automatically written to disk, making it much easier to attach to a bug report without needing to
+> reproduce the issue. You can also generate a report on demand with `/disenchantment diagnostic save`.
 
 ---
 

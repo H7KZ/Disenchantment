@@ -2,6 +2,7 @@ package com.jankominek.disenchantment.config;
 
 import com.jankominek.disenchantment.types.ConfigKeys;
 import com.jankominek.disenchantment.types.EnchantmentStateType;
+import com.jankominek.disenchantment.types.LogLevelType;
 import com.jankominek.disenchantment.utils.EnchantmentUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -120,6 +121,35 @@ public class Config {
             } catch (IllegalArgumentException e) {
                 return EventPriority.HIGHEST;
             }
+        }
+    }
+
+    /**
+     * Logging configuration for the plugin. Controls console verbosity and whether
+     * crash reports are persisted to disk under {@code plugins/Disenchantment/logs/}.
+     */
+    public static class Logging {
+        /**
+         * Gets the configured log verbosity level.
+         * Falls back to {@link LogLevelType#INFO} if the configured value is invalid.
+         *
+         * @return the active {@link LogLevelType}
+         */
+        public static LogLevelType getLevel() {
+            try {
+                return LogLevelType.valueOf(config.getString(ConfigKeys.LOGGING_LEVEL.getKey(), "INFO").toUpperCase());
+            } catch (IllegalArgumentException e) {
+                return LogLevelType.INFO;
+            }
+        }
+
+        /**
+         * Returns whether crash reports should be written to disk in addition to the console.
+         *
+         * @return {@code true} if file-based crash reporting is enabled
+         */
+        public static boolean isSaveReportsEnabled() {
+            return config.getBoolean(ConfigKeys.LOGGING_SAVE_REPORTS.getKey(), true);
         }
     }
 
