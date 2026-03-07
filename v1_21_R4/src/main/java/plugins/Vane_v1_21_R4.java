@@ -108,7 +108,7 @@ public class Vane_v1_21_R4 implements ISupportedPlugin {
 
                 // Add stored enchantment to book
                 if (result.getItemMeta() instanceof EnchantmentStorageMeta meta) {
-                    meta.addStoredEnchant(enchantment, level, false);
+                    meta.addStoredEnchant(enchantment, level, true);
                     result.setItemMeta(meta);
                 }
 
@@ -145,7 +145,7 @@ public class Vane_v1_21_R4 implements ISupportedPlugin {
                 ItemStack result = item.clone();
 
                 // Add enchantment to item
-                result.addEnchantment(enchantment, level);
+                result.addUnsafeEnchantment(enchantment, level);
 
                 // Update lore using Vane's enchantment manager
                 EnchantmentManager manager = getEnchantmentManager();

@@ -93,7 +93,6 @@ public class DisenchantClickEvent {
         // ----------------------------------------------------------------------------------------------------
         // Supported plugins
 
-        if (firstItem == null) return;
         ItemStack finalFirstItem = firstItem.clone();
         List<IPluginEnchantment> enchantmentsToDelete = EventUtils.Disenchantment.findEnchantmentsToDelete(enchantments);
 
@@ -114,10 +113,10 @@ public class DisenchantClickEvent {
                 for (IPluginEnchantment enchantment : pluginEnchantments) {
                     finalFirstItem = enchantment.removeFromItem(finalFirstItem);
                 }
+            }
 
-                for (IPluginEnchantment enchantment : enchantmentsToDelete) {
-                    finalFirstItem = enchantment.removeFromItem(finalFirstItem);
-                }
+            for (IPluginEnchantment enchantment : enchantmentsToDelete) {
+                finalFirstItem = enchantment.removeFromItem(finalFirstItem);
             }
         }
 

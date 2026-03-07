@@ -76,6 +76,14 @@ public enum MinecraftVersion {
                 return version;
         }
 
+        // Substring match for server version strings like "git-Paper-406 (MC: 1.21.4)" or "git-Leaf-xxx (MC: 1.21.4)".
+        // Enum is ordered most-specific first, so "1.21.4" is checked before "1.21" and "1.20.4" before "1.20".
+        for (MinecraftVersion version : MinecraftVersion.values()) {
+            if (version.versionDotted == null) continue;
+            if (v.contains(version.versionDotted))
+                return version;
+        }
+
         try {
             int minorVersion = Integer.parseInt(v.split("\\.")[1]);
             if (minorVersion >= 21) return LATEST;

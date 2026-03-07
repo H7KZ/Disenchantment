@@ -98,7 +98,6 @@ public class ShatterClickEvent {
         // ----------------------------------------------------------------------------------------------------
         // Disenchantment plugins
 
-        if (firstItem == null) return;
         ItemStack finalFirstItem = firstItem.clone();
         List<IPluginEnchantment> enchantmentsToDelete = EventUtils.Shatterment.findEnchantmentsToDelete(enchantments);
 
@@ -121,11 +120,11 @@ public class ShatterClickEvent {
                     // Use removeFromBook since firstItem is always an ENCHANTED_BOOK in shatterment
                     finalFirstItem = enchantment.removeFromBook(finalFirstItem);
                 }
+            }
 
-                for (IPluginEnchantment enchantment : enchantmentsToDelete) {
-                    // Use removeFromBook since firstItem is always an ENCHANTED_BOOK in shatterment
-                    finalFirstItem = enchantment.removeFromBook(finalFirstItem);
-                }
+            for (IPluginEnchantment enchantment : enchantmentsToDelete) {
+                // Use removeFromBook since firstItem is always an ENCHANTED_BOOK in shatterment
+                finalFirstItem = enchantment.removeFromBook(finalFirstItem);
             }
         }
 
