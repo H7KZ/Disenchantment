@@ -30,3 +30,7 @@ hs_err_pid*
 
 # Docs
 .docs/
+
+# Claude
+.claude/*.local.*
+.claude/**/local
