@@ -160,7 +160,7 @@ jobs:
 
       - name: Publish to platforms
         if: steps.check.outputs.exists != 'true' && steps.platforms.outputs.list != ''
-        uses: HSGamer/action-mcreleaser@main
+        uses: HSGamer/MCReleaser@master
         with:
           files: ${{ steps.jar.outputs.JAR_FILE }}
           platforms: ${{ steps.platforms.outputs.list }}
