@@ -4,6 +4,12 @@ on:
   push:
     tags:
       - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag to release (e.g. v6.3.5)'
+        required: true
+        type: string
 
 permissions:
   contents: write
@@ -23,10 +29,13 @@ jobs:
           distribution: 'temurin'
 
       # Strips the leading 'v' from the tag (v6.3.5 -> 6.3.5).
+      # On manual runs, uses the tag input instead of GITHUB_REF_NAME.
       # Passed to Maven via -Drevision so the JAR name always matches the tag.
       - name: Extract version from tag
         id: version
-        run: echo "VERSION=${GITHUB_REF_NAME#v}" >> $GITHUB_OUTPUT
+        run: |
+          RAW="${{ github.event.inputs.tag || github.ref_name }}"
+          echo "VERSION=${RAW#v}" >> $GITHUB_OUTPUT
 
       # The cache key encodes the Spigot versions required by the NMS modules.
       # Bump the spigot-vX suffix whenever the set of Spigot versions changes.
