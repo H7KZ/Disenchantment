@@ -22,6 +22,15 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      # Both versions are needed for BuildTools: 1.18 requires Java 17,
+      # 1.20.6+ requires Java 21. The last setup call sets the default,
+      # so Java 21 is used for the Maven build.
+      - name: Set up JDK 17
+        uses: actions/setup-java@v5
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
       - name: Set up JDK 21
         uses: actions/setup-java@v5
         with:
@@ -66,7 +75,11 @@ jobs:
 
           for REV in 1.18 1.20.6 1.21.1 1.21.8; do
             echo "::group::BuildTools $REV"
-            java -jar BuildTools.jar --rev "$REV" --remapped
+            case "$REV" in
+              1.18) JAVA_BIN="$JAVA_HOME_17_X64/bin/java" ;;
+              *)    JAVA_BIN="$JAVA_HOME_21_X64/bin/java" ;;
+            esac
+            "$JAVA_BIN" -jar BuildTools.jar --rev "$REV" --remapped
             echo "::endgroup::"
           done
 
