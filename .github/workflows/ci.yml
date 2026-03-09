@@ -1,0 +1,86 @@
+name: CI
+
+on:
+  push:
+    branches: [ master, main ]
+    paths-ignore:
+      - '**.md'
+      - '.github/ISSUE_TEMPLATE/**'
+  pull_request:
+    branches: [ master, main ]
+    paths-ignore:
+      - '**.md'
+      - '.github/ISSUE_TEMPLATE/**'
+
+jobs:
+  build:
+    name: Verify
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v5
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      # Shared with the release workflow - if CI runs first, the release
+      # workflow benefits from the already-populated Spigot cache.
+      - name: Cache Maven local repository
+        uses: actions/cache@v5
+        with:
+          path: ~/.m2/repository
+          key: maven-spigot-v1-${{ hashFiles('**/pom.xml') }}
+          restore-keys: maven-spigot-v1-
+
+      # Only runs BuildTools when the remapped NMS JARs are missing from cache.
+      # On a warm cache this check completes instantly.
+      - name: Check Spigot NMS artifacts
+        id: spigot
+        run: |
+          M2="$HOME/.m2/repository/org/spigotmc/spigot"
+          check() { [ -f "$M2/$1/spigot-$1-remapped-mojang.jar" ]; }
+          if check "1.18-R0.1-SNAPSHOT" && \
+             check "1.20.6-R0.1-SNAPSHOT" && \
+             check "1.21.1-R0.1-SNAPSHOT" && \
+             check "1.21.8-R0.1-SNAPSHOT"; then
+            echo "cached=true" >> $GITHUB_OUTPUT
+          else
+            echo "cached=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Run Spigot BuildTools
+        if: steps.spigot.outputs.cached == 'false'
+        run: |
+          git config --global user.email "ci@github.com"
+          git config --global user.name "CI"
+          git config --global --add safe.directory '*'
+
+          mkdir -p buildtools && cd buildtools
+          wget -q -O BuildTools.jar \
+            https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar
+
+          for REV in 1.18 1.20.6 1.21.1 1.21.8; do
+            echo "::group::BuildTools $REV"
+            java -jar BuildTools.jar --rev "$REV" --remapped
+            echo "::endgroup::"
+          done
+
+          cd .. && rm -rf buildtools
+
+      # Runs validate -> compile -> test -> package -> verify.
+      # Catches compilation errors and any bound verify-phase plugins
+      # (e.g. Checkstyle, PMD) without publishing anything.
+      - name: Verify
+        run: mvn clean verify -B -Drevision=0.0.0-SNAPSHOT
+
+      # Attaches the built JAR to the workflow run for manual download and testing.
+      - name: Upload JAR
+        uses: actions/upload-artifact@v4
+        with:
+          name: Disenchantment-SNAPSHOT
+          path: target/Disenchantment-0.0.0-SNAPSHOT.jar
+          retention-days: 7

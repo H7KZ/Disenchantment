@@ -34,3 +34,6 @@ hs_err_pid*
 # Claude
 .claude/*.local.*
 .claude/**/local
+
+# Env
+**/.env

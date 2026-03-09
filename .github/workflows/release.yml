@@ -13,48 +13,38 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Checkout
-
       - name: Checkout
         uses: actions/checkout@v4
 
-      # Java
-
       - name: Set up JDK 21
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           java-version: '21'
           distribution: 'temurin'
 
-      # Version
-      # Strips the leading 'v' from the tag (v6.3.5 -> 6.3.5)
-
+      # Strips the leading 'v' from the tag (v6.3.5 -> 6.3.5).
+      # Passed to Maven via -Drevision so the JAR name always matches the tag.
       - name: Extract version from tag
         id: version
         run: echo "VERSION=${GITHUB_REF_NAME#v}" >> $GITHUB_OUTPUT
 
-      # Maven cache
-      # Key encodes the Spigot NMS versions so a cache built without the right
-      # artifacts is not silently reused. Bump the spigot-vX suffix whenever
-      # the set of required Spigot versions changes.
-
+      # The cache key encodes the Spigot versions required by the NMS modules.
+      # Bump the spigot-vX suffix whenever the set of Spigot versions changes.
       - name: Cache Maven local repository
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.m2/repository
           key: maven-spigot-v1-${{ hashFiles('**/pom.xml') }}
           restore-keys: maven-spigot-v1-
 
-      # Spigot BuildTools
-      # Checks whether all required remapped NMS JARs are already in the local
-      # Maven repo (from cache). Only runs BuildTools when they are missing.
+      # Checks whether the remapped NMS JARs are already in the Maven cache.
+      # Only runs BuildTools when they are missing.
       #
-      # Required versions:
-      #   1.18      -> v1_18_R1
-      #   1.20.6    -> v1_20_R4
-      #   1.21.1    -> v1_21_R1, v1_21_R4
-      #   1.21.8    -> v1_21_R5
-
+      # Version -> NMS module:
+      #   1.18    -> v1_18_R1
+      #   1.20.6  -> v1_20_R4
+      #   1.21.1  -> v1_21_R1, v1_21_R4
+      #   1.21.8  -> v1_21_R5
       - name: Check Spigot NMS artifacts
         id: spigot
         run: |
@@ -86,46 +76,37 @@ jobs:
             echo "::endgroup::"
           done
 
-          # Clean up build artifacts to free disk space (Maven repo is kept)
+          # Remove build artifacts to free disk space; the Maven repo is kept
           cd .. && rm -rf buildtools
-
-      # Build
-      # Passes the tag version as the Maven revision so the output JAR is named
-      # Disenchantment-<version>.jar regardless of what's in pom.xml.
 
       - name: Build
         run: mvn clean package -B -Drevision=${{ steps.version.outputs.VERSION }}
 
       - name: Locate JAR
         id: jar
-        run: echo "PATH=target/Disenchantment-${{ steps.version.outputs.VERSION }}.jar" >> $GITHUB_OUTPUT
+        run: echo "JAR_FILE=target/Disenchantment-${{ steps.version.outputs.VERSION }}.jar" >> $GITHUB_OUTPUT
 
-      # GitHub Release
-
+      # Creates a GitHub release from the tag and attaches the JAR.
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          files: ${{ steps.jar.outputs.PATH }}
+          files: ${{ steps.jar.outputs.JAR_FILE }}
           generate_release_notes: true
 
-      # Modrinth & CurseForge
-      # Requires repository secrets:  MODRINTH_TOKEN, CURSEFORGE_TOKEN
-      # Requires repository variables: MODRINTH_PROJECT_ID, CURSEFORGE_PROJECT_ID
-      #
-      # Remove the modrinth-* or curseforge-* lines if you are not on that platform.
-      # Adjust game-versions to match the versions your release actually supports.
-
+      # Publishes to Modrinth and/or CurseForge.
+      # Required secrets:   MODRINTH_TOKEN, CURSEFORGE_TOKEN
+      # Required secrets:   MODRINTH_PROJECT_ID, CURSEFORGE_PROJECT_ID
+      # Remove the modrinth-* or curseforge-* lines for platforms you don't use.
+      # github-token is omitted so mc-publish skips GitHub (handled above).
       - name: Publish to Modrinth & CurseForge
         uses: Kira-NT/mc-publish@v3
         if: ${{ secrets.MODRINTH_TOKEN != '' || secrets.CURSEFORGE_TOKEN != '' }}
         with:
-          modrinth-id: ${{ vars.MODRINTH_PROJECT_ID }}
+          modrinth-id: ${{ secrets.MODRINTH_PROJECT_ID }}
           modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
-          curseforge-id: ${{ vars.CURSEFORGE_PROJECT_ID }}
+          curseforge-id: ${{ secrets.CURSEFORGE_PROJECT_ID }}
           curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
-          # Disable the built-in GitHub publishing (we handle it above)
-          github-token: ""
-          files: ${{ steps.jar.outputs.PATH }}
+          files: ${{ steps.jar.outputs.JAR_FILE }}
           name: "Disenchantment ${{ steps.version.outputs.VERSION }}"
           version: ${{ steps.version.outputs.VERSION }}
           loaders: |
@@ -138,22 +119,19 @@ jobs:
             1.20.x
             1.21.x
 
-      # Hangar (PaperMC)
-      # Requires repository secret:   HANGAR_API_KEY
-      #   -> hangar.papermc.io -> Settings -> API Keys -> create_version permission
-      #
-      # Edit HANGAR_AUTHOR and HANGAR_SLUG below to match your project.
-      # Edit platformVersions to list the exact MC versions shown on Hangar
-      # (e.g. "1.18", "1.18.1", "1.18.2", ... "1.21.4", "1.21.5").
-
+      # Publishes to Hangar (PaperMC's plugin repository).
+      # Required secret:   HANGAR_API_KEY
+      #   -> hangar.papermc.io -> Settings -> API Keys -> tick create_version
+      # Required secrets:  HANGAR_AUTHOR (your username), HANGAR_SLUG (project slug)
+      # platformVersions must list exact version strings recognised by Hangar.
       - name: Publish to Hangar
         if: ${{ secrets.HANGAR_API_KEY != '' }}
         env:
           HANGAR_API_KEY: ${{ secrets.HANGAR_API_KEY }}
           VERSION: ${{ steps.version.outputs.VERSION }}
-          JAR: ${{ steps.jar.outputs.PATH }}
-          HANGAR_AUTHOR: H7KZ
-          HANGAR_SLUG: Disenchantment
+          JAR_FILE: ${{ steps.jar.outputs.JAR_FILE }}
+          HANGAR_AUTHOR: ${{ secrets.HANGAR_AUTHOR }}
+          HANGAR_SLUG: ${{ secrets.HANGAR_SLUG }}
         run: |
           JWT=$(curl -sf -X POST \
             "https://hangar.papermc.io/api/v1/authenticate?apiKey=${HANGAR_API_KEY}" \
@@ -172,7 +150,8 @@ jobs:
                     "1.18","1.18.1","1.18.2",
                     "1.19","1.19.1","1.19.2","1.19.3","1.19.4",
                     "1.20","1.20.1","1.20.2","1.20.3","1.20.4","1.20.5","1.20.6",
-                    "1.21","1.21.1","1.21.2","1.21.3","1.21.4","1.21.5","1.21.6","1.21.7","1.21.8", "1.21.9", "1.21.10", "1.21.11"
+                    "1.21","1.21.1","1.21.2","1.21.3","1.21.4",
+                    "1.21.5","1.21.6","1.21.7","1.21.8","1.21.9","1.21.10","1.21.11"
                   ],
                   url: null
                 }
@@ -183,24 +162,22 @@ jobs:
             "https://hangar.papermc.io/api/v1/projects/${HANGAR_AUTHOR}/${HANGAR_SLUG}/upload" \
             -H "Authorization: ${JWT}" \
             -F "versionUpload=${METADATA};type=application/json" \
-            -F "files[]=@${JAR};type=application/java-archive"
+            -F "files[]=@${JAR_FILE};type=application/java-archive"
 
-      # Polymart
-      # Requires repository secret:   POLYMART_TOKEN
+      # Publishes to Polymart.
+      # Required secret:   POLYMART_TOKEN
       #   -> polymart.org -> Account Settings -> API Key
-      # Requires repository variable: POLYMART_RESOURCE_ID
-      #   -> the numeric ID in your resource's URL
-
+      # Required secret:   POLYMART_RESOURCE_ID (numeric ID from the resource URL)
       - name: Publish to Polymart
         if: ${{ secrets.POLYMART_TOKEN != '' }}
         env:
           POLYMART_TOKEN: ${{ secrets.POLYMART_TOKEN }}
-          POLYMART_RESOURCE_ID: ${{ vars.POLYMART_RESOURCE_ID }}
+          POLYMART_RESOURCE_ID: ${{ secrets.POLYMART_RESOURCE_ID }}
           VERSION: ${{ steps.version.outputs.VERSION }}
-          JAR: ${{ steps.jar.outputs.PATH }}
+          JAR_FILE: ${{ steps.jar.outputs.JAR_FILE }}
         run: |
           curl -sf -X POST "https://api.polymart.org/v1/postUpdate" \
             -F "api_token=${POLYMART_TOKEN}" \
             -F "resource_id=${POLYMART_RESOURCE_ID}" \
             -F "title=v${VERSION}" \
-            -F "file=@${JAR}"
+            -F "file=@${JAR_FILE};type=application/java-archive"
