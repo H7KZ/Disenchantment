@@ -19,27 +19,15 @@ jobs:
     runs-on: ubuntu-latest
     env:
       # Edit these when adding support for new Minecraft versions.
-      # Glob patterns used by mc-publish (Modrinth, CurseForge).
-      GAME_VERSIONS: |
-        1.18.x
-        1.19.x
-        1.20.x
-        1.21.x
-      # Loaders for Modrinth and CurseForge.
-      LOADERS: |
-        paper
-        spigot
-        folia
-      # Exact version strings for Hangar (space-separated).
-      # Every entry must be registered in Hangar's version registry.
-      # If the upload fails with a 400/500, a new MC version may not be in
-      # Hangar yet — remove the offending string until Hangar adds it.
-      HANGAR_VERSIONS: >-
+      # Exact version strings used by all platforms (Modrinth, CurseForge, Hangar, Polymart).
+      # If Hangar rejects a version with 400/500, it may not be registered yet — remove it.
+      GAME_VERSIONS: >-
         1.18 1.18.1 1.18.2
         1.19 1.19.1 1.19.2 1.19.3 1.19.4
         1.20 1.20.1 1.20.2 1.20.3 1.20.4 1.20.5 1.20.6
         1.21 1.21.1 1.21.2 1.21.3 1.21.4 1.21.5 1.21.6 1.21.7 1.21.8 1.21.9 1.21.10 1.21.11
-
+      # Loaders for Modrinth and CurseForge.
+      LOADERS: paper spigot folia
 
       HAS_MODRINTH: ${{ secrets.MODRINTH_TOKEN != '' }}
       HAS_CURSEFORGE: ${{ secrets.CURSEFORGE_TOKEN != '' }}
@@ -48,7 +36,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       # Both versions are needed for BuildTools: 1.18 requires Java 17,
       # 1.20.6+ requires Java 21. The last setup call sets the default,
@@ -65,7 +53,7 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
 
-      # Strips the leading 'v' from the tag (v6.3.5 -> 6.3.5).
+      # Strips the leading 'v' from the tag (e.g. v6.3.5 -> 6.3.5).
       # On manual runs, uses the tag input instead of GITHUB_REF_NAME.
       # Passed to Maven via -Drevision so the JAR name always matches the tag.
       - name: Extract version from tag
@@ -135,191 +123,64 @@ jobs:
         id: jar
         run: echo "JAR_FILE=target/Disenchantment-${{ steps.version.outputs.VERSION }}.jar" >> $GITHUB_OUTPUT
 
-      # Queries each platform's API to check whether this version is already
-      # published. Sets boolean outputs (github, modrinth, curseforge, hangar,
-      # polymart) — publishing steps skip when the output is 'true'.
-      - name: Check already-published versions
+      # Check if the GitHub release already exists. If it does, all publishing is skipped —
+      # GitHub is the source of truth. Re-running the workflow won't duplicate anything.
+      - name: Check GitHub release
         id: check
         env:
-          VERSION: ${{ steps.version.outputs.VERSION }}
           GH_TOKEN: ${{ github.token }}
-          GH_REPO: ${{ github.repository }}
-          MODRINTH_PROJECT_ID: ${{ secrets.MODRINTH_PROJECT_ID }}
-          CURSEFORGE_PROJECT_ID: ${{ secrets.CURSEFORGE_PROJECT_ID }}
-          CURSEFORGE_TOKEN: ${{ secrets.CURSEFORGE_TOKEN }}
-          HANGAR_API_KEY: ${{ secrets.HANGAR_API_KEY }}
-          HANGAR_AUTHOR: ${{ secrets.HANGAR_AUTHOR }}
-          HANGAR_SLUG: ${{ secrets.HANGAR_SLUG }}
-          POLYMART_TOKEN: ${{ secrets.POLYMART_TOKEN }}
-          POLYMART_RESOURCE_ID: ${{ secrets.POLYMART_RESOURCE_ID }}
+          VERSION: ${{ steps.version.outputs.VERSION }}
         run: |
-          exists() {
-            local PLATFORM="$1" FLAG="$2"
-            echo "${PLATFORM}: v${VERSION} already published, skipping."
-            echo "${FLAG}=true" >> $GITHUB_OUTPUT
-          }
-          skip() { echo "$1=false" >> $GITHUB_OUTPUT; }
-
-          # GitHub Release
           STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
             -H "Authorization: Bearer ${GH_TOKEN}" \
-            "https://api.github.com/repos/${GH_REPO}/releases/tags/v${VERSION}")
-          [ "$STATUS" = "200" ] && exists "GitHub" "github" || skip "github"
-
-          # Modrinth - public API, no auth required.
-          # GET /v2/project/{id}/version?version_number[]={v} returns matching versions.
-          if [ -n "$MODRINTH_PROJECT_ID" ]; then
-            COUNT=$(curl -s \
-              "https://api.modrinth.com/v2/project/${MODRINTH_PROJECT_ID}/version?version_number[]=${VERSION}" \
-              | jq 'length')
-            [ "$COUNT" -gt 0 ] && exists "Modrinth" "modrinth" || skip "modrinth"
-          else
-            skip "modrinth"
-          fi
-
-          # CurseForge - checks displayName of uploaded files for the version string.
-          # GET /v1/mods/{id}/files returns up to 50 recent files with displayName.
-          if [ -n "$CURSEFORGE_TOKEN" ] && [ -n "$CURSEFORGE_PROJECT_ID" ]; then
-            EXISTS=$(curl -s \
-              -H "x-api-key: ${CURSEFORGE_TOKEN}" \
-              "https://api.curseforge.com/v1/mods/${CURSEFORGE_PROJECT_ID}/files?pageSize=50" \
-              | jq --arg v "$VERSION" '[.data[].displayName | contains($v)] | any')
-            [ "$EXISTS" = "true" ] && exists "CurseForge" "curseforge" || skip "curseforge"
-          else
-            skip "curseforge"
-          fi
-
-          # Hangar - GET .../versions/{version} returns 200 if it exists, 404 if not.
-          # Auth header must be "Authorization: HangarAuth <jwt>".
-          if [ -n "$HANGAR_API_KEY" ]; then
-            JWT=$(curl -s -X POST \
-              "https://hangar.papermc.io/api/v1/authenticate?apiKey=${HANGAR_API_KEY}" \
-              -H "accept: application/json" | jq -r '.token // empty')
-            if [ -n "$JWT" ]; then
-              STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
-                -H "Authorization: HangarAuth ${JWT}" \
-                "https://hangar.papermc.io/api/v1/projects/${HANGAR_AUTHOR}/${HANGAR_SLUG}/versions/${VERSION}")
-              [ "$STATUS" = "200" ] && exists "Hangar" "hangar" || skip "hangar"
-            else
-              skip "hangar"
-            fi
-          else
-            skip "hangar"
-          fi
-
-          # Polymart - GET /v1/getResourceUpdates returns update history.
-          # Match on .response.updates[].version (bare version string, e.g. "6.3.5").
-          if [ -n "$POLYMART_TOKEN" ] && [ -n "$POLYMART_RESOURCE_ID" ]; then
-            EXISTS=$(curl -s \
-              "https://api.polymart.org/v1/getResourceUpdates?resource_id=${POLYMART_RESOURCE_ID}&api_key=${POLYMART_TOKEN}" \
-              | jq --arg v "$VERSION" '[.response.updates[]?.version == $v] | any')
-            [ "$EXISTS" = "true" ] && exists "Polymart" "polymart" || skip "polymart"
-          else
-            skip "polymart"
-          fi
+            "https://api.github.com/repos/${{ github.repository }}/releases/tags/v${VERSION}")
+          [ "$STATUS" = "200" ] && echo "exists=true" >> $GITHUB_OUTPUT || echo "exists=false" >> $GITHUB_OUTPUT
 
       # tag_name is set explicitly so workflow_dispatch (branch ref) works too.
       - name: Create GitHub Release
+        if: steps.check.outputs.exists != 'true'
         uses: softprops/action-gh-release@v2
-        if: steps.check.outputs.github != 'true'
         with:
           tag_name: v${{ steps.version.outputs.VERSION }}
           files: ${{ steps.jar.outputs.JAR_FILE }}
           generate_release_notes: true
 
-      # Required secrets: MODRINTH_TOKEN, MODRINTH_PROJECT_ID
-      - name: Publish to Modrinth
-        uses: Kira-NT/mc-publish@v3
-        if: env.HAS_MODRINTH == 'true' && steps.check.outputs.modrinth != 'true'
-        with:
-          modrinth-id: ${{ secrets.MODRINTH_PROJECT_ID }}
-          modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
-          files: ${{ steps.jar.outputs.JAR_FILE }}
-          name: "Disenchantment ${{ steps.version.outputs.VERSION }}"
-          version: ${{ steps.version.outputs.VERSION }}
-          loaders: ${{ env.LOADERS }}
-          game-versions: ${{ env.GAME_VERSIONS }}
-
-      # Required secrets: CURSEFORGE_TOKEN, CURSEFORGE_PROJECT_ID
-      - name: Publish to CurseForge
-        uses: Kira-NT/mc-publish@v3
-        if: env.HAS_CURSEFORGE == 'true' && steps.check.outputs.curseforge != 'true'
-        with:
-          curseforge-id: ${{ secrets.CURSEFORGE_PROJECT_ID }}
-          curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
-          files: ${{ steps.jar.outputs.JAR_FILE }}
-          name: "Disenchantment ${{ steps.version.outputs.VERSION }}"
-          version: ${{ steps.version.outputs.VERSION }}
-          loaders: ${{ env.LOADERS }}
-          game-versions: ${{ env.GAME_VERSIONS }}
-
-      # Required secrets: HANGAR_API_KEY, HANGAR_AUTHOR, HANGAR_SLUG
-      #   HANGAR_API_KEY -> hangar.papermc.io -> Settings -> API Keys -> create_version
-      - name: Publish to Hangar
-        if: env.HAS_HANGAR == 'true' && steps.check.outputs.hangar != 'true'
-        env:
-          HANGAR_API_KEY: ${{ secrets.HANGAR_API_KEY }}
-          VERSION: ${{ steps.version.outputs.VERSION }}
-          JAR_FILE: ${{ steps.jar.outputs.JAR_FILE }}
-          HANGAR_AUTHOR: ${{ secrets.HANGAR_AUTHOR }}
-          HANGAR_SLUG: ${{ secrets.HANGAR_SLUG }}
+      # Builds a comma-separated list of platforms that have credentials configured.
+      # MCReleaser skips any platform not in this list.
+      - name: Compute active platforms
+        if: steps.check.outputs.exists != 'true'
+        id: platforms
         run: |
-          AUTH_RESPONSE=$(curl -s -X POST \
-            "https://hangar.papermc.io/api/v1/authenticate?apiKey=${HANGAR_API_KEY}" \
-            -H "accept: application/json")
-          JWT=$(echo "$AUTH_RESPONSE" | jq -r '.token')
+          PLATFORMS=""
+          [ "$HAS_MODRINTH"   = "true" ] && PLATFORMS="${PLATFORMS:+$PLATFORMS,}modrinth"
+          [ "$HAS_CURSEFORGE" = "true" ] && PLATFORMS="${PLATFORMS:+$PLATFORMS,}curseforge"
+          [ "$HAS_HANGAR"     = "true" ] && PLATFORMS="${PLATFORMS:+$PLATFORMS,}hangar"
+          [ "$HAS_POLYMART"   = "true" ] && PLATFORMS="${PLATFORMS:+$PLATFORMS,}polymart"
+          echo "list=$PLATFORMS" >> $GITHUB_OUTPUT
 
-          if [ -z "$JWT" ] || [ "$JWT" = "null" ]; then
-            echo "Hangar authentication failed: $AUTH_RESPONSE"
-            exit 1
-          fi
-
-          # Convert the space-separated HANGAR_VERSIONS env var to a JSON array.
-          VERSIONS_JSON=$(echo "$HANGAR_VERSIONS" | tr -s ' \n' '\n' | grep -v '^$' | jq -R . | jq -s .)
-
-          # versionUpload schema: platformDependencies (map of platform -> version list)
-          # and files (list of objects declaring which platforms each binary supports).
-          METADATA=$(jq -n \
-            --arg version "$VERSION" \
-            --argjson platforms "$VERSIONS_JSON" \
-            '{
-              version: $version,
-              channel: "Release",
-              description: "See the GitHub release for the full changelog.",
-              platformDependencies: { PAPER: $platforms },
-              files: [{ platforms: ["PAPER"] }]
-            }')
-
-          UPLOAD_RESPONSE=$(curl -s -w "\n%{http_code}" -X POST \
-            "https://hangar.papermc.io/api/v1/projects/${HANGAR_AUTHOR}/${HANGAR_SLUG}/upload" \
-            -H "Authorization: HangarAuth ${JWT}" \
-            -F "versionUpload=${METADATA};type=application/json" \
-            -F "files=@${JAR_FILE};type=application/java-archive")
-
-          HTTP_STATUS=$(echo "$UPLOAD_RESPONSE" | tail -1)
-          BODY=$(echo "$UPLOAD_RESPONSE" | head -n -1)
-
-          echo "HTTP status: $HTTP_STATUS"
-          if [ "$HTTP_STATUS" -lt 200 ] || [ "$HTTP_STATUS" -ge 300 ]; then
-            echo "Hangar upload failed: $BODY"
-            exit 1
-          fi
-
-      # Required secrets: POLYMART_TOKEN, POLYMART_RESOURCE_ID
-      #   POLYMART_TOKEN -> polymart.org -> Account Settings -> API Key (Post Updates permission)
-      #   POLYMART_RESOURCE_ID -> numeric ID from your resource's URL
-      - name: Publish to Polymart
-        if: env.HAS_POLYMART == 'true' && steps.check.outputs.polymart != 'true'
+      - name: Publish to platforms
+        if: steps.check.outputs.exists != 'true' && steps.platforms.outputs.list != ''
+        uses: HSGamer/action-mcreleaser@main
+        with:
+          files: ${{ steps.jar.outputs.JAR_FILE }}
+          platforms: ${{ steps.platforms.outputs.list }}
         env:
-          POLYMART_TOKEN: ${{ secrets.POLYMART_TOKEN }}
-          POLYMART_RESOURCE_ID: ${{ secrets.POLYMART_RESOURCE_ID }}
+          NAME: Disenchantment
           VERSION: ${{ steps.version.outputs.VERSION }}
-          JAR_FILE: ${{ steps.jar.outputs.JAR_FILE }}
-        run: |
-          curl -sf -X POST "https://api.polymart.org/v1/postUpdate" \
-            -F "api_key=${POLYMART_TOKEN}" \
-            -F "resource_id=${POLYMART_RESOURCE_ID}" \
-            -F "version=${VERSION}" \
-            -F "title=v${VERSION}" \
-            -F "message=See the GitHub release for the full changelog." \
-            -F "file=@${JAR_FILE};type=application/java-archive"
+          DESCRIPTION: "See the GitHub release for the full changelog. https://github.com/H7KZ/Disenchantment/releases"
+          GAME_VERSIONS: ${{ env.GAME_VERSIONS }}
+
+          MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
+          MODRINTH_PROJECT: ${{ secrets.MODRINTH_PROJECT_ID }}
+          MODRINTH_LOADERS: ${{ env.LOADERS }}
+
+          CURSEFORGE_TOKEN: ${{ secrets.CURSEFORGE_TOKEN }}
+          CURSEFORGE_PROJECT: ${{ secrets.CURSEFORGE_PROJECT_ID }}
+          CURSEFORGE_MOD_LOADERS: ${{ env.LOADERS }}
+
+          HANGAR_KEY: ${{ secrets.HANGAR_API_KEY }}
+          HANGAR_PROJECT: ${{ secrets.HANGAR_SLUG }}
+          HANGAR_CHANNEL: Release
+
+          POLYMART_KEY: ${{ secrets.POLYMART_TOKEN }}
+          POLYMART_RESOURCE: ${{ secrets.POLYMART_RESOURCE_ID }}

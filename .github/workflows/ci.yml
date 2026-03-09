@@ -20,7 +20,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       # Both versions are needed for BuildTools: 1.18 requires Java 17,
       # 1.20.6+ requires Java 21. The last setup call sets the default,
@@ -93,7 +93,7 @@ jobs:
 
       # Attaches the built JAR to the workflow run for manual download and testing.
       - name: Upload JAR
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: Disenchantment-SNAPSHOT
           path: target/Disenchantment-0.0.0-SNAPSHOT.jar
