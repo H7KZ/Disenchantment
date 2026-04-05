@@ -22,17 +22,33 @@ public class EconomyUtils {
      * @return {@code true} if Vault and an economy plugin were found and hooked successfully
      */
     public static boolean setup() {
-        boolean hasVault = Bukkit.getPluginManager().getPlugin("Vault") != null
-                || Bukkit.getPluginManager().getPlugin("VaultUnlocked") != null;
-        if (!hasVault) return false;
+        boolean vaultFound = Bukkit.getPluginManager().getPlugin("Vault") != null;
+        boolean vaultUnlockedFound = Bukkit.getPluginManager().getPlugin("VaultUnlocked") != null;
+
+        DiagnosticUtils.debug("ECONOMY", "Vault found: " + vaultFound + ", VaultUnlocked found: " + vaultUnlockedFound);
+
+        if (!vaultFound && !vaultUnlockedFound) {
+            DiagnosticUtils.debug("ECONOMY", "Setup: FAILED (no Vault or VaultUnlocked plugin present)");
+            return false;
+        }
 
         RegisteredServiceProvider<Economy> rsp =
                 Bukkit.getServicesManager().getRegistration(Economy.class);
 
-        if (rsp == null) return false;
+        if (rsp == null) {
+            DiagnosticUtils.debug("ECONOMY", "Setup: FAILED (RSP<Economy> lookup returned null — no economy plugin registered under Vault API)");
+            return false;
+        }
 
         economy = rsp.getProvider();
-        return economy != null;
+
+        if (economy == null) {
+            DiagnosticUtils.debug("ECONOMY", "Setup: FAILED (provider is null)");
+            return false;
+        }
+
+        DiagnosticUtils.debug("ECONOMY", "Setup: SUCCESS (provider=" + economy.getClass().getSimpleName() + ", class=" + economy.getClass().getName() + ")");
+        return true;
     }
 
     /**
@@ -52,7 +68,9 @@ public class EconomyUtils {
      * @return {@code true} if the player can afford the amount
      */
     public static boolean has(Player player, double amount) {
-        return economy.has(player, amount);
+        boolean result = economy.has(player, amount);
+        DiagnosticUtils.debug("ECONOMY", "has(" + player.getName() + ", " + amount + ") → " + result);
+        return result;
     }
 
     /**
@@ -63,7 +81,10 @@ public class EconomyUtils {
      * @return the {@link EconomyResponse} from the economy plugin
      */
     public static EconomyResponse withdraw(Player player, double amount) {
-        return economy.withdrawPlayer(player, amount);
+        EconomyResponse response = economy.withdrawPlayer(player, amount);
+        String detail = response.errorMessage != null && !response.errorMessage.isEmpty() ? " (" + response.errorMessage + ")" : "";
+        DiagnosticUtils.debug("ECONOMY", "withdraw(" + player.getName() + ", " + amount + ") → " + response.type.name() + detail);
+        return response;
     }
 
     /**

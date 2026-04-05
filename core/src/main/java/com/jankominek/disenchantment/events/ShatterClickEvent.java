@@ -20,6 +20,7 @@ import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Handles the {@link InventoryClickEvent} when a player clicks the result slot
@@ -78,31 +79,51 @@ public class ShatterClickEvent {
             }
         }
 
-        if (enchantments.isEmpty()) return;
+        if (enchantments.isEmpty()) {
+            DiagnosticUtils.debug("SHATTER", "Click: no eligible enchantments → exit");
+            return;
+        }
 
         if (result.getType() != Material.ENCHANTED_BOOK) return;
 
+        DiagnosticUtils.debug("SHATTER", "Click: player=" + p.getName() + ", result=" + result.getType() + ", gameMode=" + p.getGameMode());
+
+        if (DiagnosticUtils.isDebugEnabled()) {
+            String names = enchantments.stream().map(ench -> ench.getKey() + ":" + ench.getLevel()).collect(Collectors.joining(", "));
+            DiagnosticUtils.debug("SHATTER", "Click: enchantments=[" + names + "]");
+        }
+
         if (e.isShiftClick()) {
+            DiagnosticUtils.debug("SHATTER", "Click: shift-click blocked → CANCELLED");
             e.setCancelled(true);
             return;
         }
 
-        if (AnvilCostUtils.getRepairCost(anvilInventory, e.getView()) > p.getLevel() && p.getGameMode() != org.bukkit.GameMode.CREATIVE) {
+        int repairCost = AnvilCostUtils.getRepairCost(anvilInventory, e.getView());
+        DiagnosticUtils.debug("SHATTER", "Click: xp check — repairCost=" + repairCost + ", playerLevel=" + p.getLevel());
+        if (repairCost > p.getLevel() && p.getGameMode() != org.bukkit.GameMode.CREATIVE) {
+            DiagnosticUtils.debug("SHATTER", "Click: insufficient XP → CANCELLED");
             e.setCancelled(true);
             return;
         }
 
-        if (!PermissionGroupType.SHATTER_EVENT.hasPermission(p)) return;
+        if (!PermissionGroupType.SHATTER_EVENT.hasPermission(p)) {
+            DiagnosticUtils.debug("SHATTER", "Click: permission denied → exit");
+            return;
+        }
 
         // Economy check
+        DiagnosticUtils.debug("SHATTER", "Click: economy check — enabled=" + Config.Shatterment.Economy.isEnabled() + ", gameMode=" + p.getGameMode());
         if (Config.Shatterment.Economy.isEnabled() && p.getGameMode() != org.bukkit.GameMode.CREATIVE) {
             if (!EconomyUtils.isAvailable()) {
+                DiagnosticUtils.debug("SHATTER", "Click: economy not available → CANCELLED");
                 p.sendMessage(I18n.getPrefix() + " " + I18n.Messages.economyNotAvailable());
                 e.setCancelled(true);
                 return;
             }
             double economyCost = Config.Shatterment.Economy.getCost();
             if (!EconomyUtils.has(p, economyCost)) {
+                DiagnosticUtils.debug("SHATTER", "Click: insufficient funds → CANCELLED");
                 p.sendMessage(I18n.getPrefix() + " " + I18n.Messages.economyInsufficientFunds(EconomyUtils.format(economyCost)));
                 e.setCancelled(true);
                 return;
@@ -113,7 +134,8 @@ public class ShatterClickEvent {
             }
         }
 
-        int exp = p.getLevel() - AnvilCostUtils.getRepairCost(anvilInventory, e.getView());
+        int exp = p.getLevel() - repairCost;
+        DiagnosticUtils.debug("SHATTER", "Click: xp → " + p.getLevel() + " - " + repairCost + " = " + exp);
 
         // ----------------------------------------------------------------------------------------------------
         // Disenchantment plugins
@@ -181,5 +203,7 @@ public class ShatterClickEvent {
                     Float.parseFloat(Config.Shatterment.Anvil.Sound.getVolume().toString()),
                     Float.parseFloat(Config.Shatterment.Anvil.Sound.getPitch().toString())
             );
+
+        DiagnosticUtils.debug("SHATTER", "Click: complete ✓");
     }
 }

@@ -38,7 +38,13 @@ public class UpdateChecker {
                 InputStream is = new URI("https://api.spigotmc.org/legacy/update.php?resource=" + this.resourceId).toURL().openStream();
                 Scanner scan = new Scanner(is)
         ) {
-            if (scan.hasNext()) consumer.accept(scan.next());
+            if (scan.hasNext()) {
+                String latest = scan.next();
+                DiagnosticUtils.debug("UPDATE", "Latest version from SpigotMC: " + latest);
+                consumer.accept(latest);
+            } else {
+                DiagnosticUtils.debug("UPDATE", "SpigotMC API returned an empty response");
+            }
         } catch (IOException e) {
             logger.warning("Cannot look for updates: " + e.getMessage());
         } catch (URISyntaxException e) {
@@ -53,9 +59,16 @@ public class UpdateChecker {
      * @return a runnable update check task
      */
     public Runnable runnableUpdateTask(String version) {
-        return () -> this.getVersion(newVersion -> {
-            if (!version.equals(newVersion)) logger.info("There is a new version available: v" + newVersion);
-        });
+        return () -> {
+            DiagnosticUtils.debug("UPDATE", "Running scheduled update check (current=" + version + ")");
+            this.getVersion(newVersion -> {
+                if (!version.equals(newVersion)) {
+                    logger.info("There is a new version available: v" + newVersion);
+                } else {
+                    DiagnosticUtils.debug("UPDATE", "Plugin is up to date (version=" + version + ")");
+                }
+            });
+        };
     }
 
     /**

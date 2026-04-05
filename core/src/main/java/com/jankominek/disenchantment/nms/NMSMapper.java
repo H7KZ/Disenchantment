@@ -1,5 +1,7 @@
 package com.jankominek.disenchantment.nms;
 
+import com.jankominek.disenchantment.utils.DiagnosticUtils;
+
 import java.util.logging.Level;
 
 import static com.jankominek.disenchantment.Disenchantment.logger;
@@ -22,13 +24,24 @@ public class NMSMapper {
         NMS nms = null;
 
         try {
-            String nmsVersion = MinecraftVersion.getServerVersion().getNmsVersion();
+            MinecraftVersion version = MinecraftVersion.getServerVersion();
+            String nmsVersion = version.getNmsVersion();
 
-            if (nmsVersion == null) return null;
+            DiagnosticUtils.debug("NMS", "Resolved MinecraftVersion: " + version.name() + " → nmsVersion=" + nmsVersion);
 
-            Class<?> clazz = Class.forName("com.jankominek.disenchantment.nms.NMS_" + nmsVersion);
+            if (nmsVersion == null) {
+                DiagnosticUtils.debug("NMS", "Setup: FAILED (no NMS module for this Minecraft version)");
+                return null;
+            }
 
-            if (NMS.class.isAssignableFrom(clazz)) nms = (NMS) clazz.getDeclaredConstructor().newInstance();
+            String className = "com.jankominek.disenchantment.nms.NMS_" + nmsVersion;
+            DiagnosticUtils.debug("NMS", "Loading class: " + className);
+            Class<?> clazz = Class.forName(className);
+
+            if (NMS.class.isAssignableFrom(clazz)) {
+                nms = (NMS) clazz.getDeclaredConstructor().newInstance();
+                DiagnosticUtils.debug("NMS", "NMS instance created: " + nms.getClass().getSimpleName());
+            }
 
             return nms;
         } catch (Exception e) {

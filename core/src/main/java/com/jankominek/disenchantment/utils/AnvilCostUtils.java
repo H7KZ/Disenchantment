@@ -61,29 +61,36 @@ public class AnvilCostUtils {
     public static int countAnvilCost(List<IPluginEnchantment> enchantments, AnvilEventType anvilEventType) {
         double enchantmentCost;
         double baseMultiplier;
+        String category = anvilEventType == AnvilEventType.DISENCHANTMENT ? "DISENCHANT" : "SHATTER";
 
         switch (anvilEventType) {
             case DISENCHANTMENT:
-                if (!Config.Disenchantment.Anvil.Repair.isCostEnabled()) return 0;
+                if (!Config.Disenchantment.Anvil.Repair.isCostEnabled()) {
+                    DiagnosticUtils.debug(category, "AnvilCost: XP cost disabled by config → 0");
+                    return 0;
+                }
 
                 enchantmentCost = Config.Disenchantment.Anvil.Repair.getBaseCost();
                 baseMultiplier = Config.Disenchantment.Anvil.Repair.getCostMultiplier();
-
                 break;
             case SHATTERMENT:
-                if (!Config.Shatterment.Anvil.Repair.isCostEnabled()) return 0;
+                if (!Config.Shatterment.Anvil.Repair.isCostEnabled()) {
+                    DiagnosticUtils.debug(category, "AnvilCost: XP cost disabled by config → 0");
+                    return 0;
+                }
 
                 enchantmentCost = Config.Shatterment.Anvil.Repair.getBaseCost();
                 baseMultiplier = Config.Shatterment.Anvil.Repair.getCostMultiplier();
-
                 break;
             default:
                 return 0;
         }
 
+        DiagnosticUtils.debug(category, "AnvilCost: base=" + enchantmentCost + ", multiplier=" + baseMultiplier + ", enchantments=" + enchantments.size());
+
         AtomicDouble multiplier = new AtomicDouble(baseMultiplier);
 
-        // sort by value
+        // sort by level descending
         IPluginEnchantment[] sortedEnchantments = enchantments.stream()
                 .sorted((e1, e2) -> Integer.compare(e2.getLevel(), e1.getLevel()))
                 .toArray(IPluginEnchantment[]::new);
@@ -95,6 +102,8 @@ public class AnvilCostUtils {
             multiplier.set(multiplier.get() + baseMultiplier);
         }
 
-        return (int) Math.round(enchantmentCost);
+        int result = (int) Math.round(enchantmentCost);
+        DiagnosticUtils.debug(category, "AnvilCost: calculated=" + result + " XP levels");
+        return result;
     }
 }

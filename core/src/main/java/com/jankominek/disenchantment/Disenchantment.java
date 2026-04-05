@@ -8,6 +8,7 @@ import com.jankominek.disenchantment.listeners.DisenchantClickListener;
 import com.jankominek.disenchantment.listeners.DisenchantListener;
 import com.jankominek.disenchantment.listeners.ShatterClickListener;
 import com.jankominek.disenchantment.listeners.ShatterListener;
+import com.jankominek.disenchantment.nms.MinecraftVersion;
 import com.jankominek.disenchantment.nms.NMS;
 import com.jankominek.disenchantment.nms.NMSMapper;
 import com.jankominek.disenchantment.plugins.ISupportedPlugin;
@@ -75,6 +76,10 @@ public final class Disenchantment extends JavaPlugin {
         logger = getLogger();
         startedAt = Instant.now();
 
+        // Config (loaded before NMS so debug logging is available during NMS setup)
+        ConfigUtils.setupConfig();
+        config = getConfig();
+
         // NMS net.minecraft.server
         NMS mappedNMS = NMSMapper.setup();
         if (mappedNMS == null) {
@@ -83,10 +88,6 @@ public final class Disenchantment extends JavaPlugin {
             return;
         }
         nms = mappedNMS;
-
-        // Config
-        ConfigUtils.setupConfig();
-        config = getConfig();
 
         // Locale
         ConfigUtils.setupLocaleConfigs();
@@ -135,10 +136,21 @@ public final class Disenchantment extends JavaPlugin {
             }
 
             if (Config.Logging.getLevel().isAtLeast(LogLevelType.DEBUG)) {
-                logger.info("Event priorities — disenchant: " + Config.EventPriorities.getDisenchantEvent()
+                DiagnosticUtils.debug("STARTUP", "NMS: " + nms.getClass().getSimpleName() + " (MC version: " + MinecraftVersion.getServerVersion().name() + ")");
+                DiagnosticUtils.debug("STARTUP", "Scheduler: Folia=" + SchedulerUtils.isFolia());
+                DiagnosticUtils.debug("STARTUP", "Locale: " + Config.getLocale());
+                DiagnosticUtils.debug("STARTUP", "Event priorities — disenchant: " + Config.EventPriorities.getDisenchantEvent()
                         + ", disenchant-click: " + Config.EventPriorities.getDisenchantClickEvent()
                         + ", shatter: " + Config.EventPriorities.getShatterEvent()
                         + ", shatter-click: " + Config.EventPriorities.getShatterClickEvent());
+                DiagnosticUtils.debug("STARTUP", "Disenchantment: enabled=" + Config.Disenchantment.isEnabled()
+                        + ", economy.enabled=" + Config.Disenchantment.Economy.isEnabled()
+                        + ", economy.cost=" + Config.Disenchantment.Economy.getCost()
+                        + ", economy.show-cost=" + Config.Disenchantment.Economy.isShowCostEnabled());
+                DiagnosticUtils.debug("STARTUP", "Shatterment: enabled=" + Config.Shatterment.isEnabled()
+                        + ", economy.enabled=" + Config.Shatterment.Economy.isEnabled()
+                        + ", economy.cost=" + Config.Shatterment.Economy.getCost()
+                        + ", economy.show-cost=" + Config.Shatterment.Economy.isShowCostEnabled());
             }
         }
 
@@ -148,6 +160,7 @@ public final class Disenchantment extends JavaPlugin {
         new ShatterListener(Config.EventPriorities.getShatterEvent());
         new ShatterClickListener(Config.EventPriorities.getShatterClickEvent());
         getServer().getPluginManager().registerEvents(new GUIClickEvent(), plugin);
+        DiagnosticUtils.debug("STARTUP", "All listeners registered");
 
         // Commands
         Objects.requireNonNull(getCommand(Disenchantment.commandName)).setExecutor(new CommandRegister());

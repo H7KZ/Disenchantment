@@ -20,6 +20,7 @@ import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Handles the {@link InventoryClickEvent} when a player clicks the result slot
@@ -65,6 +66,8 @@ public class DisenchantClickEvent {
 
         if (result.getType() != Material.ENCHANTED_BOOK) return;
 
+        DiagnosticUtils.debug("DISENCHANT", "Click: player=" + p.getName() + ", result=" + result.getType() + ", gameMode=" + p.getGameMode());
+
         ItemStack firstItem = anvilInventory.getItem(0);
         ItemStack secondItem = anvilInventory.getItem(1);
 
@@ -80,24 +83,41 @@ public class DisenchantClickEvent {
             }
         }
 
-        if (enchantments.isEmpty()) return;
+        if (enchantments.isEmpty()) {
+            DiagnosticUtils.debug("DISENCHANT", "Click: no eligible enchantments → exit");
+            return;
+        }
 
-        if (AnvilCostUtils.getRepairCost(anvilInventory, e.getView()) > p.getLevel() && p.getGameMode() != org.bukkit.GameMode.CREATIVE) {
+        if (DiagnosticUtils.isDebugEnabled()) {
+            String names = enchantments.stream().map(ench -> ench.getKey() + ":" + ench.getLevel()).collect(Collectors.joining(", "));
+            DiagnosticUtils.debug("DISENCHANT", "Click: enchantments=[" + names + "]");
+        }
+
+        int repairCost = AnvilCostUtils.getRepairCost(anvilInventory, e.getView());
+        DiagnosticUtils.debug("DISENCHANT", "Click: xp check — repairCost=" + repairCost + ", playerLevel=" + p.getLevel());
+        if (repairCost > p.getLevel() && p.getGameMode() != org.bukkit.GameMode.CREATIVE) {
+            DiagnosticUtils.debug("DISENCHANT", "Click: insufficient XP → CANCELLED");
             e.setCancelled(true);
             return;
         }
 
-        if (!PermissionGroupType.DISENCHANT_EVENT.hasPermission(p)) return;
+        if (!PermissionGroupType.DISENCHANT_EVENT.hasPermission(p)) {
+            DiagnosticUtils.debug("DISENCHANT", "Click: permission denied → exit");
+            return;
+        }
 
         // Economy check
+        DiagnosticUtils.debug("DISENCHANT", "Click: economy check — enabled=" + Config.Disenchantment.Economy.isEnabled() + ", gameMode=" + p.getGameMode());
         if (Config.Disenchantment.Economy.isEnabled() && p.getGameMode() != org.bukkit.GameMode.CREATIVE) {
             if (!EconomyUtils.isAvailable()) {
+                DiagnosticUtils.debug("DISENCHANT", "Click: economy not available → CANCELLED");
                 p.sendMessage(I18n.getPrefix() + " " + I18n.Messages.economyNotAvailable());
                 e.setCancelled(true);
                 return;
             }
             double economyCost = Config.Disenchantment.Economy.getCost();
             if (!EconomyUtils.has(p, economyCost)) {
+                DiagnosticUtils.debug("DISENCHANT", "Click: insufficient funds → CANCELLED");
                 p.sendMessage(I18n.getPrefix() + " " + I18n.Messages.economyInsufficientFunds(EconomyUtils.format(economyCost)));
                 e.setCancelled(true);
                 return;
@@ -108,7 +128,8 @@ public class DisenchantClickEvent {
             }
         }
 
-        int exp = p.getLevel() - AnvilCostUtils.getRepairCost(anvilInventory, e.getView());
+        int exp = p.getLevel() - repairCost;
+        DiagnosticUtils.debug("DISENCHANT", "Click: xp → " + p.getLevel() + " - " + repairCost + " = " + exp);
 
         // ----------------------------------------------------------------------------------------------------
         // Supported plugins
@@ -174,5 +195,7 @@ public class DisenchantClickEvent {
                     Float.parseFloat(Config.Disenchantment.Anvil.Sound.getVolume().toString()),
                     Float.parseFloat(Config.Disenchantment.Anvil.Sound.getPitch().toString())
             );
+
+        DiagnosticUtils.debug("DISENCHANT", "Click: complete ✓");
     }
 }

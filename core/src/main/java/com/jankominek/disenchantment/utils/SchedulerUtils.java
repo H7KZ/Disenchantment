@@ -7,6 +7,8 @@ import org.bukkit.plugin.Plugin;
 import java.lang.reflect.Method;
 import java.util.function.Consumer;
 
+import static com.jankominek.disenchantment.Disenchantment.logger;
+
 /**
  * Abstraction layer for task scheduling that supports both standard Bukkit/Spigot servers
  * and Folia (Paper's regionized multithreading). Uses reflection to detect and invoke
@@ -66,6 +68,15 @@ public class SchedulerUtils {
     }
 
     /**
+     * Returns whether this server is running Folia (detected at class load time via reflection).
+     *
+     * @return {@code true} if Folia's regionized scheduler is available
+     */
+    public static boolean isFolia() {
+        return IS_FOLIA;
+    }
+
+    /**
      * Cancels the given scheduled task. Supports both Folia ScheduledTask and standard BukkitTask.
      *
      * @param task the task object to cancel, or null (no-op)
@@ -81,7 +92,7 @@ public class SchedulerUtils {
                     return;
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                logger.warning("[SCHEDULER] cancelTask (Folia) failed: " + e.getMessage());
             }
         }
 
@@ -104,7 +115,7 @@ public class SchedulerUtils {
                 Object scheduler = entityGetScheduler.invoke(entity);
                 entityRun.invoke(scheduler, plugin, (Consumer<Object>) (t) -> task.run(), null);
             } catch (Exception e) {
-                e.printStackTrace();
+                logger.warning("[SCHEDULER] runForEntity (Folia) failed: " + e.getMessage());
             }
         } else {
             Bukkit.getScheduler().runTask(plugin, task);
@@ -125,7 +136,7 @@ public class SchedulerUtils {
                 Object scheduler = entityGetScheduler.invoke(entity);
                 entityRunDelayed.invoke(scheduler, plugin, (Consumer<Object>) (t) -> task.run(), null, delayTicks);
             } catch (Exception e) {
-                e.printStackTrace();
+                logger.warning("[SCHEDULER] runForEntityLater (Folia) failed: " + e.getMessage());
             }
         } else {
             Bukkit.getScheduler().runTaskLater(plugin, task, delayTicks);
@@ -144,7 +155,7 @@ public class SchedulerUtils {
                 Object scheduler = getGlobalRegionScheduler.invoke(Bukkit.getServer());
                 globalRun.invoke(scheduler, plugin, (Consumer<Object>) (t) -> task.run());
             } catch (Exception e) {
-                e.printStackTrace();
+                logger.warning("[SCHEDULER] runGlobal (Folia) failed: " + e.getMessage());
             }
         } else {
             Bukkit.getScheduler().runTask(plugin, task);
@@ -169,7 +180,7 @@ public class SchedulerUtils {
                 return asyncRunAtFixedRate.invoke(scheduler, plugin, (Consumer<Object>) (t) -> task.run(),
                         delayTicks * 50L, periodTicks * 50L, java.util.concurrent.TimeUnit.MILLISECONDS);
             } catch (Exception e) {
-                e.printStackTrace();
+                logger.warning("[SCHEDULER] runAsyncTimer (Folia) failed: " + e.getMessage());
             }
             return null;
         } else {
@@ -191,7 +202,7 @@ public class SchedulerUtils {
                 globalCancelTasks.invoke(globalScheduler, plugin);
                 asyncCancelTasks.invoke(asyncScheduler, plugin);
             } catch (Exception e) {
-                e.printStackTrace();
+                logger.warning("[SCHEDULER] cancelAllTasks (Folia) failed: " + e.getMessage());
             }
         } else {
             Bukkit.getScheduler().cancelTasks(plugin);

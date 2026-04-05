@@ -21,6 +21,7 @@ import org.bukkit.inventory.ItemStack;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.jankominek.disenchantment.utils.AnvilCostUtils.countAnvilCost;
 
@@ -53,8 +54,13 @@ public class ShatterEvent {
         if (!Config.isPluginEnabled() || !Config.Shatterment.isEnabled() || Config.Shatterment.getDisabledWorlds().contains(p.getWorld()))
             return;
 
+        DiagnosticUtils.debug("SHATTER", "PrepareAnvil: player=" + p.getName() + ", world=" + p.getWorld().getName());
+
         ItemStack firstItem = e.getInventory().getItem(0);
         ItemStack secondItem = e.getInventory().getItem(1);
+
+        DiagnosticUtils.debug("SHATTER", "PrepareAnvil: slot0=" + (firstItem != null ? firstItem.getType() : "null")
+                + ", slot1=" + (secondItem != null ? secondItem.getType() : "null"));
 
         List<ISupportedPlugin> activatedPlugins = SupportedPluginManager.getAllActivatedPlugins();
 
@@ -68,9 +74,15 @@ public class ShatterEvent {
             }
         }
 
-        if (enchantments.isEmpty()) return;
+        if (enchantments.isEmpty()) {
+            DiagnosticUtils.debug("SHATTER", "PrepareAnvil: no eligible enchantments → exit");
+            return;
+        }
 
-        if (!PermissionGroupType.SHATTER_EVENT.hasPermission(p)) return;
+        if (!PermissionGroupType.SHATTER_EVENT.hasPermission(p)) {
+            DiagnosticUtils.debug("SHATTER", "PrepareAnvil: permission denied → exit");
+            return;
+        }
 
         List<IPluginEnchantment> pluginEnchantments = new ArrayList<>();
 
@@ -82,6 +94,13 @@ public class ShatterEvent {
         for (int i = 0; i < halfSize; i++) {
             IPluginEnchantment enchantment = shuffleEnchantments.get(i);
             pluginEnchantments.add(enchantment);
+        }
+
+        if (DiagnosticUtils.isDebugEnabled()) {
+            String allNames = enchantments.stream().map(ench -> ench.getKey() + ":" + ench.getLevel()).collect(Collectors.joining(", "));
+            String splitNames = pluginEnchantments.stream().map(ench -> ench.getKey() + ":" + ench.getLevel()).collect(Collectors.joining(", "));
+            DiagnosticUtils.debug("SHATTER", "PrepareAnvil: source enchantments=[" + allNames + "] (" + enchantments.size() + " total)");
+            DiagnosticUtils.debug("SHATTER", "PrepareAnvil: splitting → selected=[" + splitNames + "] (halfSize=" + halfSize + ")");
         }
 
         // ----------------------------------------------------------------------------------------------------
@@ -98,12 +117,20 @@ public class ShatterEvent {
 
         e.setResult(book);
 
-        AnvilCostUtils.setAnvilRepairCost(e.getInventory(), e.getView(), countAnvilCost(enchantments, AnvilEventType.SHATTERMENT));
+        int anvilCost = countAnvilCost(enchantments, AnvilEventType.SHATTERMENT);
+        DiagnosticUtils.debug("SHATTER", "PrepareAnvil: anvil cost=" + anvilCost);
+        AnvilCostUtils.setAnvilRepairCost(e.getInventory(), e.getView(), anvilCost);
+
+        DiagnosticUtils.debug("SHATTER", "PrepareAnvil: economy display — enabled=" + Config.Shatterment.Economy.isEnabled()
+                + ", available=" + EconomyUtils.isAvailable()
+                + ", show-cost=" + Config.Shatterment.Economy.isShowCostEnabled()
+                + ", gameMode=" + p.getGameMode());
 
         if (Config.Shatterment.Economy.isEnabled()
                 && EconomyUtils.isAvailable()
                 && Config.Shatterment.Economy.isShowCostEnabled()
                 && p.getGameMode() != GameMode.CREATIVE) {
+            DiagnosticUtils.debug("SHATTER", "PrepareAnvil: showing economy action bar → " + EconomyUtils.format(Config.Shatterment.Economy.getCost()));
             p.spigot().sendMessage(
                     ChatMessageType.ACTION_BAR,
                     TextComponent.fromLegacyText(I18n.Messages.economyCost(EconomyUtils.format(Config.Shatterment.Economy.getCost())))

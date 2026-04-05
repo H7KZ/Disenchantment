@@ -20,6 +20,7 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.jankominek.disenchantment.utils.AnvilCostUtils.countAnvilCost;
 
@@ -52,8 +53,13 @@ public class DisenchantEvent {
         if (!Config.isPluginEnabled() || !Config.Disenchantment.isEnabled() || Config.Disenchantment.getDisabledWorlds().contains(p.getWorld()))
             return;
 
+        DiagnosticUtils.debug("DISENCHANT", "PrepareAnvil: player=" + p.getName() + ", world=" + p.getWorld().getName());
+
         ItemStack firstItem = e.getInventory().getItem(0);
         ItemStack secondItem = e.getInventory().getItem(1);
+
+        DiagnosticUtils.debug("DISENCHANT", "PrepareAnvil: slot0=" + (firstItem != null ? firstItem.getType() : "null")
+                + ", slot1=" + (secondItem != null ? secondItem.getType() : "null"));
 
         List<ISupportedPlugin> activatedPlugins = SupportedPluginManager.getAllActivatedPlugins();
 
@@ -67,9 +73,20 @@ public class DisenchantEvent {
             }
         }
 
-        if (pluginEnchantments.isEmpty()) return;
+        if (pluginEnchantments.isEmpty()) {
+            DiagnosticUtils.debug("DISENCHANT", "PrepareAnvil: no eligible enchantments → exit");
+            return;
+        }
 
-        if (!PermissionGroupType.DISENCHANT_EVENT.hasPermission(p)) return;
+        if (DiagnosticUtils.isDebugEnabled()) {
+            String names = pluginEnchantments.stream().map(ench -> ench.getKey() + ":" + ench.getLevel()).collect(Collectors.joining(", "));
+            DiagnosticUtils.debug("DISENCHANT", "PrepareAnvil: enchantments=[" + names + "] (" + pluginEnchantments.size() + " total)");
+        }
+
+        if (!PermissionGroupType.DISENCHANT_EVENT.hasPermission(p)) {
+            DiagnosticUtils.debug("DISENCHANT", "PrepareAnvil: permission denied → exit");
+            return;
+        }
 
         // ----------------------------------------------------------------------------------------------------
         // Disenchantment plugins
@@ -85,12 +102,20 @@ public class DisenchantEvent {
 
         e.setResult(book);
 
-        AnvilCostUtils.setAnvilRepairCost(e.getInventory(), e.getView(), countAnvilCost(pluginEnchantments, AnvilEventType.DISENCHANTMENT));
+        int anvilCost = countAnvilCost(pluginEnchantments, AnvilEventType.DISENCHANTMENT);
+        DiagnosticUtils.debug("DISENCHANT", "PrepareAnvil: anvil cost=" + anvilCost);
+        AnvilCostUtils.setAnvilRepairCost(e.getInventory(), e.getView(), anvilCost);
+
+        DiagnosticUtils.debug("DISENCHANT", "PrepareAnvil: economy display — enabled=" + Config.Disenchantment.Economy.isEnabled()
+                + ", available=" + EconomyUtils.isAvailable()
+                + ", show-cost=" + Config.Disenchantment.Economy.isShowCostEnabled()
+                + ", gameMode=" + p.getGameMode());
 
         if (Config.Disenchantment.Economy.isEnabled()
                 && EconomyUtils.isAvailable()
                 && Config.Disenchantment.Economy.isShowCostEnabled()
                 && p.getGameMode() != GameMode.CREATIVE) {
+            DiagnosticUtils.debug("DISENCHANT", "PrepareAnvil: showing economy action bar → " + EconomyUtils.format(Config.Disenchantment.Economy.getCost()));
             p.spigot().sendMessage(
                     ChatMessageType.ACTION_BAR,
                     TextComponent.fromLegacyText(I18n.Messages.economyCost(EconomyUtils.format(Config.Disenchantment.Economy.getCost())))

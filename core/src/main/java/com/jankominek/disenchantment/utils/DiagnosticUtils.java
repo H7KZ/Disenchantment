@@ -6,6 +6,7 @@ import com.jankominek.disenchantment.nms.NMSMapper;
 import com.jankominek.disenchantment.plugins.ISupportedPlugin;
 import com.jankominek.disenchantment.plugins.SupportedPluginManager;
 import com.jankominek.disenchantment.types.EnchantmentStateType;
+import com.jankominek.disenchantment.types.LogLevelType;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -109,6 +110,32 @@ public class DiagnosticUtils {
             logger.warning("Failed to save diagnostic report to file: " + ex.getMessage());
             return null;
         }
+    }
+
+    /**
+     * Returns {@code true} if debug-level logging is currently active.
+     * Safe to call at any point in the plugin lifecycle — returns {@code false} if
+     * config is not yet loaded.
+     *
+     * @return {@code true} if {@code logging.level} is set to {@link LogLevelType#DEBUG}
+     */
+    public static boolean isDebugEnabled() {
+        if (Disenchantment.config == null) return false;
+        return Config.Logging.getLevel().isAtLeast(LogLevelType.DEBUG);
+    }
+
+    /**
+     * Logs a categorised debug message when {@link LogLevelType#DEBUG} is active.
+     * Output format: {@code [DEBUG][CATEGORY] message}
+     * <p>Safe to call before config is fully loaded — silently dropped if config is unavailable.</p>
+     *
+     * @param category short subsystem tag, e.g. {@code "ECONOMY"}, {@code "NMS"}, {@code "DISENCHANT"}
+     * @param msg      the debug message
+     */
+    public static void debug(String category, String msg) {
+        if (Disenchantment.config == null) return;
+        if (Config.Logging.getLevel().isAtLeast(LogLevelType.DEBUG))
+            logger.info("[DEBUG][" + category + "] " + msg);
     }
 
     /**

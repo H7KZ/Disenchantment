@@ -1,5 +1,7 @@
 package com.jankominek.disenchantment.plugins;
 
+import com.jankominek.disenchantment.utils.DiagnosticUtils;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -55,14 +57,22 @@ public class SupportedPluginManager {
      * @param plugins the names of plugins currently loaded on the server
      */
     public static void activatePlugins(List<String> plugins) {
+        List<String> supportedNames = getAllSupportedPluginsNames();
+        DiagnosticUtils.debug("ADAPTER", "Supported adapters for this NMS: " + supportedNames);
+
+        int activated = 0;
         for (String plugin : plugins) {
             ISupportedPlugin supportedPlugin = getSupportedPluginByName(plugin);
 
             if (supportedPlugin != null) {
                 activatedPlugins.add(supportedPlugin);
                 supportedPlugin.activate();
+                DiagnosticUtils.debug("ADAPTER", plugin + " → ACTIVATED");
+                activated++;
             }
         }
+
+        DiagnosticUtils.debug("ADAPTER", "Activation complete. Active: " + getAllActivatedPluginsNames() + " (" + activated + "/" + supportedNames.size() + ")");
     }
 
     /**

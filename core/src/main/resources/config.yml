@@ -20,6 +20,8 @@ event-priorities:
 # ----------------------------------------------------------------------------------------
 
 logging:
+  # NONE = silent | INFO = startup summary | DEBUG = full operation tracing (NMS, adapters, economy, event flow)
+  # Set to DEBUG when reporting issues — logs [DEBUG][CATEGORY] lines to the console for every anvil interaction.
   level: INFO
   save-reports: true
 

@@ -87,12 +87,16 @@ public class ConfigUtils {
     public static void setupLocaleConfigs() {
         for (String locale : Config.getLocales()) {
             File localeFile = new File(plugin.getDataFolder(), "locales/" + locale + ".yml");
+            DiagnosticUtils.debug("CONFIG", "Locale setup: extracting " + locale + ".yml → " + localeFile.getPath());
 
             try {
                 InputStream in = plugin.getResource("locales/" + locale + ".yml");
-                if (in != null) {
-                    YamlConfiguration.loadConfiguration(new InputStreamReader(in, StandardCharsets.UTF_8)).save(localeFile);
+                if (in == null) {
+                    DiagnosticUtils.debug("CONFIG", "Locale setup: resource not found in JAR for '" + locale + "'");
+                    continue;
                 }
+                YamlConfiguration.loadConfiguration(new InputStreamReader(in, StandardCharsets.UTF_8)).save(localeFile);
+                DiagnosticUtils.debug("CONFIG", "Locale setup: saved " + locale + ".yml");
             } catch (Exception e) {
                 logger.log(Level.SEVERE, "Could not save " + locale + ".yml", e);
             }

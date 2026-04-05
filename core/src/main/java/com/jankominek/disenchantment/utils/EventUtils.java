@@ -11,6 +11,7 @@ import org.bukkit.inventory.ItemStack;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Utility class containing event-processing logic for disenchantment and shatterment operations.
@@ -38,22 +39,37 @@ public class EventUtils {
             if (firstItem.getType() == Material.ENCHANTED_BOOK) return List.of();
             if (secondItem.getType() != Material.BOOK) return List.of();
 
-            if (isMaterialDisabled(firstItem)) return List.of();
+            if (isMaterialDisabled(firstItem)) {
+                DiagnosticUtils.debug("DISENCHANT", "EventUtils: rejected — material " + firstItem.getType() + " is disabled by config");
+                return List.of();
+            }
 
             List<IPluginEnchantment> secondEnchants = EnchantmentUtils.getItemEnchantments(secondItem);
 
-            if (!secondEnchants.isEmpty()) return List.of();
+            if (!secondEnchants.isEmpty()) {
+                DiagnosticUtils.debug("DISENCHANT", "EventUtils: rejected — slot1 book is not blank (" + secondEnchants.size() + " enchant(s) present)");
+                return List.of();
+            }
 
             List<IPluginEnchantment> firstEnchants = EnchantmentUtils.getItemEnchantments(firstItem);
 
-            if (Disenchantment.isAtLeastOneEnchantmentDisabled(firstEnchants)) return List.of();
+            if (Disenchantment.isAtLeastOneEnchantmentDisabled(firstEnchants)) {
+                DiagnosticUtils.debug("DISENCHANT", "EventUtils: rejected — at least one enchantment has state=DISABLE");
+                return List.of();
+            }
 
+            int beforeFilter = firstEnchants.size();
             for (Map.Entry<String, EnchantmentStateType> entry : Config.Disenchantment.getEnchantmentStates().entrySet()) {
                 String key = entry.getKey();
                 EnchantmentStateType state = entry.getValue();
 
                 if (EnchantmentStateType.KEEP.equals(state) || (withDelete && EnchantmentStateType.DELETE.equals(state)))
                     firstEnchants.removeIf(e -> e.getKey().equalsIgnoreCase(key));
+            }
+
+            if (DiagnosticUtils.isDebugEnabled() && beforeFilter != firstEnchants.size()) {
+                String remaining = firstEnchants.stream().map(e -> e.getKey() + ":" + e.getLevel()).collect(Collectors.joining(", "));
+                DiagnosticUtils.debug("DISENCHANT", "EventUtils: config state filtering removed " + (beforeFilter - firstEnchants.size()) + " enchant(s), remaining: [" + remaining + "]");
             }
 
             return firstEnchants;
@@ -76,22 +92,37 @@ public class EventUtils {
             if (firstItem.getType() == Material.ENCHANTED_BOOK) return List.of();
             if (secondItem.getType() != Material.BOOK) return List.of();
 
-            if (isMaterialDisabled(firstItem)) return List.of();
+            if (isMaterialDisabled(firstItem)) {
+                DiagnosticUtils.debug("DISENCHANT", "EventUtils [" + activatedPlugin.getName() + "]: rejected — material " + firstItem.getType() + " is disabled by config");
+                return List.of();
+            }
 
             List<IPluginEnchantment> secondEnchants = activatedPlugin.getItemEnchantments(secondItem, world);
 
-            if (!secondEnchants.isEmpty()) return List.of();
+            if (!secondEnchants.isEmpty()) {
+                DiagnosticUtils.debug("DISENCHANT", "EventUtils [" + activatedPlugin.getName() + "]: rejected — slot1 book is not blank (" + secondEnchants.size() + " enchant(s) present)");
+                return List.of();
+            }
 
             List<IPluginEnchantment> firstEnchants = activatedPlugin.getItemEnchantments(firstItem, world);
 
-            if (Disenchantment.isAtLeastOneEnchantmentDisabled(firstEnchants)) return List.of();
+            if (Disenchantment.isAtLeastOneEnchantmentDisabled(firstEnchants)) {
+                DiagnosticUtils.debug("DISENCHANT", "EventUtils [" + activatedPlugin.getName() + "]: rejected — at least one enchantment has state=DISABLE");
+                return List.of();
+            }
 
+            int beforeFilter = firstEnchants.size();
             for (Map.Entry<String, EnchantmentStateType> entry : Config.Disenchantment.getEnchantmentStates().entrySet()) {
                 String key = entry.getKey();
                 EnchantmentStateType state = entry.getValue();
 
                 if (EnchantmentStateType.KEEP.equals(state) || (withDelete && EnchantmentStateType.DELETE.equals(state)))
                     firstEnchants.removeIf(e -> e.getKey().equalsIgnoreCase(key));
+            }
+
+            if (DiagnosticUtils.isDebugEnabled() && beforeFilter != firstEnchants.size()) {
+                String remaining = firstEnchants.stream().map(e -> e.getKey() + ":" + e.getLevel()).collect(Collectors.joining(", "));
+                DiagnosticUtils.debug("DISENCHANT", "EventUtils [" + activatedPlugin.getName() + "]: config state filtering removed " + (beforeFilter - firstEnchants.size()) + " enchant(s), remaining: [" + remaining + "]");
             }
 
             return firstEnchants;
@@ -156,20 +187,35 @@ public class EventUtils {
 
             List<IPluginEnchantment> secondEnchants = EnchantmentUtils.getItemEnchantments(secondItem);
 
-            if (!secondEnchants.isEmpty()) return List.of();
+            if (!secondEnchants.isEmpty()) {
+                DiagnosticUtils.debug("SHATTER", "EventUtils: rejected — slot1 book is not blank (" + secondEnchants.size() + " enchant(s) present)");
+                return List.of();
+            }
 
             List<IPluginEnchantment> firstEnchants = EnchantmentUtils.getItemEnchantments(firstItem);
 
-            if (Shatterment.isAtLeastOneEnchantmentDisabled(firstEnchants)) return List.of();
+            if (Shatterment.isAtLeastOneEnchantmentDisabled(firstEnchants)) {
+                DiagnosticUtils.debug("SHATTER", "EventUtils: rejected — at least one enchantment has state=DISABLE");
+                return List.of();
+            }
 
-            if (firstEnchants.size() < 2) return List.of();
+            if (firstEnchants.size() < 2) {
+                DiagnosticUtils.debug("SHATTER", "EventUtils: rejected — book has only " + firstEnchants.size() + " eligible enchantment(s) (need ≥2)");
+                return List.of();
+            }
 
+            int beforeFilter = firstEnchants.size();
             for (Map.Entry<String, EnchantmentStateType> entry : Config.Shatterment.getEnchantmentStates().entrySet()) {
                 String key = entry.getKey();
                 EnchantmentStateType state = entry.getValue();
 
                 if (EnchantmentStateType.KEEP.equals(state) || (withDelete && EnchantmentStateType.DELETE.equals(state)))
                     firstEnchants.removeIf(e -> e.getKey().equalsIgnoreCase(key));
+            }
+
+            if (DiagnosticUtils.isDebugEnabled() && beforeFilter != firstEnchants.size()) {
+                String remaining = firstEnchants.stream().map(e -> e.getKey() + ":" + e.getLevel()).collect(Collectors.joining(", "));
+                DiagnosticUtils.debug("SHATTER", "EventUtils: config state filtering removed " + (beforeFilter - firstEnchants.size()) + " enchant(s), remaining: [" + remaining + "]");
             }
 
             return firstEnchants;
@@ -194,20 +240,35 @@ public class EventUtils {
 
             List<IPluginEnchantment> secondEnchants = activatedPlugin.getItemEnchantments(secondItem, world);
 
-            if (!secondEnchants.isEmpty()) return List.of();
+            if (!secondEnchants.isEmpty()) {
+                DiagnosticUtils.debug("SHATTER", "EventUtils [" + activatedPlugin.getName() + "]: rejected — slot1 book is not blank (" + secondEnchants.size() + " enchant(s) present)");
+                return List.of();
+            }
 
             List<IPluginEnchantment> firstEnchants = activatedPlugin.getItemEnchantments(firstItem, world);
 
-            if (Shatterment.isAtLeastOneEnchantmentDisabled(firstEnchants)) return List.of();
+            if (Shatterment.isAtLeastOneEnchantmentDisabled(firstEnchants)) {
+                DiagnosticUtils.debug("SHATTER", "EventUtils [" + activatedPlugin.getName() + "]: rejected — at least one enchantment has state=DISABLE");
+                return List.of();
+            }
 
-            if (firstEnchants.size() < 2) return List.of();
+            if (firstEnchants.size() < 2) {
+                DiagnosticUtils.debug("SHATTER", "EventUtils [" + activatedPlugin.getName() + "]: rejected — book has only " + firstEnchants.size() + " eligible enchantment(s) (need ≥2)");
+                return List.of();
+            }
 
+            int beforeFilter = firstEnchants.size();
             for (Map.Entry<String, EnchantmentStateType> entry : Config.Shatterment.getEnchantmentStates().entrySet()) {
                 String key = entry.getKey();
                 EnchantmentStateType state = entry.getValue();
 
                 if (EnchantmentStateType.KEEP.equals(state) || (withDelete && EnchantmentStateType.DELETE.equals(state)))
                     firstEnchants.removeIf(e -> e.getKey().equalsIgnoreCase(key));
+            }
+
+            if (DiagnosticUtils.isDebugEnabled() && beforeFilter != firstEnchants.size()) {
+                String remaining = firstEnchants.stream().map(e -> e.getKey() + ":" + e.getLevel()).collect(Collectors.joining(", "));
+                DiagnosticUtils.debug("SHATTER", "EventUtils [" + activatedPlugin.getName() + "]: config state filtering removed " + (beforeFilter - firstEnchants.size()) + " enchant(s), remaining: [" + remaining + "]");
             }
 
             return firstEnchants;
