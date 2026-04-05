@@ -22,7 +22,9 @@ public class EconomyUtils {
      * @return {@code true} if Vault and an economy plugin were found and hooked successfully
      */
     public static boolean setup() {
-        if (Bukkit.getPluginManager().getPlugin("Vault") == null) return false;
+        boolean hasVault = Bukkit.getPluginManager().getPlugin("Vault") != null
+                || Bukkit.getPluginManager().getPlugin("VaultUnlocked") != null;
+        if (!hasVault) return false;
 
         RegisteredServiceProvider<Economy> rsp =
                 Bukkit.getServicesManager().getRegistration(Economy.class);

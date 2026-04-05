@@ -106,7 +106,7 @@ public class ShatterEvent {
                 && p.getGameMode() != GameMode.CREATIVE) {
             p.spigot().sendMessage(
                     ChatMessageType.ACTION_BAR,
-                    new TextComponent(I18n.Messages.economyCost(EconomyUtils.format(Config.Shatterment.Economy.getCost())))
+                    TextComponent.fromLegacyText(I18n.Messages.economyCost(EconomyUtils.format(Config.Shatterment.Economy.getCost())))
             );
         }
 

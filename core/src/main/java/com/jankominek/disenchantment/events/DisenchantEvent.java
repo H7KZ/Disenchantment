@@ -93,7 +93,7 @@ public class DisenchantEvent {
                 && p.getGameMode() != GameMode.CREATIVE) {
             p.spigot().sendMessage(
                     ChatMessageType.ACTION_BAR,
-                    new TextComponent(I18n.Messages.economyCost(EconomyUtils.format(Config.Disenchantment.Economy.getCost())))
+                    TextComponent.fromLegacyText(I18n.Messages.economyCost(EconomyUtils.format(Config.Disenchantment.Economy.getCost())))
             );
         }
 
