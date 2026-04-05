@@ -9,8 +9,7 @@ import com.jankominek.disenchantment.plugins.SupportedPluginManager;
 import com.jankominek.disenchantment.types.AnvilEventType;
 import com.jankominek.disenchantment.types.PermissionGroupType;
 import com.jankominek.disenchantment.utils.*;
-import net.md_5.bungee.api.ChatMessageType;
-import net.md_5.bungee.api.chat.TextComponent;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -116,10 +115,9 @@ public class DisenchantEvent {
                 && Config.Disenchantment.Economy.isShowCostEnabled()
                 && p.getGameMode() != GameMode.CREATIVE) {
             DiagnosticUtils.debug("DISENCHANT", "PrepareAnvil: showing economy action bar → " + EconomyUtils.format(Config.Disenchantment.Economy.getCost()));
-            p.spigot().sendMessage(
-                    ChatMessageType.ACTION_BAR,
-                    TextComponent.fromLegacyText(I18n.Messages.economyCost(EconomyUtils.format(Config.Disenchantment.Economy.getCost())))
-            );
+            p.sendActionBar(LegacyComponentSerializer.legacySection().deserialize(
+                    I18n.Messages.economyCost(EconomyUtils.format(Config.Disenchantment.Economy.getCost()))
+            ));
         }
 
         SchedulerUtils.runForEntity(Disenchantment.plugin, p, () -> {

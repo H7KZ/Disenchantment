@@ -1,8 +1,11 @@
 package com.jankominek.disenchantment.guis;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Material;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
@@ -10,8 +13,8 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Fluent builder for constructing and customizing Bukkit {@link ItemStack} instances.
@@ -127,7 +130,8 @@ public class ItemBuilder {
     public ItemBuilder setHead(String owner) {
         SkullMeta meta = (SkullMeta) this.getItemMeta();
 
-        meta.setOwner(owner);
+        OfflinePlayer player = Bukkit.getOfflinePlayer(owner);
+        meta.setOwningPlayer(player);
         this.setItemMeta(meta);
 
         return this;
@@ -142,7 +146,7 @@ public class ItemBuilder {
     public ItemBuilder setDisplayName(String displayname) {
         ItemMeta meta = this.getItemMeta();
 
-        meta.setDisplayName(displayname);
+        meta.displayName(LegacyComponentSerializer.legacySection().deserialize(displayname));
         this.setItemMeta(meta);
 
         return this;
@@ -169,7 +173,10 @@ public class ItemBuilder {
     public ItemBuilder setLore(List<String> lore) {
         ItemMeta meta = this.getItemMeta();
 
-        meta.setLore(lore);
+        List<Component> components = lore.stream()
+                .map(LegacyComponentSerializer.legacySection()::deserialize)
+                .collect(Collectors.toList());
+        meta.lore(components);
         this.setItemMeta(meta);
 
         return this;
@@ -182,12 +189,9 @@ public class ItemBuilder {
      * @return this builder for chaining
      */
     public ItemBuilder setLore(String lore) {
-        ArrayList<String> loreList = new ArrayList<>();
-        loreList.add(lore);
-
         ItemMeta meta = this.getItemMeta();
 
-        meta.setLore(loreList);
+        meta.lore(List.of(LegacyComponentSerializer.legacySection().deserialize(lore)));
         this.setItemMeta(meta);
 
         return this;

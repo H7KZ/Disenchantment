@@ -8,6 +8,7 @@ import com.jankominek.disenchantment.guis.GUIComponent;
 import com.jankominek.disenchantment.guis.GUIItem;
 import com.jankominek.disenchantment.guis.InventoryBuilder;
 import com.jankominek.disenchantment.types.PermissionGroupType;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.apache.commons.lang3.ArrayUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -138,7 +139,7 @@ public class NavigationGUI implements InventoryHolder {
      * Constructs the navigation GUI, creating and populating the 27-slot inventory.
      */
     public NavigationGUI() {
-        Inventory inventory = Bukkit.createInventory(this, 27, I18n.GUI.Navigation.inventory());
+        Inventory inventory = Bukkit.createInventory(this, 27, LegacyComponentSerializer.legacySection().deserialize(I18n.GUI.Navigation.inventory()));
 
         this.inventory = InventoryBuilder.fillItems(inventory, this.items);
     }

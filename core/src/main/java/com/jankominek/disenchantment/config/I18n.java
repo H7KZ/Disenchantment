@@ -1,7 +1,7 @@
 package com.jankominek.disenchantment.config;
 
 import com.jankominek.disenchantment.types.I18nKeys;
-import org.bukkit.ChatColor;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 
 import java.util.List;
 
@@ -15,7 +15,8 @@ import static com.jankominek.disenchantment.Disenchantment.localeConfig;
 public class I18n {
     private static String translateColors(String text) {
         if (text == null) return "> Missing translation <";
-        return ChatColor.translateAlternateColorCodes('&', text);
+        return LegacyComponentSerializer.legacySection().serialize(
+                LegacyComponentSerializer.legacyAmpersand().deserialize(text));
     }
 
     /**

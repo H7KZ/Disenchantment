@@ -8,6 +8,7 @@ import com.jankominek.disenchantment.guis.GUIItem;
 import com.jankominek.disenchantment.guis.InventoryBuilder;
 import com.jankominek.disenchantment.utils.EnchantmentUtils;
 import com.jankominek.disenchantment.utils.MaterialUtils;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.apache.commons.lang3.ArrayUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -89,7 +90,7 @@ public class MaterialsGUI implements InventoryHolder {
 
         String title = I18n.GUI.Materials.inventory() + " " + (page + 1) + "/" + (materials.size() / 28 + 1);
 
-        Inventory inventory = Bukkit.createInventory(this, 54, title);
+        Inventory inventory = Bukkit.createInventory(this, 54, LegacyComponentSerializer.legacySection().deserialize(title));
 
         this.items = ArrayUtils.addAll(this.items, this.getMaterialsItems(materials));
 

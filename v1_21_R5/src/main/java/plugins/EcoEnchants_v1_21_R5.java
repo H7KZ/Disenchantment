@@ -68,6 +68,7 @@ public class EcoEnchants_v1_21_R5 implements ISupportedPlugin {
      * @param level       the enchantment level
      * @return a plugin enchantment adapter for the given enchantment
      */
+    @SuppressWarnings("deprecation")
     private static IPluginEnchantment remapEnchantment(Enchantment enchantment, int level) {
         return new IPluginEnchantment() {
             @Override

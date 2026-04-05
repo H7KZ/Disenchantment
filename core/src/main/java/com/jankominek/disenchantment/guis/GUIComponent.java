@@ -2,7 +2,6 @@ package com.jankominek.disenchantment.guis;
 
 import com.jankominek.disenchantment.config.I18n;
 import com.jankominek.disenchantment.types.EnchantmentStateType;
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.inventory.ItemStack;
@@ -482,7 +481,7 @@ public class GUIComponent {
             else lore.add(I18n.GUI.Materials.Lore.disabled());
 
             return new ItemBuilder(material)
-                    .setDisplayName(ChatColor.GRAY + material.getKey().getKey())
+                    .setDisplayName("§7" + material.getKey().getKey())
                     .setLore(lore)
                     .addAllFlags()
                     .build();

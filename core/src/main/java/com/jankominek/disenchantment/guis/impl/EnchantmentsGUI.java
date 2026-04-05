@@ -8,9 +8,9 @@ import com.jankominek.disenchantment.guis.GUIItem;
 import com.jankominek.disenchantment.guis.InventoryBuilder;
 import com.jankominek.disenchantment.types.EnchantmentStateType;
 import com.jankominek.disenchantment.utils.EnchantmentUtils;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.apache.commons.lang3.ArrayUtils;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
@@ -88,7 +88,7 @@ public class EnchantmentsGUI implements InventoryHolder {
 
         String title = I18n.GUI.Enchantments.inventory() + " " + (page + 1) + "/" + (this.enchantments.size() / 28 + 1);
 
-        Inventory inventory = Bukkit.createInventory(this, 54, title);
+        Inventory inventory = Bukkit.createInventory(this, 54, LegacyComponentSerializer.legacySection().deserialize(title));
 
         this.items = ArrayUtils.addAll(this.items, this.fillPageWithEnchantments());
 
@@ -122,7 +122,7 @@ public class EnchantmentsGUI implements InventoryHolder {
             worldItems[i] = new GUIItem(
                     freeSlots[i],
                     GUIComponent.Enchantments.enchantment(
-                            ChatColor.GRAY + "" + ChatColor.BOLD + enchantment.getKey().getKey(),
+                            "§7§l" + enchantment.getKey().getKey(),
                             disenchantmentState.get(),
                             shattermentState.get()
                     ),
@@ -165,7 +165,7 @@ public class EnchantmentsGUI implements InventoryHolder {
                         }
 
                         event.setCurrentItem(GUIComponent.Enchantments.enchantment(
-                                ChatColor.GRAY + "" + ChatColor.BOLD + enchantment.getKey().getKey(),
+                                "§7§l" + enchantment.getKey().getKey(),
                                 disenchantmentState.get(),
                                 shattermentState.get()
                         ));

@@ -3,11 +3,10 @@ package com.jankominek.disenchantment.commands.impl;
 import com.jankominek.disenchantment.commands.CommandBuilder;
 import com.jankominek.disenchantment.types.PermissionGroupType;
 import com.jankominek.disenchantment.utils.DiagnosticUtils;
-import net.md_5.bungee.api.chat.ClickEvent;
-import net.md_5.bungee.api.chat.HoverEvent;
-import net.md_5.bungee.api.chat.TextComponent;
-import net.md_5.bungee.api.chat.hover.content.Text;
-import org.bukkit.ChatColor;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.event.HoverEvent;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -59,9 +58,9 @@ public class Diagnostic {
                 String report = DiagnosticUtils.getReport(true, sender);
                 String path = DiagnosticUtils.saveReportToFile(report, "diagnostic");
                 if (path != null) {
-                    sender.sendMessage(ChatColor.GREEN + "Diagnostic report saved to: " + ChatColor.WHITE + path);
+                    sender.sendMessage("§aDiagnostic report saved to: §f" + path);
                 } else {
-                    sender.sendMessage(ChatColor.RED + "Failed to save diagnostic report. Check the server console for details.");
+                    sender.sendMessage("§cFailed to save diagnostic report. Check the server console for details.");
                 }
                 return;
             }
@@ -69,7 +68,7 @@ public class Diagnostic {
             if (sub.equals("log")) {
                 String report = DiagnosticUtils.getReport(true, sender);
                 logger.info("\n" + report);
-                sender.sendMessage(ChatColor.GREEN + "Full diagnostic report printed to the server console.");
+                sender.sendMessage("§aFull diagnostic report printed to the server console.");
                 return;
             }
         }
@@ -81,11 +80,15 @@ public class Diagnostic {
             // Wrap in a GitHub code block so the player can paste it directly into an issue
             String githubReport = "```\n" + report + "```";
 
-            TextComponent message = new TextComponent(ChatColor.GREEN + "Click to copy diagnostic data (GitHub-ready)");
-            message.setClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, githubReport));
-            message.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("§7Copies a GitHub-formatted code block.\n§7Use §f/disenchantment diagnostic save§7 to write to a file.")));
+            Component message = Component.text("Click to copy diagnostic data (GitHub-ready)")
+                    .color(NamedTextColor.GREEN)
+                    .clickEvent(ClickEvent.copyToClipboard(githubReport))
+                    .hoverEvent(HoverEvent.showText(
+                            Component.text("Copies a GitHub-formatted code block.\nUse /disenchantment diagnostic save to write to a file.")
+                                    .color(NamedTextColor.GRAY)
+                    ));
 
-            player.spigot().sendMessage(message);
+            player.sendMessage(message);
         } else {
             sender.sendMessage(report);
         }

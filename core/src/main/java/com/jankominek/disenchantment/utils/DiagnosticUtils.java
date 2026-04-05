@@ -156,6 +156,7 @@ public class DiagnosticUtils {
         }
     }
 
+    @SuppressWarnings("deprecation")
     private static String buildReport(Boolean extended, CommandSender sender) {
         StringBuilder report = new StringBuilder();
         try {

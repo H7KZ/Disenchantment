@@ -7,6 +7,7 @@ import com.jankominek.disenchantment.guis.GUIComponent;
 import com.jankominek.disenchantment.guis.GUIItem;
 import com.jankominek.disenchantment.guis.InventoryBuilder;
 import com.jankominek.disenchantment.utils.PrecisionUtils;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.apache.commons.lang3.ArrayUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -124,7 +125,7 @@ public class ShattermentRepairGUI implements InventoryHolder {
      * Constructs the shatterment repair GUI, creating and populating the inventory.
      */
     public ShattermentRepairGUI() {
-        Inventory inventory = Bukkit.createInventory(this, 27, I18n.GUI.Repair.Shatterment.inventory());
+        Inventory inventory = Bukkit.createInventory(this, 27, LegacyComponentSerializer.legacySection().deserialize(I18n.GUI.Repair.Shatterment.inventory()));
 
         this.inventory = InventoryBuilder.fillItems(inventory, this.items);
     }

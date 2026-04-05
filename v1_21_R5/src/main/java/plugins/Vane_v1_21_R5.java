@@ -58,6 +58,7 @@ public class Vane_v1_21_R5 implements ISupportedPlugin {
      * @param enchantment the enchantment to check
      * @return true if the enchantment namespace starts with "vane", false otherwise
      */
+    @SuppressWarnings("deprecation")
     private static boolean isVaneEnchantment(Enchantment enchantment) {
         return enchantment.getKey().getNamespace().startsWith("vane");
     }
@@ -85,6 +86,7 @@ public class Vane_v1_21_R5 implements ISupportedPlugin {
      * @param level       the enchantment level
      * @return a plugin enchantment adapter for the given enchantment
      */
+    @SuppressWarnings("deprecation")
     private static IPluginEnchantment remapEnchantment(Enchantment enchantment, int level) {
         return new IPluginEnchantment() {
             @Override

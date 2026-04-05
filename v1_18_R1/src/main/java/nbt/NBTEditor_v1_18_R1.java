@@ -28,6 +28,7 @@ import java.util.regex.Pattern;
  * @author BananaPuncher714
  * @version 7.19.1
  */
+@SuppressWarnings("deprecation")
 public final class NBTEditor_v1_18_R1 {
     public static final Type COMPOUND = Type.COMPOUND;
     public static final Type LIST = Type.LIST;
@@ -330,7 +331,7 @@ public final class NBTEditor_v1_18_R1 {
             // Most likely 1.13 materials
             material = Material.getMaterial("PLAYER_HEAD");
         }
-        ItemStack head = new ItemStack(material, 1, (short) 3);
+        ItemStack head = new ItemStack(material, 1);
         if (skinURL == null || skinURL.isEmpty()) {
             return head;
         }

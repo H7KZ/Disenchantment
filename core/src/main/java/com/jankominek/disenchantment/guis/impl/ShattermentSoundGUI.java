@@ -7,6 +7,7 @@ import com.jankominek.disenchantment.guis.GUIComponent;
 import com.jankominek.disenchantment.guis.GUIItem;
 import com.jankominek.disenchantment.guis.InventoryBuilder;
 import com.jankominek.disenchantment.utils.PrecisionUtils;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.apache.commons.lang3.ArrayUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -112,7 +113,7 @@ public class ShattermentSoundGUI implements InventoryHolder {
      * Constructs the shatterment sound GUI, creating and populating the inventory.
      */
     public ShattermentSoundGUI() {
-        Inventory inv = Bukkit.createInventory(this, 27, I18n.GUI.Sound.Shatterment.inventory());
+        Inventory inv = Bukkit.createInventory(this, 27, LegacyComponentSerializer.legacySection().deserialize(I18n.GUI.Sound.Shatterment.inventory()));
 
         this.inventory = InventoryBuilder.fillItems(inv, this.items);
     }

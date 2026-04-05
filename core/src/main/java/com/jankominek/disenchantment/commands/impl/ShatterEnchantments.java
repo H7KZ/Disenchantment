@@ -5,7 +5,6 @@ import com.jankominek.disenchantment.config.Config;
 import com.jankominek.disenchantment.config.I18n;
 import com.jankominek.disenchantment.types.EnchantmentStateType;
 import com.jankominek.disenchantment.types.PermissionGroupType;
-import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 
 import java.util.HashMap;
@@ -45,7 +44,7 @@ public class ShatterEnchantments {
             s.sendMessage(I18n.Commands.Enchantments.Shatterment.title());
 
             if (enchantmentsStates.isEmpty()) {
-                s.sendMessage(ChatColor.GRAY + I18n.Commands.Enchantments.Shatterment.empty());
+                s.sendMessage("§7" + I18n.Commands.Enchantments.Shatterment.empty());
                 return;
             }
 

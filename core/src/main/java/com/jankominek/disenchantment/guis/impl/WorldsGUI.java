@@ -6,9 +6,9 @@ import com.jankominek.disenchantment.guis.GUIBorderComponent;
 import com.jankominek.disenchantment.guis.GUIComponent;
 import com.jankominek.disenchantment.guis.GUIItem;
 import com.jankominek.disenchantment.guis.InventoryBuilder;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.apache.commons.lang3.ArrayUtils;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.World;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
@@ -82,7 +82,7 @@ public class WorldsGUI implements InventoryHolder {
 
         String title = I18n.GUI.Worlds.inventory() + " " + (page + 1) + "/" + (this.worlds.size() / 28 + 1);
 
-        Inventory inventory = Bukkit.createInventory(this, 54, title);
+        Inventory inventory = Bukkit.createInventory(this, 54, LegacyComponentSerializer.legacySection().deserialize(title));
 
         this.items = ArrayUtils.addAll(this.items, this.fillPageWithWorlds());
 
@@ -119,7 +119,7 @@ public class WorldsGUI implements InventoryHolder {
                     freeSlots[i],
                     GUIComponent.Worlds.worldByEnvironment(
                             environment,
-                            ChatColor.GRAY + "" + ChatColor.BOLD + world.getName(),
+                            "§7§l" + world.getName(),
                             disenchantmentDisabled.get(),
                             shattermentDisabled.get()
                     ),
@@ -154,7 +154,7 @@ public class WorldsGUI implements InventoryHolder {
                         event.setCurrentItem(
                                 GUIComponent.Worlds.worldByEnvironment(
                                         environment,
-                                        ChatColor.GRAY + "" + ChatColor.BOLD + world.getName(),
+                                        "§7§l" + world.getName(),
                                         disenchantmentDisabled.get(),
                                         shattermentDisabled.get()
                                 )

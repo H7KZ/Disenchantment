@@ -6,7 +6,6 @@ import com.jankominek.disenchantment.config.I18n;
 import com.jankominek.disenchantment.types.EnchantmentStateType;
 import com.jankominek.disenchantment.types.PermissionGroupType;
 import com.jankominek.disenchantment.utils.EnchantmentUtils;
-import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.enchantments.Enchantment;
 
@@ -48,7 +47,7 @@ public class DisenchantEnchantments {
             s.sendMessage(I18n.Commands.Enchantments.Disenchantment.title());
 
             if (enchantmentsStates.isEmpty()) {
-                s.sendMessage(ChatColor.GRAY + I18n.Commands.Enchantments.Disenchantment.empty());
+                s.sendMessage("§7" + I18n.Commands.Enchantments.Disenchantment.empty());
                 return;
             }
 

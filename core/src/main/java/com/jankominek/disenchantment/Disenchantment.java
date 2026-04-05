@@ -73,6 +73,7 @@ public final class Disenchantment extends JavaPlugin {
      * third-party plugin integrations, event listeners, commands, bStats metrics,
      * and the automatic update checker.
      */
+    @SuppressWarnings("deprecation")
     public void enable() {
         // Setup instances
         plugin = this;
