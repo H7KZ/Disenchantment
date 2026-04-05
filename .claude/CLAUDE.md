@@ -6,7 +6,7 @@ can remove enchantments from items onto books, or split multi-enchantment books 
 ## Project Overview
 
 - **Group ID**: `com.jankominek`
-- **Version**: managed via `${revision}` property in root `pom.xml` (currently `6.3.6`)
+- **Version**: managed via `${revision}` property in root `pom.xml` (currently `6.4.0`)
 - **Java**: 17 (core/v1_18_R1), 21 (v1_20_R4, v1_21_R1, v1_21_R4, v1_21_R5)
 - **API**: Spigot API 1.18+, Folia API support
 - **Author**: Jan Kominek (H7KZ)
