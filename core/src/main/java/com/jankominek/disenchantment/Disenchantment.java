@@ -17,6 +17,9 @@ import com.jankominek.disenchantment.types.LogLevelType;
 import com.jankominek.disenchantment.utils.*;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.server.ServerLoadEvent;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -117,16 +120,27 @@ public final class Disenchantment extends JavaPlugin {
         List<String> activatedPlugins = Arrays.stream(getServer().getPluginManager().getPlugins()).toList().stream().map(Plugin::getName).toList();
         SupportedPluginManager.activatePlugins(activatedPlugins);
 
-        // Economy (Vault)
-        boolean economyAvailable = EconomyUtils.setup();
-        if (!economyAvailable && (Config.Disenchantment.Economy.isEnabled() || Config.Shatterment.Economy.isEnabled())) {
-            logger.warning("Economy is enabled in config but Vault/economy plugin not found!");
-        }
+        // Economy (Vault) — hooked via ServerLoadEvent so VaultUnlocked's vault2→vault1 bridge
+        // has already fired. VaultUnlocked registers the Bukkit service bridge post-Done, after
+        // all onEnable() calls; a one-tick delay is still too early on Paper.
+        getServer().getPluginManager().registerEvents(new Listener() {
+            @EventHandler
+            public void onServerLoad(ServerLoadEvent event) {
+                DiagnosticUtils.debug("ECONOMY", "ServerLoadEvent fired — attempting economy hook");
+                boolean economyAvailable = EconomyUtils.setup();
+                if (!economyAvailable && (Config.Disenchantment.Economy.isEnabled() || Config.Shatterment.Economy.isEnabled())) {
+                    logger.warning("Economy is enabled in config but Vault/economy plugin not found!");
+                }
+                if (Config.Logging.getLevel().isAtLeast(LogLevelType.INFO)) {
+                    logger.info("Economy (Vault): " + (economyAvailable ? "hooked" : "not available"));
+                }
+                DiagnosticUtils.debug("STARTUP", "Economy hook (ServerLoadEvent): " + (economyAvailable ? "hooked" : "not available"));
+            }
+        }, plugin);
 
         // Startup logging
         if (Config.Logging.getLevel().isAtLeast(LogLevelType.INFO)) {
             logger.info("NMS module: " + nms.getClass().getSimpleName());
-            logger.info("Economy (Vault): " + (economyAvailable ? "hooked" : "not available"));
 
             List<ISupportedPlugin> activatedAdapters = SupportedPluginManager.getAllActivatedPlugins();
             if (activatedAdapters.isEmpty()) {

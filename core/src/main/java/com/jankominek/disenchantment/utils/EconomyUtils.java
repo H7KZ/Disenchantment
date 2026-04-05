@@ -6,6 +6,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.RegisteredServiceProvider;
 
+import java.util.stream.Collectors;
+
 /**
  * Utility class that manages the optional Vault economy hook.
  * All economy operations are routed through this class so that the rest of the
@@ -37,6 +39,12 @@ public class EconomyUtils {
 
         if (rsp == null) {
             DiagnosticUtils.debug("ECONOMY", "Setup: FAILED (RSP<Economy> lookup returned null — no economy plugin registered under Vault API)");
+            if (DiagnosticUtils.isDebugEnabled()) {
+                String known = Bukkit.getServicesManager().getKnownServices().stream()
+                        .map(Class::getName)
+                        .collect(Collectors.joining(", "));
+                DiagnosticUtils.debug("ECONOMY", "Registered services at time of lookup: [" + known + "]");
+            }
             return false;
         }
 
