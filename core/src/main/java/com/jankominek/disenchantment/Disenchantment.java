@@ -41,7 +41,7 @@ import java.util.stream.Collectors;
  * <p>Provides globally accessible static references to the plugin instance, NMS handler,
  * configuration, locale, and logger for use throughout the codebase.</p>
  */
-public final class Disenchantment extends JavaPlugin {
+public class Disenchantment extends JavaPlugin {
     // Global variables (Should be used with class name, e.g. Disenchantment.enabled)
     public static final String commandName = "disenchantment";
     public static final int spigotmcId = 110741;

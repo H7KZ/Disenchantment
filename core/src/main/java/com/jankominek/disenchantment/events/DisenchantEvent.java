@@ -47,7 +47,10 @@ public class DisenchantEvent {
     private static void handler(Event event) {
         if (!(event instanceof PrepareAnvilEvent e)) return;
 
-        if (!(e.getView().getPlayer() instanceof Player p)) return;
+        // Use getViewers() instead of getView().getPlayer() to avoid IncompatibleClassChangeError
+        // in environments without Paper's classloader shim (InventoryView: class→interface in 1.21).
+        if (e.getInventory().getViewers().isEmpty() || !(e.getInventory().getViewers().get(0) instanceof Player p))
+            return;
 
         if (!Config.isPluginEnabled() || !Config.Disenchantment.isEnabled() || Config.Disenchantment.getDisabledWorlds().contains(p.getWorld()))
             return;
