@@ -39,9 +39,19 @@ public class MockNMS implements NMS {
         return Arrays.asList(Material.values());
     }
 
+    private final List<ISupportedPlugin> supportedPlugins = new ArrayList<>();
+
+    public void addSupportedPlugin(ISupportedPlugin plugin) {
+        supportedPlugins.add(plugin);
+    }
+
+    public void clearSupportedPlugins() {
+        supportedPlugins.clear();
+    }
+
     @Override
     public List<ISupportedPlugin> getSupportedPlugins() {
-        return List.of();
+        return supportedPlugins;
     }
 
     @Override

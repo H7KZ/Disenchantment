@@ -3,39 +3,45 @@ package com.jankominek.disenchantment;
 import com.jankominek.disenchantment.config.Config;
 import com.jankominek.disenchantment.nms.MockNMS;
 import com.jankominek.disenchantment.nms.NMSMapper;
+import com.jankominek.disenchantment.plugins.IPluginEnchantment;
+import com.jankominek.disenchantment.plugins.MockPluginAdapter;
+import com.jankominek.disenchantment.plugins.SupportedPluginManager;
+import com.jankominek.disenchantment.utils.EnchantmentUtils;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Registry;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.event.inventory.PrepareAnvilEvent;
+import org.bukkit.inventory.AnvilInventory;
+import org.bukkit.inventory.InventoryView;
+import org.bukkit.inventory.ItemStack;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.mockbukkit.mockbukkit.MockBukkit;
 import org.mockbukkit.mockbukkit.ServerMock;
+import org.mockbukkit.mockbukkit.entity.PlayerMock;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Proxy;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
-/**
- * Base class for all Disenchantment tests. Handles MockBukkit lifecycle and the
- * NMSMapper interception required to load the plugin without a real NMS jar.
- * <p>
- * Subclasses should call super.setUp() / super.tearDown() if they override those methods.
- */
 public abstract class DisenchantmentTestBase {
 
     protected ServerMock server;
     protected Disenchantment plugin;
+    protected MockNMS mockNMS;
     private MockedStatic<NMSMapper> nmsMapperMock;
 
     @BeforeEach
     void setUpBase() {
         server = MockBukkit.mock();
+        mockNMS = new MockNMS();
 
-        // Intercept NMSMapper.setup() BEFORE plugin loads — return MockNMS instead of null.
-        // Without this, onEnable() gets null from setup() and disables the plugin.
         nmsMapperMock = Mockito.mockStatic(NMSMapper.class);
-        nmsMapperMock.when(NMSMapper::setup).thenReturn(new MockNMS());
+        nmsMapperMock.when(NMSMapper::setup).thenReturn(mockNMS);
         nmsMapperMock.when(NMSMapper::hasNMS).thenReturn(true);
 
         plugin = MockBukkit.load(Disenchantment.class);
@@ -43,53 +49,98 @@ public abstract class DisenchantmentTestBase {
 
     @AfterEach
     void tearDownBase() {
-        // Close static mock BEFORE unmock to avoid lingering state contaminating next test
+        SupportedPluginManager.deactivateAllPlugins();
+        mockNMS.clearSupportedPlugins();
+
         if (nmsMapperMock != null) nmsMapperMock.close();
         MockBukkit.unmock();
 
-        // Reset static fields that MockBukkit.unmock() does not touch
         Disenchantment.nms = null;
         Disenchantment.config = null;
         Disenchantment.localeConfig = null;
         Disenchantment.enabled = true;
 
-        // Clear enchantment state caches — they are static and survive between tests
         clearEnchantmentStateCaches();
     }
 
-    /**
-     * Sets a config value and clears any caches that depend on the config so that
-     * the next Config.* call reads fresh values.
-     */
+    // -> config helpers
+
     protected void setConfig(String key, Object value) {
         Disenchantment.config.set(key, value);
         clearEnchantmentStateCaches();
     }
 
-    /**
-     * Shorthand for the disenchantment enchantments-states list config key.
-     * Format: each entry is "key:STATE" e.g. ["sharpness:KEEP", "mending:DISABLE"]
-     */
     protected void setDisenchantEnchantmentStates(java.util.List<String> states) {
         setConfig("disenchantment.enchantments-states", states);
     }
 
-    /**
-     * Shorthand for the shatterment enchantments-states list config key.
-     */
     protected void setShatterEnchantmentStates(java.util.List<String> states) {
         setConfig("shatterment.enchantments-states", states);
     }
 
-    /**
-     * Looks up an enchantment by its Minecraft registry key (e.g. "sharpness", "mending").
-     * Required because Paper 1.21 removed the static Enchantment.SHARPNESS fields.
-     */
+    // -> enchantment helpers
+
     protected static Enchantment enchantment(String key) {
         return Objects.requireNonNull(
                 Registry.ENCHANTMENT.get(NamespacedKey.minecraft(key)),
                 "Unknown enchantment: " + key);
     }
+
+    protected IPluginEnchantment mockEnchant(String key, int level) {
+        return EnchantmentUtils.remapEnchantment(enchantment(key), level);
+    }
+
+    // -> adapter helpers
+
+    /** Registers adapter in MockNMS and activates it via SupportedPluginManager. */
+    protected void activateMockPlugin(MockPluginAdapter adapter) {
+        mockNMS.addSupportedPlugin(adapter);
+        SupportedPluginManager.activatePlugins(List.of(adapter.getName()));
+    }
+
+    // -> anvil event builder
+
+    /**
+     * Builds a mocked PrepareAnvilEvent with the given player and slot items.
+     * Uses a JDK Proxy for InventoryView/AnvilView to avoid IncompatibleClassChangeError
+     * on servers where InventoryView changed from class to interface (Paper 1.21).
+     */
+    protected PrepareAnvilEvent buildAnvilEvent(PlayerMock player, ItemStack slot0, ItemStack slot1) {
+        AnvilInventory mockAnvil = Mockito.mock(AnvilInventory.class);
+        Mockito.when(mockAnvil.getItem(0)).thenReturn(slot0);
+        Mockito.when(mockAnvil.getItem(1)).thenReturn(slot1);
+        Mockito.when(mockAnvil.getRepairCost()).thenReturn(0);
+        Mockito.doNothing().when(mockAnvil).setRepairCost(Mockito.anyInt());
+        Mockito.when(mockAnvil.getViewers()).thenReturn(List.of(player));
+
+        List<Class<?>> proxyInterfaces = new ArrayList<>();
+        proxyInterfaces.add(InventoryView.class);
+        try { proxyInterfaces.add(Class.forName("org.bukkit.inventory.view.AnvilView")); }
+        catch (ClassNotFoundException ignored) {}
+        Object viewProxy = Proxy.newProxyInstance(
+                getClass().getClassLoader(),
+                proxyInterfaces.toArray(new Class[0]),
+                (proxy, method, args) -> {
+                    if ("getPlayer".equals(method.getName())) return player;
+                    if (method.getReturnType() == boolean.class) return false;
+                    if (method.getReturnType().isPrimitive()) return 0;
+                    return null;
+                });
+
+        PrepareAnvilEvent event = Mockito.mock(PrepareAnvilEvent.class);
+        Mockito.doReturn(viewProxy).when(event).getView();
+        Mockito.when(event.getInventory()).thenReturn(mockAnvil);
+
+        Mockito.doAnswer(inv -> {
+            ItemStack arg = inv.getArgument(0);
+            Mockito.when(event.getResult()).thenReturn(arg);
+            return null;
+        }).when(event).setResult(Mockito.any());
+
+        return event;
+    }
+
+    // -> internal
 
     private void clearEnchantmentStateCaches() {
         try {
