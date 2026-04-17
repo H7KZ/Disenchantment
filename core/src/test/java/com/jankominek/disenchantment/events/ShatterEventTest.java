@@ -1,6 +1,5 @@
 package com.jankominek.disenchantment.events;
 
-import com.jankominek.disenchantment.Disenchantment;
 import com.jankominek.disenchantment.DisenchantmentTestBase;
 import com.jankominek.disenchantment.utils.EnchantmentUtils;
 import org.bukkit.Material;
@@ -40,8 +39,10 @@ class ShatterEventTest extends DisenchantmentTestBase {
         // code never emits invokevirtual InventoryView.getPlayer (would throw ICCE at runtime).
         List<Class<?>> proxyInterfaces = new ArrayList<>();
         proxyInterfaces.add(InventoryView.class);
-        try { proxyInterfaces.add(Class.forName("org.bukkit.inventory.view.AnvilView")); }
-        catch (ClassNotFoundException ignored) {}
+        try {
+            proxyInterfaces.add(Class.forName("org.bukkit.inventory.view.AnvilView"));
+        } catch (ClassNotFoundException ignored) {
+        }
         Object viewProxy = Proxy.newProxyInstance(
                 getClass().getClassLoader(),
                 proxyInterfaces.toArray(new Class[0]),

@@ -57,10 +57,10 @@ class AnvilCostUtilsTest extends DisenchantmentTestBase {
 
     @ParameterizedTest
     @CsvSource({
-        "0.0, 0.0,  0",   // base=0, multiplier=0 → always 0
-        "5.0, 0.0,  5",   // base=5, multiplier=0 → just base
-        "0.0, 1.0,  3",   // base=0, multiplier=1 → 3*1 (level 3 enchant)
-        "10.0, 1.0, 13"   // base=10, multiplier=1 → 10 + 3*1
+            "0.0, 0.0,  0",   // base=0, multiplier=0 → always 0
+            "5.0, 0.0,  5",   // base=5, multiplier=0 → just base
+            "0.0, 1.0,  3",   // base=0, multiplier=1 → 3*1 (level 3 enchant)
+            "10.0, 1.0, 13"   // base=10, multiplier=1 → 10 + 3*1
     })
     void givenCustomBaseAndMultiplier_whenCountCost_thenMatchesFormula(
             double base, double multiply, int expected) {

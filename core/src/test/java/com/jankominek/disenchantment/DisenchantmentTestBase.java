@@ -19,7 +19,7 @@ import java.util.Objects;
 /**
  * Base class for all Disenchantment tests. Handles MockBukkit lifecycle and the
  * NMSMapper interception required to load the plugin without a real NMS jar.
- *
+ * <p>
  * Subclasses should call super.setUp() / super.tearDown() if they override those methods.
  */
 public abstract class DisenchantmentTestBase {
