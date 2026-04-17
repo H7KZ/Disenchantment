@@ -25,7 +25,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.5.5</version>
+                <version>3.2.5</version>
                 <configuration>
                     <useModulePath>false</useModulePath>
                     <argLine>-XX:+EnableDynamicAgentLoading -Djdk.attach.allowAttachSelf</argLine>
@@ -99,26 +99,13 @@
         <dependency>
             <groupId>org.mockbukkit.mockbukkit</groupId>
             <artifactId>mockbukkit-v1.21</artifactId>
-            <version>4.108.0</version>
+            <version>4.39.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
-            <version>5.12.2</version>
-            <scope>test</scope>
-        </dependency>
-        <!-- Pin platform jars at depth 1 so they beat MockBukkit's older transitive versions -->
-        <dependency>
-            <groupId>org.junit.platform</groupId>
-            <artifactId>junit-platform-engine</artifactId>
-            <version>1.12.2</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.junit.platform</groupId>
-            <artifactId>junit-platform-launcher</artifactId>
-            <version>1.12.2</version>
+            <version>5.10.2</version>
             <scope>test</scope>
         </dependency>
         <dependency>
