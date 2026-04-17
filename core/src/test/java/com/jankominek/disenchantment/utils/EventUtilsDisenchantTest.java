@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class EventUtilsDisenchantTest extends DisenchantmentTestBase {
 
-    // ── helpers ──────────────────────────────────────────────────────────────
+    // -> helpers
 
     private ItemStack sword(String... enchantKeys) {
         ItemStack item = new ItemStack(Material.DIAMOND_SWORD);
@@ -36,7 +36,7 @@ class EventUtilsDisenchantTest extends DisenchantmentTestBase {
         return item;
     }
 
-    // ── basic acceptance / rejection ─────────────────────────────────────────
+    // -> basic acceptance / rejection
 
     @Test
     void givenEnchantedSwordAndBlankBook_whenGetEnchantments_thenReturnsEnchantments() {
@@ -103,7 +103,7 @@ class EventUtilsDisenchantTest extends DisenchantmentTestBase {
         assertTrue(result.isEmpty());
     }
 
-    // ── disabled material ─────────────────────────────────────────────────────
+    // -> disabled material
 
     @Test
     void givenDisabledMaterial_whenGetEnchantments_thenReturnsEmpty() {
@@ -123,7 +123,7 @@ class EventUtilsDisenchantTest extends DisenchantmentTestBase {
         assertFalse(result.isEmpty());
     }
 
-    // ── enchantment state: KEEP ───────────────────────────────────────────────
+    // -> enchantment state: KEEP
 
     @Test
     void givenEnchantmentInKEEPState_whenGetEnchantments_thenEnchantmentFiltered() {
@@ -144,7 +144,7 @@ class EventUtilsDisenchantTest extends DisenchantmentTestBase {
         assertTrue(result.isEmpty());
     }
 
-    // ── enchantment state: DISABLE ────────────────────────────────────────────
+    // -> enchantment state: DISABLE
 
     @Test
     void givenEnchantmentInDISABLEState_whenGetEnchantments_thenEntireOperationBlocked() {
@@ -166,7 +166,7 @@ class EventUtilsDisenchantTest extends DisenchantmentTestBase {
         assertEquals(2, result.size());
     }
 
-    // ── enchantment state: DELETE ─────────────────────────────────────────────
+    // -> enchantment state: DELETE
 
     @Test
     void givenEnchantmentInDELETEState_withDeleteFalse_thenDeletedEnchantIncluded() {
@@ -190,7 +190,7 @@ class EventUtilsDisenchantTest extends DisenchantmentTestBase {
         assertEquals("sharpness", result.get(0).getKey());
     }
 
-    // ── findEnchantmentsToDelete ──────────────────────────────────────────────
+    // -> findEnchantmentsToDelete
 
     @Test
     void givenMixedStates_whenFindToDelete_thenOnlyDELETEReturned() {
@@ -216,7 +216,7 @@ class EventUtilsDisenchantTest extends DisenchantmentTestBase {
         assertTrue(toDelete.isEmpty());
     }
 
-    // ── multiple enchantments preserved ──────────────────────────────────────
+    // -> multiple enchantments preserved
 
     @Test
     void givenMultipleEnchantments_whenGetEnchantments_thenAllPreserved() {

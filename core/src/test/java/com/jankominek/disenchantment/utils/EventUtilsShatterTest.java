@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class EventUtilsShatterTest extends DisenchantmentTestBase {
 
-    // ── helpers ──────────────────────────────────────────────────────────────
+    // -> helpers
 
     private ItemStack blankBook() {
         return new ItemStack(Material.BOOK);
@@ -25,7 +25,7 @@ class EventUtilsShatterTest extends DisenchantmentTestBase {
         return item;
     }
 
-    // ── basic acceptance / rejection ─────────────────────────────────────────
+    // -> basic acceptance / rejection
 
     @Test
     void givenBookWithTwoEnchantments_whenGetShatterEnchantments_thenReturnsBoth() {
@@ -101,7 +101,7 @@ class EventUtilsShatterTest extends DisenchantmentTestBase {
         assertEquals(3, result.size());
     }
 
-    // ── enchantment state: KEEP ───────────────────────────────────────────────
+    // -> enchantment state: KEEP
 
     @Test
     void givenEnchantmentInKEEPState_whenGetShatterEnchantments_thenEnchantmentFiltered() {
@@ -124,7 +124,7 @@ class EventUtilsShatterTest extends DisenchantmentTestBase {
         assertEquals("sharpness", result.get(0).getKey());
     }
 
-    // ── enchantment state: DISABLE ────────────────────────────────────────────
+    // -> enchantment state: DISABLE
 
     @Test
     void givenEnchantmentInDISABLEState_whenGetShatterEnchantments_thenEntireOperationBlocked() {
@@ -135,7 +135,7 @@ class EventUtilsShatterTest extends DisenchantmentTestBase {
         assertTrue(result.isEmpty());
     }
 
-    // ── enchantment state: DELETE ─────────────────────────────────────────────
+    // -> enchantment state: DELETE
 
     @Test
     void givenEnchantmentInDELETEState_withDeleteFalse_thenDeletedEnchantIncluded() {
@@ -148,7 +148,7 @@ class EventUtilsShatterTest extends DisenchantmentTestBase {
         assertEquals(3, result.size());
     }
 
-    // ── findEnchantmentsToDelete ──────────────────────────────────────────────
+    // -> findEnchantmentsToDelete
 
     @Test
     void givenMixedStates_whenShatterFindToDelete_thenOnlyDELETEReturned() {

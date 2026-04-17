@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class ShatterEventTest extends DisenchantmentTestBase {
 
-    // ── helpers ──────────────────────────────────────────────────────────────
+    // -> helpers
 
     private PrepareAnvilEvent buildEvent(PlayerMock player, ItemStack slot0, ItemStack slot1) {
         AnvilInventory mockAnvil = Mockito.mock(AnvilInventory.class);
@@ -72,7 +72,7 @@ class ShatterEventTest extends DisenchantmentTestBase {
         return item;
     }
 
-    // ── happy path ────────────────────────────────────────────────────────────
+    // -> happy path
 
     @Test
     void givenBookWithTwoEnchantments_whenPrepareAnvil_thenResultIsEnchantedBook() {
@@ -135,7 +135,7 @@ class ShatterEventTest extends DisenchantmentTestBase {
         assertEquals(2, meta.getStoredEnchants().size());
     }
 
-    // ── rejection cases ───────────────────────────────────────────────────────
+    // -> rejection cases
 
     @Test
     void givenBookWithOneEnchantment_whenPrepareAnvil_thenResultNotSet() {
@@ -202,7 +202,7 @@ class ShatterEventTest extends DisenchantmentTestBase {
         assertNull(event.getResult());
     }
 
-    // ── world restrictions ────────────────────────────────────────────────────
+    // -> world restrictions
 
     @Test
     void givenPlayerInDisabledWorld_whenPrepareAnvil_thenResultNotSet() {
@@ -217,7 +217,7 @@ class ShatterEventTest extends DisenchantmentTestBase {
         assertNull(event.getResult());
     }
 
-    // ── enchantment state: KEEP ───────────────────────────────────────────────
+    // -> enchantment state: KEEP
 
     @Test
     void givenEnchantmentInKEEPState_whenPrepareAnvil_thenKEPTEnchantNotInResult() {
@@ -235,7 +235,7 @@ class ShatterEventTest extends DisenchantmentTestBase {
         assertFalse(meta.hasStoredEnchant(enchantment("sharpness")), "KEEP enchant must not appear in split-off book");
     }
 
-    // ── permission check ──────────────────────────────────────────────────────
+    // -> permission check
 
     @Test
     void givenPlayerWithoutPermission_whenPrepareAnvil_thenResultNotSet() {

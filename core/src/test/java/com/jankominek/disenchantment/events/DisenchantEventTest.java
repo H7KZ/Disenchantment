@@ -29,7 +29,7 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class DisenchantEventTest extends DisenchantmentTestBase {
 
-    // ── helpers ──────────────────────────────────────────────────────────────
+    // -> helpers
 
     private PrepareAnvilEvent buildEvent(PlayerMock player, ItemStack slot0, ItemStack slot1) {
         AnvilInventory mockAnvil = Mockito.mock(AnvilInventory.class);
@@ -78,7 +78,7 @@ class DisenchantEventTest extends DisenchantmentTestBase {
         return item;
     }
 
-    // ── happy path ────────────────────────────────────────────────────────────
+    // -> happy path
 
     @Test
     void givenEnchantedSwordAndBlankBook_whenPrepareAnvil_thenResultIsEnchantedBook() {
@@ -128,7 +128,7 @@ class DisenchantEventTest extends DisenchantmentTestBase {
         assertTrue(meta.hasStoredEnchant(enchantment("looting")));
     }
 
-    // ── plugin disabled ───────────────────────────────────────────────────────
+    // -> plugin disabled
 
     @Test
     void givenPluginDisabled_whenPrepareAnvil_thenResultNotSet() {
@@ -152,7 +152,7 @@ class DisenchantEventTest extends DisenchantmentTestBase {
         assertNull(event.getResult());
     }
 
-    // ── invalid slot contents ─────────────────────────────────────────────────
+    // -> invalid slot contents
 
     @Test
     void givenEnchantedBookInFirstSlot_whenPrepareAnvil_thenResultNotSet() {
@@ -186,7 +186,7 @@ class DisenchantEventTest extends DisenchantmentTestBase {
         assertNull(event.getResult());
     }
 
-    // ── world restrictions ────────────────────────────────────────────────────
+    // -> world restrictions
 
     @Test
     void givenPlayerInDisabledWorld_whenPrepareAnvil_thenResultNotSet() {
@@ -201,7 +201,7 @@ class DisenchantEventTest extends DisenchantmentTestBase {
         assertNull(event.getResult());
     }
 
-    // ── material restrictions ─────────────────────────────────────────────────
+    // -> material restrictions
 
     @Test
     void givenDisabledMaterial_whenPrepareAnvil_thenResultNotSet() {
@@ -214,7 +214,7 @@ class DisenchantEventTest extends DisenchantmentTestBase {
         assertNull(event.getResult());
     }
 
-    // ── enchantment state: KEEP ───────────────────────────────────────────────
+    // -> enchantment state: KEEP
 
     @Test
     void givenEnchantmentInKEEPState_whenPrepareAnvil_thenKEPTEnchantNotInResult() {
@@ -235,7 +235,7 @@ class DisenchantEventTest extends DisenchantmentTestBase {
         assertTrue(meta.hasStoredEnchant(enchantment("efficiency")));
     }
 
-    // ── permission check ──────────────────────────────────────────────────────
+    // -> permission check
 
     @Test
     void givenPlayerWithoutPermission_whenPrepareAnvil_thenResultNotSet() {
