@@ -13,6 +13,12 @@ public enum MinecraftVersion {
     LATEST((byte) 127, null, null, "v1_21_R5"),
 
 
+    // 26_1 (mapped to v1_21_R5 via LATEST fallback)
+    MINECRAFT_26_1_3((byte) 29, "26_1_3", "26.1.3", "v1_21_R5"),
+    MINECRAFT_26_1_2((byte) 28, "26_1_2", "26.1.2", "v1_21_R5"),
+    MINECRAFT_26_1_1((byte) 27, "26_1_1", "26.1.1", "v1_21_R5"),
+    MINECRAFT_26_1((byte) 26, "26_1", "26.1", "v1_21_R5"),
+
     // 1_21_R5
     MINECRAFT_1_21_11((byte) 25, "1_21_11", "1.21.11", "v1_21_R5"),
     MINECRAFT_1_21_10((byte) 25, "1_21_10", "1.21.10", "v1_21_R5"),
@@ -82,6 +88,18 @@ public enum MinecraftVersion {
             if (version.versionDotted == null) continue;
             if (v.contains(version.versionDotted))
                 return version;
+        }
+
+        // Extract numeric MC version from "git-Paper-xxx (MC: 26.1.1)" or bare "1.21.8" / "1_21_8".
+        // Covers both future major-version schemes (26.x.x) and unknown 1.21+ patch releases.
+        try {
+            java.util.regex.Matcher m = java.util.regex.Pattern.compile("MC: (\\d+)\\.(\\d+)").matcher(v);
+            if (m.find()) {
+                int major = Integer.parseInt(m.group(1));
+                int minor = Integer.parseInt(m.group(2));
+                if (major >= 2 || minor >= 21) return LATEST;
+            }
+        } catch (Exception ignored) {
         }
 
         try {

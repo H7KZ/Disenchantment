@@ -84,9 +84,13 @@ public class NMS_v1_21_R5 implements NMS {
      */
     @Override
     public int getRepairCost(AnvilInventory anvilInventory, InventoryView inventoryView) {
-        AnvilView anvilView = (AnvilView) inventoryView;
+        try {
+            AnvilView anvilView = (AnvilView) inventoryView;
 
-        return anvilView.getRepairCost();
+            return anvilView.getRepairCost();
+        } catch (ClassCastException e) {
+            return anvilInventory.getRepairCost();
+        }
     }
 
     /**
@@ -105,9 +109,12 @@ public class NMS_v1_21_R5 implements NMS {
      */
     @Override
     public void setAnvilRepairCost(AnvilInventory anvilInventory, InventoryView inventoryView, int repairCost) {
-        AnvilView anvilView = (AnvilView) inventoryView;
+        try {
+            AnvilView anvilView = (AnvilView) inventoryView;
 
-        anvilView.setRepairCost(repairCost);
+            anvilView.setRepairCost(repairCost);
+        } catch (ClassCastException ignored) {
+        }
     }
 
     /**
