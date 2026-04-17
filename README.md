@@ -90,9 +90,7 @@ Get the latest release from any of these sources:
 | [Vane](https://modrinth.com/plugin/vane)                         |         ✓         |        ✓        |       ✓       |        -        |       -       |
 | [Zenchantments](https://github.com/moikheck/Zenchantments)       |         ✓         |        ✓        |       ✓       |        -        |       -       |
 
-> **Note:** EcoEnchants requires a patched build. See [EcoEnchants#417](https://github.com/Auxilor/EcoEnchants/pull/417)
-> for details, or download the pre-built v12.24.0 from
-> the [v6.2.2 release](https://github.com/H7KZ/Disenchantment/releases/tag/v6.2.2).
+> **Note:** EcoEnchants V13.0.0 is supported natively with Disenchantment 6.4.0+. No patched build is required.
 
 ## Documentation
 

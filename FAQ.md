@@ -10,6 +10,7 @@ This FAQ addresses common issues and questions regarding the Disenchantment plug
 - [I'm using GeyserMC and the plugin has issues.](#im-using-geysermc-and-the-plugin-has-issues-is-this-a-known-problem)
 - [Economy is enabled but players aren't being charged.](#economy-is-enabled-but-players-arent-being-charged)
 - [Do I need Vault for the plugin to work?](#do-i-need-vault-for-the-plugin-to-work)
+- [Does Disenchantment support Minecraft 26.1.x?](#does-disenchantment-support-minecraft-261x)
 
 ---
 
@@ -27,27 +28,8 @@ See the full list of permission nodes in [PERMISSIONS.md](PERMISSIONS.md).
 
 ### Why isn't Disenchantment working with EcoEnchants?
 
-This is a known compatibility issue caused by how **EcoEnchants** handles anvil events, which conflicts with *
-*Disenchantment**. The enchanted book appears in the anvil for a moment before vanishing.
-
-To fix this, you need to update **Disenchantment** and use a modified version of **EcoEnchants**.
-
-**Easiest Solution (Recommended)**
-
-1. Update the **Disenchantment** plugin to version **`6.2.2`** or newer.
-2. Download the pre-compiled, fixed version of **EcoEnchants** (v12.24.0) from
-   the [Disenchantment v6.2.2 release page](https://github.com/H7KZ/Disenchantment/releases/tag/v6.2.2).
-
-You must use both the updated Disenchantment plugin and the provided EcoEnchants `.jar` file for the fix to work.
-
-**Alternative for Advanced Users**
-
-If you're comfortable with compiling Java projects, you can build the plugin yourself:
-
-1. Make sure your **Disenchantment** plugin is updated to **`v6.2.2`** or newer.
-2. Clone or download the **EcoEnchants** source code.
-3. Incorporate the changes from [EcoEnchants Pull Request #417](https://github.com/Auxilor/EcoEnchants/pull/417).
-4. Compile the plugin to create your own `.jar` file.
+EcoEnchants V13.0.0 is fully supported natively as of **Disenchantment 6.4.0**. No patched build of EcoEnchants is
+required. Simply update Disenchantment to version **`6.4.0`** or newer and use any standard release of EcoEnchants.
 
 ---
 
@@ -92,14 +74,18 @@ installed. All standard disenchanting and book splitting features work without i
 
 ### I'm using GeyserMC and the plugin has issues. Is this a known problem?
 
-Yes, servers running GeyserMC can sometimes experience issues with plugins that modify anvil mechanics, especially for
-players connecting from Bedrock Edition. This is often caused by Geyser itself rather than a bug in Disenchantment.
+As of **Disenchantment 6.4.0+**, Geyser clients are handled gracefully. The `ClassCastException` that previously
+crashed anvil interactions for Bedrock players has been fixed in all v1_21_R* NMS modules.
 
-While a guaranteed fix is not available, you can try installing one of the following plugins designed to patch
-anvil-related issues on Geyser servers:
+Bedrock clients connected via Geyser will be able to use the anvil without errors. However, the anvil cost display
+(repair cost shown in the UI) may be inaccurate for Bedrock clients, as Geyser's proxy `InventoryView` does not
+support cost propagation via the `AnvilView` API. This is a known limitation of the Geyser proxy layer and cannot be
+worked around on the server side.
 
-- [Geyser-Anvil-Fix](https://github.com/ssquadteam/Geyser-Anvil-Fix)
-- [CustomAnvilGUI](https://www.spigotmc.org/resources/customanvilgui.116411/)
-- [Geyser Recipe Fix](https://modrinth.com/plugin/geyser-recipe-fix)
+---
 
-**Note:** As reported by some users, these fixes may not work in all cases.
+### Does Disenchantment support Minecraft 26.1.x?
+
+Yes. Minecraft 26.1.1 and later 26.1.x patch releases are supported. Explicit enum entries exist for 26.1, 26.1.1,
+26.1.2, and 26.1.3 in `MinecraftVersion.java`, and all are routed to the `v1_21_R5` NMS module (the same module used
+by LATEST). Any 26.x.x version that is not yet listed explicitly is also handled by the LATEST fallback.

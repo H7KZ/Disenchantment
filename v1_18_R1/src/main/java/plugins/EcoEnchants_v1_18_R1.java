@@ -7,6 +7,7 @@ import com.jankominek.disenchantment.utils.SchedulerUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.event.HandlerList;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.PrepareAnvilEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
@@ -14,6 +15,7 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.RegisteredListener;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -108,8 +110,25 @@ public class EcoEnchants_v1_18_R1 implements ISupportedPlugin {
 
     /**
      * {@inheritDoc}
-     * Delays activation to re-register EcoEnchants' PrepareAnvilEvent listener
-     * so that it fires before Disenchantment's own listener.
+     *
+     * <p>Schedules a delayed task to fix EcoEnchants 13+ anvil event ordering.
+     *
+     * <p>EcoEnchants 13 introduced two breaking changes for third-party anvil plugins:
+     * <ol>
+     *   <li>Its {@link PrepareAnvilEvent} handler at HIGHEST synchronously clears the result
+     *       slot, then re-computes it asynchronously. For disenchant operations (enchanted item
+     *       + blank book) the async result is FAIL, so it leaves the slot alone — meaning
+     *       Disenchantment's result survives as long as EcoEnchants fires <em>first</em>.
+     *       Since Disenchantment declares EcoEnchants as a soft-dependency, EcoEnchants always
+     *       loads (and registers its listeners) before Disenchantment, giving us the correct
+     *       natural order with no extra work needed here.</li>
+     *   <li>Its {@link InventoryClickEvent} handler at HIGHEST cancels any click on anvil slot 2
+     *       that EcoEnchants did not produce itself (by comparing generation counters). This
+     *       prevents Disenchantment from ever processing its own results. Re-registering all
+     *       EcoEnchants click listeners to the end of the handler list lets Disenchantment run
+     *       first; by the time EcoEnchants tries to cancel, the item is already on the player's
+     *       cursor.</li>
+     * </ol></p>
      */
     public void activate() {
         SchedulerUtils.runGlobal(plugin, this::delayActivation);
@@ -139,16 +158,40 @@ public class EcoEnchants_v1_18_R1 implements ISupportedPlugin {
         }
 
         if (ecoListener == null) {
-            // Avoid sending warning if CustomAnvil is present as it disable the listener itself
-            if (pm.isPluginEnabled("CustomAnvil")) return;
+            // Avoid sending warning if CustomAnvil is present as it disables the listener itself
+            if (!pm.isPluginEnabled("CustomAnvil")) {
+                logger.warning("Could not find eco enchant pre anvil listener");
+            }
+        } else {
+            // unregister then re register event so it is executed before disenchantment events
+            preAnvilHandler.unregister(ecoListener);
+            preAnvilHandler.register(ecoListener);
+        }
 
-            logger.warning("Could not find eco enchant pre anvil listener");
+        // Re-register all EcoEnchants InventoryClickEvent listeners to fire after Disenchantment.
+        // EcoEnchants 13+ cancels clicks on anvil slot 2 that it didn't produce, blocking
+        // Disenchantment from processing its own results. Firing after Disenchantment means
+        // Disenchantment handles the click first; EcoEnchants' cancellation is then a no-op.
+        List<RegisteredListener> ecoClickListeners = new ArrayList<>();
+        HandlerList clickHandler = InventoryClickEvent.getHandlerList();
+
+        for (RegisteredListener listener : clickHandler.getRegisteredListeners()) {
+            if (ecoEnchant == listener.getPlugin()) {
+                ecoClickListeners.add(listener);
+            }
+        }
+
+        if (ecoClickListeners.isEmpty()) {
+            if (!pm.isPluginEnabled("CustomAnvil")) {
+                logger.warning("Could not find EcoEnchants click listener");
+            }
 
             return;
         }
 
-        // unregister then re register event so it is executed before disenchantment events
-        preAnvilHandler.unregister(ecoListener);
-        preAnvilHandler.register(ecoListener);
+        for (RegisteredListener listener : ecoClickListeners) {
+            clickHandler.unregister(listener);
+            clickHandler.register(listener);
+        }
     }
 }
