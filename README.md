@@ -90,7 +90,7 @@ Get the latest release from any of these sources:
 | [Vane](https://modrinth.com/plugin/vane)                         |         ✓         |        ✓        |       ✓       |        -        |       -       |
 | [Zenchantments](https://github.com/moikheck/Zenchantments)       |         ✓         |        ✓        |       ✓       |        -        |       -       |
 
-> **Note:** EcoEnchants V13.0.0 is supported natively with Disenchantment 6.4.1+. No patched build is required.
+> **Note:** EcoEnchants V13.0.0 is supported natively with Disenchantment 6.4.0+. No patched build is required.
 
 ## Documentation
 
