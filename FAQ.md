@@ -28,8 +28,8 @@ See the full list of permission nodes in [PERMISSIONS.md](PERMISSIONS.md).
 
 ### Why isn't Disenchantment working with EcoEnchants?
 
-EcoEnchants V13.0.0 is fully supported natively as of **Disenchantment 6.4.0**. No patched build of EcoEnchants is
-required. Simply update Disenchantment to version **`6.4.0`** or newer and use any standard release of EcoEnchants.
+EcoEnchants V13.0.0 is fully supported natively as of **Disenchantment 6.4.1**. No patched build of EcoEnchants is
+required. Simply update Disenchantment to version **`6.4.1`** or newer and use any standard release of EcoEnchants.
 
 ---
 
@@ -74,7 +74,7 @@ installed. All standard disenchanting and book splitting features work without i
 
 ### I'm using GeyserMC and the plugin has issues. Is this a known problem?
 
-As of **Disenchantment 6.4.0+**, Geyser clients are handled gracefully. The `ClassCastException` that previously
+As of **Disenchantment 6.4.1+**, Geyser clients are handled gracefully. The `ClassCastException` that previously
 crashed anvil interactions for Bedrock players has been fixed in all v1_21_R* NMS modules.
 
 Bedrock clients connected via Geyser will be able to use the anvil without errors. However, the anvil cost display

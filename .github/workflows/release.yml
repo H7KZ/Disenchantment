@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: 'Tag to release (e.g. v6.4.0)'
+        description: 'Tag to release (e.g. v6.4.1)'
         required: true
         type: string
 
@@ -53,7 +53,7 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
 
-      # Strips the leading 'v' from the tag (e.g. v6.4.0 -> 6.4.0).
+      # Strips the leading 'v' from the tag (e.g. v6.4.1 -> 6.4.1).
       # On manual runs, uses the tag input instead of GITHUB_REF_NAME.
       # Passed to Maven via -Drevision so the JAR name always matches the tag.
       - name: Extract version from tag
