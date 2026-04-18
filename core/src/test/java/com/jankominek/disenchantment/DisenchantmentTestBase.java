@@ -9,6 +9,7 @@ import com.jankominek.disenchantment.plugins.SupportedPluginManager;
 import com.jankominek.disenchantment.utils.EnchantmentUtils;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Registry;
+import org.bukkit.World;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.event.inventory.PrepareAnvilEvent;
 import org.bukkit.inventory.AnvilInventory;
@@ -88,6 +89,13 @@ public abstract class DisenchantmentTestBase {
 
     protected IPluginEnchantment mockEnchant(String key, int level) {
         return EnchantmentUtils.remapEnchantment(enchantment(key), level);
+    }
+
+    // -> world helper
+
+    protected World world() {
+        List<World> worlds = server.getWorlds();
+        return worlds.isEmpty() ? server.addSimpleWorld("world") : worlds.get(0);
     }
 
     // -> adapter helpers

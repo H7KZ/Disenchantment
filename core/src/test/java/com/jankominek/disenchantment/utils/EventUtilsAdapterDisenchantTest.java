@@ -4,7 +4,6 @@ import com.jankominek.disenchantment.DisenchantmentTestBase;
 import com.jankominek.disenchantment.plugins.IPluginEnchantment;
 import com.jankominek.disenchantment.plugins.MockPluginAdapter;
 import org.bukkit.Material;
-import org.bukkit.World;
 import org.bukkit.inventory.ItemStack;
 import org.junit.jupiter.api.Test;
 
@@ -20,8 +19,6 @@ import static org.junit.jupiter.api.Assertions.*;
 class EventUtilsAdapterDisenchantTest extends DisenchantmentTestBase {
 
     // -> helpers
-
-    private World world() { return server.getWorlds().get(0); }
 
     private MockPluginAdapter adapter(IPluginEnchantment... enchants) {
         return new MockPluginAdapter("TestPlugin", enchants);
