@@ -67,6 +67,8 @@ public class ShatterClickEvent {
         ItemStack firstItem = anvilInventory.getItem(0);
         ItemStack secondItem = anvilInventory.getItem(1);
 
+        if (firstItem == null) return;
+
         List<ISupportedPlugin> activatedPlugins = SupportedPluginManager.getAllActivatedPlugins();
 
         List<IPluginEnchantment> enchantments = new ArrayList<>();
@@ -200,8 +202,8 @@ public class ShatterClickEvent {
             p.playSound(
                     p.getLocation(),
                     Sound.BLOCK_ANVIL_USE,
-                    Float.parseFloat(Config.Shatterment.Anvil.Sound.getVolume().toString()),
-                    Float.parseFloat(Config.Shatterment.Anvil.Sound.getPitch().toString())
+                    Config.Shatterment.Anvil.Sound.getVolume().floatValue(),
+                    Config.Shatterment.Anvil.Sound.getPitch().floatValue()
             );
 
         DiagnosticUtils.debug("SHATTER", "Click: complete ✓");

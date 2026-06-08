@@ -119,7 +119,7 @@ public class ShatterEvent {
 
         e.setResult(book);
 
-        int anvilCost = countAnvilCost(enchantments, AnvilEventType.SHATTERMENT);
+        int anvilCost = countAnvilCost(pluginEnchantments, AnvilEventType.SHATTERMENT);
         DiagnosticUtils.debug("SHATTER", "PrepareAnvil: anvil cost=" + anvilCost);
         AnvilCostUtils.setAnvilRepairCost(e.getInventory(), e.getView(), anvilCost);
 
@@ -139,7 +139,7 @@ public class ShatterEvent {
         }
 
         SchedulerUtils.runForEntity(Disenchantment.plugin, p, () -> {
-            AnvilCostUtils.setAnvilRepairCost(e.getInventory(), e.getView(), countAnvilCost(enchantments, AnvilEventType.SHATTERMENT));
+            AnvilCostUtils.setAnvilRepairCost(e.getInventory(), e.getView(), countAnvilCost(pluginEnchantments, AnvilEventType.SHATTERMENT));
             p.updateInventory();
         });
     }

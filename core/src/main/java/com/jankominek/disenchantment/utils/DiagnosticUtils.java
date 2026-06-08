@@ -210,13 +210,10 @@ public class DiagnosticUtils {
                         .append(
                                 activatedPlugins
                                         .stream()
-                                        .map(plugin ->
-                                                plugin.getName() +
-                                                        " v" +
-                                                        Objects.requireNonNull(Bukkit.getPluginManager().getPlugin(plugin.getName()))
-                                                                .getDescription()
-                                                                .getVersion()
-                                        )
+                                        .map(plugin -> {
+                                                org.bukkit.plugin.Plugin bp = Bukkit.getPluginManager().getPlugin(plugin.getName());
+                                                return plugin.getName() + " v" + (bp != null ? bp.getDescription().getVersion() : "unknown");
+                                        })
                                         .reduce((a, b) -> a + ", " + b)
                                         .orElse("None")
                         )

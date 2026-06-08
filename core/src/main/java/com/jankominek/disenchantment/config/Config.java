@@ -189,7 +189,7 @@ public class Config {
          * @return list of disabled {@link World} instances
          */
         public static List<World> getDisabledWorlds() {
-            return new ArrayList<>(config.getStringList(ConfigKeys.DISENCHANTMENT_DISABLED_WORLDS.getKey()).stream().map(Bukkit::getWorld).toList());
+            return new ArrayList<>(config.getStringList(ConfigKeys.DISENCHANTMENT_DISABLED_WORLDS.getKey()).stream().map(Bukkit::getWorld).filter(java.util.Objects::nonNull).toList());
         }
 
         /**
@@ -211,7 +211,7 @@ public class Config {
          * @return list of disabled {@link Material} types
          */
         public static List<Material> getDisabledMaterials() {
-            return new ArrayList<>(config.getStringList(ConfigKeys.DISENCHANTMENT_DISABLED_MATERIALS.getKey()).stream().map(Material::getMaterial).toList());
+            return new ArrayList<>(config.getStringList(ConfigKeys.DISENCHANTMENT_DISABLED_MATERIALS.getKey()).stream().map(Material::getMaterial).filter(java.util.Objects::nonNull).toList());
         }
 
         /**
@@ -533,7 +533,7 @@ public class Config {
          * @return list of disabled {@link World} instances
          */
         public static List<World> getDisabledWorlds() {
-            return new ArrayList<>(config.getStringList(ConfigKeys.SHATTERMENT_DISABLED_WORLDS.getKey()).stream().map(Bukkit::getWorld).toList());
+            return new ArrayList<>(config.getStringList(ConfigKeys.SHATTERMENT_DISABLED_WORLDS.getKey()).stream().map(Bukkit::getWorld).filter(java.util.Objects::nonNull).toList());
         }
 
         /**

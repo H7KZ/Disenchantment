@@ -48,6 +48,7 @@ public class AdvancedEnchantments_v1_20_R4 implements ISupportedPlugin {
         // For some reason AE .getEnchantmentsOnItem(item) does not return book enchantments
         if (item.getType() == Material.ENCHANTED_BOOK && enchantments.isEmpty()) {
             String bookKey = AEAPI.getBookEnchantment(item);
+            if (bookKey == null) return enchantments;
             int bookLevel = AEAPI.getBookEnchantmentLevel(item);
 
             enchantments.add(remapEnchantment(bookKey, bookLevel));

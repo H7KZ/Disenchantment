@@ -27,7 +27,7 @@ public class Vane_v1_21_R1 implements ISupportedPlugin {
      * {@inheritDoc}
      */
     public String getName() {
-        return "vane";
+        return "vane-core";
     }
 
     /**

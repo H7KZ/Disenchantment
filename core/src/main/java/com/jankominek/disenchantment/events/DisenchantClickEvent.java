@@ -71,6 +71,8 @@ public class DisenchantClickEvent {
         ItemStack firstItem = anvilInventory.getItem(0);
         ItemStack secondItem = anvilInventory.getItem(1);
 
+        if (firstItem == null) return;
+
         List<ISupportedPlugin> activatedPlugins = SupportedPluginManager.getAllActivatedPlugins();
 
         List<IPluginEnchantment> enchantments = new ArrayList<>();
@@ -192,8 +194,8 @@ public class DisenchantClickEvent {
             p.playSound(
                     p.getLocation(),
                     Sound.BLOCK_ANVIL_USE,
-                    Float.parseFloat(Config.Disenchantment.Anvil.Sound.getVolume().toString()),
-                    Float.parseFloat(Config.Disenchantment.Anvil.Sound.getPitch().toString())
+                    Config.Disenchantment.Anvil.Sound.getVolume().floatValue(),
+                    Config.Disenchantment.Anvil.Sound.getPitch().floatValue()
             );
 
         DiagnosticUtils.debug("DISENCHANT", "Click: complete ✓");
