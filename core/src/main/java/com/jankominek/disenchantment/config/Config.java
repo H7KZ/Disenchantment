@@ -613,6 +613,15 @@ public class Config {
         }
 
         /**
+         * Gets the number of enchantments to split off per shatter operation.
+         *
+         * @return the configured split count, defaulting to 1
+         */
+        public static int getSplitCount() {
+            return config.getInt(ConfigKeys.SHATTERMENT_SPLIT_COUNT.getKey(), 1);
+        }
+
+        /**
          * Gets the per-enchantment state overrides for shatterment. Results are cached.
          *
          * @return map of enchantment key to its {@link EnchantmentStateType}

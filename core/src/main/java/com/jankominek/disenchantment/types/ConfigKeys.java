@@ -63,6 +63,8 @@ public enum ConfigKeys {
     SHATTERMENT_ECONOMY_COST("shatterment.economy.cost"),
     SHATTERMENT_ECONOMY_SHOW_COST("shatterment.economy.show-cost"),
     SHATTERMENT_ECONOMY_CHARGE_MESSAGE("shatterment.economy.charge-message"),
+
+    SHATTERMENT_SPLIT_COUNT("shatterment.split-count"),
     ;
 
     private final String key;

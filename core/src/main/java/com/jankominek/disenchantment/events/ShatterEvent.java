@@ -84,7 +84,8 @@ public class ShatterEvent {
 		List<IPluginEnchantment> shuffleEnchantments = new ArrayList<>(enchantments);
 		Collections.shuffle(shuffleEnchantments);
 
-		int halfSize = Math.max(1, shuffleEnchantments.size() / 2);
+		int splitCount = Config.Shatterment.getSplitCount();
+		int halfSize = Math.min(Math.max(1, splitCount), shuffleEnchantments.size() - 1);
 
 		for (int i = 0; i < halfSize; i++) {
 			IPluginEnchantment enchantment = shuffleEnchantments.get(i);
