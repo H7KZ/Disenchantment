@@ -1,5 +1,6 @@
 package com.jankominek.disenchantment.config;
 
+import com.jankominek.disenchantment.types.AnvilFeature;
 import com.jankominek.disenchantment.types.ConfigKeys;
 import com.jankominek.disenchantment.types.EnchantmentStateType;
 import com.jankominek.disenchantment.types.LogLevelType;
@@ -25,6 +26,33 @@ import static com.jankominek.disenchantment.Disenchantment.plugin;
  * anvil sound/repair parameters, and world/material/enchantment states.
  */
 public class Config {
+    public interface FeatureConfig {
+        boolean isEnabled();
+        List<World> getDisabledWorlds();
+        boolean setDisabledWorlds(List<World> worlds);
+        HashMap<String, EnchantmentStateType> getEnchantmentStates();
+        boolean setEnchantmentStates(HashMap<String, EnchantmentStateType> enchantmentStates);
+    }
+
+    public static FeatureConfig forFeature(AnvilFeature feature) {
+        return switch (feature) {
+            case DISENCHANTMENT -> new FeatureConfig() {
+                public boolean isEnabled() { return Disenchantment.isEnabled(); }
+                public List<World> getDisabledWorlds() { return Disenchantment.getDisabledWorlds(); }
+                public boolean setDisabledWorlds(List<World> worlds) { return Disenchantment.setDisabledWorlds(worlds); }
+                public HashMap<String, EnchantmentStateType> getEnchantmentStates() { return Disenchantment.getEnchantmentStates(); }
+                public boolean setEnchantmentStates(HashMap<String, EnchantmentStateType> enchantmentStates) { return Disenchantment.setEnchantmentStates(enchantmentStates); }
+            };
+            case SHATTERMENT -> new FeatureConfig() {
+                public boolean isEnabled() { return Shatterment.isEnabled(); }
+                public List<World> getDisabledWorlds() { return Shatterment.getDisabledWorlds(); }
+                public boolean setDisabledWorlds(List<World> worlds) { return Shatterment.setDisabledWorlds(worlds); }
+                public HashMap<String, EnchantmentStateType> getEnchantmentStates() { return Shatterment.getEnchantmentStates(); }
+                public boolean setEnchantmentStates(HashMap<String, EnchantmentStateType> enchantmentStates) { return Shatterment.setEnchantmentStates(enchantmentStates); }
+            };
+        };
+    }
+
     public static void invalidateCaches() {
         Disenchantment.ENCHANTMENT_STATES_CACHE = null;
         Shatterment.ENCHANTMENT_STATES_CACHE = null;
