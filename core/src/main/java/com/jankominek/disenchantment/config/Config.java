@@ -25,6 +25,11 @@ import static com.jankominek.disenchantment.Disenchantment.plugin;
  * anvil sound/repair parameters, and world/material/enchantment states.
  */
 public class Config {
+    public static void invalidateCaches() {
+        Disenchantment.ENCHANTMENT_STATES_CACHE = null;
+        Shatterment.ENCHANTMENT_STATES_CACHE = null;
+    }
+
     /**
      * Checks whether the plugin is globally enabled.
      *

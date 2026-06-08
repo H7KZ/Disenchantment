@@ -78,6 +78,7 @@ public class ConfigUtils {
         }
 
         plugin.reloadConfig();
+        Config.invalidateCaches();
     }
 
     /**
