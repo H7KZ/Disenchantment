@@ -498,6 +498,21 @@ public class Config {
 
                     return getCostMultiplier().equals(multiplier);
                 }
+
+                /**
+                 * Gets the per-enchantment XP cost overrides for disenchantment.
+                 *
+                 * @return map of enchantment key to its XP cost override
+                 */
+                public static Map<String, Integer> getEnchantmentCosts() {
+                    var section = config.getConfigurationSection(ConfigKeys.DISENCHANTMENT_ANVIL_REPAIR_ENCHANTMENT_COSTS.getKey());
+                    if (section == null) return new HashMap<>();
+                    Map<String, Integer> costs = new HashMap<>();
+                    for (String key : section.getKeys(false)) {
+                        costs.put(key, section.getInt(key));
+                    }
+                    return costs;
+                }
             }
         }
     }
@@ -821,6 +836,21 @@ public class Config {
                     plugin.saveConfig();
 
                     return getCostMultiplier().equals(multiplier);
+                }
+
+                /**
+                 * Gets the per-enchantment XP cost overrides for shatterment.
+                 *
+                 * @return map of enchantment key to its XP cost override
+                 */
+                public static Map<String, Integer> getEnchantmentCosts() {
+                    var section = config.getConfigurationSection(ConfigKeys.SHATTERMENT_ANVIL_REPAIR_ENCHANTMENT_COSTS.getKey());
+                    if (section == null) return new HashMap<>();
+                    Map<String, Integer> costs = new HashMap<>();
+                    for (String key : section.getKeys(false)) {
+                        costs.put(key, section.getInt(key));
+                    }
+                    return costs;
                 }
             }
         }

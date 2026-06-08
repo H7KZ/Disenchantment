@@ -37,6 +37,7 @@ public enum ConfigKeys {
     DISENCHANTMENT_REPAIR_COST_ENABLED("disenchantment.anvil.repair.cost"),
     DISENCHANTMENT_REPAIR_COST_BASE("disenchantment.anvil.repair.base"),
     DISENCHANTMENT_REPAIR_COST_MULTIPLIER("disenchantment.anvil.repair.multiply"),
+    DISENCHANTMENT_ANVIL_REPAIR_ENCHANTMENT_COSTS("disenchantment.anvil.repair.enchantment-costs"),
 
     DISENCHANTMENT_ECONOMY_ENABLED("disenchantment.economy.enabled"),
     DISENCHANTMENT_ECONOMY_COST("disenchantment.economy.cost"),
@@ -56,6 +57,7 @@ public enum ConfigKeys {
     SHATTERMENT_REPAIR_COST_ENABLED("shatterment.anvil.repair.cost"),
     SHATTERMENT_REPAIR_COST_BASE("shatterment.anvil.repair.base"),
     SHATTERMENT_REPAIR_COST_MULTIPLIER("shatterment.anvil.repair.multiply"),
+    SHATTERMENT_ANVIL_REPAIR_ENCHANTMENT_COSTS("shatterment.anvil.repair.enchantment-costs"),
 
     SHATTERMENT_ECONOMY_ENABLED("shatterment.economy.enabled"),
     SHATTERMENT_ECONOMY_COST("shatterment.economy.cost"),
