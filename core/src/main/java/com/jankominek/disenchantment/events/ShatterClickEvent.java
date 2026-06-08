@@ -16,6 +16,10 @@ import org.bukkit.inventory.AnvilInventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 
+import com.jankominek.disenchantment.events.api.PostShatterEvent;
+import com.jankominek.disenchantment.events.api.PreShatterEvent;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -125,6 +129,13 @@ public class ShatterClickEvent {
 			return;
 		}
 
+		PreShatterEvent preEvent = new PreShatterEvent(p, firstItem.clone(), new ArrayList<>(enchantments));
+		org.bukkit.Bukkit.getPluginManager().callEvent(preEvent);
+		if (preEvent.isCancelled()) {
+			e.setCancelled(true);
+			return;
+		}
+
 		int exp = p.getLevel() - repairCost;
 		DiagnosticUtils.debug("SHATTER", "Click: xp → " + p.getLevel() + " - " + repairCost + " = " + exp);
 
@@ -174,6 +185,7 @@ public class ShatterClickEvent {
 		if (p.getGameMode() != org.bukkit.GameMode.CREATIVE) p.setLevel(exp);
 
 		p.setItemOnCursor(result);
+		org.bukkit.Bukkit.getPluginManager().callEvent(new PostShatterEvent(p, result.clone(), finalFirstItem.clone()));
 
 		if (Config.Shatterment.Anvil.Sound.isEnabled())
 			p.playSound(

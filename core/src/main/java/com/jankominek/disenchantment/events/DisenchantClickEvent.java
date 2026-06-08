@@ -16,6 +16,10 @@ import org.bukkit.inventory.AnvilInventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 
+import com.jankominek.disenchantment.events.api.PostDisenchantEvent;
+import com.jankominek.disenchantment.events.api.PreDisenchantEvent;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -119,6 +123,13 @@ public class DisenchantClickEvent {
 			return;
 		}
 
+		PreDisenchantEvent preEvent = new PreDisenchantEvent(p, firstItem.clone(), new ArrayList<>(enchantments));
+		org.bukkit.Bukkit.getPluginManager().callEvent(preEvent);
+		if (preEvent.isCancelled()) {
+			e.setCancelled(true);
+			return;
+		}
+
 		int exp = p.getLevel() - repairCost;
 		DiagnosticUtils.debug("DISENCHANT", "Click: xp → " + p.getLevel() + " - " + repairCost + " = " + exp);
 
@@ -165,6 +176,7 @@ public class DisenchantClickEvent {
 		if (p.getGameMode() != org.bukkit.GameMode.CREATIVE) p.setLevel(exp);
 
 		p.setItemOnCursor(result);
+		org.bukkit.Bukkit.getPluginManager().callEvent(new PostDisenchantEvent(p, result.clone(), finalFirstItem.clone()));
 
 		if (Config.Disenchantment.Anvil.Sound.isEnabled())
 			p.playSound(
