@@ -13,8 +13,10 @@ import com.jankominek.disenchantment.nms.NMS;
 import com.jankominek.disenchantment.nms.NMSMapper;
 import com.jankominek.disenchantment.plugins.ISupportedPlugin;
 import com.jankominek.disenchantment.plugins.SupportedPluginManager;
+import com.jankominek.disenchantment.plugins.placeholderapi.DisenchantmentPlaceholderExpansion;
 import com.jankominek.disenchantment.types.LogLevelType;
 import com.jankominek.disenchantment.utils.*;
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.event.EventHandler;
@@ -186,6 +188,11 @@ public class Disenchantment extends JavaPlugin {
 
         // Automatic update check
         tasks.add(new UpdateChecker(spigotmcId).run(plugin, plugin.getDescription().getVersion()));
+
+        // PlaceholderAPI
+        if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
+            new DisenchantmentPlaceholderExpansion().register();
+        }
 
         logger.info("Disenchantment enabled!");
     }
