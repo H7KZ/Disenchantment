@@ -56,18 +56,16 @@ public class GUIClickEvent implements Listener {
                 return;
             }
             repairGUI.onInventoryClick(e);
-        } else if (clickedHolder instanceof DisenchantmentSoundGUI) {
-            if (!PermissionGroupType.GUI_DISENCHANT_SOUND.hasPermission(p)) {
-                DiagnosticUtils.debug("GUI", "Click denied: " + p.getName() + " lacks permission for DisenchantmentSoundGUI");
+        } else if (clickedHolder instanceof SoundGUI) {
+            SoundGUI soundGUI = (SoundGUI) clickedHolder;
+            PermissionGroupType permission = soundGUI.getFeature() == AnvilFeature.DISENCHANTMENT
+                    ? PermissionGroupType.GUI_DISENCHANT_SOUND
+                    : PermissionGroupType.GUI_SHATTER_SOUND;
+            if (!permission.hasPermission(p)) {
+                DiagnosticUtils.debug("GUI", "Click denied: " + p.getName() + " lacks permission for SoundGUI (" + soundGUI.getFeature() + ")");
                 return;
             }
-            ((DisenchantmentSoundGUI) clickedHolder).onInventoryClick(e);
-        } else if (clickedHolder instanceof ShattermentSoundGUI) {
-            if (!PermissionGroupType.GUI_SHATTER_SOUND.hasPermission(p)) {
-                DiagnosticUtils.debug("GUI", "Click denied: " + p.getName() + " lacks permission for ShattermentSoundGUI");
-                return;
-            }
-            ((ShattermentSoundGUI) clickedHolder).onInventoryClick(e);
+            soundGUI.onInventoryClick(e);
         } else if (clickedHolder instanceof WorldsGUI) {
             if (!PermissionGroupType.GUI_WORLDS.hasPermission(p)) {
                 DiagnosticUtils.debug("GUI", "Click denied: " + p.getName() + " lacks permission for WorldsGUI");

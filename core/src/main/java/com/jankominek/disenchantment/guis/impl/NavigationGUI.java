@@ -109,14 +109,14 @@ public class NavigationGUI implements InventoryHolder {
                                 if (!PermissionGroupType.GUI_DISENCHANT_SOUND.hasPermission(event.getWhoClicked(), true))
                                     return;
 
-                                event.getWhoClicked().openInventory(new DisenchantmentSoundGUI().getInventory());
+                                event.getWhoClicked().openInventory(new SoundGUI(AnvilFeature.DISENCHANTMENT).getInventory());
                                 break;
                             }
                             case RIGHT: {
                                 if (!PermissionGroupType.GUI_SHATTER_SOUND.hasPermission(event.getWhoClicked(), true))
                                     return;
 
-                                event.getWhoClicked().openInventory(new ShattermentSoundGUI().getInventory());
+                                event.getWhoClicked().openInventory(new SoundGUI(AnvilFeature.SHATTERMENT).getInventory());
                                 break;
                             }
                         }
