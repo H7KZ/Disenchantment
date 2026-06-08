@@ -17,7 +17,9 @@ import org.bukkit.inventory.AnvilInventory;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
@@ -109,7 +111,13 @@ public final class AnvilEventGuards {
 			}
 		}
 
-		return enchantments;
+		// Deduplicate by key — first occurrence wins. Prevents double-cost/double-removal
+		// when multiple adapters claim the same enchantment key.
+		Map<String, IPluginEnchantment> seen = new LinkedHashMap<>();
+		for (IPluginEnchantment enc : enchantments) {
+			seen.putIfAbsent(enc.getKey(), enc);
+		}
+		return new ArrayList<>(seen.values());
 	}
 
 	// ----------------------------------------------------------------------------------------------------
