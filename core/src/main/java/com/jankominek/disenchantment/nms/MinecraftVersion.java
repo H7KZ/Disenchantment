@@ -76,12 +76,6 @@ public enum MinecraftVersion {
     private static MinecraftVersion init() {
         String v = Disenchantment.plugin.getServer().getVersion();
 
-        for (MinecraftVersion version : MinecraftVersion.values()) {
-            if (version.versionUnderlined == null || version.versionDotted == null) continue;
-            if (v.equalsIgnoreCase(version.versionUnderlined) || v.equalsIgnoreCase(version.versionDotted))
-                return version;
-        }
-
         // Substring match for server version strings like "git-Paper-406 (MC: 1.21.4)" or "git-Leaf-xxx (MC: 1.21.4)".
         // Enum is ordered most-specific first, so "1.21.4" is checked before "1.21" and "1.20.4" before "1.20".
         for (MinecraftVersion version : MinecraftVersion.values()) {
