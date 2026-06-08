@@ -7,6 +7,7 @@ import com.jankominek.disenchantment.guis.GUIBorderComponent;
 import com.jankominek.disenchantment.guis.GUIComponent;
 import com.jankominek.disenchantment.guis.GUIItem;
 import com.jankominek.disenchantment.guis.InventoryBuilder;
+import com.jankominek.disenchantment.types.AnvilFeature;
 import com.jankominek.disenchantment.types.PermissionGroupType;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.apache.commons.lang3.ArrayUtils;
@@ -62,14 +63,14 @@ public class NavigationGUI implements InventoryHolder {
                                 if (!PermissionGroupType.GUI_DISENCHANT_REPAIR.hasPermission(event.getWhoClicked(), true))
                                     return;
 
-                                event.getWhoClicked().openInventory(new DisenchantmentRepairGUI().getInventory());
+                                event.getWhoClicked().openInventory(new RepairGUI(AnvilFeature.DISENCHANTMENT).getInventory());
                                 break;
                             }
                             case RIGHT: {
                                 if (!PermissionGroupType.GUI_SHATTER_REPAIR.hasPermission(event.getWhoClicked(), true))
                                     return;
 
-                                event.getWhoClicked().openInventory(new ShattermentRepairGUI().getInventory());
+                                event.getWhoClicked().openInventory(new RepairGUI(AnvilFeature.SHATTERMENT).getInventory());
                                 break;
                             }
                         }

@@ -1,6 +1,7 @@
 package com.jankominek.disenchantment.events;
 
 import com.jankominek.disenchantment.guis.impl.*;
+import com.jankominek.disenchantment.types.AnvilFeature;
 import com.jankominek.disenchantment.types.PermissionGroupType;
 import com.jankominek.disenchantment.utils.DiagnosticUtils;
 import org.bukkit.entity.Player;
@@ -45,18 +46,16 @@ public class GUIClickEvent implements Listener {
                 return;
             }
             ((NavigationGUI) clickedHolder).onInventoryClick(e);
-        } else if (clickedHolder instanceof DisenchantmentRepairGUI) {
-            if (!PermissionGroupType.GUI_DISENCHANT_REPAIR.hasPermission(p)) {
-                DiagnosticUtils.debug("GUI", "Click denied: " + p.getName() + " lacks permission for DisenchantmentRepairGUI");
+        } else if (clickedHolder instanceof RepairGUI) {
+            RepairGUI repairGUI = (RepairGUI) clickedHolder;
+            PermissionGroupType permission = repairGUI.getFeature() == AnvilFeature.DISENCHANTMENT
+                    ? PermissionGroupType.GUI_DISENCHANT_REPAIR
+                    : PermissionGroupType.GUI_SHATTER_REPAIR;
+            if (!permission.hasPermission(p)) {
+                DiagnosticUtils.debug("GUI", "Click denied: " + p.getName() + " lacks permission for RepairGUI (" + repairGUI.getFeature() + ")");
                 return;
             }
-            ((DisenchantmentRepairGUI) clickedHolder).onInventoryClick(e);
-        } else if (clickedHolder instanceof ShattermentRepairGUI) {
-            if (!PermissionGroupType.GUI_SHATTER_REPAIR.hasPermission(p)) {
-                DiagnosticUtils.debug("GUI", "Click denied: " + p.getName() + " lacks permission for ShattermentRepairGUI");
-                return;
-            }
-            ((ShattermentRepairGUI) clickedHolder).onInventoryClick(e);
+            repairGUI.onInventoryClick(e);
         } else if (clickedHolder instanceof DisenchantmentSoundGUI) {
             if (!PermissionGroupType.GUI_DISENCHANT_SOUND.hasPermission(p)) {
                 DiagnosticUtils.debug("GUI", "Click denied: " + p.getName() + " lacks permission for DisenchantmentSoundGUI");
