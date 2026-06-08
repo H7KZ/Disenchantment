@@ -36,6 +36,7 @@ public enum PermissionType {
     COMMAND_SHATTER_SOUND("disenchantment.command.shatter.sound"),
 
     COMMAND_DIAGNOSTIC("disenchantment.command.diagnostic"),
+    COMMAND_RELOAD("disenchantment.command.reload"),
 
     GUI("disenchantment.gui"),
     GUI_ALL("disenchantment.gui.all"),

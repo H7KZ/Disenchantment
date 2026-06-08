@@ -80,6 +80,9 @@ permissions:
   disenchantment.command.diagnostic:
     description: Access to the Diagnostic command.
     default: op
+  disenchantment.command.reload:
+    description: Access to the reload command.
+    default: op
   disenchantment.gui:
     description: Allows the player to open the GUI.
     default: op

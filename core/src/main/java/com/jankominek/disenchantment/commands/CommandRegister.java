@@ -33,6 +33,7 @@ public class CommandRegister implements CommandExecutor {
             put(ShatterRepair.command.name(), ShatterRepair.command);
             put(ShatterSound.command.name(), ShatterSound.command);
             put(Diagnostic.command.name(), Diagnostic.command);
+            put(Reload.command.name(), Reload.command);
         }
     };
 
