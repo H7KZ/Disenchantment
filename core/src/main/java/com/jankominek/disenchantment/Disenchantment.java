@@ -107,14 +107,17 @@ public class Disenchantment extends JavaPlugin {
         String finalLocale = locale;
         if (Arrays.stream(Objects.requireNonNull(localesFolder.listFiles())).noneMatch(file -> file.getName().equals(finalLocale + ".yml")))
             locale = "en";
-        localeConfig = YamlConfiguration.loadConfiguration(
-                new InputStreamReader(
-                        Objects.requireNonNull(
-                                plugin.getResource("locales/" + locale + ".yml")
-                        ),
-                        StandardCharsets.UTF_8
-                )
-        );
+        File localeFile = new File(plugin.getDataFolder(), "locales/" + locale + ".yml");
+        if (localeFile.exists()) {
+            localeConfig = YamlConfiguration.loadConfiguration(localeFile);
+        } else {
+            var stream = plugin.getResource("locales/" + locale + ".yml");
+            if (stream != null) {
+                localeConfig = YamlConfiguration.loadConfiguration(
+                        new InputStreamReader(stream, StandardCharsets.UTF_8)
+                );
+            }
+        }
 
         // Set config values
         Disenchantment.enabled = Config.isPluginEnabled();
