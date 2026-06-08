@@ -1,6 +1,5 @@
 package com.jankominek.disenchantment.events;
 
-import com.jankominek.disenchantment.Disenchantment;
 import com.jankominek.disenchantment.config.Config;
 import com.jankominek.disenchantment.config.I18n;
 import com.jankominek.disenchantment.plugins.IPluginEnchantment;
@@ -13,12 +12,10 @@ import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.AnvilInventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,183 +26,163 @@ import java.util.stream.Collectors;
  * sound effect, and delivers the resulting enchanted book to the player's cursor.
  */
 public class ShatterClickEvent {
-    /**
-     * Entry point for the shatter inventory-click event.
-     * Delegates to the internal handler and reports any exceptions via diagnostics.
-     *
-     * @param event the Bukkit event to process
-     */
-    public static void onEvent(Event event) {
-        try {
-            handler(event);
-        } catch (Exception e) {
-            DiagnosticUtils.throwReport(e);
-        }
-    }
+	/**
+	 * Entry point for the shatter inventory-click event.
+	 * Delegates to the internal handler and reports any exceptions via diagnostics.
+	 *
+	 * @param event the Bukkit event to process
+	 */
+	public static void onEvent(Event event) {
+		try {
+			handler(event);
+		} catch (Exception e) {
+			DiagnosticUtils.throwReport(e);
+		}
+	}
 
-    private static void handler(Event event) {
-        if (!(event instanceof InventoryClickEvent e)) return;
+	private static final AnvilEventGuards.EconomyConfig ECONOMY_CONFIG = new AnvilEventGuards.EconomyConfig() {
+		@Override public boolean isEnabled()             { return Config.Shatterment.Economy.isEnabled(); }
+		@Override public double getCost()                { return Config.Shatterment.Economy.getCost(); }
+		@Override public boolean isChargeMessageEnabled(){ return Config.Shatterment.Economy.isChargeMessageEnabled(); }
+	};
 
-        if (!(e.getWhoClicked() instanceof Player p)) return;
+	private static void handler(Event event) {
+		if (!(event instanceof InventoryClickEvent e)) return;
 
-        if (!Config.isPluginEnabled() || !Config.Shatterment.isEnabled() || Config.Shatterment.getDisabledWorlds().contains(p.getWorld()))
-            return;
+		Player p = AnvilEventGuards.getPlayer(e);
+		if (p == null) return;
 
-        if (e.getInventory().getType() != InventoryType.ANVIL) return;
+		if (!Config.isPluginEnabled() || !Config.Shatterment.isEnabled() || Config.Shatterment.getDisabledWorlds().contains(p.getWorld()))
+			return;
 
-        if (e.getSlot() != 2) return;
+		if (!AnvilEventGuards.isAnvilResultSlotClick(e, p)) return;
 
-        // We do not want to continue if the player has an item in cursor as it would delete it.
-        if (!p.getItemOnCursor().getType().isAir()) return;
+		AnvilInventory anvilInventory = (AnvilInventory) e.getInventory();
 
-        AnvilInventory anvilInventory = (AnvilInventory) e.getInventory();
+		ItemStack result = anvilInventory.getItem(2);
 
-        ItemStack result = anvilInventory.getItem(2);
+		if (result == null) return;
 
-        if (result == null) return;
+		ItemStack firstItem = anvilInventory.getItem(0);
+		ItemStack secondItem = anvilInventory.getItem(1);
 
-        ItemStack firstItem = anvilInventory.getItem(0);
-        ItemStack secondItem = anvilInventory.getItem(1);
+		if (firstItem == null) return;
 
-        if (firstItem == null) return;
+		List<ISupportedPlugin> activatedPlugins = SupportedPluginManager.getAllActivatedPlugins();
 
-        List<ISupportedPlugin> activatedPlugins = SupportedPluginManager.getAllActivatedPlugins();
+		List<IPluginEnchantment> enchantments = AnvilEventGuards.collectEnchantments(
+				firstItem, secondItem, false,
+				(f, s, ip) -> EventUtils.Shatterment.getShattermentEnchantments(f, s, ip),
+				(f, s, ip, plugin, world) -> EventUtils.Shatterment.getShattermentEnchantments(f, s, ip, plugin, world),
+				p.getWorld());
 
-        List<IPluginEnchantment> enchantments = new ArrayList<>();
+		if (enchantments.isEmpty()) {
+			DiagnosticUtils.debug("SHATTER", "Click: no eligible enchantments → exit");
+			return;
+		}
 
-        if (activatedPlugins.isEmpty()) {
-            enchantments.addAll(EventUtils.Shatterment.getShattermentEnchantments(firstItem, secondItem, false));
-        } else {
-            for (ISupportedPlugin activatedPlugin : activatedPlugins) {
-                enchantments.addAll(EventUtils.Shatterment.getShattermentEnchantments(firstItem, secondItem, false, activatedPlugin, p.getWorld()));
-            }
-        }
+		if (result.getType() != Material.ENCHANTED_BOOK) return;
 
-        if (enchantments.isEmpty()) {
-            DiagnosticUtils.debug("SHATTER", "Click: no eligible enchantments → exit");
-            return;
-        }
+		DiagnosticUtils.debug("SHATTER", "Click: player=" + p.getName() + ", result=" + result.getType() + ", gameMode=" + p.getGameMode());
 
-        if (result.getType() != Material.ENCHANTED_BOOK) return;
+		if (DiagnosticUtils.isDebugEnabled()) {
+			String names = enchantments.stream().map(ench -> ench.getKey() + ":" + ench.getLevel()).collect(Collectors.joining(", "));
+			DiagnosticUtils.debug("SHATTER", "Click: enchantments=[" + names + "]");
+		}
 
-        DiagnosticUtils.debug("SHATTER", "Click: player=" + p.getName() + ", result=" + result.getType() + ", gameMode=" + p.getGameMode());
+		if (e.isShiftClick()) {
+			DiagnosticUtils.debug("SHATTER", "Click: shift-click blocked → CANCELLED");
+			e.setCancelled(true);
+			return;
+		}
 
-        if (DiagnosticUtils.isDebugEnabled()) {
-            String names = enchantments.stream().map(ench -> ench.getKey() + ":" + ench.getLevel()).collect(Collectors.joining(", "));
-            DiagnosticUtils.debug("SHATTER", "Click: enchantments=[" + names + "]");
-        }
+		int repairCost = AnvilCostUtils.getRepairCost(anvilInventory, e.getView());
+		DiagnosticUtils.debug("SHATTER", "Click: xp check — repairCost=" + repairCost + ", playerLevel=" + p.getLevel());
+		if (!AnvilEventGuards.hasEnoughXp(p, repairCost)) {
+			DiagnosticUtils.debug("SHATTER", "Click: insufficient XP → CANCELLED");
+			e.setCancelled(true);
+			return;
+		}
 
-        if (e.isShiftClick()) {
-            DiagnosticUtils.debug("SHATTER", "Click: shift-click blocked → CANCELLED");
-            e.setCancelled(true);
-            return;
-        }
+		if (!PermissionGroupType.SHATTER_EVENT.hasPermission(p)) {
+			DiagnosticUtils.debug("SHATTER", "Click: permission denied → exit");
+			return;
+		}
 
-        int repairCost = AnvilCostUtils.getRepairCost(anvilInventory, e.getView());
-        DiagnosticUtils.debug("SHATTER", "Click: xp check — repairCost=" + repairCost + ", playerLevel=" + p.getLevel());
-        if (repairCost > p.getLevel() && p.getGameMode() != org.bukkit.GameMode.CREATIVE) {
-            DiagnosticUtils.debug("SHATTER", "Click: insufficient XP → CANCELLED");
-            e.setCancelled(true);
-            return;
-        }
+		// Economy check
+		DiagnosticUtils.debug("SHATTER", "Click: economy check — enabled=" + Config.Shatterment.Economy.isEnabled() + ", gameMode=" + p.getGameMode());
+		AnvilEventGuards.EconomyResult economyResult = AnvilEventGuards.processEconomy(p, ECONOMY_CONFIG);
+		if (economyResult == AnvilEventGuards.EconomyResult.NOT_AVAILABLE) {
+			DiagnosticUtils.debug("SHATTER", "Click: economy not available → CANCELLED");
+			p.sendMessage(I18n.getPrefix() + " " + I18n.Messages.economyNotAvailable());
+			e.setCancelled(true);
+			return;
+		}
+		if (economyResult == AnvilEventGuards.EconomyResult.INSUFFICIENT_FUNDS) {
+			DiagnosticUtils.debug("SHATTER", "Click: insufficient funds → CANCELLED");
+			p.sendMessage(I18n.getPrefix() + " " + I18n.Messages.economyInsufficientFunds(EconomyUtils.format(Config.Shatterment.Economy.getCost())));
+			e.setCancelled(true);
+			return;
+		}
 
-        if (!PermissionGroupType.SHATTER_EVENT.hasPermission(p)) {
-            DiagnosticUtils.debug("SHATTER", "Click: permission denied → exit");
-            return;
-        }
+		int exp = p.getLevel() - repairCost;
+		DiagnosticUtils.debug("SHATTER", "Click: xp → " + p.getLevel() + " - " + repairCost + " = " + exp);
 
-        // Economy check
-        DiagnosticUtils.debug("SHATTER", "Click: economy check — enabled=" + Config.Shatterment.Economy.isEnabled() + ", gameMode=" + p.getGameMode());
-        if (Config.Shatterment.Economy.isEnabled() && p.getGameMode() != org.bukkit.GameMode.CREATIVE) {
-            if (!EconomyUtils.isAvailable()) {
-                DiagnosticUtils.debug("SHATTER", "Click: economy not available → CANCELLED");
-                p.sendMessage(I18n.getPrefix() + " " + I18n.Messages.economyNotAvailable());
-                e.setCancelled(true);
-                return;
-            }
-            double economyCost = Config.Shatterment.Economy.getCost();
-            if (!EconomyUtils.has(p, economyCost)) {
-                DiagnosticUtils.debug("SHATTER", "Click: insufficient funds → CANCELLED");
-                p.sendMessage(I18n.getPrefix() + " " + I18n.Messages.economyInsufficientFunds(EconomyUtils.format(economyCost)));
-                e.setCancelled(true);
-                return;
-            }
-            EconomyUtils.withdraw(p, economyCost);
-            if (Config.Shatterment.Economy.isChargeMessageEnabled()) {
-                p.sendMessage(I18n.getPrefix() + " " + I18n.Messages.economyCharged(EconomyUtils.format(economyCost)));
-            }
-        }
+		// ----------------------------------------------------------------------------------------------------
+		// Disenchantment plugins
 
-        int exp = p.getLevel() - repairCost;
-        DiagnosticUtils.debug("SHATTER", "Click: xp → " + p.getLevel() + " - " + repairCost + " = " + exp);
+		ItemStack finalFirstItem = firstItem.clone();
+		List<IPluginEnchantment> enchantmentsToDelete = EventUtils.Shatterment.findEnchantmentsToDelete(enchantments);
 
-        // ----------------------------------------------------------------------------------------------------
-        // Disenchantment plugins
+		EnchantmentStorageMeta resultItemMeta = (EnchantmentStorageMeta) result.getItemMeta();
 
-        ItemStack finalFirstItem = firstItem.clone();
-        List<IPluginEnchantment> enchantmentsToDelete = EventUtils.Shatterment.findEnchantmentsToDelete(enchantments);
+		if (activatedPlugins.isEmpty()) {
+			if (resultItemMeta == null) return;
 
-        EnchantmentStorageMeta resultItemMeta = (EnchantmentStorageMeta) result.getItemMeta();
+			finalFirstItem = EnchantmentUtils.removeEnchantments(finalFirstItem, resultItemMeta.getStoredEnchants());
 
-        if (activatedPlugins.isEmpty()) {
-            if (resultItemMeta == null) return;
+			for (IPluginEnchantment enchantment : enchantmentsToDelete) {
+				// Use removeFromBook since firstItem is always an ENCHANTED_BOOK in shatterment
+				finalFirstItem = enchantment.removeFromBook(finalFirstItem);
+			}
+		} else {
+			for (ISupportedPlugin activatedPlugin : activatedPlugins) {
+				List<IPluginEnchantment> pluginEnchantments = activatedPlugin.getItemEnchantments(result, p.getWorld());
 
-            finalFirstItem = EnchantmentUtils.removeEnchantments(finalFirstItem, resultItemMeta.getStoredEnchants());
+				for (IPluginEnchantment enchantment : pluginEnchantments) {
+					// Use removeFromBook since firstItem is always an ENCHANTED_BOOK in shatterment
+					finalFirstItem = enchantment.removeFromBook(finalFirstItem);
+				}
+			}
 
-            for (IPluginEnchantment enchantment : enchantmentsToDelete) {
-                // Use removeFromBook since firstItem is always an ENCHANTED_BOOK in shatterment
-                finalFirstItem = enchantment.removeFromBook(finalFirstItem);
-            }
-        } else {
-            for (ISupportedPlugin activatedPlugin : activatedPlugins) {
-                List<IPluginEnchantment> pluginEnchantments = activatedPlugin.getItemEnchantments(result, p.getWorld());
+			for (IPluginEnchantment enchantment : enchantmentsToDelete) {
+				// Use removeFromBook since firstItem is always an ENCHANTED_BOOK in shatterment
+				finalFirstItem = enchantment.removeFromBook(finalFirstItem);
+			}
+		}
 
-                for (IPluginEnchantment enchantment : pluginEnchantments) {
-                    // Use removeFromBook since firstItem is always an ENCHANTED_BOOK in shatterment
-                    finalFirstItem = enchantment.removeFromBook(finalFirstItem);
-                }
-            }
+		// Disenchantment plugins
+		// ----------------------------------------------------------------------------------------------------
 
-            for (IPluginEnchantment enchantment : enchantmentsToDelete) {
-                // Use removeFromBook since firstItem is always an ENCHANTED_BOOK in shatterment
-                finalFirstItem = enchantment.removeFromBook(finalFirstItem);
-            }
-        }
+		if (Config.Shatterment.Anvil.Repair.isResetEnabled()) AnvilCostUtils.setItemRepairCost(finalFirstItem, 0);
 
-        // Disenchantment plugins
-        // ----------------------------------------------------------------------------------------------------
+		anvilInventory.setItem(0, finalFirstItem);
 
-        if (Config.Shatterment.Anvil.Repair.isResetEnabled()) AnvilCostUtils.setItemRepairCost(finalFirstItem, 0);
+		if (secondItem == null) return;
+		AnvilEventGuards.scheduleSecondItemRemoval(p, anvilInventory, secondItem);
 
-        anvilInventory.setItem(0, finalFirstItem);
+		if (p.getGameMode() != org.bukkit.GameMode.CREATIVE) p.setLevel(exp);
 
-        if (secondItem == null) return;
-        ItemStack finalSecondItem = secondItem.clone();
+		p.setItemOnCursor(result);
 
-        // Schedule task to run 2 ticks after the event
-        // It is because of EnchantsSquared (they replace second slot to null after 1 tick)
-        // Maybe here it is not needed, but it is better to be safe than sorry
-        SchedulerUtils.runForEntityLater(Disenchantment.plugin, p, () -> {
-            if (finalSecondItem.getAmount() > 1) {
-                finalSecondItem.setAmount(finalSecondItem.getAmount() - 1);
-                anvilInventory.setItem(1, finalSecondItem);
-            } else {
-                anvilInventory.setItem(1, null);
-            }
-        }, 2L);
+		if (Config.Shatterment.Anvil.Sound.isEnabled())
+			p.playSound(
+					p.getLocation(),
+					Sound.BLOCK_ANVIL_USE,
+					Config.Shatterment.Anvil.Sound.getVolume().floatValue(),
+					Config.Shatterment.Anvil.Sound.getPitch().floatValue()
+			);
 
-        if (p.getGameMode() != org.bukkit.GameMode.CREATIVE) p.setLevel(exp);
-
-        p.setItemOnCursor(result);
-
-        if (Config.Shatterment.Anvil.Sound.isEnabled())
-            p.playSound(
-                    p.getLocation(),
-                    Sound.BLOCK_ANVIL_USE,
-                    Config.Shatterment.Anvil.Sound.getVolume().floatValue(),
-                    Config.Shatterment.Anvil.Sound.getPitch().floatValue()
-            );
-
-        DiagnosticUtils.debug("SHATTER", "Click: complete ✓");
-    }
+		DiagnosticUtils.debug("SHATTER", "Click: complete ✓");
+	}
 }
