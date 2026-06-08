@@ -26,7 +26,22 @@ import static com.jankominek.disenchantment.Disenchantment.plugin;
  * anvil sound/repair parameters, and world/material/enchantment states.
  */
 public class Config {
-    public interface FeatureConfig {
+	private static boolean batchMode = false;
+
+	public static void beginBatch() {
+		batchMode = true;
+	}
+
+	public static void commitBatch() {
+		batchMode = false;
+		plugin.saveConfig();
+	}
+
+	private static void save() {
+		if (!batchMode) plugin.saveConfig();
+	}
+
+	public interface FeatureConfig {
         boolean isEnabled();
         List<World> getDisabledWorlds();
         boolean setDisabledWorlds(List<World> worlds);
@@ -75,7 +90,7 @@ public class Config {
      */
     public static boolean setPluginEnabled(boolean enabled) {
         config.set(ConfigKeys.ENABLED.getKey(), enabled);
-        plugin.saveConfig();
+        save();
 
         return isPluginEnabled() == enabled;
     }
@@ -211,7 +226,7 @@ public class Config {
          */
         public static boolean setEnabled(boolean enabled) {
             config.set(ConfigKeys.DISENCHANTMENT_ENABLED.getKey(), enabled);
-            plugin.saveConfig();
+            save();
 
             return isEnabled() == enabled;
         }
@@ -233,7 +248,7 @@ public class Config {
          */
         public static boolean setDisabledWorlds(List<World> worlds) {
             config.set(ConfigKeys.DISENCHANTMENT_DISABLED_WORLDS.getKey(), worlds.stream().map(World::getName).toList());
-            plugin.saveConfig();
+            save();
 
             return getDisabledWorlds().equals(worlds);
         }
@@ -255,7 +270,7 @@ public class Config {
          */
         public static boolean setDisabledMaterials(List<Material> materials) {
             config.set(ConfigKeys.DISENCHANTMENT_DISABLED_MATERIALS.getKey(), materials.stream().map(Material::name).toList());
-            plugin.saveConfig();
+            save();
 
             return getDisabledMaterials().equals(materials);
         }
@@ -304,7 +319,7 @@ public class Config {
             }
 
             config.set(ConfigKeys.DISENCHANTMENT_ENCHANTMENTS_STATES.getKey(), list);
-            plugin.saveConfig();
+            save();
 
             ENCHANTMENT_STATES_CACHE = new HashMap<>(enchantmentStates);
 
@@ -321,7 +336,7 @@ public class Config {
 
             public static boolean setEnabled(boolean enabled) {
                 config.set(ConfigKeys.DISENCHANTMENT_ECONOMY_ENABLED.getKey(), enabled);
-                plugin.saveConfig();
+                save();
 
                 return isEnabled() == enabled;
             }
@@ -332,7 +347,7 @@ public class Config {
 
             public static boolean setCost(double cost) {
                 config.set(ConfigKeys.DISENCHANTMENT_ECONOMY_COST.getKey(), cost);
-                plugin.saveConfig();
+                save();
 
                 return getCost() == cost;
             }
@@ -343,7 +358,7 @@ public class Config {
 
             public static boolean setShowCostEnabled(boolean enabled) {
                 config.set(ConfigKeys.DISENCHANTMENT_ECONOMY_SHOW_COST.getKey(), enabled);
-                plugin.saveConfig();
+                save();
 
                 return isShowCostEnabled() == enabled;
             }
@@ -354,7 +369,7 @@ public class Config {
 
             public static boolean setChargeMessageEnabled(boolean enabled) {
                 config.set(ConfigKeys.DISENCHANTMENT_ECONOMY_CHARGE_MESSAGE.getKey(), enabled);
-                plugin.saveConfig();
+                save();
 
                 return isChargeMessageEnabled() == enabled;
             }
@@ -385,7 +400,7 @@ public class Config {
                  */
                 public static boolean setEnabled(boolean enabled) {
                     config.set(ConfigKeys.DISENCHANTMENT_ANVIL_SOUND_ENABLED.getKey(), enabled);
-                    plugin.saveConfig();
+                    save();
 
                     return isEnabled() == enabled;
                 }
@@ -407,7 +422,7 @@ public class Config {
                  */
                 public static boolean setVolume(double volume) {
                     config.set(ConfigKeys.DISENCHANTMENT_ANVIL_VOLUME.getKey(), volume);
-                    plugin.saveConfig();
+                    save();
 
                     return getVolume().equals(volume);
                 }
@@ -429,7 +444,7 @@ public class Config {
                  */
                 public static boolean setPitch(double pitch) {
                     config.set(ConfigKeys.DISENCHANTMENT_ANVIL_PITCH.getKey(), pitch);
-                    plugin.saveConfig();
+                    save();
 
                     return getPitch().equals(pitch);
                 }
@@ -456,7 +471,7 @@ public class Config {
                  */
                 public static boolean setResetEnabled(boolean enabled) {
                     config.set(ConfigKeys.DISENCHANTMENT_REPAIR_RESET_ENABLED.getKey(), enabled);
-                    plugin.saveConfig();
+                    save();
 
                     return isResetEnabled() == enabled;
                 }
@@ -478,7 +493,7 @@ public class Config {
                  */
                 public static boolean setCostEnabled(boolean enabled) {
                     config.set(ConfigKeys.DISENCHANTMENT_REPAIR_COST_ENABLED.getKey(), enabled);
-                    plugin.saveConfig();
+                    save();
 
                     return isCostEnabled() == enabled;
                 }
@@ -500,7 +515,7 @@ public class Config {
                  */
                 public static boolean setBaseCost(double cost) {
                     config.set(ConfigKeys.DISENCHANTMENT_REPAIR_COST_BASE.getKey(), cost);
-                    plugin.saveConfig();
+                    save();
 
                     return getBaseCost().equals(cost);
                 }
@@ -522,7 +537,7 @@ public class Config {
                  */
                 public static boolean setCostMultiplier(double multiplier) {
                     config.set(ConfigKeys.DISENCHANTMENT_REPAIR_COST_MULTIPLIER.getKey(), multiplier);
-                    plugin.saveConfig();
+                    save();
 
                     return getCostMultiplier().equals(multiplier);
                 }
@@ -570,7 +585,7 @@ public class Config {
          */
         public static boolean setEnabled(boolean enabled) {
             config.set(ConfigKeys.SHATTERMENT_ENABLED.getKey(), enabled);
-            plugin.saveConfig();
+            save();
 
             return isEnabled() == enabled;
         }
@@ -592,7 +607,7 @@ public class Config {
          */
         public static boolean setDisabledWorlds(List<World> worlds) {
             config.set(ConfigKeys.SHATTERMENT_DISABLED_WORLDS.getKey(), worlds.stream().map(World::getName).toList());
-            plugin.saveConfig();
+            save();
 
             return getDisabledWorlds().equals(worlds);
         }
@@ -643,7 +658,7 @@ public class Config {
             }
 
             config.set(ConfigKeys.SHATTERMENT_ENCHANTMENTS_STATES.getKey(), list);
-            plugin.saveConfig();
+            save();
 
             ENCHANTMENT_STATES_CACHE = new HashMap<>(enchantmentStates);
 
@@ -660,7 +675,7 @@ public class Config {
 
             public static boolean setEnabled(boolean enabled) {
                 config.set(ConfigKeys.SHATTERMENT_ECONOMY_ENABLED.getKey(), enabled);
-                plugin.saveConfig();
+                save();
 
                 return isEnabled() == enabled;
             }
@@ -671,7 +686,7 @@ public class Config {
 
             public static boolean setCost(double cost) {
                 config.set(ConfigKeys.SHATTERMENT_ECONOMY_COST.getKey(), cost);
-                plugin.saveConfig();
+                save();
 
                 return getCost() == cost;
             }
@@ -682,7 +697,7 @@ public class Config {
 
             public static boolean setShowCostEnabled(boolean enabled) {
                 config.set(ConfigKeys.SHATTERMENT_ECONOMY_SHOW_COST.getKey(), enabled);
-                plugin.saveConfig();
+                save();
 
                 return isShowCostEnabled() == enabled;
             }
@@ -693,7 +708,7 @@ public class Config {
 
             public static boolean setChargeMessageEnabled(boolean enabled) {
                 config.set(ConfigKeys.SHATTERMENT_ECONOMY_CHARGE_MESSAGE.getKey(), enabled);
-                plugin.saveConfig();
+                save();
 
                 return isChargeMessageEnabled() == enabled;
             }
@@ -724,7 +739,7 @@ public class Config {
                  */
                 public static boolean setEnabled(boolean enabled) {
                     config.set(ConfigKeys.SHATTERMENT_ANVIL_SOUND_ENABLED.getKey(), enabled);
-                    plugin.saveConfig();
+                    save();
 
                     return isEnabled() == enabled;
                 }
@@ -746,7 +761,7 @@ public class Config {
                  */
                 public static boolean setVolume(double volume) {
                     config.set(ConfigKeys.SHATTERMENT_ANVIL_VOLUME.getKey(), volume);
-                    plugin.saveConfig();
+                    save();
 
                     return getVolume().equals(volume);
                 }
@@ -768,7 +783,7 @@ public class Config {
                  */
                 public static boolean setPitch(double pitch) {
                     config.set(ConfigKeys.SHATTERMENT_ANVIL_PITCH.getKey(), pitch);
-                    plugin.saveConfig();
+                    save();
 
                     return getPitch().equals(pitch);
                 }
@@ -795,7 +810,7 @@ public class Config {
                  */
                 public static boolean setResetEnabled(boolean enabled) {
                     config.set(ConfigKeys.SHATTERMENT_REPAIR_RESET_ENABLED.getKey(), enabled);
-                    plugin.saveConfig();
+                    save();
 
                     return isResetEnabled() == enabled;
                 }
@@ -817,7 +832,7 @@ public class Config {
                  */
                 public static boolean setCostEnabled(boolean enabled) {
                     config.set(ConfigKeys.SHATTERMENT_REPAIR_COST_ENABLED.getKey(), enabled);
-                    plugin.saveConfig();
+                    save();
 
                     return isCostEnabled() == enabled;
                 }
@@ -839,7 +854,7 @@ public class Config {
                  */
                 public static boolean setBaseCost(double cost) {
                     config.set(ConfigKeys.SHATTERMENT_REPAIR_COST_BASE.getKey(), cost);
-                    plugin.saveConfig();
+                    save();
 
                     return getBaseCost().equals(cost);
                 }
@@ -861,7 +876,7 @@ public class Config {
                  */
                 public static boolean setCostMultiplier(double multiplier) {
                     config.set(ConfigKeys.SHATTERMENT_REPAIR_COST_MULTIPLIER.getKey(), multiplier);
-                    plugin.saveConfig();
+                    save();
 
                     return getCostMultiplier().equals(multiplier);
                 }

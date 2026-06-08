@@ -138,9 +138,14 @@ public class SoundGUI implements InventoryHolder {
 	}
 
 	private void setSoundEnabled(boolean value) {
-		switch (feature) {
-			case DISENCHANTMENT -> Config.Disenchantment.Anvil.Sound.setEnabled(value);
-			case SHATTERMENT -> Config.Shatterment.Anvil.Sound.setEnabled(value);
+		Config.beginBatch();
+		try {
+			switch (feature) {
+				case DISENCHANTMENT -> Config.Disenchantment.Anvil.Sound.setEnabled(value);
+				case SHATTERMENT -> Config.Shatterment.Anvil.Sound.setEnabled(value);
+			}
+		} finally {
+			Config.commitBatch();
 		}
 	}
 
@@ -152,9 +157,14 @@ public class SoundGUI implements InventoryHolder {
 	}
 
 	private void setVolume(double value) {
-		switch (feature) {
-			case DISENCHANTMENT -> Config.Disenchantment.Anvil.Sound.setVolume(value);
-			case SHATTERMENT -> Config.Shatterment.Anvil.Sound.setVolume(value);
+		Config.beginBatch();
+		try {
+			switch (feature) {
+				case DISENCHANTMENT -> Config.Disenchantment.Anvil.Sound.setVolume(value);
+				case SHATTERMENT -> Config.Shatterment.Anvil.Sound.setVolume(value);
+			}
+		} finally {
+			Config.commitBatch();
 		}
 	}
 
@@ -166,9 +176,14 @@ public class SoundGUI implements InventoryHolder {
 	}
 
 	private void setPitch(double value) {
-		switch (feature) {
-			case DISENCHANTMENT -> Config.Disenchantment.Anvil.Sound.setPitch(value);
-			case SHATTERMENT -> Config.Shatterment.Anvil.Sound.setPitch(value);
+		Config.beginBatch();
+		try {
+			switch (feature) {
+				case DISENCHANTMENT -> Config.Disenchantment.Anvil.Sound.setPitch(value);
+				case SHATTERMENT -> Config.Shatterment.Anvil.Sound.setPitch(value);
+			}
+		} finally {
+			Config.commitBatch();
 		}
 	}
 

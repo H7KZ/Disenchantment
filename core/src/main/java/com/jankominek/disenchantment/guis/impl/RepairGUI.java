@@ -151,9 +151,14 @@ public class RepairGUI implements InventoryHolder {
 	}
 
 	private void setCostEnabled(boolean value) {
-		switch (feature) {
-			case DISENCHANTMENT -> Config.Disenchantment.Anvil.Repair.setCostEnabled(value);
-			case SHATTERMENT -> Config.Shatterment.Anvil.Repair.setCostEnabled(value);
+		Config.beginBatch();
+		try {
+			switch (feature) {
+				case DISENCHANTMENT -> Config.Disenchantment.Anvil.Repair.setCostEnabled(value);
+				case SHATTERMENT -> Config.Shatterment.Anvil.Repair.setCostEnabled(value);
+			}
+		} finally {
+			Config.commitBatch();
 		}
 	}
 
@@ -165,9 +170,14 @@ public class RepairGUI implements InventoryHolder {
 	}
 
 	private void setResetEnabled(boolean value) {
-		switch (feature) {
-			case DISENCHANTMENT -> Config.Disenchantment.Anvil.Repair.setResetEnabled(value);
-			case SHATTERMENT -> Config.Shatterment.Anvil.Repair.setResetEnabled(value);
+		Config.beginBatch();
+		try {
+			switch (feature) {
+				case DISENCHANTMENT -> Config.Disenchantment.Anvil.Repair.setResetEnabled(value);
+				case SHATTERMENT -> Config.Shatterment.Anvil.Repair.setResetEnabled(value);
+			}
+		} finally {
+			Config.commitBatch();
 		}
 	}
 
@@ -179,9 +189,14 @@ public class RepairGUI implements InventoryHolder {
 	}
 
 	private void setBaseCost(double value) {
-		switch (feature) {
-			case DISENCHANTMENT -> Config.Disenchantment.Anvil.Repair.setBaseCost(value);
-			case SHATTERMENT -> Config.Shatterment.Anvil.Repair.setBaseCost(value);
+		Config.beginBatch();
+		try {
+			switch (feature) {
+				case DISENCHANTMENT -> Config.Disenchantment.Anvil.Repair.setBaseCost(value);
+				case SHATTERMENT -> Config.Shatterment.Anvil.Repair.setBaseCost(value);
+			}
+		} finally {
+			Config.commitBatch();
 		}
 	}
 
@@ -193,9 +208,14 @@ public class RepairGUI implements InventoryHolder {
 	}
 
 	private void setCostMultiplier(double value) {
-		switch (feature) {
-			case DISENCHANTMENT -> Config.Disenchantment.Anvil.Repair.setCostMultiplier(value);
-			case SHATTERMENT -> Config.Shatterment.Anvil.Repair.setCostMultiplier(value);
+		Config.beginBatch();
+		try {
+			switch (feature) {
+				case DISENCHANTMENT -> Config.Disenchantment.Anvil.Repair.setCostMultiplier(value);
+				case SHATTERMENT -> Config.Shatterment.Anvil.Repair.setCostMultiplier(value);
+			}
+		} finally {
+			Config.commitBatch();
 		}
 	}
 
