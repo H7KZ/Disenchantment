@@ -15,7 +15,7 @@ public class DisenchantmentPlaceholderExpansion extends PlaceholderExpansion {
 
     @Override
     public String getAuthor() {
-        return "H7KZ";
+        return String.join(", ", plugin.getDescription().getAuthors());
     }
 
     @Override
