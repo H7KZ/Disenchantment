@@ -99,7 +99,7 @@ public class NMS_v1_21_R5 implements NMS {
     @Override
     public void setItemRepairCost(ItemStack item, int repairCost) {
         if (item.getItemMeta() instanceof Repairable meta) {
-            meta.setRepairCost(0);
+            meta.setRepairCost(repairCost);
             item.setItemMeta(meta);
         }
     }
