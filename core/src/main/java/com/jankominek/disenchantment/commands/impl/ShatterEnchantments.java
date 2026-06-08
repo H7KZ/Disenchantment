@@ -5,11 +5,16 @@ import com.jankominek.disenchantment.config.Config;
 import com.jankominek.disenchantment.config.I18n;
 import com.jankominek.disenchantment.types.EnchantmentStateType;
 import com.jankominek.disenchantment.types.PermissionGroupType;
+import com.jankominek.disenchantment.utils.EnchantmentUtils;
 import org.bukkit.command.CommandSender;
+import org.bukkit.enchantments.Enchantment;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Handles the "shatter:enchantments" subcommand for managing enchantment states
@@ -112,14 +117,45 @@ public class ShatterEnchantments {
     }
 
     /**
-     * Provides tab completion suggestions by delegating to
-     * {@link DisenchantEnchantments#complete(CommandSender, String[])}.
+     * Provides tab completion suggestions. At position 2, suggests registered enchantment
+     * names merged with custom enchantment keys from config; at position 3, suggests enchantment state types.
      *
      * @param sender the command sender
      * @param args   the current command arguments
      * @return a list of matching suggestions
      */
     public static List<String> complete(CommandSender sender, String[] args) {
-        return DisenchantEnchantments.complete(sender, args);
+        List<String> result = new ArrayList<>(List.of());
+
+        if (args.length == 2) {
+            Set<String> keys = new LinkedHashSet<>();
+            // Add vanilla keys
+            for (Enchantment enchantment : EnchantmentUtils.getRegisteredEnchantments()) {
+                keys.add(enchantment.getKey().getKey());
+            }
+            // Add custom keys already in config states
+            keys.addAll(Config.Shatterment.getEnchantmentStates().keySet());
+            // Filter by current input
+            for (String key : keys) {
+                if (key.toLowerCase().startsWith(args[1].toLowerCase()))
+                    result.add(key);
+            }
+        }
+
+        if (args.length == 3) {
+            if (EnchantmentStateType.ENABLE.getConfigName().startsWith(args[2].toLowerCase()))
+                result.add(EnchantmentStateType.ENABLE.getConfigName());
+
+            if (EnchantmentStateType.KEEP.getConfigName().startsWith(args[2].toLowerCase()))
+                result.add(EnchantmentStateType.KEEP.getConfigName());
+
+            if (EnchantmentStateType.DELETE.getConfigName().startsWith(args[2].toLowerCase()))
+                result.add(EnchantmentStateType.DELETE.getConfigName());
+
+            if (EnchantmentStateType.DISABLE.getConfigName().startsWith(args[2].toLowerCase()))
+                result.add(EnchantmentStateType.DISABLE.getConfigName());
+        }
+
+        return result;
     }
 }

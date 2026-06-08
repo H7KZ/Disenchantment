@@ -11,8 +11,10 @@ import org.bukkit.enchantments.Enchantment;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Handles the "disenchant:enchantments" subcommand for managing enchantment states
@@ -116,7 +118,7 @@ public class DisenchantEnchantments {
 
     /**
      * Provides tab completion suggestions. At position 2, suggests registered enchantment
-     * names; at position 3, suggests enchantment state types.
+     * names merged with custom enchantment keys from config; at position 3, suggests enchantment state types.
      *
      * @param sender the command sender
      * @param args   the current command arguments
@@ -126,9 +128,17 @@ public class DisenchantEnchantments {
         List<String> result = new ArrayList<>(List.of());
 
         if (args.length == 2) {
+            Set<String> keys = new LinkedHashSet<>();
+            // Add vanilla keys
             for (Enchantment enchantment : EnchantmentUtils.getRegisteredEnchantments()) {
-                if (enchantment.getKey().getKey().toLowerCase().startsWith(args[1].toLowerCase()))
-                    result.add(enchantment.getKey().getKey());
+                keys.add(enchantment.getKey().getKey());
+            }
+            // Add custom keys already in config states
+            keys.addAll(Config.Disenchantment.getEnchantmentStates().keySet());
+            // Filter by current input
+            for (String key : keys) {
+                if (key.toLowerCase().startsWith(args[1].toLowerCase()))
+                    result.add(key);
             }
         }
 
