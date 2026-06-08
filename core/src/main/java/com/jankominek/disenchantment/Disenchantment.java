@@ -116,6 +116,10 @@ public class Disenchantment extends JavaPlugin {
                 localeConfig = YamlConfiguration.loadConfiguration(
                         new InputStreamReader(stream, StandardCharsets.UTF_8)
                 );
+            } else {
+                logger.severe("Could not load locale '" + locale + "' from JAR — missing resource.");
+                Bukkit.getPluginManager().disablePlugin(plugin);
+                return;
             }
         }
 
