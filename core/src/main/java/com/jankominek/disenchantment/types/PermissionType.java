@@ -48,8 +48,10 @@ public enum PermissionType {
     GUI_MATERIALS("disenchantment.gui.materials"),
     GUI_DISENCHANT_REPAIR("disenchantment.gui.disenchant.repair"),
     GUI_DISENCHANT_SOUND("disenchantment.gui.disenchant.sound"),
+    GUI_DISENCHANT_ECONOMY("disenchantment.gui.disenchant.economy"),
     GUI_SHATTER_REPAIR("disenchantment.gui.shatter.repair"),
     GUI_SHATTER_SOUND("disenchantment.gui.shatter.sound"),
+    GUI_SHATTER_ECONOMY("disenchantment.gui.shatter.economy"),
 
 
     /**

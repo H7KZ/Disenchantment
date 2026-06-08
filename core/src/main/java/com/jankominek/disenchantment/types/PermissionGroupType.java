@@ -150,6 +150,14 @@ public enum PermissionGroupType {
             PermissionType.GUI_SHATTER_SOUND,
             PermissionType.DEPRECATED_GUI_SHATTER_SOUND
     ),
+    GUI_DISENCHANT_ECONOMY(
+            PermissionType.GUI_ALL,
+            PermissionType.GUI_DISENCHANT_ECONOMY
+    ),
+    GUI_SHATTER_ECONOMY(
+            PermissionType.GUI_ALL,
+            PermissionType.GUI_SHATTER_ECONOMY
+    ),
     ;
 
     private final PermissionType[] permissions;

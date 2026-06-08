@@ -84,6 +84,15 @@ public class GUIClickEvent implements Listener {
                 return;
             }
             ((EnchantmentsGUI) clickedHolder).onInventoryClick(e);
+        } else if (clickedHolder instanceof EconomyGUI economyGUI) {
+            PermissionGroupType permission = economyGUI.getFeature() == AnvilFeature.DISENCHANTMENT
+                    ? PermissionGroupType.GUI_DISENCHANT_ECONOMY
+                    : PermissionGroupType.GUI_SHATTER_ECONOMY;
+            if (!permission.hasPermission(p)) {
+                DiagnosticUtils.debug("GUI", "Click denied: " + p.getName() + " lacks permission for EconomyGUI (" + economyGUI.getFeature() + ")");
+                return;
+            }
+            economyGUI.onInventoryClick(e);
         }
     }
 }

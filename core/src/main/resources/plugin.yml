@@ -119,3 +119,9 @@ permissions:
   disenchantment.gui.shatter.sound:
     description: Allows the player to set the shatter sound settings.
     default: op
+  disenchantment.gui.disenchant.economy:
+    description: Allows the player to set the disenchant economy settings.
+    default: op
+  disenchantment.gui.shatter.economy:
+    description: Allows the player to set the shatter economy settings.
+    default: op

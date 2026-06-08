@@ -35,6 +35,7 @@ hs_err_pid*
 .claude/*.local.*
 .claude/**/local
 .claude/**/worktrees
+docs/superpowers/
 
 # Env
 **/.env

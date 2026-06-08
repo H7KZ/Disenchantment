@@ -131,6 +131,30 @@ public class NavigationGUI implements InventoryHolder {
                         event.getWhoClicked().sendMessage("https://www.spigotmc.org/resources/110741");
                         event.getWhoClicked().closeInventory();
                     }
+            ),
+            new GUIItem(
+                    22,
+                    GUIComponent.Navigation.economy(),
+                    event -> {
+                        event.setCancelled(true);
+
+                        switch (event.getClick()) {
+                            case LEFT: {
+                                if (!PermissionGroupType.GUI_DISENCHANT_ECONOMY.hasPermission(event.getWhoClicked(), true))
+                                    return;
+
+                                event.getWhoClicked().openInventory(new EconomyGUI(AnvilFeature.DISENCHANTMENT).getInventory());
+                                break;
+                            }
+                            case RIGHT: {
+                                if (!PermissionGroupType.GUI_SHATTER_ECONOMY.hasPermission(event.getWhoClicked(), true))
+                                    return;
+
+                                event.getWhoClicked().openInventory(new EconomyGUI(AnvilFeature.SHATTERMENT).getInventory());
+                                break;
+                            }
+                        }
+                    }
             )
     );
 

@@ -223,6 +223,35 @@ public enum I18nKeys {
     GUI_SOUND_SHATTERMENT_VOLUME_LORE("gui.sound.shatterment.volume.lore"),
     GUI_SOUND_SHATTERMENT_PITCH_TITLE("gui.sound.shatterment.pitch.title"),
     GUI_SOUND_SHATTERMENT_PITCH_LORE("gui.sound.shatterment.pitch.lore"),
+
+    GUI_NAVIGATION_ECONOMY_TITLE("gui.navigation.economy.title"),
+    GUI_NAVIGATION_ECONOMY_LORE("gui.navigation.economy.lore"),
+
+    GUI_ECONOMY_DISENCHANTMENT_INVENTORY("gui.economy.disenchantment.inventory"),
+    GUI_ECONOMY_DISENCHANTMENT_ENABLED_TITLE("gui.economy.disenchantment.enabled.title"),
+    GUI_ECONOMY_DISENCHANTMENT_ENABLED_LORE_ENABLED("gui.economy.disenchantment.enabled.lore.enabled"),
+    GUI_ECONOMY_DISENCHANTMENT_ENABLED_LORE_DISABLED("gui.economy.disenchantment.enabled.lore.disabled"),
+    GUI_ECONOMY_DISENCHANTMENT_COST_TITLE("gui.economy.disenchantment.cost.title"),
+    GUI_ECONOMY_DISENCHANTMENT_COST_LORE("gui.economy.disenchantment.cost.lore"),
+    GUI_ECONOMY_DISENCHANTMENT_SHOW_COST_TITLE("gui.economy.disenchantment.show-cost.title"),
+    GUI_ECONOMY_DISENCHANTMENT_SHOW_COST_LORE_ENABLED("gui.economy.disenchantment.show-cost.lore.enabled"),
+    GUI_ECONOMY_DISENCHANTMENT_SHOW_COST_LORE_DISABLED("gui.economy.disenchantment.show-cost.lore.disabled"),
+    GUI_ECONOMY_DISENCHANTMENT_CHARGE_MESSAGE_TITLE("gui.economy.disenchantment.charge-message.title"),
+    GUI_ECONOMY_DISENCHANTMENT_CHARGE_MESSAGE_LORE_ENABLED("gui.economy.disenchantment.charge-message.lore.enabled"),
+    GUI_ECONOMY_DISENCHANTMENT_CHARGE_MESSAGE_LORE_DISABLED("gui.economy.disenchantment.charge-message.lore.disabled"),
+
+    GUI_ECONOMY_SHATTERMENT_INVENTORY("gui.economy.shatterment.inventory"),
+    GUI_ECONOMY_SHATTERMENT_ENABLED_TITLE("gui.economy.shatterment.enabled.title"),
+    GUI_ECONOMY_SHATTERMENT_ENABLED_LORE_ENABLED("gui.economy.shatterment.enabled.lore.enabled"),
+    GUI_ECONOMY_SHATTERMENT_ENABLED_LORE_DISABLED("gui.economy.shatterment.enabled.lore.disabled"),
+    GUI_ECONOMY_SHATTERMENT_COST_TITLE("gui.economy.shatterment.cost.title"),
+    GUI_ECONOMY_SHATTERMENT_COST_LORE("gui.economy.shatterment.cost.lore"),
+    GUI_ECONOMY_SHATTERMENT_SHOW_COST_TITLE("gui.economy.shatterment.show-cost.title"),
+    GUI_ECONOMY_SHATTERMENT_SHOW_COST_LORE_ENABLED("gui.economy.shatterment.show-cost.lore.enabled"),
+    GUI_ECONOMY_SHATTERMENT_SHOW_COST_LORE_DISABLED("gui.economy.shatterment.show-cost.lore.disabled"),
+    GUI_ECONOMY_SHATTERMENT_CHARGE_MESSAGE_TITLE("gui.economy.shatterment.charge-message.title"),
+    GUI_ECONOMY_SHATTERMENT_CHARGE_MESSAGE_LORE_ENABLED("gui.economy.shatterment.charge-message.lore.enabled"),
+    GUI_ECONOMY_SHATTERMENT_CHARGE_MESSAGE_LORE_DISABLED("gui.economy.shatterment.charge-message.lore.disabled"),
     ;
 
     private final String key;

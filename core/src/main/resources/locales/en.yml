@@ -239,6 +239,12 @@ gui:
       title: "&6&lLink to spigot&r"
       lore:
         - "&7Redirects to the plugin page on spigotmc.org"
+    economy:
+      title: "&6&lEconomy&r"
+      lore:
+        - "&7Edit the economy settings"
+        - "&7LEFT CLICK to edit disenchantment"
+        - "&7RIGHT CLICK to edit shatterment"
   worlds:
     inventory: "&7&lWorlds&r"
     lore:
@@ -395,3 +401,74 @@ gui:
           - "&7Current value: &f{pitch}&r"
           - "&7LEFT CLICK to increase"
           - "&7RIGHT CLICK to decrease"
+economy:
+  disenchantment:
+    inventory: "&7&lEconomy | Disenchantment&r"
+    enabled:
+      title: "&7&lEconomy&r"
+      lore:
+        enabled:
+          - "&aEnabled&r"
+          - "&7Click to Disable&r"
+        disabled:
+          - "&cDisabled&r"
+          - "&7Click to Enable&r"
+    cost:
+      title: "&7&lCost&r"
+      lore:
+        - "&7Current value: &f{cost}&r"
+        - "&7LEFT CLICK to increase"
+        - "&7RIGHT CLICK to decrease"
+    show-cost:
+      title: "&7&lShow Cost&r"
+      lore:
+        enabled:
+          - "&aEnabled&r"
+          - "&7Click to Disable&r"
+        disabled:
+          - "&cDisabled&r"
+          - "&7Click to Enable&r"
+    charge-message:
+      title: "&7&lCharge Message&r"
+      lore:
+        enabled:
+          - "&aEnabled&r"
+          - "&7Click to Disable&r"
+        disabled:
+          - "&cDisabled&r"
+          - "&7Click to Enable&r"
+  shatterment:
+    inventory: "&7&lEconomy | Shatterment&r"
+    enabled:
+      title: "&7&lEconomy&r"
+      lore:
+        enabled:
+          - "&aEnabled&r"
+          - "&7Click to Disable&r"
+        disabled:
+          - "&cDisabled&r"
+          - "&7Click to Enable&r"
+    cost:
+      title: "&7&lCost&r"
+      lore:
+        - "&7Current value: &f{cost}&r"
+        - "&7LEFT CLICK to increase"
+        - "&7RIGHT CLICK to decrease"
+    show-cost:
+      title: "&7&lShow Cost&r"
+      lore:
+        enabled:
+          - "&aEnabled&r"
+          - "&7Click to Disable&r"
+        disabled:
+          - "&cDisabled&r"
+          - "&7Click to Enable&r"
+    charge-message:
+      title: "&7&lCharge Message&r"
+      lore:
+        enabled:
+          - "&aEnabled&r"
+          - "&7Click to Disable&r"
+        disabled:
+          - "&cDisabled&r"
+          - "&7Click to Enable&r"

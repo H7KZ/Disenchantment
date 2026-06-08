@@ -120,6 +120,19 @@ public class GUIComponent {
         }
 
         /**
+         * Creates the economy settings navigation item.
+         *
+         * @return the economy {@link ItemStack}
+         */
+        public static ItemStack economy() {
+            return new ItemBuilder(Material.GOLD_INGOT)
+                    .setDisplayName(I18n.GUI.Navigation.Economy.title())
+                    .setLore(I18n.GUI.Navigation.Economy.lore())
+                    .addAllFlags()
+                    .build();
+        }
+
+        /**
          * Creates the Spigot resource page navigation item.
          *
          * @return the Spigot link {@link ItemStack}
@@ -626,6 +639,135 @@ public class GUIComponent {
                         .setAmount(amount)
                         .setDisplayName(I18n.GUI.Sound.Shatterment.Pitch.title())
                         .setLore(I18n.GUI.Sound.Shatterment.Pitch.lore(String.valueOf(pitch)))
+                        .addAllFlags()
+                        .build();
+            }
+        }
+    }
+
+    /**
+     * Factory methods for items displayed in the economy configuration GUIs.
+     */
+    public static class Economy {
+        /**
+         * Factory methods for disenchantment economy configuration items.
+         */
+        public static class Disenchantment {
+            public static ItemStack enabled() {
+                return new ItemBuilder(Material.LIME_TERRACOTTA)
+                        .setDisplayName(I18n.GUI.Economy.Disenchantment.Enabled.title())
+                        .setLore(I18n.GUI.Economy.Disenchantment.Enabled.Lore.enabled())
+                        .addAllFlags()
+                        .build();
+            }
+
+            public static ItemStack disabled() {
+                return new ItemBuilder(Material.RED_TERRACOTTA)
+                        .setDisplayName(I18n.GUI.Economy.Disenchantment.Enabled.title())
+                        .setLore(I18n.GUI.Economy.Disenchantment.Enabled.Lore.disabled())
+                        .addAllFlags()
+                        .build();
+            }
+
+            public static ItemStack cost(double cost, int amount) {
+                return new ItemBuilder(Material.GOLD_NUGGET)
+                        .setAmount(amount)
+                        .setDisplayName(I18n.GUI.Economy.Disenchantment.Cost.title())
+                        .setLore(I18n.GUI.Economy.Disenchantment.Cost.lore(String.valueOf(cost)))
+                        .addAllFlags()
+                        .build();
+            }
+
+            public static ItemStack showCostEnabled() {
+                return new ItemBuilder(Material.LIME_TERRACOTTA)
+                        .setDisplayName(I18n.GUI.Economy.Disenchantment.ShowCost.title())
+                        .setLore(I18n.GUI.Economy.Disenchantment.ShowCost.Lore.enabled())
+                        .addAllFlags()
+                        .build();
+            }
+
+            public static ItemStack showCostDisabled() {
+                return new ItemBuilder(Material.RED_TERRACOTTA)
+                        .setDisplayName(I18n.GUI.Economy.Disenchantment.ShowCost.title())
+                        .setLore(I18n.GUI.Economy.Disenchantment.ShowCost.Lore.disabled())
+                        .addAllFlags()
+                        .build();
+            }
+
+            public static ItemStack chargeMessageEnabled() {
+                return new ItemBuilder(Material.LIME_TERRACOTTA)
+                        .setDisplayName(I18n.GUI.Economy.Disenchantment.ChargeMessage.title())
+                        .setLore(I18n.GUI.Economy.Disenchantment.ChargeMessage.Lore.enabled())
+                        .addAllFlags()
+                        .build();
+            }
+
+            public static ItemStack chargeMessageDisabled() {
+                return new ItemBuilder(Material.RED_TERRACOTTA)
+                        .setDisplayName(I18n.GUI.Economy.Disenchantment.ChargeMessage.title())
+                        .setLore(I18n.GUI.Economy.Disenchantment.ChargeMessage.Lore.disabled())
+                        .addAllFlags()
+                        .build();
+            }
+        }
+
+        /**
+         * Factory methods for shatterment economy configuration items.
+         */
+        public static class Shatterment {
+            public static ItemStack enabled() {
+                return new ItemBuilder(Material.LIME_TERRACOTTA)
+                        .setDisplayName(I18n.GUI.Economy.Shatterment.Enabled.title())
+                        .setLore(I18n.GUI.Economy.Shatterment.Enabled.Lore.enabled())
+                        .addAllFlags()
+                        .build();
+            }
+
+            public static ItemStack disabled() {
+                return new ItemBuilder(Material.RED_TERRACOTTA)
+                        .setDisplayName(I18n.GUI.Economy.Shatterment.Enabled.title())
+                        .setLore(I18n.GUI.Economy.Shatterment.Enabled.Lore.disabled())
+                        .addAllFlags()
+                        .build();
+            }
+
+            public static ItemStack cost(double cost, int amount) {
+                return new ItemBuilder(Material.GOLD_NUGGET)
+                        .setAmount(amount)
+                        .setDisplayName(I18n.GUI.Economy.Shatterment.Cost.title())
+                        .setLore(I18n.GUI.Economy.Shatterment.Cost.lore(String.valueOf(cost)))
+                        .addAllFlags()
+                        .build();
+            }
+
+            public static ItemStack showCostEnabled() {
+                return new ItemBuilder(Material.LIME_TERRACOTTA)
+                        .setDisplayName(I18n.GUI.Economy.Shatterment.ShowCost.title())
+                        .setLore(I18n.GUI.Economy.Shatterment.ShowCost.Lore.enabled())
+                        .addAllFlags()
+                        .build();
+            }
+
+            public static ItemStack showCostDisabled() {
+                return new ItemBuilder(Material.RED_TERRACOTTA)
+                        .setDisplayName(I18n.GUI.Economy.Shatterment.ShowCost.title())
+                        .setLore(I18n.GUI.Economy.Shatterment.ShowCost.Lore.disabled())
+                        .addAllFlags()
+                        .build();
+            }
+
+            public static ItemStack chargeMessageEnabled() {
+                return new ItemBuilder(Material.LIME_TERRACOTTA)
+                        .setDisplayName(I18n.GUI.Economy.Shatterment.ChargeMessage.title())
+                        .setLore(I18n.GUI.Economy.Shatterment.ChargeMessage.Lore.enabled())
+                        .addAllFlags()
+                        .build();
+            }
+
+            public static ItemStack chargeMessageDisabled() {
+                return new ItemBuilder(Material.RED_TERRACOTTA)
+                        .setDisplayName(I18n.GUI.Economy.Shatterment.ChargeMessage.title())
+                        .setLore(I18n.GUI.Economy.Shatterment.ChargeMessage.Lore.disabled())
                         .addAllFlags()
                         .build();
             }

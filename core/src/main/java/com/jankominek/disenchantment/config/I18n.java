@@ -795,6 +795,17 @@ public class I18n {
                             .stream().map(I18n::translateColors).toList();
                 }
             }
+
+            public static class Economy {
+                public static String title() {
+                    return I18n.translateColors(localeConfig.getString(I18nKeys.GUI_NAVIGATION_ECONOMY_TITLE.getKey()));
+                }
+
+                public static List<String> lore() {
+                    return localeConfig.getStringList(I18nKeys.GUI_NAVIGATION_ECONOMY_LORE.getKey())
+                            .stream().map(I18n::translateColors).toList();
+                }
+            }
         }
 
         public static class Worlds {
@@ -1135,6 +1146,156 @@ public class I18n {
                                 .map(I18n::translateColors)
                                 .map(s -> s.replace("{pitch}", pitch))
                                 .toList();
+                    }
+                }
+            }
+        }
+
+        public static class Economy {
+            public static class Disenchantment {
+                public static String inventory() {
+                    return I18n.translateColors(localeConfig.getString(I18nKeys.GUI_ECONOMY_DISENCHANTMENT_INVENTORY.getKey()));
+                }
+
+                public static class Enabled {
+                    public static String title() {
+                        return I18n.translateColors(localeConfig.getString(I18nKeys.GUI_ECONOMY_DISENCHANTMENT_ENABLED_TITLE.getKey()));
+                    }
+
+                    public static class Lore {
+                        public static List<String> enabled() {
+                            return localeConfig.getStringList(I18nKeys.GUI_ECONOMY_DISENCHANTMENT_ENABLED_LORE_ENABLED.getKey())
+                                    .stream().map(I18n::translateColors).toList();
+                        }
+
+                        public static List<String> disabled() {
+                            return localeConfig.getStringList(I18nKeys.GUI_ECONOMY_DISENCHANTMENT_ENABLED_LORE_DISABLED.getKey())
+                                    .stream().map(I18n::translateColors).toList();
+                        }
+                    }
+                }
+
+                public static class Cost {
+                    public static String title() {
+                        return I18n.translateColors(localeConfig.getString(I18nKeys.GUI_ECONOMY_DISENCHANTMENT_COST_TITLE.getKey()));
+                    }
+
+                    public static List<String> lore(String cost) {
+                        return localeConfig.getStringList(I18nKeys.GUI_ECONOMY_DISENCHANTMENT_COST_LORE.getKey())
+                                .stream()
+                                .map(I18n::translateColors)
+                                .map(s -> s.replace("{cost}", cost))
+                                .toList();
+                    }
+                }
+
+                public static class ShowCost {
+                    public static String title() {
+                        return I18n.translateColors(localeConfig.getString(I18nKeys.GUI_ECONOMY_DISENCHANTMENT_SHOW_COST_TITLE.getKey()));
+                    }
+
+                    public static class Lore {
+                        public static List<String> enabled() {
+                            return localeConfig.getStringList(I18nKeys.GUI_ECONOMY_DISENCHANTMENT_SHOW_COST_LORE_ENABLED.getKey())
+                                    .stream().map(I18n::translateColors).toList();
+                        }
+
+                        public static List<String> disabled() {
+                            return localeConfig.getStringList(I18nKeys.GUI_ECONOMY_DISENCHANTMENT_SHOW_COST_LORE_DISABLED.getKey())
+                                    .stream().map(I18n::translateColors).toList();
+                        }
+                    }
+                }
+
+                public static class ChargeMessage {
+                    public static String title() {
+                        return I18n.translateColors(localeConfig.getString(I18nKeys.GUI_ECONOMY_DISENCHANTMENT_CHARGE_MESSAGE_TITLE.getKey()));
+                    }
+
+                    public static class Lore {
+                        public static List<String> enabled() {
+                            return localeConfig.getStringList(I18nKeys.GUI_ECONOMY_DISENCHANTMENT_CHARGE_MESSAGE_LORE_ENABLED.getKey())
+                                    .stream().map(I18n::translateColors).toList();
+                        }
+
+                        public static List<String> disabled() {
+                            return localeConfig.getStringList(I18nKeys.GUI_ECONOMY_DISENCHANTMENT_CHARGE_MESSAGE_LORE_DISABLED.getKey())
+                                    .stream().map(I18n::translateColors).toList();
+                        }
+                    }
+                }
+            }
+
+            public static class Shatterment {
+                public static String inventory() {
+                    return I18n.translateColors(localeConfig.getString(I18nKeys.GUI_ECONOMY_SHATTERMENT_INVENTORY.getKey()));
+                }
+
+                public static class Enabled {
+                    public static String title() {
+                        return I18n.translateColors(localeConfig.getString(I18nKeys.GUI_ECONOMY_SHATTERMENT_ENABLED_TITLE.getKey()));
+                    }
+
+                    public static class Lore {
+                        public static List<String> enabled() {
+                            return localeConfig.getStringList(I18nKeys.GUI_ECONOMY_SHATTERMENT_ENABLED_LORE_ENABLED.getKey())
+                                    .stream().map(I18n::translateColors).toList();
+                        }
+
+                        public static List<String> disabled() {
+                            return localeConfig.getStringList(I18nKeys.GUI_ECONOMY_SHATTERMENT_ENABLED_LORE_DISABLED.getKey())
+                                    .stream().map(I18n::translateColors).toList();
+                        }
+                    }
+                }
+
+                public static class Cost {
+                    public static String title() {
+                        return I18n.translateColors(localeConfig.getString(I18nKeys.GUI_ECONOMY_SHATTERMENT_COST_TITLE.getKey()));
+                    }
+
+                    public static List<String> lore(String cost) {
+                        return localeConfig.getStringList(I18nKeys.GUI_ECONOMY_SHATTERMENT_COST_LORE.getKey())
+                                .stream()
+                                .map(I18n::translateColors)
+                                .map(s -> s.replace("{cost}", cost))
+                                .toList();
+                    }
+                }
+
+                public static class ShowCost {
+                    public static String title() {
+                        return I18n.translateColors(localeConfig.getString(I18nKeys.GUI_ECONOMY_SHATTERMENT_SHOW_COST_TITLE.getKey()));
+                    }
+
+                    public static class Lore {
+                        public static List<String> enabled() {
+                            return localeConfig.getStringList(I18nKeys.GUI_ECONOMY_SHATTERMENT_SHOW_COST_LORE_ENABLED.getKey())
+                                    .stream().map(I18n::translateColors).toList();
+                        }
+
+                        public static List<String> disabled() {
+                            return localeConfig.getStringList(I18nKeys.GUI_ECONOMY_SHATTERMENT_SHOW_COST_LORE_DISABLED.getKey())
+                                    .stream().map(I18n::translateColors).toList();
+                        }
+                    }
+                }
+
+                public static class ChargeMessage {
+                    public static String title() {
+                        return I18n.translateColors(localeConfig.getString(I18nKeys.GUI_ECONOMY_SHATTERMENT_CHARGE_MESSAGE_TITLE.getKey()));
+                    }
+
+                    public static class Lore {
+                        public static List<String> enabled() {
+                            return localeConfig.getStringList(I18nKeys.GUI_ECONOMY_SHATTERMENT_CHARGE_MESSAGE_LORE_ENABLED.getKey())
+                                    .stream().map(I18n::translateColors).toList();
+                        }
+
+                        public static List<String> disabled() {
+                            return localeConfig.getStringList(I18nKeys.GUI_ECONOMY_SHATTERMENT_CHARGE_MESSAGE_LORE_DISABLED.getKey())
+                                    .stream().map(I18n::translateColors).toList();
+                        }
                     }
                 }
             }
