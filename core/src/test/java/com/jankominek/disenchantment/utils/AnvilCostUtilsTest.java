@@ -8,6 +8,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -52,6 +53,21 @@ class AnvilCostUtilsTest extends DisenchantmentTestBase {
         IPluginEnchantment sharpnessV = EnchantmentUtils.remapEnchantment(enchantment("sharpness"), 5);
         IPluginEnchantment mendingI = EnchantmentUtils.remapEnchantment(enchantment("mending"), 1);
         int cost = AnvilCostUtils.countAnvilCost(List.of(mendingI, sharpnessV), AnvilEventType.DISENCHANTMENT);
+        assertEquals(12, cost);
+    }
+
+    @Test
+    void enchantmentCostOverride_usesFixedCost() {
+        Map<String, Integer> overrides = Map.of("minecraft:mending", 30);
+        int cost = AnvilCostUtils.costForEnchantment("minecraft:mending", 1, 10.0, 0.25, overrides);
+        assertEquals(30, cost);
+    }
+
+    @Test
+    void enchantmentCostOverride_fallsBackToFormula_whenNoOverride() {
+        Map<String, Integer> overrides = Map.of();
+        // base=10, level=2, multiply=1.0 → formula: 10 + 2*1.0 = 12
+        int cost = AnvilCostUtils.costForEnchantment("minecraft:protection", 2, 10.0, 1.0, overrides);
         assertEquals(12, cost);
     }
 

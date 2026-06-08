@@ -8,7 +8,9 @@ import org.bukkit.inventory.AnvilInventory;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static com.jankominek.disenchantment.Disenchantment.nms;
 
@@ -50,17 +52,35 @@ public class AnvilCostUtils {
     }
 
     /**
+     * Calculates the cost for a single enchantment, using a fixed override if present,
+     * otherwise falling back to the formula: base + level * multiplier.
+     *
+     * @param key        the namespaced key string of the enchantment (e.g. "minecraft:mending")
+     * @param level      the enchantment level
+     * @param base       the base cost from config
+     * @param multiplier the per-enchantment multiplier
+     * @param overrides  map of enchantment key → fixed cost overrides
+     * @return the cost for this enchantment
+     */
+    public static int costForEnchantment(String key, int level, double base, double multiplier, Map<String, Integer> overrides) {
+        if (overrides.containsKey(key)) return overrides.get(key);
+        return (int) Math.round(base + level * multiplier);
+    }
+
+    /**
      * Calculates the total anvil cost for a list of enchantments based on the event type
      * (disenchantment or shatterment). Uses configured base cost and multiplier, applying
      * an incrementing multiplier for each enchantment sorted by level descending.
+     * Per-enchantment overrides bypass the formula entirely and do not advance the multiplier.
      *
      * @param enchantments   the enchantments involved in the operation
      * @param anvilEventType the type of anvil event (DISENCHANTMENT or SHATTERMENT)
      * @return the calculated cost in experience levels, or 0 if cost is disabled
      */
     public static int countAnvilCost(List<IPluginEnchantment> enchantments, AnvilEventType anvilEventType) {
-        double enchantmentCost;
+        double totalCost;
         double baseMultiplier;
+        Map<String, Integer> overrides;
         String category = anvilEventType == AnvilEventType.DISENCHANTMENT ? "DISENCHANT" : "SHATTER";
 
         switch (anvilEventType) {
@@ -70,8 +90,9 @@ public class AnvilCostUtils {
                     return 0;
                 }
 
-                enchantmentCost = Config.Disenchantment.Anvil.Repair.getBaseCost();
+                totalCost = Config.Disenchantment.Anvil.Repair.getBaseCost();
                 baseMultiplier = Config.Disenchantment.Anvil.Repair.getCostMultiplier();
+                overrides = Config.Disenchantment.Anvil.Repair.getEnchantmentCosts();
                 break;
             case SHATTERMENT:
                 if (!Config.Shatterment.Anvil.Repair.isCostEnabled()) {
@@ -79,14 +100,15 @@ public class AnvilCostUtils {
                     return 0;
                 }
 
-                enchantmentCost = Config.Shatterment.Anvil.Repair.getBaseCost();
+                totalCost = Config.Shatterment.Anvil.Repair.getBaseCost();
                 baseMultiplier = Config.Shatterment.Anvil.Repair.getCostMultiplier();
+                overrides = Config.Shatterment.Anvil.Repair.getEnchantmentCosts();
                 break;
             default:
                 return 0;
         }
 
-        DiagnosticUtils.debug(category, "AnvilCost: base=" + enchantmentCost + ", multiplier=" + baseMultiplier + ", enchantments=" + enchantments.size());
+        DiagnosticUtils.debug(category, "AnvilCost: base=" + totalCost + ", multiplier=" + baseMultiplier + ", enchantments=" + enchantments.size());
 
         AtomicDouble multiplier = new AtomicDouble(baseMultiplier);
 
@@ -96,13 +118,17 @@ public class AnvilCostUtils {
                 .toArray(IPluginEnchantment[]::new);
 
         for (IPluginEnchantment enchantment : sortedEnchantments) {
-            int level = enchantment.getLevel();
-
-            enchantmentCost += level * multiplier.get();
-            multiplier.set(multiplier.get() + baseMultiplier);
+            String key = enchantment.getKey() != null ? enchantment.getKey() : "";
+            if (overrides.containsKey(key)) {
+                totalCost += overrides.get(key);
+                // do NOT advance multiplier for overridden enchantments
+            } else {
+                totalCost += enchantment.getLevel() * multiplier.get();
+                multiplier.set(multiplier.get() + baseMultiplier);
+            }
         }
 
-        int result = (int) Math.round(enchantmentCost);
+        int result = (int) Math.round(totalCost);
         DiagnosticUtils.debug(category, "AnvilCost: calculated=" + result + " XP levels");
         return result;
     }
