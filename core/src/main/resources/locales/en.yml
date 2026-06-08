@@ -28,6 +28,13 @@ messages:
   world-not-found: "&cWorld {world} not found!&r"
   world-is-enabled: "&a{world} &7is enabled!&r"
   world-is-disabled: "&c{world} &7is disabled!&r"
+  economy-enabled-is-enabled: "&aEconomy is enabled!&r"
+  economy-enabled-is-disabled: "&cEconomy is disabled!&r"
+  economy-cost-is-set: "&7Economy cost is set to &f{cost}&7!&r"
+  economy-show-cost-is-enabled: "&aShow cost is enabled!&r"
+  economy-show-cost-is-disabled: "&cShow cost is disabled!&r"
+  economy-charge-message-is-enabled: "&aCharge message is enabled!&r"
+  economy-charge-message-is-disabled: "&cCharge message is disabled!&r"
   economy-cost: "&7Economy cost: &f{cost}&r"
   economy-insufficient-funds: "&cInsufficient funds! This operation costs &f{cost}&c.&r"
   economy-charged: "&7You have been charged &f{cost}&7.&r"
@@ -65,6 +72,11 @@ commands:
         - "&8/disenchant disenchant:repair reset ['enable', 'disable'] &7- Toggle cost reset on or off"
         - "&8/disenchant disenchant:repair base [int] &7- Set the base cost"
         - "&8/disenchant disenchant:repair multiply [float] &7- Set the multiplier"
+        - "&8/disenchant disenchant:economy &7- View economy settings"
+        - "&8/disenchant disenchant:economy enabled [true|false] &7- Toggle economy on or off"
+        - "&8/disenchant disenchant:economy cost [float] &7- Set the economy cost"
+        - "&8/disenchant disenchant:economy show-cost [true|false] &7- Toggle cost display on or off"
+        - "&8/disenchant disenchant:economy charge-message [true|false] &7- Toggle charge message on or off"
       5:
         - "&8/disenchant disenchant:sound &7- View sound settings"
         - "&8/disenchant disenchant:sound ['enable', 'disable'] &7- Toggle sound on or off"
@@ -81,6 +93,11 @@ commands:
         - "&8/disenchant shatter:repair reset [enable or disable] &7- Toggle cost reset on or off"
         - "&8/disenchant shatter:repair base [int] &7- Set the base cost"
         - "&8/disenchant shatter:repair multiply [float] &7- Set the multiplier"
+        - "&8/disenchant shatter:economy &7- View economy settings"
+        - "&8/disenchant shatter:economy enabled [true|false] &7- Toggle economy on or off"
+        - "&8/disenchant shatter:economy cost [float] &7- Set the economy cost"
+        - "&8/disenchant shatter:economy show-cost [true|false] &7- Toggle cost display on or off"
+        - "&8/disenchant shatter:economy charge-message [true|false] &7- Toggle charge message on or off"
       8:
         - "&8/disenchant shatter:sound &7- View sound settings"
         - "&8/disenchant shatter:sound ['enable', 'disable'] &7- Toggle sound on or off"
@@ -126,6 +143,25 @@ commands:
       cost: "&7Cost: {state}&r"
       base: "&7Base cost: {cost}&r"
       multiply: "&7Multiplier: {multiply}&r"
+      states:
+        enabled: "&aEnabled&r"
+        disabled: "&cDisabled&r"
+  economy:
+    disenchantment:
+      title: "&7&lDisenchantment economy settings&r"
+      enabled: "&7Economy: {state}&r"
+      cost: "&7Cost: {cost}&r"
+      show-cost: "&7Show cost: {state}&r"
+      charge-message: "&7Charge message: {state}&r"
+      states:
+        enabled: "&aEnabled&r"
+        disabled: "&cDisabled&r"
+    shatterment:
+      title: "&7&lShatterment economy settings&r"
+      enabled: "&7Economy: {state}&r"
+      cost: "&7Cost: {cost}&r"
+      show-cost: "&7Show cost: {state}&r"
+      charge-message: "&7Charge message: {state}&r"
       states:
         enabled: "&aEnabled&r"
         disabled: "&cDisabled&r"

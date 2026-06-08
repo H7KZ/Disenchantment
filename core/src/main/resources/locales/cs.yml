@@ -28,6 +28,13 @@ messages:
   world-not-found: "&cSvět {world} nebyl nalezen!&r"
   world-is-enabled: "&a{world} &7je povolen!&r"
   world-is-disabled: "&c{world} &7je zakázán!&r"
+  economy-enabled-is-enabled: "&aEkonomika je povolena!&r"
+  economy-enabled-is-disabled: "&cEkonomika je zakázána!&r"
+  economy-cost-is-set: "&7Cena ekonomiky je nastavena na &f{cost}&7!&r"
+  economy-show-cost-is-enabled: "&aZobrazení ceny je povoleno!&r"
+  economy-show-cost-is-disabled: "&cZobrazení ceny je zakázáno!&r"
+  economy-charge-message-is-enabled: "&aZpráva o strhnutí poplatku je povolena!&r"
+  economy-charge-message-is-disabled: "&cZpráva o strhnutí poplatku je zakázána!&r"
   economy-cost: "&7Ekonomická cena: &f{cost}&r"
   economy-insufficient-funds: "&cNedostatek prostředků! Tato operace stojí &f{cost}&c.&r"
   economy-charged: "&7Byl vám strhnut poplatek &f{cost}&7.&r"
@@ -126,6 +133,25 @@ commands:
       cost: "&7Cena: {state}&r"
       base: "&7Základní cena: {cost}&r"
       multiply: "&7Násobitel: {multiply}&r"
+      states:
+        enabled: "&aPovoleno&r"
+        disabled: "&cZakázáno&r"
+  economy:
+    disenchantment:
+      title: "&7&lNastavení ekonomiky pro odčarování&r"
+      enabled: "&7Ekonomika: {state}&r"
+      cost: "&7Cena: {cost}&r"
+      show-cost: "&7Zobrazit cenu: {state}&r"
+      charge-message: "&7Zpráva o strhnutí: {state}&r"
+      states:
+        enabled: "&aPovoleno&r"
+        disabled: "&cZakázáno&r"
+    shatterment:
+      title: "&7&lNastavení ekonomiky pro rozbití&r"
+      enabled: "&7Ekonomika: {state}&r"
+      cost: "&7Cena: {cost}&r"
+      show-cost: "&7Zobrazit cenu: {state}&r"
+      charge-message: "&7Zpráva o strhnutí: {state}&r"
       states:
         enabled: "&aPovoleno&r"
         disabled: "&cZakázáno&r"

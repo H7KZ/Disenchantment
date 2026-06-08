@@ -65,6 +65,9 @@ permissions:
   disenchantment.command.disenchant.sound:
     description: Access to the disenchant sound command.
     default: op
+  disenchantment.command.disenchant.economy:
+    description: Access to the disenchant economy command.
+    default: op
   disenchantment.command.shatter.enchantments:
     description: Access to the shatter enchantments command.
     default: op
@@ -76,6 +79,9 @@ permissions:
     default: op
   disenchantment.command.shatter.sound:
     description: Access to the shatter sound command.
+    default: op
+  disenchantment.command.shatter.economy:
+    description: Access to the shatter economy command.
     default: op
   disenchantment.command.diagnostic:
     description: Access to the Diagnostic command.

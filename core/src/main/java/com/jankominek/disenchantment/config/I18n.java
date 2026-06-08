@@ -199,6 +199,37 @@ public class I18n {
         public static String economyNotAvailable() {
             return I18n.translateColors(localeConfig.getString(I18nKeys.MESSAGES_ECONOMY_NOT_AVAILABLE.getKey()));
         }
+
+        public static String economyEnabledIsEnabled() {
+            return I18n.translateColors(localeConfig.getString(I18nKeys.MESSAGES_ECONOMY_ENABLED_IS_ENABLED.getKey()));
+        }
+
+        public static String economyEnabledIsDisabled() {
+            return I18n.translateColors(localeConfig.getString(I18nKeys.MESSAGES_ECONOMY_ENABLED_IS_DISABLED.getKey()));
+        }
+
+        public static String economyCostIsSet(String cost) {
+            return I18n.translateColors(
+                    localeConfig.getString(I18nKeys.MESSAGES_ECONOMY_COST_IS_SET.getKey(), "default")
+                            .replace("{cost}", cost)
+            );
+        }
+
+        public static String economyShowCostIsEnabled() {
+            return I18n.translateColors(localeConfig.getString(I18nKeys.MESSAGES_ECONOMY_SHOW_COST_IS_ENABLED.getKey()));
+        }
+
+        public static String economyShowCostIsDisabled() {
+            return I18n.translateColors(localeConfig.getString(I18nKeys.MESSAGES_ECONOMY_SHOW_COST_IS_DISABLED.getKey()));
+        }
+
+        public static String economyChargeMessageIsEnabled() {
+            return I18n.translateColors(localeConfig.getString(I18nKeys.MESSAGES_ECONOMY_CHARGE_MESSAGE_IS_ENABLED.getKey()));
+        }
+
+        public static String economyChargeMessageIsDisabled() {
+            return I18n.translateColors(localeConfig.getString(I18nKeys.MESSAGES_ECONOMY_CHARGE_MESSAGE_IS_DISABLED.getKey()));
+        }
     }
 
     /**
@@ -564,6 +595,96 @@ public class I18n {
                 public static class States {
                     public static String disabled() {
                         return I18n.translateColors(localeConfig.getString(I18nKeys.COMMANDS_WORLDS_SHATTERMENT_STATES_DISABLED.getKey()));
+                    }
+                }
+            }
+        }
+
+        public static class Economy {
+            public static class Disenchantment {
+                public static String title() {
+                    return I18n.translateColors(localeConfig.getString(I18nKeys.COMMANDS_ECONOMY_DISENCHANTMENT_TITLE.getKey()));
+                }
+
+                public static String enabled(String state) {
+                    return I18n.translateColors(
+                            localeConfig.getString(I18nKeys.COMMANDS_ECONOMY_DISENCHANTMENT_ENABLED.getKey(), "default")
+                                    .replace("{state}", state)
+                    );
+                }
+
+                public static String cost(String cost) {
+                    return I18n.translateColors(
+                            localeConfig.getString(I18nKeys.COMMANDS_ECONOMY_DISENCHANTMENT_COST.getKey(), "default")
+                                    .replace("{cost}", cost)
+                    );
+                }
+
+                public static String showCost(String state) {
+                    return I18n.translateColors(
+                            localeConfig.getString(I18nKeys.COMMANDS_ECONOMY_DISENCHANTMENT_SHOW_COST.getKey(), "default")
+                                    .replace("{state}", state)
+                    );
+                }
+
+                public static String chargeMessage(String state) {
+                    return I18n.translateColors(
+                            localeConfig.getString(I18nKeys.COMMANDS_ECONOMY_DISENCHANTMENT_CHARGE_MESSAGE.getKey(), "default")
+                                    .replace("{state}", state)
+                    );
+                }
+
+                public static class States {
+                    public static String enabled() {
+                        return I18n.translateColors(localeConfig.getString(I18nKeys.COMMANDS_ECONOMY_DISENCHANTMENT_STATES_ENABLED.getKey()));
+                    }
+
+                    public static String disabled() {
+                        return I18n.translateColors(localeConfig.getString(I18nKeys.COMMANDS_ECONOMY_DISENCHANTMENT_STATES_DISABLED.getKey()));
+                    }
+                }
+            }
+
+            public static class Shatterment {
+                public static String title() {
+                    return I18n.translateColors(localeConfig.getString(I18nKeys.COMMANDS_ECONOMY_SHATTERMENT_TITLE.getKey()));
+                }
+
+                public static String enabled(String state) {
+                    return I18n.translateColors(
+                            localeConfig.getString(I18nKeys.COMMANDS_ECONOMY_SHATTERMENT_ENABLED.getKey(), "default")
+                                    .replace("{state}", state)
+                    );
+                }
+
+                public static String cost(String cost) {
+                    return I18n.translateColors(
+                            localeConfig.getString(I18nKeys.COMMANDS_ECONOMY_SHATTERMENT_COST.getKey(), "default")
+                                    .replace("{cost}", cost)
+                    );
+                }
+
+                public static String showCost(String state) {
+                    return I18n.translateColors(
+                            localeConfig.getString(I18nKeys.COMMANDS_ECONOMY_SHATTERMENT_SHOW_COST.getKey(), "default")
+                                    .replace("{state}", state)
+                    );
+                }
+
+                public static String chargeMessage(String state) {
+                    return I18n.translateColors(
+                            localeConfig.getString(I18nKeys.COMMANDS_ECONOMY_SHATTERMENT_CHARGE_MESSAGE.getKey(), "default")
+                                    .replace("{state}", state)
+                    );
+                }
+
+                public static class States {
+                    public static String enabled() {
+                        return I18n.translateColors(localeConfig.getString(I18nKeys.COMMANDS_ECONOMY_SHATTERMENT_STATES_ENABLED.getKey()));
+                    }
+
+                    public static String disabled() {
+                        return I18n.translateColors(localeConfig.getString(I18nKeys.COMMANDS_ECONOMY_SHATTERMENT_STATES_DISABLED.getKey()));
                     }
                 }
             }

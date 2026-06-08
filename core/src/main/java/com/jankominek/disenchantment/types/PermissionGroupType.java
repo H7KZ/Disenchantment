@@ -68,6 +68,10 @@ public enum PermissionGroupType {
             PermissionType.DEPRECATED_COMMAND_DISENCHANT_SOUND,
             PermissionType.DEPRECATED_COMMAND_DISENCHANT_SOUND2
     ),
+    COMMAND_DISENCHANT_ECONOMY(
+            PermissionType.COMMAND_ALL,
+            PermissionType.COMMAND_DISENCHANT_ECONOMY
+    ),
     COMMAND_SHATTER_ENCHANTMENTS(
             PermissionType.COMMAND_ALL,
             PermissionType.COMMAND_SHATTER_ENCHANTMENTS,
@@ -87,6 +91,10 @@ public enum PermissionGroupType {
             PermissionType.COMMAND_ALL,
             PermissionType.COMMAND_SHATTER_SOUND,
             PermissionType.DEPRECATED_COMMAND_SHATTER_SOUND
+    ),
+    COMMAND_SHATTER_ECONOMY(
+            PermissionType.COMMAND_ALL,
+            PermissionType.COMMAND_SHATTER_ECONOMY
     ),
     COMMAND_DIAGNOSTIC(
             PermissionType.COMMAND_ALL,

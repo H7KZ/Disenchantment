@@ -27,10 +27,12 @@ public class CommandRegister implements CommandExecutor {
             put(DisenchantWorlds.command.name(), DisenchantWorlds.command);
             put(DisenchantMaterials.command.name(), DisenchantMaterials.command);
             put(DisenchantRepair.command.name(), DisenchantRepair.command);
+            put(DisenchantEconomy.command.name(), DisenchantEconomy.command);
             put(DisenchantSound.command.name(), DisenchantSound.command);
             put(ShatterEnchantments.command.name(), ShatterEnchantments.command);
             put(ShatterWorlds.command.name(), ShatterWorlds.command);
             put(ShatterRepair.command.name(), ShatterRepair.command);
+            put(ShatterEconomy.command.name(), ShatterEconomy.command);
             put(ShatterSound.command.name(), ShatterSound.command);
             put(Diagnostic.command.name(), Diagnostic.command);
             put(Reload.command.name(), Reload.command);

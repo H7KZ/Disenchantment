@@ -30,10 +30,12 @@ public enum PermissionType {
     COMMAND_DISENCHANT_MATERIALS("disenchantment.command.disenchant.materials"),
     COMMAND_DISENCHANT_REPAIR("disenchantment.command.disenchant.repair"),
     COMMAND_DISENCHANT_SOUND("disenchantment.command.disenchant.sound"),
+    COMMAND_DISENCHANT_ECONOMY("disenchantment.command.disenchant.economy"),
     COMMAND_SHATTER_ENCHANTMENTS("disenchantment.command.shatter.enchantments"),
     COMMAND_SHATTER_WORLDS("disenchantment.command.shatter.worlds"),
     COMMAND_SHATTER_REPAIR("disenchantment.command.shatter.repair"),
     COMMAND_SHATTER_SOUND("disenchantment.command.shatter.sound"),
+    COMMAND_SHATTER_ECONOMY("disenchantment.command.shatter.economy"),
 
     COMMAND_DIAGNOSTIC("disenchantment.command.diagnostic"),
     COMMAND_RELOAD("disenchantment.command.reload"),
