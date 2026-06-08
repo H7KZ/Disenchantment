@@ -120,10 +120,12 @@ public class AnvilCostUtils {
         for (IPluginEnchantment enchantment : sortedEnchantments) {
             String key = enchantment.getKey() != null ? enchantment.getKey() : "";
             if (overrides.containsKey(key)) {
+                // fixed override cost — does not interact with the level*multiplier formula
                 totalCost += overrides.get(key);
                 // do NOT advance multiplier for overridden enchantments
             } else {
-                totalCost += enchantment.getLevel() * multiplier.get();
+                // formula path — delegate to costForEnchantment with base=0 (base already seeded into totalCost)
+                totalCost += costForEnchantment(key, enchantment.getLevel(), 0, multiplier.get(), Map.of());
                 multiplier.set(multiplier.get() + baseMultiplier);
             }
         }
