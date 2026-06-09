@@ -26,19 +26,25 @@ import static com.jankominek.disenchantment.Disenchantment.plugin;
  */
 public class DisenchantmentPlaceholderExpansion extends PlaceholderExpansion {
 
-    /** @return the placeholder identifier prefix ({@code "disenchantment"}) */
+    /**
+     * @return the placeholder identifier prefix ({@code "disenchantment"})
+     */
     @Override
     public String getIdentifier() {
         return "disenchantment";
     }
 
-    /** @return the plugin author(s) from {@code plugin.yml} */
+    /**
+     * @return the plugin author(s) from {@code plugin.yml}
+     */
     @Override
     public String getAuthor() {
         return String.join(", ", plugin.getDescription().getAuthors());
     }
 
-    /** @return the plugin version from {@code plugin.yml} */
+    /**
+     * @return the plugin version from {@code plugin.yml}
+     */
     @Override
     public String getVersion() {
         return plugin.getDescription().getVersion();
@@ -64,11 +70,11 @@ public class DisenchantmentPlaceholderExpansion extends PlaceholderExpansion {
     @Override
     public String onRequest(OfflinePlayer player, String params) {
         return switch (params.toLowerCase()) {
-            case "enabled"            -> String.valueOf(Config.isPluginEnabled());
+            case "enabled" -> String.valueOf(Config.isPluginEnabled());
             case "disenchant_enabled" -> String.valueOf(Config.Disenchantment.isEnabled());
-            case "shatter_enabled"    -> String.valueOf(Config.Shatterment.isEnabled());
-            case "version"            -> plugin.getDescription().getVersion();
-            default                   -> null;
+            case "shatter_enabled" -> String.valueOf(Config.Shatterment.isEnabled());
+            case "version" -> plugin.getDescription().getVersion();
+            default -> null;
         };
     }
 }

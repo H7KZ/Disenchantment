@@ -1,18 +1,23 @@
 <!-- generated-by: gsd-doc-writer -->
+
 # Disenchantment API
 
-Disenchantment exposes a public Java API for other plugins to integrate with its disenchant and shatter mechanics. The API consists of four Bukkit events and a PlaceholderAPI expansion.
+Disenchantment exposes a public Java API for other plugins to integrate with its disenchant and shatter mechanics. The
+API consists of four Bukkit events and a PlaceholderAPI expansion.
 
 ## Contents
 
-| Document | Description |
-|---|---|
-| [EVENTS.md](EVENTS.md) | Full reference for `PreDisenchantEvent`, `PostDisenchantEvent`, `PreShatterEvent`, and `PostShatterEvent` — including all methods, cancellation behaviour, and code examples |
-| [PLACEHOLDERS.md](PLACEHOLDERS.md) | PlaceholderAPI placeholders registered under the `%disenchantment_*%` identifier |
+| Document                           | Description                                                                                                                                                                  |
+|------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| [EVENTS.md](EVENTS.md)             | Full reference for `PreDisenchantEvent`, `PostDisenchantEvent`, `PreShatterEvent`, and `PostShatterEvent` — including all methods, cancellation behaviour, and code examples |
+| [PLACEHOLDERS.md](PLACEHOLDERS.md) | PlaceholderAPI placeholders registered under the `%disenchantment_*%` identifier                                                                                             |
 
 ## Adding the Dependency
 
-Disenchantment is not published to Maven Central. Download the JAR from [GitHub Releases](https://github.com/H7KZ/Disenchantment/releases) and add it as a local or system-scoped dependency. It must be declared as a `compileOnly`/`provided` dependency — the plugin ships as a full JAR on the server; your plugin must not shade it.
+Disenchantment is not published to Maven Central. Download the JAR
+from [GitHub Releases](https://github.com/H7KZ/Disenchantment/releases) and add it as a local or system-scoped
+dependency. It must be declared as a `compileOnly`/`provided` dependency — the plugin ships as a full JAR on the server;
+your plugin must not shade it.
 
 ### Maven
 
@@ -38,7 +43,8 @@ dependencies {
 
 ## Declaring a Soft Dependency
 
-Add Disenchantment as a soft dependency in your `plugin.yml` so Bukkit loads it before your plugin when both are present on the server:
+Add Disenchantment as a soft dependency in your `plugin.yml` so Bukkit loads it before your plugin when both are present
+on the server:
 
 ```yaml
 softdepend:
@@ -76,7 +82,9 @@ No special setup is required — events fire automatically whenever a player use
 
 ## API Stability
 
-The four event classes and `IPluginEnchantment` interface in the `com.jankominek.disenchantment.events.api` and `com.jankominek.disenchantment.plugins` packages are considered stable public API. Other classes in the `com.jankominek.disenchantment` package tree are internal and may change without notice between versions.
+The four event classes and `IPluginEnchantment` interface in the `com.jankominek.disenchantment.events.api` and
+`com.jankominek.disenchantment.plugins` packages are considered stable public API. Other classes in the
+`com.jankominek.disenchantment` package tree are internal and may change without notice between versions.
 
 ## Links
 

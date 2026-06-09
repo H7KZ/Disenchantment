@@ -22,31 +22,49 @@ import org.bukkit.inventory.ItemStack;
  * }</pre>
  */
 public class PostShatterEvent extends Event {
-	private static final HandlerList HANDLERS = new HandlerList();
-	private final Player player;
-	private final ItemStack resultBook;
-	private final ItemStack modifiedSourceItem;
+    private static final HandlerList HANDLERS = new HandlerList();
+    private final Player player;
+    private final ItemStack resultBook;
+    private final ItemStack modifiedSourceItem;
 
-	/**
-	 * @param player             the player who performed the shattering
-	 * @param resultBook         the new book containing the split enchantment
-	 * @param modifiedSourceItem the original book with the split enchantment removed
-	 */
-	public PostShatterEvent(Player player, ItemStack resultBook, ItemStack modifiedSourceItem) {
-		this.player = player;
-		this.resultBook = resultBook;
-		this.modifiedSourceItem = modifiedSourceItem;
-	}
+    /**
+     * @param player             the player who performed the shattering
+     * @param resultBook         the new book containing the split enchantment
+     * @param modifiedSourceItem the original book with the split enchantment removed
+     */
+    public PostShatterEvent(Player player, ItemStack resultBook, ItemStack modifiedSourceItem) {
+        this.player = player;
+        this.resultBook = resultBook;
+        this.modifiedSourceItem = modifiedSourceItem;
+    }
 
-	/** @return the player who performed the shattering */
-	public Player getPlayer() { return player; }
+    /**
+     * @return the player who performed the shattering
+     */
+    public Player getPlayer() {
+        return player;
+    }
 
-	/** @return the newly created book containing the single split enchantment */
-	public ItemStack getResultBook() { return resultBook; }
+    /**
+     * @return the newly created book containing the single split enchantment
+     */
+    public ItemStack getResultBook() {
+        return resultBook;
+    }
 
-	/** @return the original book with one enchantment removed (snapshot, not a live reference) */
-	public ItemStack getModifiedSourceItem() { return modifiedSourceItem; }
+    /**
+     * @return the original book with one enchantment removed (snapshot, not a live reference)
+     */
+    public ItemStack getModifiedSourceItem() {
+        return modifiedSourceItem;
+    }
 
-	@Override public HandlerList getHandlers() { return HANDLERS; }
-	public static HandlerList getHandlerList() { return HANDLERS; }
+    @Override
+    public HandlerList getHandlers() {
+        return HANDLERS;
+    }
+
+    public static HandlerList getHandlerList() {
+        return HANDLERS;
+    }
 }

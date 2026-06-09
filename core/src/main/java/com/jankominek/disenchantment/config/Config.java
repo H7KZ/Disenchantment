@@ -26,39 +26,43 @@ import static com.jankominek.disenchantment.Disenchantment.plugin;
  * anvil sound/repair parameters, and world/material/enchantment states.
  */
 public class Config {
-	private static boolean batchMode = false;
+    private static boolean batchMode = false;
 
-	/**
-	 * Starts a batch configuration update. While batch mode is active, calls to
-	 * {@code save()} are suppressed. Use {@link #commitBatch()} to persist all
-	 * pending changes in a single write, avoiding repeated disk I/O.
-	 */
-	public static void beginBatch() {
-		batchMode = true;
-	}
+    /**
+     * Starts a batch configuration update. While batch mode is active, calls to
+     * {@code save()} are suppressed. Use {@link #commitBatch()} to persist all
+     * pending changes in a single write, avoiding repeated disk I/O.
+     */
+    public static void beginBatch() {
+        batchMode = true;
+    }
 
-	/**
-	 * Ends a batch configuration update and persists all pending changes to disk.
-	 * Must be paired with a preceding {@link #beginBatch()} call.
-	 */
-	public static void commitBatch() {
-		batchMode = false;
-		plugin.saveConfig();
-	}
+    /**
+     * Ends a batch configuration update and persists all pending changes to disk.
+     * Must be paired with a preceding {@link #beginBatch()} call.
+     */
+    public static void commitBatch() {
+        batchMode = false;
+        plugin.saveConfig();
+    }
 
-	private static void save() {
-		if (!batchMode) plugin.saveConfig();
-	}
+    private static void save() {
+        if (!batchMode) plugin.saveConfig();
+    }
 
-	/**
-	 * Abstraction over the feature-specific configuration methods, used by commands
-	 * and GUIs that operate on either disenchantment or shatterment without knowing which.
-	 */
-	public interface FeatureConfig {
+    /**
+     * Abstraction over the feature-specific configuration methods, used by commands
+     * and GUIs that operate on either disenchantment or shatterment without knowing which.
+     */
+    public interface FeatureConfig {
         boolean isEnabled();
+
         List<World> getDisabledWorlds();
+
         boolean setDisabledWorlds(List<World> worlds);
+
         HashMap<String, EnchantmentStateType> getEnchantmentStates();
+
         boolean setEnchantmentStates(HashMap<String, EnchantmentStateType> enchantmentStates);
     }
 
@@ -72,18 +76,46 @@ public class Config {
     public static FeatureConfig forFeature(AnvilFeature feature) {
         return switch (feature) {
             case DISENCHANTMENT -> new FeatureConfig() {
-                public boolean isEnabled() { return Disenchantment.isEnabled(); }
-                public List<World> getDisabledWorlds() { return Disenchantment.getDisabledWorlds(); }
-                public boolean setDisabledWorlds(List<World> worlds) { return Disenchantment.setDisabledWorlds(worlds); }
-                public HashMap<String, EnchantmentStateType> getEnchantmentStates() { return Disenchantment.getEnchantmentStates(); }
-                public boolean setEnchantmentStates(HashMap<String, EnchantmentStateType> enchantmentStates) { return Disenchantment.setEnchantmentStates(enchantmentStates); }
+                public boolean isEnabled() {
+                    return Disenchantment.isEnabled();
+                }
+
+                public List<World> getDisabledWorlds() {
+                    return Disenchantment.getDisabledWorlds();
+                }
+
+                public boolean setDisabledWorlds(List<World> worlds) {
+                    return Disenchantment.setDisabledWorlds(worlds);
+                }
+
+                public HashMap<String, EnchantmentStateType> getEnchantmentStates() {
+                    return Disenchantment.getEnchantmentStates();
+                }
+
+                public boolean setEnchantmentStates(HashMap<String, EnchantmentStateType> enchantmentStates) {
+                    return Disenchantment.setEnchantmentStates(enchantmentStates);
+                }
             };
             case SHATTERMENT -> new FeatureConfig() {
-                public boolean isEnabled() { return Shatterment.isEnabled(); }
-                public List<World> getDisabledWorlds() { return Shatterment.getDisabledWorlds(); }
-                public boolean setDisabledWorlds(List<World> worlds) { return Shatterment.setDisabledWorlds(worlds); }
-                public HashMap<String, EnchantmentStateType> getEnchantmentStates() { return Shatterment.getEnchantmentStates(); }
-                public boolean setEnchantmentStates(HashMap<String, EnchantmentStateType> enchantmentStates) { return Shatterment.setEnchantmentStates(enchantmentStates); }
+                public boolean isEnabled() {
+                    return Shatterment.isEnabled();
+                }
+
+                public List<World> getDisabledWorlds() {
+                    return Shatterment.getDisabledWorlds();
+                }
+
+                public boolean setDisabledWorlds(List<World> worlds) {
+                    return Shatterment.setDisabledWorlds(worlds);
+                }
+
+                public HashMap<String, EnchantmentStateType> getEnchantmentStates() {
+                    return Shatterment.getEnchantmentStates();
+                }
+
+                public boolean setEnchantmentStates(HashMap<String, EnchantmentStateType> enchantmentStates) {
+                    return Shatterment.setEnchantmentStates(enchantmentStates);
+                }
             };
         };
     }

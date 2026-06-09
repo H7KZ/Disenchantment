@@ -9,7 +9,8 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Tests for the adapter-aware shatter path:
@@ -23,9 +24,13 @@ class EventUtilsAdapterShatterTest extends DisenchantmentTestBase {
         return new MockPluginAdapter("TestPlugin", enchants);
     }
 
-    private ItemStack enchantedBook() { return new ItemStack(Material.ENCHANTED_BOOK); }
+    private ItemStack enchantedBook() {
+        return new ItemStack(Material.ENCHANTED_BOOK);
+    }
 
-    private ItemStack blankBook() { return new ItemStack(Material.BOOK); }
+    private ItemStack blankBook() {
+        return new ItemStack(Material.BOOK);
+    }
 
     // -> basic acceptance / rejection
 

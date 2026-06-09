@@ -1,15 +1,18 @@
 <!-- generated-by: gsd-doc-writer -->
+
 # Config and I18n System
 
 `core/src/main/java/com/jankominek/disenchantment/config/`
 
-The config system has three main parts: `Config.java` (typed accessors for `config.yml`), `I18n.java` (typed accessors for locale files), and the migration system (`migration/`) that upgrades old config files.
+The config system has three main parts: `Config.java` (typed accessors for `config.yml`), `I18n.java` (typed accessors
+for locale files), and the migration system (`migration/`) that upgrades old config files.
 
 ---
 
 ## Config.java
 
-`config/Config.java` — pure static class with no instances. All methods read from or write to `Disenchantment.config` (a `FileConfiguration`).
+`config/Config.java` — pure static class with no instances. All methods read from or write to `Disenchantment.config` (a
+`FileConfiguration`).
 
 ### Batch Mode
 
@@ -19,7 +22,8 @@ Config.beginBatch();
 Config.commitBatch();
 ```
 
-When `batchMode = true`, individual setter calls do **not** call `plugin.saveConfig()`. `commitBatch()` saves once. Used by GUI screens that change multiple values in one click.
+When `batchMode = true`, individual setter calls do **not** call `plugin.saveConfig()`. `commitBatch()` saves once. Used
+by GUI screens that change multiple values in one click.
 
 ### `FeatureConfig` Interface
 
@@ -33,7 +37,9 @@ public interface FeatureConfig {
 }
 ```
 
-`Config.forFeature(AnvilFeature feature)` returns an anonymous `FeatureConfig` implementation backed by either `Config.Disenchantment` or `Config.Shatterment`, allowing feature-agnostic code in GUI screens to pass a feature argument.
+`Config.forFeature(AnvilFeature feature)` returns an anonymous `FeatureConfig` implementation backed by either
+`Config.Disenchantment` or `Config.Shatterment`, allowing feature-agnostic code in GUI screens to pass a feature
+argument.
 
 ### `invalidateCaches()`
 
@@ -41,7 +47,9 @@ public interface FeatureConfig {
 Config.invalidateCaches();
 ```
 
-Nulls `Config.Disenchantment.ENCHANTMENT_STATES_CACHE` and `Config.Shatterment.ENCHANTMENT_STATES_CACHE`. Called by `ConfigUtils.setupConfig()` after a reload. Enchantment states are parsed from a `List<String>` and cached as a `HashMap<String, EnchantmentStateType>`; this method clears that cache so the next read re-parses from the updated YAML.
+Nulls `Config.Disenchantment.ENCHANTMENT_STATES_CACHE` and `Config.Shatterment.ENCHANTMENT_STATES_CACHE`. Called by
+`ConfigUtils.setupConfig()` after a reload. Enchantment states are parsed from a `List<String>` and cached as a
+`HashMap<String, EnchantmentStateType>`; this method clears that cache so the next read re-parses from the updated YAML.
 
 ---
 
@@ -89,7 +97,8 @@ Config
     └── Anvil (static inner class)    [same shape as Disenchantment.Anvil]
 ```
 
-All setters return `boolean` — `true` if the persisted value equals the requested value (a sanity check). Most callers ignore the return value.
+All setters return `boolean` — `true` if the persisted value equals the requested value (a sanity check). Most callers
+ignore the return value.
 
 ---
 
@@ -99,13 +108,13 @@ All setters return `boolean` — `true` if the persisted value equals the reques
 
 Key groups:
 
-| Prefix | Example Keys | YAML Path prefix |
-|--------|-------------|-----------------|
-| global | `ENABLED`, `LOCALE`, `LOCALES` | root |
-| `LOGGING_*` | `LOGGING_LEVEL`, `LOGGING_SAVE_REPORTS` | `logging.` |
-| `EVENT_PRIORITIES_*` | `EVENT_PRIORITIES_DISENCHANT` | `event-priorities.` |
-| `DISENCHANTMENT_*` | `DISENCHANTMENT_ENABLED`, `DISENCHANTMENT_REPAIR_COST_BASE` | `disenchantment.` |
-| `SHATTERMENT_*` | `SHATTERMENT_ENABLED`, `SHATTERMENT_SPLIT_COUNT` | `shatterment.` |
+| Prefix               | Example Keys                                                | YAML Path prefix    |
+|----------------------|-------------------------------------------------------------|---------------------|
+| global               | `ENABLED`, `LOCALE`, `LOCALES`                              | root                |
+| `LOGGING_*`          | `LOGGING_LEVEL`, `LOGGING_SAVE_REPORTS`                     | `logging.`          |
+| `EVENT_PRIORITIES_*` | `EVENT_PRIORITIES_DISENCHANT`                               | `event-priorities.` |
+| `DISENCHANTMENT_*`   | `DISENCHANTMENT_ENABLED`, `DISENCHANTMENT_REPAIR_COST_BASE` | `disenchantment.`   |
+| `SHATTERMENT_*`      | `SHATTERMENT_ENABLED`, `SHATTERMENT_SPLIT_COUNT`            | `shatterment.`      |
 
 Each constant has `getKey()` returning the dot-path string.
 
@@ -118,6 +127,7 @@ Each constant has `getKey()` returning the dot-path string.
 ### Color translation
 
 All strings go through:
+
 ```java
 private static String translateColors(String text) {
     return LegacyComponentSerializer.legacySection().serialize(
@@ -166,7 +176,8 @@ I18n
 
 ### I18nKeys Enum
 
-`types/I18nKeys.java` — maps symbolic names to locale YAML dot-paths. Same pattern as `ConfigKeys` but for locale files. Each constant has `getKey()`.
+`types/I18nKeys.java` — maps symbolic names to locale YAML dot-paths. Same pattern as `ConfigKeys` but for locale files.
+Each constant has `getKey()`.
 
 ---
 
@@ -185,7 +196,9 @@ I18n
 
 ### `setupLocaleConfigs()`
 
-Iterates `Config.getLocales()` (the `locales` list in config.yml). For each locale code, checks if `plugins/Disenchantment/locales/<locale>.yml` already exists. If it does, skips (preserving custom translations). If not, calls `plugin.saveResource(...)` to extract from the JAR.
+Iterates `Config.getLocales()` (the `locales` list in config.yml). For each locale code, checks if
+`plugins/Disenchantment/locales/<locale>.yml` already exists. If it does, skips (preserving custom translations). If
+not, calls `plugin.saveResource(...)` to extract from the JAR.
 
 ---
 
@@ -196,8 +209,10 @@ Iterates `Config.getLocales()` (the `locales` list in config.yml). For each loca
 ### How it works
 
 Config files have a `migration` integer key (e.g. `migration: 9`). When the plugin loads:
+
 1. `ConfigMigrations.apply()` reads `oldConfig.getInt("migration", 0)` and `newConfig.getInt("migration", 0)`.
-2. For each version step `i` from `oldVersion + 1` to `newVersion`, it loads `migrations/<i>.yml` from the JAR, looks up `migrations.get(i)`, and calls `migrate(oldConfig, configTemplate)`.
+2. For each version step `i` from `oldVersion + 1` to `newVersion`, it loads `migrations/<i>.yml` from the JAR, looks up
+   `migrations.get(i)`, and calls `migrate(oldConfig, configTemplate)`.
 3. The migrated config is returned and saved.
 
 ### `IConfigMigration`
@@ -208,21 +223,23 @@ public interface IConfigMigration {
 }
 ```
 
-Each migration step returns the updated `FileConfiguration`. Typically it copies known keys from `oldConfig` into `configTemplate` (which already has the new defaults) using `ConfigUtils.copyKeys(Set<String>, oldConfig, configTemplate)`.
+Each migration step returns the updated `FileConfiguration`. Typically it copies known keys from `oldConfig` into
+`configTemplate` (which already has the new defaults) using
+`ConfigUtils.copyKeys(Set<String>, oldConfig, configTemplate)`.
 
 ### Registered Migrations
 
-| Step | Class | Purpose |
-|------|-------|---------|
-| 1 | `Migration1` | Initial migration from pre-versioned configs |
-| 2 | `Migration2` | Adds new keys |
-| 3 | `Migration3` | Adds new keys |
-| 4 | `Migration4` | Adds new keys |
-| 5 | `Migration5` | Adds new keys |
-| 6 | `Migration6` | Adds new keys |
-| 7 | `Migration7` | Adds new keys |
-| 8 | `Migration8` | Adds new keys |
-| 9 | `Migration9` | Adds economy keys (`disenchantment.economy.*`, `shatterment.economy.*`) |
+| Step | Class        | Purpose                                                                 |
+|------|--------------|-------------------------------------------------------------------------|
+| 1    | `Migration1` | Initial migration from pre-versioned configs                            |
+| 2    | `Migration2` | Adds new keys                                                           |
+| 3    | `Migration3` | Adds new keys                                                           |
+| 4    | `Migration4` | Adds new keys                                                           |
+| 5    | `Migration5` | Adds new keys                                                           |
+| 6    | `Migration6` | Adds new keys                                                           |
+| 7    | `Migration7` | Adds new keys                                                           |
+| 8    | `Migration8` | Adds new keys                                                           |
+| 9    | `Migration9` | Adds economy keys (`disenchantment.economy.*`, `shatterment.economy.*`) |
 
 ---
 
@@ -239,7 +256,8 @@ Each migration step returns the updated `FileConfiguration`. Typically it copies
    }
    ```
 3. Add the default value to `core/src/main/resources/config.yml`.
-4. Bump the `migration` counter in `config.yml` and create `migrations/<N>.yml` that copies existing keys into the new template.
+4. Bump the `migration` counter in `config.yml` and create `migrations/<N>.yml` that copies existing keys into the new
+   template.
 5. Create `Migration<N>.java` in `config/migration/steps/` and register it in `ConfigMigrations.migrations`.
 
 ---

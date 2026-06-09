@@ -29,37 +29,61 @@ import java.util.List;
  * }</pre>
  */
 public class PreDisenchantEvent extends Event implements Cancellable {
-	private static final HandlerList HANDLERS = new HandlerList();
-	private boolean cancelled = false;
-	private final Player player;
-	private final ItemStack sourceItem;
-	private final List<IPluginEnchantment> enchantments;
+    private static final HandlerList HANDLERS = new HandlerList();
+    private boolean cancelled = false;
+    private final Player player;
+    private final ItemStack sourceItem;
+    private final List<IPluginEnchantment> enchantments;
 
-	/**
-	 * @param player       the player performing the disenchantment
-	 * @param sourceItem   a snapshot of the enchanted item in anvil slot 0
-	 * @param enchantments the enchantments that will be transferred to the book
-	 */
-	public PreDisenchantEvent(Player player, ItemStack sourceItem, List<IPluginEnchantment> enchantments) {
-		this.player = player;
-		this.sourceItem = sourceItem;
-		this.enchantments = enchantments;
-	}
+    /**
+     * @param player       the player performing the disenchantment
+     * @param sourceItem   a snapshot of the enchanted item in anvil slot 0
+     * @param enchantments the enchantments that will be transferred to the book
+     */
+    public PreDisenchantEvent(Player player, ItemStack sourceItem, List<IPluginEnchantment> enchantments) {
+        this.player = player;
+        this.sourceItem = sourceItem;
+        this.enchantments = enchantments;
+    }
 
-	/** @return the player performing the disenchantment */
-	public Player getPlayer() { return player; }
+    /**
+     * @return the player performing the disenchantment
+     */
+    public Player getPlayer() {
+        return player;
+    }
 
-	/** @return a snapshot of the item in anvil slot 0 (not a live reference) */
-	public ItemStack getSourceItem() { return sourceItem; }
+    /**
+     * @return a snapshot of the item in anvil slot 0 (not a live reference)
+     */
+    public ItemStack getSourceItem() {
+        return sourceItem;
+    }
 
-	/**
-	 * @return the list of enchantments that will be transferred; modifying this
-	 *         list does <em>not</em> affect the actual operation
-	 */
-	public List<IPluginEnchantment> getEnchantments() { return enchantments; }
+    /**
+     * @return the list of enchantments that will be transferred; modifying this
+     * list does <em>not</em> affect the actual operation
+     */
+    public List<IPluginEnchantment> getEnchantments() {
+        return enchantments;
+    }
 
-	@Override public boolean isCancelled() { return cancelled; }
-	@Override public void setCancelled(boolean cancel) { this.cancelled = cancel; }
-	@Override public HandlerList getHandlers() { return HANDLERS; }
-	public static HandlerList getHandlerList() { return HANDLERS; }
+    @Override
+    public boolean isCancelled() {
+        return cancelled;
+    }
+
+    @Override
+    public void setCancelled(boolean cancel) {
+        this.cancelled = cancel;
+    }
+
+    @Override
+    public HandlerList getHandlers() {
+        return HANDLERS;
+    }
+
+    public static HandlerList getHandlerList() {
+        return HANDLERS;
+    }
 }

@@ -96,21 +96,21 @@ Get the latest release from any of these sources:
 
 Full documentation lives in the [`docs/`](docs/README.md) directory.
 
-| Audience | Start here |
-|----------|-----------|
-| Server admins & players | [`docs/user/`](docs/user/README.md) — installation, commands, config, permissions, FAQ |
-| Plugin developers (API) | [`docs/api/`](docs/api/README.md) — public events, PlaceholderAPI |
-| Contributors & engineers | [`docs/engineering/`](docs/engineering/README.md) — architecture, setup, contributing |
-| Deep internals / LLM agents | [`docs/internals/`](docs/internals/README.md) — NMS, events, GUI, config system |
+| Audience                    | Start here                                                                             |
+|-----------------------------|----------------------------------------------------------------------------------------|
+| Server admins & players     | [`docs/user/`](docs/user/README.md) — installation, commands, config, permissions, FAQ |
+| Plugin developers (API)     | [`docs/api/`](docs/api/README.md) — public events, PlaceholderAPI                      |
+| Contributors & engineers    | [`docs/engineering/`](docs/engineering/README.md) — architecture, setup, contributing  |
+| Deep internals / LLM agents | [`docs/internals/`](docs/internals/README.md) — NMS, events, GUI, config system        |
 
 **Quick links:**
 
-| Document | Description |
-|----------|-------------|
-| [Commands](docs/user/COMMANDS.md) | Full command reference with usage and permissions |
-| [Permissions](docs/user/PERMISSIONS.md) | All permission nodes and their defaults |
-| [Configuration](docs/user/CONFIG.md) | Complete configuration reference |
-| [FAQ](docs/user/FAQ.md) | Frequently asked questions and troubleshooting |
+| Document                                | Description                                       |
+|-----------------------------------------|---------------------------------------------------|
+| [Commands](docs/user/COMMANDS.md)       | Full command reference with usage and permissions |
+| [Permissions](docs/user/PERMISSIONS.md) | All permission nodes and their defaults           |
+| [Configuration](docs/user/CONFIG.md)    | Complete configuration reference                  |
+| [FAQ](docs/user/FAQ.md)                 | Frequently asked questions and troubleshooting    |
 
 ## Building from Source
 

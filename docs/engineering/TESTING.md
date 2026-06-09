@@ -1,15 +1,17 @@
 <!-- generated-by: gsd-doc-writer -->
+
 # Testing
 
-This document describes the test structure, how to run tests, what is covered, and how to write new tests. See [SETUP.md](SETUP.md) for environment prerequisites.
+This document describes the test structure, how to run tests, what is covered, and how to write new tests.
+See [SETUP.md](SETUP.md) for environment prerequisites.
 
 ## Test framework and location
 
-| Component | Version |
-|---|---|
-| JUnit 5 (Jupiter) | 5.10.2 |
-| MockBukkit | 4.39.0 (Paper 1.21 API) |
-| Mockito | 5.18.0 |
+| Component         | Version                 |
+|-------------------|-------------------------|
+| JUnit 5 (Jupiter) | 5.10.2                  |
+| MockBukkit        | 4.39.0 (Paper 1.21 API) |
+| Mockito           | 5.18.0                  |
 
 All unit tests live in:
 
@@ -17,7 +19,8 @@ All unit tests live in:
 core/src/test/java/com/jankominek/disenchantment/
 ```
 
-There are no tests in the `v*` NMS modules — NMS behaviour is abstracted behind `MockNMS` so that all logic tests run against the `core/` module only.
+There are no tests in the `v*` NMS modules — NMS behaviour is abstracted behind `MockNMS` so that all logic tests run
+against the `core/` module only.
 
 ## Running tests
 
@@ -45,7 +48,8 @@ These are required for Mockito's byte-buddy agent on JDK 21 and do not need to b
 
 ## Test base class
 
-`DisenchantmentTestBase` is the abstract base that all test classes extend. It sets up the full plugin environment before each test and tears it down after:
+`DisenchantmentTestBase` is the abstract base that all test classes extend. It sets up the full plugin environment
+before each test and tears it down after:
 
 ```java
 @BeforeEach
@@ -80,20 +84,21 @@ void tearDownBase() {
 
 Helper methods available in subclasses:
 
-| Method | Description |
-|---|---|
-| `setConfig(key, value)` | Sets a config value and clears enchantment state caches |
+| Method                                         | Description                                                      |
+|------------------------------------------------|------------------------------------------------------------------|
+| `setConfig(key, value)`                        | Sets a config value and clears enchantment state caches          |
 | `setDisenchantEnchantmentStates(List<String>)` | Convenience wrapper for disenchantment enchantment states config |
-| `setShatterEnchantmentStates(List<String>)` | Convenience wrapper for shatterment enchantment states config |
-| `enchantment(String key)` | Looks up a vanilla enchantment by its key (e.g. `"sharpness"`) |
-| `mockEnchant(String key, int level)` | Creates an `IPluginEnchantment` wrapping a vanilla enchantment |
-| `world()` | Returns the default test world (adds one if not present) |
-| `activateMockPlugin(MockPluginAdapter)` | Registers an adapter in `MockNMS` and activates it |
-| `buildAnvilEvent(player, slot0, slot1)` | Constructs a mocked `PrepareAnvilEvent` with the given items |
+| `setShatterEnchantmentStates(List<String>)`    | Convenience wrapper for shatterment enchantment states config    |
+| `enchantment(String key)`                      | Looks up a vanilla enchantment by its key (e.g. `"sharpness"`)   |
+| `mockEnchant(String key, int level)`           | Creates an `IPluginEnchantment` wrapping a vanilla enchantment   |
+| `world()`                                      | Returns the default test world (adds one if not present)         |
+| `activateMockPlugin(MockPluginAdapter)`        | Registers an adapter in `MockNMS` and activates it               |
+| `buildAnvilEvent(player, slot0, slot1)`        | Constructs a mocked `PrepareAnvilEvent` with the given items     |
 
 ## MockNMS
 
-`MockNMS` (`core/src/test/java/.../nms/MockNMS.java`) is a test-only implementation of the `NMS` interface that uses only the Bukkit API — no NMS internals, no reflection:
+`MockNMS` (`core/src/test/java/.../nms/MockNMS.java`) is a test-only implementation of the `NMS` interface that uses
+only the Bukkit API — no NMS internals, no reflection:
 
 - `canItemBeEnchanted` — returns `true` for any item that is not a book or air.
 - `getRegisteredEnchantments` — iterates `Registry.ENCHANTMENT`.
@@ -170,7 +175,8 @@ Verifies adapter lifecycle:
 Test class: `<ClassUnderTest>Test.java`
 Test method: `given<State>_when<Action>_then<ExpectedResult>()`
 
-Examples: `givenSharpnessV_defaultConfig_whenCountCost_thenCorrectTotal`, `givenDisabledWorld_whenPrepareAnvil_thenNoResult`.
+Examples: `givenSharpnessV_defaultConfig_whenCountCost_thenCorrectTotal`,
+`givenDisabledWorld_whenPrepareAnvil_thenNoResult`.
 
 ### Extend DisenchantmentTestBase
 
@@ -247,4 +253,5 @@ logging:
   level: DEBUG
 ```
 
-This logs `[DEBUG][DISENCHANT]`, `[DEBUG][SHATTER]`, `[DEBUG][ADAPTER]`, and `[DEBUG][ECONOMY]` entries for every relevant event.
+This logs `[DEBUG][DISENCHANT]`, `[DEBUG][SHATTER]`, `[DEBUG][ADAPTER]`, and `[DEBUG][ECONOMY]` entries for every
+relevant event.

@@ -136,6 +136,8 @@ The `docs/` directory contains comprehensive documentation for all audiences:
 - **`docs/user/`** — server admin & player guides (installation, commands, config, permissions, FAQ)
 - **`docs/api/`** — public API reference (events, PlaceholderAPI)
 - **`docs/engineering/`** — architecture, dev setup, contributing, adding new MC versions
-- **`docs/internals/`** — deep-dive reference for LLM agents and contributors (core, NMS, events, GUI, commands, config, utils)
+- **`docs/internals/`** — deep-dive reference for LLM agents and contributors (core, NMS, events, GUI, commands, config,
+  utils)
 
-When working on this codebase, consult `docs/internals/` for how systems work and `docs/engineering/ADDING_NEW_VERSION.md` for version support changes.
+When working on this codebase, consult `docs/internals/` for how systems work and
+`docs/engineering/ADDING_NEW_VERSION.md` for version support changes.

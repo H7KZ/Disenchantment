@@ -1,7 +1,10 @@
 <!-- generated-by: gsd-doc-writer -->
+
 # API Events
 
-Disenchantment fires four public Bukkit events that other plugins can listen to. Two events are fired for the disenchant operation (removing enchantments from gear onto a book) and two for the shatter operation (splitting a multi-enchantment book).
+Disenchantment fires four public Bukkit events that other plugins can listen to. Two events are fired for the disenchant
+operation (removing enchantments from gear onto a book) and two for the shatter operation (splitting a multi-enchantment
+book).
 
 All events are in the package `com.jankominek.disenchantment.events.api`.
 
@@ -11,17 +14,18 @@ All events are in the package `com.jankominek.disenchantment.events.api`.
 
 **Package:** `com.jankominek.disenchantment.events.api`
 **Cancellable:** Yes
-**When it fires:** Immediately before a disenchant operation executes. Cancelling this event prevents the enchantments from being transferred and the XP cost from being applied.
+**When it fires:** Immediately before a disenchant operation executes. Cancelling this event prevents the enchantments
+from being transferred and the XP cost from being applied.
 
 ### Methods
 
-| Return type | Method | Description |
-|---|---|---|
-| `Player` | `getPlayer()` | The player who triggered the disenchant |
-| `ItemStack` | `getSourceItem()` | The enchanted item placed in the anvil's first slot |
-| `List<IPluginEnchantment>` | `getEnchantments()` | The enchantments that will be transferred to the book |
-| `boolean` | `isCancelled()` | Whether the event has been cancelled |
-| `void` | `setCancelled(boolean cancel)` | Cancel or un-cancel the event |
+| Return type                | Method                         | Description                                           |
+|----------------------------|--------------------------------|-------------------------------------------------------|
+| `Player`                   | `getPlayer()`                  | The player who triggered the disenchant               |
+| `ItemStack`                | `getSourceItem()`              | The enchanted item placed in the anvil's first slot   |
+| `List<IPluginEnchantment>` | `getEnchantments()`            | The enchantments that will be transferred to the book |
+| `boolean`                  | `isCancelled()`                | Whether the event has been cancelled                  |
+| `void`                     | `setCancelled(boolean cancel)` | Cancel or un-cancel the event                         |
 
 ### Code Example
 
@@ -66,14 +70,15 @@ public class MyListener implements Listener {
 
 **Package:** `com.jankominek.disenchantment.events.api`
 **Cancellable:** No
-**When it fires:** After a disenchant operation has completed successfully. The result book and modified source item have already been placed into the player's inventory.
+**When it fires:** After a disenchant operation has completed successfully. The result book and modified source item
+have already been placed into the player's inventory.
 
 ### Methods
 
-| Return type | Method | Description |
-|---|---|---|
-| `Player` | `getPlayer()` | The player who performed the disenchant |
-| `ItemStack` | `getResultBook()` | The enchanted book produced by the operation |
+| Return type | Method                    | Description                                             |
+|-------------|---------------------------|---------------------------------------------------------|
+| `Player`    | `getPlayer()`             | The player who performed the disenchant                 |
+| `ItemStack` | `getResultBook()`         | The enchanted book produced by the operation            |
 | `ItemStack` | `getModifiedSourceItem()` | The source item after enchantments were removed from it |
 
 ### Code Example
@@ -109,17 +114,18 @@ public class MyListener implements Listener {
 
 **Package:** `com.jankominek.disenchantment.events.api`
 **Cancellable:** Yes
-**When it fires:** Immediately before a shatter operation executes. Shattering splits one enchantment off a multi-enchantment book onto a blank book. Cancelling this event prevents the split from occurring.
+**When it fires:** Immediately before a shatter operation executes. Shattering splits one enchantment off a
+multi-enchantment book onto a blank book. Cancelling this event prevents the split from occurring.
 
 ### Methods
 
-| Return type | Method | Description |
-|---|---|---|
-| `Player` | `getPlayer()` | The player who triggered the shatter |
-| `ItemStack` | `getSourceItem()` | The enchanted book placed in the anvil's first slot |
-| `List<IPluginEnchantment>` | `getEnchantments()` | The enchantments present on the source book |
-| `boolean` | `isCancelled()` | Whether the event has been cancelled |
-| `void` | `setCancelled(boolean cancel)` | Cancel or un-cancel the event |
+| Return type                | Method                         | Description                                         |
+|----------------------------|--------------------------------|-----------------------------------------------------|
+| `Player`                   | `getPlayer()`                  | The player who triggered the shatter                |
+| `ItemStack`                | `getSourceItem()`              | The enchanted book placed in the anvil's first slot |
+| `List<IPluginEnchantment>` | `getEnchantments()`            | The enchantments present on the source book         |
+| `boolean`                  | `isCancelled()`                | Whether the event has been cancelled                |
+| `void`                     | `setCancelled(boolean cancel)` | Cancel or un-cancel the event                       |
 
 ### Code Example
 
@@ -159,14 +165,15 @@ public class MyListener implements Listener {
 
 **Package:** `com.jankominek.disenchantment.events.api`
 **Cancellable:** No
-**When it fires:** After a shatter operation has completed successfully. The result book containing the split enchantment and the modified source book have already been placed into the player's inventory.
+**When it fires:** After a shatter operation has completed successfully. The result book containing the split
+enchantment and the modified source book have already been placed into the player's inventory.
 
 ### Methods
 
-| Return type | Method | Description |
-|---|---|---|
-| `Player` | `getPlayer()` | The player who performed the shatter |
-| `ItemStack` | `getResultBook()` | The new book produced, containing the split enchantment |
+| Return type | Method                    | Description                                                 |
+|-------------|---------------------------|-------------------------------------------------------------|
+| `Player`    | `getPlayer()`             | The player who performed the shatter                        |
+| `ItemStack` | `getResultBook()`         | The new book produced, containing the split enchantment     |
 | `ItemStack` | `getModifiedSourceItem()` | The original book after the enchantment was removed from it |
 
 ### Code Example
@@ -199,19 +206,22 @@ public class MyListener implements Listener {
 
 **Package:** `com.jankominek.disenchantment.plugins`
 
-`IPluginEnchantment` is the interface used in event payloads to represent a single enchantment, regardless of whether it originates from vanilla Bukkit or a third-party custom enchantment plugin (AdvancedEnchantments, EcoEnchants, etc.).
+`IPluginEnchantment` is the interface used in event payloads to represent a single enchantment, regardless of whether it
+originates from vanilla Bukkit or a third-party custom enchantment plugin (AdvancedEnchantments, EcoEnchants, etc.).
 
 ### Methods
 
-| Return type | Method | Description |
-|---|---|---|
-| `String` | `getKey()` | The unique key identifying this enchantment. For vanilla enchantments this matches the Bukkit namespaced key (e.g. `minecraft:sharpness`). For custom plugin enchantments the format is plugin-defined. |
-| `int` | `getLevel()` | The level of this enchantment on the item it was read from |
-| `ItemStack` | `addToBook(ItemStack book)` | Applies this enchantment to an enchanted book and returns the modified book |
-| `ItemStack` | `removeFromBook(ItemStack book)` | Removes this enchantment from an enchanted book and returns the modified book |
-| `ItemStack` | `addToItem(ItemStack item)` | Applies this enchantment to an item and returns the modified item |
-| `ItemStack` | `removeFromItem(ItemStack item)` | Removes this enchantment from an item and returns the modified item |
+| Return type | Method                           | Description                                                                                                                                                                                             |
+|-------------|----------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `String`    | `getKey()`                       | The unique key identifying this enchantment. For vanilla enchantments this matches the Bukkit namespaced key (e.g. `minecraft:sharpness`). For custom plugin enchantments the format is plugin-defined. |
+| `int`       | `getLevel()`                     | The level of this enchantment on the item it was read from                                                                                                                                              |
+| `ItemStack` | `addToBook(ItemStack book)`      | Applies this enchantment to an enchanted book and returns the modified book                                                                                                                             |
+| `ItemStack` | `removeFromBook(ItemStack book)` | Removes this enchantment from an enchanted book and returns the modified book                                                                                                                           |
+| `ItemStack` | `addToItem(ItemStack item)`      | Applies this enchantment to an item and returns the modified item                                                                                                                                       |
+| `ItemStack` | `removeFromItem(ItemStack item)` | Removes this enchantment from an item and returns the modified item                                                                                                                                     |
 
-The `addToBook` and `removeFromBook` methods default to `addToItem`/`removeFromItem` respectively. Custom plugin adapter implementations override all four methods with plugin-specific logic.
+The `addToBook` and `removeFromBook` methods default to `addToItem`/`removeFromItem` respectively. Custom plugin adapter
+implementations override all four methods with plugin-specific logic.
 
-In typical API usage you only need `getKey()` and `getLevel()` to inspect which enchantments are involved in an operation.
+In typical API usage you only need `getKey()` and `getLevel()` to inspect which enchantments are involved in an
+operation.

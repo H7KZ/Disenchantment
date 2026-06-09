@@ -4,7 +4,10 @@ import com.jankominek.disenchantment.config.Config;
 import com.jankominek.disenchantment.plugins.IPluginEnchantment;
 import com.jankominek.disenchantment.types.AnvilEventType;
 import com.jankominek.disenchantment.types.PermissionGroupType;
-import com.jankominek.disenchantment.utils.*;
+import com.jankominek.disenchantment.utils.AnvilCostUtils;
+import com.jankominek.disenchantment.utils.DiagnosticUtils;
+import com.jankominek.disenchantment.utils.EconomyUtils;
+import com.jankominek.disenchantment.utils.EventUtils;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
@@ -23,104 +26,119 @@ import java.util.stream.Collectors;
  * source book's enchantments and sets the appropriate anvil cost.
  */
 public class ShatterEvent {
-	/**
-	 * Entry point for the shatter prepare-anvil event.
-	 * Delegates to the internal handler and reports any exceptions via diagnostics.
-	 *
-	 * @param event the Bukkit event to process
-	 */
-	public static void onEvent(Event event) {
-		try {
-			handler(event);
-		} catch (Exception e) {
-			DiagnosticUtils.throwReport(e);
-		}
-	}
+    /**
+     * Entry point for the shatter prepare-anvil event.
+     * Delegates to the internal handler and reports any exceptions via diagnostics.
+     *
+     * @param event the Bukkit event to process
+     */
+    public static void onEvent(Event event) {
+        try {
+            handler(event);
+        } catch (Exception e) {
+            DiagnosticUtils.throwReport(e);
+        }
+    }
 
-	private static final AnvilEventGuards.EconomyConfig ECONOMY_CONFIG = new AnvilEventGuards.EconomyConfig() {
-		@Override public boolean isEnabled()             { return Config.Shatterment.Economy.isEnabled(); }
-		@Override public double getCost()                { return Config.Shatterment.Economy.getCost(); }
-		@Override public boolean isChargeMessageEnabled(){ return Config.Shatterment.Economy.isChargeMessageEnabled(); }
-		@Override public boolean isShowCostEnabled()     { return Config.Shatterment.Economy.isShowCostEnabled(); }
-	};
+    private static final AnvilEventGuards.EconomyConfig ECONOMY_CONFIG = new AnvilEventGuards.EconomyConfig() {
+        @Override
+        public boolean isEnabled() {
+            return Config.Shatterment.Economy.isEnabled();
+        }
 
-	private static void handler(Event event) {
-		if (!(event instanceof PrepareAnvilEvent e)) return;
+        @Override
+        public double getCost() {
+            return Config.Shatterment.Economy.getCost();
+        }
 
-		// Use getViewers() instead of getView().getPlayer() to avoid IncompatibleClassChangeError
-		// in environments without Paper's classloader shim (InventoryView: class→interface in 1.21).
-		if (e.getInventory().getViewers().isEmpty() || !(e.getInventory().getViewers().get(0) instanceof Player p))
-			return;
+        @Override
+        public boolean isChargeMessageEnabled() {
+            return Config.Shatterment.Economy.isChargeMessageEnabled();
+        }
 
-		if (!Config.isPluginEnabled() || !Config.Shatterment.isEnabled() || Config.Shatterment.getDisabledWorlds().contains(p.getWorld()))
-			return;
+        @Override
+        public boolean isShowCostEnabled() {
+            return Config.Shatterment.Economy.isShowCostEnabled();
+        }
+    };
 
-		DiagnosticUtils.debug("SHATTER", "PrepareAnvil: player=" + p.getName() + ", world=" + p.getWorld().getName());
+    private static void handler(Event event) {
+        if (!(event instanceof PrepareAnvilEvent e)) return;
 
-		ItemStack firstItem = e.getInventory().getItem(0);
-		ItemStack secondItem = e.getInventory().getItem(1);
+        // Use getViewers() instead of getView().getPlayer() to avoid IncompatibleClassChangeError
+        // in environments without Paper's classloader shim (InventoryView: class→interface in 1.21).
+        if (e.getInventory().getViewers().isEmpty() || !(e.getInventory().getViewers().get(0) instanceof Player p))
+            return;
 
-		DiagnosticUtils.debug("SHATTER", "PrepareAnvil: slot0=" + (firstItem != null ? firstItem.getType() : "null")
-				+ ", slot1=" + (secondItem != null ? secondItem.getType() : "null"));
+        if (!Config.isPluginEnabled() || !Config.Shatterment.isEnabled() || Config.Shatterment.getDisabledWorlds().contains(p.getWorld()))
+            return;
 
-		List<IPluginEnchantment> enchantments = AnvilEventGuards.collectEnchantments(
-				firstItem, secondItem, true,
-				(f, s, ip) -> EventUtils.Shatterment.getShattermentEnchantments(f, s, ip),
-				(f, s, ip, plugin, world) -> EventUtils.Shatterment.getShattermentEnchantments(f, s, ip, plugin, world),
-				p.getWorld());
+        DiagnosticUtils.debug("SHATTER", "PrepareAnvil: player=" + p.getName() + ", world=" + p.getWorld().getName());
 
-		if (enchantments.isEmpty()) {
-			DiagnosticUtils.debug("SHATTER", "PrepareAnvil: no eligible enchantments → exit");
-			return;
-		}
+        ItemStack firstItem = e.getInventory().getItem(0);
+        ItemStack secondItem = e.getInventory().getItem(1);
 
-		if (!PermissionGroupType.SHATTER_EVENT.hasPermission(p)) {
-			DiagnosticUtils.debug("SHATTER", "PrepareAnvil: permission denied → exit");
-			return;
-		}
+        DiagnosticUtils.debug("SHATTER", "PrepareAnvil: slot0=" + (firstItem != null ? firstItem.getType() : "null")
+                + ", slot1=" + (secondItem != null ? secondItem.getType() : "null"));
 
-		List<IPluginEnchantment> pluginEnchantments = new ArrayList<>();
+        List<IPluginEnchantment> enchantments = AnvilEventGuards.collectEnchantments(
+                firstItem, secondItem, true,
+                (f, s, ip) -> EventUtils.Shatterment.getShattermentEnchantments(f, s, ip),
+                (f, s, ip, plugin, world) -> EventUtils.Shatterment.getShattermentEnchantments(f, s, ip, plugin, world),
+                p.getWorld());
 
-		List<IPluginEnchantment> shuffleEnchantments = new ArrayList<>(enchantments);
-		Collections.shuffle(shuffleEnchantments);
+        if (enchantments.isEmpty()) {
+            DiagnosticUtils.debug("SHATTER", "PrepareAnvil: no eligible enchantments → exit");
+            return;
+        }
 
-		int splitCount = Config.Shatterment.getSplitCount();
-		int halfSize = Math.min(Math.max(1, splitCount), shuffleEnchantments.size() - 1);
+        if (!PermissionGroupType.SHATTER_EVENT.hasPermission(p)) {
+            DiagnosticUtils.debug("SHATTER", "PrepareAnvil: permission denied → exit");
+            return;
+        }
 
-		for (int i = 0; i < halfSize; i++) {
-			IPluginEnchantment enchantment = shuffleEnchantments.get(i);
-			pluginEnchantments.add(enchantment);
-		}
+        List<IPluginEnchantment> pluginEnchantments = new ArrayList<>();
 
-		if (DiagnosticUtils.isDebugEnabled()) {
-			String allNames = enchantments.stream().map(ench -> ench.getKey() + ":" + ench.getLevel()).collect(Collectors.joining(", "));
-			String splitNames = pluginEnchantments.stream().map(ench -> ench.getKey() + ":" + ench.getLevel()).collect(Collectors.joining(", "));
-			DiagnosticUtils.debug("SHATTER", "PrepareAnvil: source enchantments=[" + allNames + "] (" + enchantments.size() + " total)");
-			DiagnosticUtils.debug("SHATTER", "PrepareAnvil: splitting → selected=[" + splitNames + "] (halfSize=" + halfSize + ")");
-		}
+        List<IPluginEnchantment> shuffleEnchantments = new ArrayList<>(enchantments);
+        Collections.shuffle(shuffleEnchantments);
 
-		// ----------------------------------------------------------------------------------------------------
-		// Disenchantment plugins
+        int splitCount = Config.Shatterment.getSplitCount();
+        int halfSize = Math.min(Math.max(1, splitCount), shuffleEnchantments.size() - 1);
 
-		ItemStack book = new ItemStack(Material.ENCHANTED_BOOK);
+        for (int i = 0; i < halfSize; i++) {
+            IPluginEnchantment enchantment = shuffleEnchantments.get(i);
+            pluginEnchantments.add(enchantment);
+        }
 
-		for (IPluginEnchantment pluginEnchantment : pluginEnchantments) {
-			book = pluginEnchantment.addToBook(book);
-		}
+        if (DiagnosticUtils.isDebugEnabled()) {
+            String allNames = enchantments.stream().map(ench -> ench.getKey() + ":" + ench.getLevel()).collect(Collectors.joining(", "));
+            String splitNames = pluginEnchantments.stream().map(ench -> ench.getKey() + ":" + ench.getLevel()).collect(Collectors.joining(", "));
+            DiagnosticUtils.debug("SHATTER", "PrepareAnvil: source enchantments=[" + allNames + "] (" + enchantments.size() + " total)");
+            DiagnosticUtils.debug("SHATTER", "PrepareAnvil: splitting → selected=[" + splitNames + "] (halfSize=" + halfSize + ")");
+        }
 
-		// Disenchantment plugins
-		// ----------------------------------------------------------------------------------------------------
+        // ----------------------------------------------------------------------------------------------------
+        // Disenchantment plugins
 
-		e.setResult(book);
+        ItemStack book = new ItemStack(Material.ENCHANTED_BOOK);
 
-		DiagnosticUtils.debug("SHATTER", "PrepareAnvil: anvil cost=" + AnvilCostUtils.countAnvilCost(pluginEnchantments, AnvilEventType.SHATTERMENT));
-		AnvilEventGuards.applyAnvilCostAndSchedule(e, p, pluginEnchantments, AnvilEventType.SHATTERMENT);
+        for (IPluginEnchantment pluginEnchantment : pluginEnchantments) {
+            book = pluginEnchantment.addToBook(book);
+        }
 
-		DiagnosticUtils.debug("SHATTER", "PrepareAnvil: economy display — enabled=" + Config.Shatterment.Economy.isEnabled()
-				+ ", available=" + EconomyUtils.isAvailable()
-				+ ", show-cost=" + Config.Shatterment.Economy.isShowCostEnabled()
-				+ ", gameMode=" + p.getGameMode());
+        // Disenchantment plugins
+        // ----------------------------------------------------------------------------------------------------
 
-		AnvilEventGuards.showEconomyActionBar(p, ECONOMY_CONFIG);
-	}
+        e.setResult(book);
+
+        DiagnosticUtils.debug("SHATTER", "PrepareAnvil: anvil cost=" + AnvilCostUtils.countAnvilCost(pluginEnchantments, AnvilEventType.SHATTERMENT));
+        AnvilEventGuards.applyAnvilCostAndSchedule(e, p, pluginEnchantments, AnvilEventType.SHATTERMENT);
+
+        DiagnosticUtils.debug("SHATTER", "PrepareAnvil: economy display — enabled=" + Config.Shatterment.Economy.isEnabled()
+                + ", available=" + EconomyUtils.isAvailable()
+                + ", show-cost=" + Config.Shatterment.Economy.isShowCostEnabled()
+                + ", gameMode=" + p.getGameMode());
+
+        AnvilEventGuards.showEconomyActionBar(p, ECONOMY_CONFIG);
+    }
 }

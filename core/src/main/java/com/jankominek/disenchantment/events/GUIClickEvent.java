@@ -46,8 +46,7 @@ public class GUIClickEvent implements Listener {
                 return;
             }
             ((NavigationGUI) clickedHolder).onInventoryClick(e);
-        } else if (clickedHolder instanceof RepairGUI) {
-            RepairGUI repairGUI = (RepairGUI) clickedHolder;
+        } else if (clickedHolder instanceof RepairGUI repairGUI) {
             PermissionGroupType permission = repairGUI.getFeature() == AnvilFeature.DISENCHANTMENT
                     ? PermissionGroupType.GUI_DISENCHANT_REPAIR
                     : PermissionGroupType.GUI_SHATTER_REPAIR;
@@ -56,8 +55,7 @@ public class GUIClickEvent implements Listener {
                 return;
             }
             repairGUI.onInventoryClick(e);
-        } else if (clickedHolder instanceof SoundGUI) {
-            SoundGUI soundGUI = (SoundGUI) clickedHolder;
+        } else if (clickedHolder instanceof SoundGUI soundGUI) {
             PermissionGroupType permission = soundGUI.getFeature() == AnvilFeature.DISENCHANTMENT
                     ? PermissionGroupType.GUI_DISENCHANT_SOUND
                     : PermissionGroupType.GUI_SHATTER_SOUND;

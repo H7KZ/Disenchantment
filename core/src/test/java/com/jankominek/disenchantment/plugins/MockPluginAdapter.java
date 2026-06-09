@@ -25,7 +25,9 @@ public class MockPluginAdapter implements ISupportedPlugin {
     }
 
     @Override
-    public String getName() { return name; }
+    public String getName() {
+        return name;
+    }
 
     @Override
     public List<IPluginEnchantment> getItemEnchantments(ItemStack item) {
@@ -39,7 +41,11 @@ public class MockPluginAdapter implements ISupportedPlugin {
     }
 
     @Override
-    public void activate() { activateCalled = true; }
+    public void activate() {
+        activateCalled = true;
+    }
 
-    public boolean wasActivateCalled() { return activateCalled; }
+    public boolean wasActivateCalled() {
+        return activateCalled;
+    }
 }

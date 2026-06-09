@@ -100,7 +100,9 @@ public abstract class DisenchantmentTestBase {
 
     // -> adapter helpers
 
-    /** Registers adapter in MockNMS and activates it via SupportedPluginManager. */
+    /**
+     * Registers adapter in MockNMS and activates it via SupportedPluginManager.
+     */
     protected void activateMockPlugin(MockPluginAdapter adapter) {
         mockNMS.addSupportedPlugin(adapter);
         SupportedPluginManager.activatePlugins(List.of(adapter.getName()));
@@ -123,8 +125,10 @@ public abstract class DisenchantmentTestBase {
 
         List<Class<?>> proxyInterfaces = new ArrayList<>();
         proxyInterfaces.add(InventoryView.class);
-        try { proxyInterfaces.add(Class.forName("org.bukkit.inventory.view.AnvilView")); }
-        catch (ClassNotFoundException ignored) {}
+        try {
+            proxyInterfaces.add(Class.forName("org.bukkit.inventory.view.AnvilView"));
+        } catch (ClassNotFoundException ignored) {
+        }
         Object viewProxy = Proxy.newProxyInstance(
                 getClass().getClassLoader(),
                 proxyInterfaces.toArray(new Class[0]),

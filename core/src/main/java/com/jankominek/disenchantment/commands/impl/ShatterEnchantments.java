@@ -9,12 +9,7 @@ import com.jankominek.disenchantment.utils.EnchantmentUtils;
 import org.bukkit.command.CommandSender;
 import org.bukkit.enchantments.Enchantment;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Handles the "shatter:enchantments" subcommand for managing enchantment states

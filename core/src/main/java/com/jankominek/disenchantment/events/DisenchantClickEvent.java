@@ -2,6 +2,8 @@ package com.jankominek.disenchantment.events;
 
 import com.jankominek.disenchantment.config.Config;
 import com.jankominek.disenchantment.config.I18n;
+import com.jankominek.disenchantment.events.api.PostDisenchantEvent;
+import com.jankominek.disenchantment.events.api.PreDisenchantEvent;
 import com.jankominek.disenchantment.plugins.IPluginEnchantment;
 import com.jankominek.disenchantment.plugins.ISupportedPlugin;
 import com.jankominek.disenchantment.plugins.SupportedPluginManager;
@@ -16,9 +18,6 @@ import org.bukkit.inventory.AnvilInventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 
-import com.jankominek.disenchantment.events.api.PostDisenchantEvent;
-import com.jankominek.disenchantment.events.api.PreDisenchantEvent;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -30,162 +29,173 @@ import java.util.stream.Collectors;
  * the enchanted book to the player's cursor.
  */
 public class DisenchantClickEvent {
-	/**
-	 * Entry point for the disenchant inventory-click event.
-	 * Delegates to the internal handler and reports any exceptions via diagnostics.
-	 *
-	 * @param event the Bukkit event to process
-	 */
-	public static void onEvent(Event event) {
-		try {
-			handler(event);
-		} catch (Exception e) {
-			DiagnosticUtils.throwReport(e);
-		}
-	}
+    /**
+     * Entry point for the disenchant inventory-click event.
+     * Delegates to the internal handler and reports any exceptions via diagnostics.
+     *
+     * @param event the Bukkit event to process
+     */
+    public static void onEvent(Event event) {
+        try {
+            handler(event);
+        } catch (Exception e) {
+            DiagnosticUtils.throwReport(e);
+        }
+    }
 
-	private static final AnvilEventGuards.EconomyConfig ECONOMY_CONFIG = new AnvilEventGuards.EconomyConfig() {
-		@Override public boolean isEnabled()             { return Config.Disenchantment.Economy.isEnabled(); }
-		@Override public double getCost()                { return Config.Disenchantment.Economy.getCost(); }
-		@Override public boolean isChargeMessageEnabled(){ return Config.Disenchantment.Economy.isChargeMessageEnabled(); }
-	};
+    private static final AnvilEventGuards.EconomyConfig ECONOMY_CONFIG = new AnvilEventGuards.EconomyConfig() {
+        @Override
+        public boolean isEnabled() {
+            return Config.Disenchantment.Economy.isEnabled();
+        }
 
-	private static void handler(Event event) {
-		if (!(event instanceof InventoryClickEvent e)) return;
+        @Override
+        public double getCost() {
+            return Config.Disenchantment.Economy.getCost();
+        }
 
-		Player p = AnvilEventGuards.getPlayer(e);
-		if (p == null) return;
+        @Override
+        public boolean isChargeMessageEnabled() {
+            return Config.Disenchantment.Economy.isChargeMessageEnabled();
+        }
+    };
 
-		if (!Config.isPluginEnabled() || !Config.Disenchantment.isEnabled() || Config.Disenchantment.getDisabledWorlds().contains(p.getWorld()))
-			return;
+    private static void handler(Event event) {
+        if (!(event instanceof InventoryClickEvent e)) return;
 
-		if (!AnvilEventGuards.isAnvilResultSlotClick(e, p)) return;
+        Player p = AnvilEventGuards.getPlayer(e);
+        if (p == null) return;
 
-		AnvilInventory anvilInventory = (AnvilInventory) e.getInventory();
+        if (!Config.isPluginEnabled() || !Config.Disenchantment.isEnabled() || Config.Disenchantment.getDisabledWorlds().contains(p.getWorld()))
+            return;
 
-		ItemStack result = anvilInventory.getItem(2);
+        if (!AnvilEventGuards.isAnvilResultSlotClick(e, p)) return;
 
-		if (result == null) return;
+        AnvilInventory anvilInventory = (AnvilInventory) e.getInventory();
 
-		if (result.getType() != Material.ENCHANTED_BOOK) return;
+        ItemStack result = anvilInventory.getItem(2);
 
-		DiagnosticUtils.debug("DISENCHANT", "Click: player=" + p.getName() + ", result=" + result.getType() + ", gameMode=" + p.getGameMode());
+        if (result == null) return;
 
-		ItemStack firstItem = anvilInventory.getItem(0);
-		ItemStack secondItem = anvilInventory.getItem(1);
+        if (result.getType() != Material.ENCHANTED_BOOK) return;
 
-		if (firstItem == null) return;
+        DiagnosticUtils.debug("DISENCHANT", "Click: player=" + p.getName() + ", result=" + result.getType() + ", gameMode=" + p.getGameMode());
 
-		List<ISupportedPlugin> activatedPlugins = SupportedPluginManager.getAllActivatedPlugins();
+        ItemStack firstItem = anvilInventory.getItem(0);
+        ItemStack secondItem = anvilInventory.getItem(1);
 
-		List<IPluginEnchantment> enchantments = AnvilEventGuards.collectEnchantments(
-				firstItem, secondItem, false,
-				(f, s, ip) -> EventUtils.Disenchantment.getDisenchantedEnchantments(f, s, ip),
-				(f, s, ip, plugin, world) -> EventUtils.Disenchantment.getDisenchantedEnchantments(f, s, ip, plugin, world),
-				p.getWorld());
+        if (firstItem == null) return;
 
-		if (enchantments.isEmpty()) {
-			DiagnosticUtils.debug("DISENCHANT", "Click: no eligible enchantments → exit");
-			return;
-		}
+        List<ISupportedPlugin> activatedPlugins = SupportedPluginManager.getAllActivatedPlugins();
 
-		if (DiagnosticUtils.isDebugEnabled()) {
-			String names = enchantments.stream().map(ench -> ench.getKey() + ":" + ench.getLevel()).collect(Collectors.joining(", "));
-			DiagnosticUtils.debug("DISENCHANT", "Click: enchantments=[" + names + "]");
-		}
+        List<IPluginEnchantment> enchantments = AnvilEventGuards.collectEnchantments(
+                firstItem, secondItem, false,
+                (f, s, ip) -> EventUtils.Disenchantment.getDisenchantedEnchantments(f, s, ip),
+                (f, s, ip, plugin, world) -> EventUtils.Disenchantment.getDisenchantedEnchantments(f, s, ip, plugin, world),
+                p.getWorld());
 
-		int repairCost = AnvilCostUtils.getRepairCost(anvilInventory, e.getView());
-		DiagnosticUtils.debug("DISENCHANT", "Click: xp check — repairCost=" + repairCost + ", playerLevel=" + p.getLevel());
-		if (!AnvilEventGuards.hasEnoughXp(p, repairCost)) {
-			DiagnosticUtils.debug("DISENCHANT", "Click: insufficient XP → CANCELLED");
-			e.setCancelled(true);
-			return;
-		}
+        if (enchantments.isEmpty()) {
+            DiagnosticUtils.debug("DISENCHANT", "Click: no eligible enchantments → exit");
+            return;
+        }
 
-		if (!PermissionGroupType.DISENCHANT_EVENT.hasPermission(p)) {
-			DiagnosticUtils.debug("DISENCHANT", "Click: permission denied → exit");
-			return;
-		}
+        if (DiagnosticUtils.isDebugEnabled()) {
+            String names = enchantments.stream().map(ench -> ench.getKey() + ":" + ench.getLevel()).collect(Collectors.joining(", "));
+            DiagnosticUtils.debug("DISENCHANT", "Click: enchantments=[" + names + "]");
+        }
 
-		// Economy check
-		DiagnosticUtils.debug("DISENCHANT", "Click: economy check — enabled=" + Config.Disenchantment.Economy.isEnabled() + ", gameMode=" + p.getGameMode());
-		AnvilEventGuards.EconomyResult economyResult = AnvilEventGuards.processEconomy(p, ECONOMY_CONFIG);
-		if (economyResult == AnvilEventGuards.EconomyResult.NOT_AVAILABLE) {
-			DiagnosticUtils.debug("DISENCHANT", "Click: economy not available → CANCELLED");
-			p.sendMessage(I18n.getPrefix() + " " + I18n.Messages.economyNotAvailable());
-			e.setCancelled(true);
-			return;
-		}
-		if (economyResult == AnvilEventGuards.EconomyResult.INSUFFICIENT_FUNDS) {
-			DiagnosticUtils.debug("DISENCHANT", "Click: insufficient funds → CANCELLED");
-			p.sendMessage(I18n.getPrefix() + " " + I18n.Messages.economyInsufficientFunds(EconomyUtils.format(Config.Disenchantment.Economy.getCost())));
-			e.setCancelled(true);
-			return;
-		}
+        int repairCost = AnvilCostUtils.getRepairCost(anvilInventory, e.getView());
+        DiagnosticUtils.debug("DISENCHANT", "Click: xp check — repairCost=" + repairCost + ", playerLevel=" + p.getLevel());
+        if (!AnvilEventGuards.hasEnoughXp(p, repairCost)) {
+            DiagnosticUtils.debug("DISENCHANT", "Click: insufficient XP → CANCELLED");
+            e.setCancelled(true);
+            return;
+        }
 
-		PreDisenchantEvent preEvent = new PreDisenchantEvent(p, firstItem.clone(), new ArrayList<>(enchantments));
-		org.bukkit.Bukkit.getPluginManager().callEvent(preEvent);
-		if (preEvent.isCancelled()) {
-			e.setCancelled(true);
-			return;
-		}
+        if (!PermissionGroupType.DISENCHANT_EVENT.hasPermission(p)) {
+            DiagnosticUtils.debug("DISENCHANT", "Click: permission denied → exit");
+            return;
+        }
 
-		int exp = p.getLevel() - repairCost;
-		DiagnosticUtils.debug("DISENCHANT", "Click: xp → " + p.getLevel() + " - " + repairCost + " = " + exp);
+        // Economy check
+        DiagnosticUtils.debug("DISENCHANT", "Click: economy check — enabled=" + Config.Disenchantment.Economy.isEnabled() + ", gameMode=" + p.getGameMode());
+        AnvilEventGuards.EconomyResult economyResult = AnvilEventGuards.processEconomy(p, ECONOMY_CONFIG);
+        if (economyResult == AnvilEventGuards.EconomyResult.NOT_AVAILABLE) {
+            DiagnosticUtils.debug("DISENCHANT", "Click: economy not available → CANCELLED");
+            p.sendMessage(I18n.getPrefix() + " " + I18n.Messages.economyNotAvailable());
+            e.setCancelled(true);
+            return;
+        }
+        if (economyResult == AnvilEventGuards.EconomyResult.INSUFFICIENT_FUNDS) {
+            DiagnosticUtils.debug("DISENCHANT", "Click: insufficient funds → CANCELLED");
+            p.sendMessage(I18n.getPrefix() + " " + I18n.Messages.economyInsufficientFunds(EconomyUtils.format(Config.Disenchantment.Economy.getCost())));
+            e.setCancelled(true);
+            return;
+        }
 
-		// ----------------------------------------------------------------------------------------------------
-		// Supported plugins
+        PreDisenchantEvent preEvent = new PreDisenchantEvent(p, firstItem.clone(), new ArrayList<>(enchantments));
+        org.bukkit.Bukkit.getPluginManager().callEvent(preEvent);
+        if (preEvent.isCancelled()) {
+            e.setCancelled(true);
+            return;
+        }
 
-		ItemStack finalFirstItem = firstItem.clone();
-		List<IPluginEnchantment> enchantmentsToDelete = EventUtils.Disenchantment.findEnchantmentsToDelete(enchantments);
+        int exp = p.getLevel() - repairCost;
+        DiagnosticUtils.debug("DISENCHANT", "Click: xp → " + p.getLevel() + " - " + repairCost + " = " + exp);
 
-		EnchantmentStorageMeta resultItemMeta = (EnchantmentStorageMeta) result.getItemMeta();
+        // ----------------------------------------------------------------------------------------------------
+        // Supported plugins
 
-		if (activatedPlugins.isEmpty()) {
-			if (resultItemMeta == null) return;
+        ItemStack finalFirstItem = firstItem.clone();
+        List<IPluginEnchantment> enchantmentsToDelete = EventUtils.Disenchantment.findEnchantmentsToDelete(enchantments);
 
-			finalFirstItem = EnchantmentUtils.removeEnchantments(finalFirstItem, resultItemMeta.getStoredEnchants());
+        EnchantmentStorageMeta resultItemMeta = (EnchantmentStorageMeta) result.getItemMeta();
 
-			for (IPluginEnchantment enchantment : enchantmentsToDelete) {
-				finalFirstItem = enchantment.removeFromItem(finalFirstItem);
-			}
-		} else {
-			for (ISupportedPlugin activatedPlugin : activatedPlugins) {
-				List<IPluginEnchantment> pluginEnchantments = activatedPlugin.getItemEnchantments(result, p.getWorld());
+        if (activatedPlugins.isEmpty()) {
+            if (resultItemMeta == null) return;
 
-				for (IPluginEnchantment enchantment : pluginEnchantments) {
-					finalFirstItem = enchantment.removeFromItem(finalFirstItem);
-				}
-			}
+            finalFirstItem = EnchantmentUtils.removeEnchantments(finalFirstItem, resultItemMeta.getStoredEnchants());
 
-			for (IPluginEnchantment enchantment : enchantmentsToDelete) {
-				finalFirstItem = enchantment.removeFromItem(finalFirstItem);
-			}
-		}
+            for (IPluginEnchantment enchantment : enchantmentsToDelete) {
+                finalFirstItem = enchantment.removeFromItem(finalFirstItem);
+            }
+        } else {
+            for (ISupportedPlugin activatedPlugin : activatedPlugins) {
+                List<IPluginEnchantment> pluginEnchantments = activatedPlugin.getItemEnchantments(result, p.getWorld());
 
-		// Supported plugins
-		// ----------------------------------------------------------------------------------------------------
+                for (IPluginEnchantment enchantment : pluginEnchantments) {
+                    finalFirstItem = enchantment.removeFromItem(finalFirstItem);
+                }
+            }
 
-		if (Config.Disenchantment.Anvil.Repair.isResetEnabled()) AnvilCostUtils.setItemRepairCost(finalFirstItem, 0);
+            for (IPluginEnchantment enchantment : enchantmentsToDelete) {
+                finalFirstItem = enchantment.removeFromItem(finalFirstItem);
+            }
+        }
 
-		anvilInventory.setItem(0, finalFirstItem);
+        // Supported plugins
+        // ----------------------------------------------------------------------------------------------------
 
-		if (secondItem == null) return;
-		AnvilEventGuards.scheduleSecondItemRemoval(p, anvilInventory, secondItem);
+        if (Config.Disenchantment.Anvil.Repair.isResetEnabled()) AnvilCostUtils.setItemRepairCost(finalFirstItem, 0);
 
-		if (p.getGameMode() != org.bukkit.GameMode.CREATIVE) p.setLevel(exp);
+        anvilInventory.setItem(0, finalFirstItem);
 
-		p.setItemOnCursor(result);
-		org.bukkit.Bukkit.getPluginManager().callEvent(new PostDisenchantEvent(p, result.clone(), finalFirstItem.clone()));
+        if (secondItem == null) return;
+        AnvilEventGuards.scheduleSecondItemRemoval(p, anvilInventory, secondItem);
 
-		if (Config.Disenchantment.Anvil.Sound.isEnabled())
-			p.playSound(
-					p.getLocation(),
-					Sound.BLOCK_ANVIL_USE,
-					Config.Disenchantment.Anvil.Sound.getVolume().floatValue(),
-					Config.Disenchantment.Anvil.Sound.getPitch().floatValue()
-			);
+        if (p.getGameMode() != org.bukkit.GameMode.CREATIVE) p.setLevel(exp);
 
-		DiagnosticUtils.debug("DISENCHANT", "Click: complete ✓");
-	}
+        p.setItemOnCursor(result);
+        org.bukkit.Bukkit.getPluginManager().callEvent(new PostDisenchantEvent(p, result.clone(), finalFirstItem.clone()));
+
+        if (Config.Disenchantment.Anvil.Sound.isEnabled())
+            p.playSound(
+                    p.getLocation(),
+                    Sound.BLOCK_ANVIL_USE,
+                    Config.Disenchantment.Anvil.Sound.getVolume().floatValue(),
+                    Config.Disenchantment.Anvil.Sound.getPitch().floatValue()
+            );
+
+        DiagnosticUtils.debug("DISENCHANT", "Click: complete ✓");
+    }
 }

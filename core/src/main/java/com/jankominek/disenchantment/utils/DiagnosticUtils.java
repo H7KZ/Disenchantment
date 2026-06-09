@@ -211,8 +211,8 @@ public class DiagnosticUtils {
                                 activatedPlugins
                                         .stream()
                                         .map(plugin -> {
-                                                org.bukkit.plugin.Plugin bp = Bukkit.getPluginManager().getPlugin(plugin.getName());
-                                                return plugin.getName() + " v" + (bp != null ? bp.getDescription().getVersion() : "unknown");
+                                            org.bukkit.plugin.Plugin bp = Bukkit.getPluginManager().getPlugin(plugin.getName());
+                                            return plugin.getName() + " v" + (bp != null ? bp.getDescription().getVersion() : "unknown");
                                         })
                                         .reduce((a, b) -> a + ", " + b)
                                         .orElse("None")
@@ -288,10 +288,10 @@ public class DiagnosticUtils {
                                 Config.Disenchantment.getDisabledWorlds().isEmpty() ?
                                         "None" :
                                         Config.Disenchantment.getDisabledWorlds()
-                                        .stream()
-                                        .map(WorldInfo::getName)
-                                        .reduce((a, b) -> a + ", " + b)
-                                        .orElse("None")
+                                                .stream()
+                                                .map(WorldInfo::getName)
+                                                .reduce((a, b) -> a + ", " + b)
+                                                .orElse("None")
                         )
                         .append("\n");
 
@@ -300,10 +300,10 @@ public class DiagnosticUtils {
                                 Config.Disenchantment.getDisabledMaterials().isEmpty() ?
                                         "None" :
                                         Config.Disenchantment.getDisabledMaterials()
-                                        .stream()
-                                        .map(Enum::name)
-                                        .reduce((a, b) -> a + ", " + b)
-                                        .orElse("None")
+                                                .stream()
+                                                .map(Enum::name)
+                                                .reduce((a, b) -> a + ", " + b)
+                                                .orElse("None")
                         )
                         .append("\n");
 
@@ -344,10 +344,10 @@ public class DiagnosticUtils {
                                 Config.Shatterment.getDisabledWorlds().isEmpty() ?
                                         "None" :
                                         Config.Shatterment.getDisabledWorlds()
-                                        .stream()
-                                        .map(WorldInfo::getName)
-                                        .reduce((a, b) -> a + ", " + b)
-                                        .orElse("None")
+                                                .stream()
+                                                .map(WorldInfo::getName)
+                                                .reduce((a, b) -> a + ", " + b)
+                                                .orElse("None")
                         )
                         .append("\n");
 

@@ -1,21 +1,25 @@
 <!-- generated-by: gsd-doc-writer -->
+
 # Engineering Documentation
 
-This directory contains technical documentation for contributors and developers working on the Disenchantment plugin codebase. If you are a server admin looking for configuration or usage help, see the root-level docs instead (`CONFIG.md`, `COMMANDS.md`, `PERMISSIONS.md`).
+This directory contains technical documentation for contributors and developers working on the Disenchantment plugin
+codebase. If you are a server admin looking for configuration or usage help, see the root-level docs instead (
+`CONFIG.md`, `COMMANDS.md`, `PERMISSIONS.md`).
 
 ## Contents
 
-| File | Description |
-|---|---|
-| [ARCHITECTURE.md](ARCHITECTURE.md) | System design, module dependency diagram, NMS abstraction layer, event flow, and key patterns |
-| [SETUP.md](SETUP.md) | Developer environment setup — JDK, Maven, Spigot BuildTools, IDE configuration |
-| [CONTRIBUTING.md](CONTRIBUTING.md) | Contribution guide — reporting issues, code style, PR process, adding custom enchantment adapters |
-| [TESTING.md](TESTING.md) | Test structure, how to run tests, what is tested, and how to write new tests |
-| [ADDING_NEW_VERSION.md](ADDING_NEW_VERSION.md) | Step-by-step guide for adding support for a new Minecraft version |
+| File                                           | Description                                                                                       |
+|------------------------------------------------|---------------------------------------------------------------------------------------------------|
+| [ARCHITECTURE.md](ARCHITECTURE.md)             | System design, module dependency diagram, NMS abstraction layer, event flow, and key patterns     |
+| [SETUP.md](SETUP.md)                           | Developer environment setup — JDK, Maven, Spigot BuildTools, IDE configuration                    |
+| [CONTRIBUTING.md](CONTRIBUTING.md)             | Contribution guide — reporting issues, code style, PR process, adding custom enchantment adapters |
+| [TESTING.md](TESTING.md)                       | Test structure, how to run tests, what is tested, and how to write new tests                      |
+| [ADDING_NEW_VERSION.md](ADDING_NEW_VERSION.md) | Step-by-step guide for adding support for a new Minecraft version                                 |
 
 ## Quick orientation
 
-Disenchantment is a multi-module Maven project. The `core/` module contains all shared logic; five `v*` modules provide version-specific NMS implementations; `dist/` shades everything into the final JAR.
+Disenchantment is a multi-module Maven project. The `core/` module contains all shared logic; five `v*` modules provide
+version-specific NMS implementations; `dist/` shades everything into the final JAR.
 
 - **Start here for environment setup:** [SETUP.md](SETUP.md)
 - **Start here to understand the codebase:** [ARCHITECTURE.md](ARCHITECTURE.md)

@@ -2,7 +2,6 @@ package com.jankominek.disenchantment.events;
 
 import com.jankominek.disenchantment.DisenchantmentTestBase;
 import com.jankominek.disenchantment.plugins.MockPluginAdapter;
-import com.jankominek.disenchantment.utils.EnchantmentUtils;
 import org.bukkit.Material;
 import org.bukkit.event.inventory.PrepareAnvilEvent;
 import org.bukkit.inventory.ItemStack;
@@ -22,7 +21,9 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class ShatterEventAdapterTest extends DisenchantmentTestBase {
 
-    private ItemStack enchantedBook() { return new ItemStack(Material.ENCHANTED_BOOK); }
+    private ItemStack enchantedBook() {
+        return new ItemStack(Material.ENCHANTED_BOOK);
+    }
 
     // -> happy path — one test per supported plugin
 
