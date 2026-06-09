@@ -10,12 +10,12 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import org.junit.jupiter.api.Test;
 import org.mockbukkit.mockbukkit.entity.PlayerMock;
-import java.util.Objects;
 import org.mockito.Mockito;
 
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -119,7 +119,7 @@ class ShatterEventTest extends DisenchantmentTestBase {
     }
 
     @Test
-    void givenBookWithFourEnchantments_whenPrepareAnvil_thenResultContainsTwoEnchantments() {
+    void givenBookWithFourEnchantments_whenPrepareAnvil_thenResultContainsOneEnchantment() {
         PlayerMock player = server.addPlayer("TestPlayer");
         PrepareAnvilEvent event = buildEvent(
                 player,
@@ -132,7 +132,26 @@ class ShatterEventTest extends DisenchantmentTestBase {
         assertNotNull(result);
         EnchantmentStorageMeta meta = (EnchantmentStorageMeta) result.getItemMeta();
         assertNotNull(meta);
-        // 4 enchants → floor(4/2) = 2 split off
+        // default split-count=1 → always splits exactly 1 enchantment off regardless of total count
+        assertEquals(1, meta.getStoredEnchants().size());
+    }
+
+    @Test
+    void givenBookWithFourEnchantments_andSplitCountTwo_whenPrepareAnvil_thenResultContainsTwoEnchantments() {
+        setConfig("shatterment.split-count", 2);
+        PlayerMock player = server.addPlayer("TestPlayer");
+        PrepareAnvilEvent event = buildEvent(
+                player,
+                enchantedBook("sharpness", "mending", "efficiency", "unbreaking"),
+                new ItemStack(Material.BOOK));
+
+        ShatterEvent.onEvent(event);
+
+        ItemStack result = event.getResult();
+        assertNotNull(result);
+        EnchantmentStorageMeta meta = (EnchantmentStorageMeta) result.getItemMeta();
+        assertNotNull(meta);
+        // split-count=2 → 2 enchantments split off
         assertEquals(2, meta.getStoredEnchants().size());
     }
 
