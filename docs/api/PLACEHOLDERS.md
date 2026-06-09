@@ -19,7 +19,7 @@ is detected.
 | `%disenchantment_enabled%`            | `true` / `false`              | Whether the Disenchantment plugin as a whole is enabled           |
 | `%disenchantment_disenchant_enabled%` | `true` / `false`              | Whether the disenchant feature is currently enabled               |
 | `%disenchantment_shatter_enabled%`    | `true` / `false`              | Whether the shatter (book-splitting) feature is currently enabled |
-| `%disenchantment_version%`            | version string (e.g. `6.4.0`) | The currently running version of Disenchantment                   |
+| `%disenchantment_version%`            | version string (e.g. `6.5.0`) | The currently running version of Disenchantment                   |
 
 All values are returned as plain strings. Boolean values are the lowercase strings `true` or `false`.
 

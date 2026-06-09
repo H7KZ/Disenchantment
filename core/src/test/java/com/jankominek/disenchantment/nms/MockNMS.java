@@ -1,6 +1,5 @@
 package com.jankominek.disenchantment.nms;
 
-import com.jankominek.disenchantment.guis.HeadBuilder;
 import com.jankominek.disenchantment.plugins.ISupportedPlugin;
 import org.bukkit.Material;
 import org.bukkit.Registry;

@@ -4,11 +4,9 @@ import com.jankominek.disenchantment.types.AnvilFeature;
 import com.jankominek.disenchantment.types.ConfigKeys;
 import com.jankominek.disenchantment.types.EnchantmentStateType;
 import com.jankominek.disenchantment.types.LogLevelType;
-import com.jankominek.disenchantment.utils.EnchantmentUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.World;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.event.EventPriority;
 
 import java.util.ArrayList;
@@ -730,7 +728,9 @@ public class Config {
             if (ENCHANTMENT_STATES_CACHE != null) return ENCHANTMENT_STATES_CACHE;
 
             List<String> list = config.getStringList(ConfigKeys.SHATTERMENT_ENCHANTMENTS_STATES.getKey());
-            HashMap<String, EnchantmentStateType> enchantmentStates = new HashMap<>();\n            for (String enchantmentState : list) {
+            HashMap<String, EnchantmentStateType> enchantmentStates = new HashMap<>();
+
+            for (String enchantmentState : list) {
                 String[] split = enchantmentState.split(":");
 
                 if (split.length != 2) continue;

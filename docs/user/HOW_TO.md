@@ -155,7 +155,8 @@ disenchantment:
 ```
 
 > **Difference from `keep`:** Both `keep` and `delete` prevent the enchantment from reaching the book. The behavior is
-> identical from the player's perspective — the enchantment disappears. The distinction matters if you are building logic
+> identical from the player's perspective — the enchantment disappears. The distinction matters if you are building
+> logic
 > on the custom events API.
 
 ---

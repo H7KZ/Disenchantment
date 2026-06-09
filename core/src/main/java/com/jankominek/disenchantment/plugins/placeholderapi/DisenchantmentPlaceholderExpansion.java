@@ -5,6 +5,7 @@ import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.OfflinePlayer;
 
 import org.jetbrains.annotations.NotNull;
+
 import static com.jankominek.disenchantment.Disenchantment.plugin;
 
 /**
@@ -19,7 +20,7 @@ import static com.jankominek.disenchantment.Disenchantment.plugin;
  *       whether the disenchanting feature is enabled</li>
  *   <li>{@code %disenchantment_shatter_enabled%} â€” {@code "true"} / {@code "false"}:
  *       whether the shattering (book splitting) feature is enabled</li>
- *   <li>{@code %disenchantment_version%} â€” the plugin version string (e.g. {@code "6.4.0"})</li>
+ *   <li>{@code %disenchantment_version%} â€” the plugin version string (e.g. {@code "6.5.0"})</li>
  * </ul>
  *
  * <p>{@link #persist()} returns {@code true} so PlaceholderAPI does not unregister this

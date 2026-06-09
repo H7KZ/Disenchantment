@@ -29,7 +29,8 @@ default to `true` so all players can use the core features out of the box.
 | `disenchantment.anvil.shatter`    | Allows splitting enchantments from books at the anvil. | `true`  |
 
 > **Note:** If non-op players cannot use the anvil features, check whether a permission plugin (e.g. LuckPerms) has
-> explicitly denied these nodes. See [FAQ.md](FAQ.md#why-cant-players-who-arent-server-operators-non-ops-use-the-plugin).
+> explicitly denied these nodes.
+> See [FAQ.md](FAQ.md#why-cant-players-who-arent-server-operators-non-ops-use-the-plugin).
 
 ---
 

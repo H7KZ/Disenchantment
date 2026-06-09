@@ -213,7 +213,7 @@ public class NMS_v{X}_{Y}_R{Z} implements NMS {
     @Override
     public List<ISupportedPlugin> getSupportedPlugins() {
         return new ArrayList<>() {{
-            add(new plugins.AdvancedEnchantments_v{X}_{Y}_R{Z}())
+            add(new plugins.AdvancedEnchantments_v{X}_{Y}_R{Z}());
             add(new plugins.EcoEnchants_v{X}_{Y}_R{Z}());
             add(new plugins.EnchantsSquared_v{X}_{Y}_R{Z}());
             add(new plugins.ExcellentEnchants_v{X}_{Y}_R{Z}());
@@ -255,7 +255,6 @@ public class NMS_v{X}_{Y}_R{Z} implements NMS {
         // v1_21_R1+: use PlayerProfile / PlayerTextures API
         // Copy implementation from NMS_v1_21_R5.java
         return headBuilder;
- 
 ```
 
 **NBT note:** `v1_18_R1` and `v1_20_R4` use a custom `nbt/` package to manipulate repair cost via NBT because the Bukkit

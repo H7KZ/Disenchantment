@@ -3,8 +3,8 @@ package com.jankominek.disenchantment.commands;
 import com.jankominek.disenchantment.commands.impl.*;
 import com.jankominek.disenchantment.utils.DiagnosticUtils;
 import org.bukkit.command.CommandExecutor;
-import org.jetbrains.annotations.NotNull;
 import org.bukkit.command.CommandSender;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.Map;

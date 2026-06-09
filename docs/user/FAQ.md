@@ -121,7 +121,7 @@ Then run `/disenchantment reload`. Disenchanting will continue to work normally.
 | Plugin               | Support added in                   |
 |----------------------|------------------------------------|
 | AdvancedEnchantments | all versions                       |
-| EcoEnchants          | 6.4.0+ (no patched build required) |
+| EcoEnchants          | 6.5.0+ (no patched build required) |
 | EnchantsSquared      | all versions                       |
 | UberEnchant          | all versions (bug fixed in 6.1.8)  |
 | ExcellentEnchants    | MC 1.21+                           |
@@ -177,8 +177,8 @@ consistent with how vanilla Minecraft handles Creative mode (XP is not consumed 
 
 ### Why isn't Disenchantment working with EcoEnchants?
 
-EcoEnchants V13.0.0 is fully supported as of **Disenchantment 6.4.0**. No patched build of EcoEnchants is required.
-Update Disenchantment to **6.4.0 or newer** and use any standard EcoEnchants release.
+EcoEnchants V13.0.0 is fully supported as of **Disenchantment 6.5.0**. No patched build of EcoEnchants is required.
+Update Disenchantment to **6.5.0 or newer** and use any standard EcoEnchants release.
 
 ---
 
@@ -195,7 +195,7 @@ See [CONFIG.md — Event Priorities](CONFIG.md#event-priorities).
 
 ### I'm using GeyserMC and there are issues. Is this a known problem?
 
-As of **Disenchantment 6.4.0**, Geyser clients are handled gracefully. The `ClassCastException` that previously crashed
+As of **Disenchantment 6.5.0**, Geyser clients are handled gracefully. The `ClassCastException` that previously crashed
 anvil interactions for Bedrock players has been fixed in all NMS modules.
 
 Bedrock players connected via Geyser can use the anvil features without errors. However, the anvil cost display (the

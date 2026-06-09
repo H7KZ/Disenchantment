@@ -3,8 +3,8 @@ package com.jankominek.disenchantment.events.api;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
-import org.jetbrains.annotations.NotNull;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Fired after a disenchantment operation has fully completed â€” enchantments have

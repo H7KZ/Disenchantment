@@ -25,19 +25,19 @@ your plugin must not shade it.
 <dependency>
     <groupId>com.jankominek</groupId>
     <artifactId>disenchantment-core</artifactId>
-    <version>6.4.0</version>
+    <version>6.5.0</version>
     <scope>system</scope>
-    <systemPath>${project.basedir}/libs/Disenchantment-6.4.0.jar</systemPath>
+    <systemPath>${project.basedir}/libs/Disenchantment-6.5.0.jar</systemPath>
 </dependency>
 ```
 
-Replace `6.4.0` with the version you are targeting and adjust `systemPath` to wherever you placed the JAR.
+Replace `6.5.0` with the version you are targeting and adjust `systemPath` to wherever you placed the JAR.
 
 ### Gradle
 
 ```groovy
 dependencies {
-    compileOnly files('libs/Disenchantment-6.4.0.jar')
+    compileOnly files('libs/Disenchantment-6.5.0.jar')
 }
 ```
 
