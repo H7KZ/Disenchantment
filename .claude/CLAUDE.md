@@ -141,3 +141,5 @@ The `docs/` directory contains comprehensive documentation for all audiences:
 
 When working on this codebase, consult `docs/internals/` for how systems work and
 `docs/engineering/ADDING_NEW_VERSION.md` for version support changes.
+
+**Docs discipline:** After every change, run the doc-review rule above before closing the task.

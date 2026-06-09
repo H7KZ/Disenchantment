@@ -90,8 +90,8 @@ public class DisenchantClickEvent {
 
         List<IPluginEnchantment> enchantments = AnvilEventGuards.collectEnchantments(
                 firstItem, secondItem, false,
-                (f, s, ip) -> EventUtils.Disenchantment.getDisenchantedEnchantments(f, s, ip),
-                (f, s, ip, plugin, world) -> EventUtils.Disenchantment.getDisenchantedEnchantments(f, s, ip, plugin, world),
+                EventUtils.Disenchantment::getDisenchantedEnchantments,
+                EventUtils.Disenchantment::getDisenchantedEnchantments,
                 p.getWorld());
 
         if (enchantments.isEmpty()) {

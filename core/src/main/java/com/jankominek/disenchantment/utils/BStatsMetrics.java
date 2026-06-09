@@ -37,6 +37,7 @@ import java.util.logging.Level;
 import java.util.stream.Collectors;
 import java.util.zip.GZIPOutputStream;
 
+@SuppressWarnings("ALL")
 public class BStatsMetrics {
     private final Plugin plugin;
 
