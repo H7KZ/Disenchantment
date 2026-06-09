@@ -12,7 +12,6 @@ public enum I18nKeys {
 
     MESSAGES_REQUIRES_PERMISSION("messages.requires-permission"),
     MESSAGES_INVALID_ARGUMENT("messages.invalid-argument"),
-    MESSAGES_UNKNOWN_ENCHANTMENT("messages.unknown-enchantment"),
     MESSAGES_SPECIFY_ENCHANTMENT_STATE("messages.specify-enchantment-state"),
     MESSAGES_ENCHANTMENT_IS_ENABLED("messages.enchantment-is-enabled"),
     MESSAGES_ENCHANTMENT_IS_KEPT("messages.enchantment-is-kept"),

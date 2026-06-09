@@ -90,16 +90,8 @@ public class I18n {
             return I18n.translateColors(localeConfig.getString(I18nKeys.MESSAGES_SPECIFY_REPAIR_VALUE.getKey()));
         }
 
-        public static String specifyValidInteger() {
-            return I18n.translateColors(localeConfig.getString(I18nKeys.MESSAGES_SPECIFY_VALID_INTEGER.getKey()));
-        }
-
         public static String specifyValidDouble() {
             return I18n.translateColors(localeConfig.getString(I18nKeys.MESSAGES_SPECIFY_VALID_DOUBLE.getKey()));
-        }
-
-        public static String repairCostIsEnabled() {
-            return I18n.translateColors(localeConfig.getString(I18nKeys.MESSAGES_REPAIR_COST_IS_ENABLED.getKey()));
         }
 
         public static String repairCostIsDisabled() {
@@ -108,10 +100,6 @@ public class I18n {
 
         public static String repairCostResetIsEnabled() {
             return I18n.translateColors(localeConfig.getString(I18nKeys.MESSAGES_REPAIR_COST_RESET_IS_ENABLED.getKey()));
-        }
-
-        public static String repairCostResetIsDisabled() {
-            return I18n.translateColors(localeConfig.getString(I18nKeys.MESSAGES_REPAIR_COST_RESET_IS_DISABLED.getKey()));
         }
 
         public static String repairBaseCostIsSet(String cost) {

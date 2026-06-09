@@ -89,7 +89,7 @@ public class NMS_v1_21_R5 implements NMS {
 
             return anvilView.getRepairCost();
         } catch (ClassCastException e) {
-            return anvilInventory.getRepairCost();
+            return 0;
         }
     }
 
