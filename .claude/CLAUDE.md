@@ -127,3 +127,15 @@ Both features:
 - Config access through static methods in `Config` class and its inner classes
 - Listeners use `EventExecutor` pattern with configurable `EventPriority`
 - Permissions default to `op` (admin commands/GUI), `true` (anvil usage)
+
+## Documentation
+
+The `docs/` directory contains comprehensive documentation for all audiences:
+
+- **`docs/README.md`** — top-level index, start here
+- **`docs/user/`** — server admin & player guides (installation, commands, config, permissions, FAQ)
+- **`docs/api/`** — public API reference (events, PlaceholderAPI)
+- **`docs/engineering/`** — architecture, dev setup, contributing, adding new MC versions
+- **`docs/internals/`** — deep-dive reference for LLM agents and contributors (core, NMS, events, GUI, commands, config, utils)
+
+When working on this codebase, consult `docs/internals/` for how systems work and `docs/engineering/ADDING_NEW_VERSION.md` for version support changes.
