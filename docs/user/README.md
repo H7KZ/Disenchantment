@@ -3,10 +3,16 @@
 
 Welcome to the Disenchantment user documentation. Disenchantment is a Spigot/Paper/Folia plugin that adds two features to the vanilla anvil: removing enchantments from items onto books (disenchanting) and splitting multi-enchantment books into individual books (shattering). No new blocks or GUIs are added — everything works through the standard anvil.
 
+**New to the plugin? Start here:**
+- [GETTING_STARTED.md](GETTING_STARTED.md) — Just installed? This is your first stop. Five-step setup, your first disenchant, and answers to the most common questions.
+- [HOW_TO.md](HOW_TO.md) — Practical step-by-step guides for common admin tasks (restrict worlds, block enchantments, set up economy costs, and more).
+
 ## Documents in This Folder
 
 | Document | Description |
 |---|---|
+| [GETTING_STARTED.md](GETTING_STARTED.md) | **Start here.** Quick setup, your first disenchant, your first book split, and common first questions. |
+| [HOW_TO.md](HOW_TO.md) | Cookbook of common admin tasks with exact commands and config snippets. |
 | [INSTALLATION.md](INSTALLATION.md) | Requirements, download locations, step-by-step setup, and Vault/economy plugin configuration. |
 | [COMMANDS.md](COMMANDS.md) | Full command reference for `/disenchantment` and all subcommands, including diagnostic and configuration commands. |
 | [CONFIG.md](CONFIG.md) | Complete reference for every option in `plugins/Disenchantment/config.yml`. |

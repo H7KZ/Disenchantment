@@ -28,10 +28,19 @@ import static com.jankominek.disenchantment.Disenchantment.plugin;
 public class Config {
 	private static boolean batchMode = false;
 
+	/**
+	 * Starts a batch configuration update. While batch mode is active, calls to
+	 * {@code save()} are suppressed. Use {@link #commitBatch()} to persist all
+	 * pending changes in a single write, avoiding repeated disk I/O.
+	 */
 	public static void beginBatch() {
 		batchMode = true;
 	}
 
+	/**
+	 * Ends a batch configuration update and persists all pending changes to disk.
+	 * Must be paired with a preceding {@link #beginBatch()} call.
+	 */
 	public static void commitBatch() {
 		batchMode = false;
 		plugin.saveConfig();
@@ -41,6 +50,10 @@ public class Config {
 		if (!batchMode) plugin.saveConfig();
 	}
 
+	/**
+	 * Abstraction over the feature-specific configuration methods, used by commands
+	 * and GUIs that operate on either disenchantment or shatterment without knowing which.
+	 */
 	public interface FeatureConfig {
         boolean isEnabled();
         List<World> getDisabledWorlds();
@@ -49,6 +62,13 @@ public class Config {
         boolean setEnchantmentStates(HashMap<String, EnchantmentStateType> enchantmentStates);
     }
 
+    /**
+     * Returns a {@link FeatureConfig} view delegating to the configuration
+     * section for the specified feature.
+     *
+     * @param feature the anvil feature to get configuration for
+     * @return a feature-specific configuration view
+     */
     public static FeatureConfig forFeature(AnvilFeature feature) {
         return switch (feature) {
             case DISENCHANTMENT -> new FeatureConfig() {
@@ -68,6 +88,10 @@ public class Config {
         };
     }
 
+    /**
+     * Clears the in-memory enchantment state caches for both disenchantment and shatterment.
+     * Must be called after a config reload so that subsequent reads pick up fresh values.
+     */
     public static void invalidateCaches() {
         Disenchantment.ENCHANTMENT_STATES_CACHE = null;
         Shatterment.ENCHANTMENT_STATES_CACHE = null;
@@ -330,10 +354,21 @@ public class Config {
          * Economy settings for disenchantment operations.
          */
         public static class Economy {
+            /**
+             * Checks whether economy integration is enabled for disenchantment.
+             *
+             * @return {@code true} if economy cost is active
+             */
             public static boolean isEnabled() {
                 return config.getBoolean(ConfigKeys.DISENCHANTMENT_ECONOMY_ENABLED.getKey());
             }
 
+            /**
+             * Sets whether economy integration is enabled for disenchantment.
+             *
+             * @param enabled {@code true} to enable
+             * @return {@code true} if the persisted value matches
+             */
             public static boolean setEnabled(boolean enabled) {
                 config.set(ConfigKeys.DISENCHANTMENT_ECONOMY_ENABLED.getKey(), enabled);
                 save();
@@ -341,10 +376,21 @@ public class Config {
                 return isEnabled() == enabled;
             }
 
+            /**
+             * Gets the economy cost per disenchantment operation.
+             *
+             * @return the configured cost
+             */
             public static double getCost() {
                 return config.getDouble(ConfigKeys.DISENCHANTMENT_ECONOMY_COST.getKey());
             }
 
+            /**
+             * Sets the economy cost per disenchantment operation.
+             *
+             * @param cost the desired cost
+             * @return {@code true} if the persisted value matches
+             */
             public static boolean setCost(double cost) {
                 config.set(ConfigKeys.DISENCHANTMENT_ECONOMY_COST.getKey(), cost);
                 save();
@@ -352,10 +398,21 @@ public class Config {
                 return getCost() == cost;
             }
 
+            /**
+             * Checks whether the cost message is shown to the player before the operation.
+             *
+             * @return {@code true} if the cost display is enabled
+             */
             public static boolean isShowCostEnabled() {
                 return config.getBoolean(ConfigKeys.DISENCHANTMENT_ECONOMY_SHOW_COST.getKey(), true);
             }
 
+            /**
+             * Sets whether the cost message is shown to the player before the operation.
+             *
+             * @param enabled {@code true} to show cost
+             * @return {@code true} if the persisted value matches
+             */
             public static boolean setShowCostEnabled(boolean enabled) {
                 config.set(ConfigKeys.DISENCHANTMENT_ECONOMY_SHOW_COST.getKey(), enabled);
                 save();
@@ -363,10 +420,21 @@ public class Config {
                 return isShowCostEnabled() == enabled;
             }
 
+            /**
+             * Checks whether a charge confirmation message is sent after the operation.
+             *
+             * @return {@code true} if the charge message is enabled
+             */
             public static boolean isChargeMessageEnabled() {
                 return config.getBoolean(ConfigKeys.DISENCHANTMENT_ECONOMY_CHARGE_MESSAGE.getKey(), true);
             }
 
+            /**
+             * Sets whether a charge confirmation message is sent after the operation.
+             *
+             * @param enabled {@code true} to send the message
+             * @return {@code true} if the persisted value matches
+             */
             public static boolean setChargeMessageEnabled(boolean enabled) {
                 config.set(ConfigKeys.DISENCHANTMENT_ECONOMY_CHARGE_MESSAGE.getKey(), enabled);
                 save();
@@ -678,10 +746,21 @@ public class Config {
          * Economy settings for shatterment operations.
          */
         public static class Economy {
+            /**
+             * Checks whether economy integration is enabled for shatterment.
+             *
+             * @return {@code true} if economy cost is active
+             */
             public static boolean isEnabled() {
                 return config.getBoolean(ConfigKeys.SHATTERMENT_ECONOMY_ENABLED.getKey());
             }
 
+            /**
+             * Sets whether economy integration is enabled for shatterment.
+             *
+             * @param enabled {@code true} to enable
+             * @return {@code true} if the persisted value matches
+             */
             public static boolean setEnabled(boolean enabled) {
                 config.set(ConfigKeys.SHATTERMENT_ECONOMY_ENABLED.getKey(), enabled);
                 save();
@@ -689,10 +768,21 @@ public class Config {
                 return isEnabled() == enabled;
             }
 
+            /**
+             * Gets the economy cost per shatterment operation.
+             *
+             * @return the configured cost
+             */
             public static double getCost() {
                 return config.getDouble(ConfigKeys.SHATTERMENT_ECONOMY_COST.getKey());
             }
 
+            /**
+             * Sets the economy cost per shatterment operation.
+             *
+             * @param cost the desired cost
+             * @return {@code true} if the persisted value matches
+             */
             public static boolean setCost(double cost) {
                 config.set(ConfigKeys.SHATTERMENT_ECONOMY_COST.getKey(), cost);
                 save();
@@ -700,10 +790,21 @@ public class Config {
                 return getCost() == cost;
             }
 
+            /**
+             * Checks whether the cost message is shown to the player before the operation.
+             *
+             * @return {@code true} if the cost display is enabled
+             */
             public static boolean isShowCostEnabled() {
                 return config.getBoolean(ConfigKeys.SHATTERMENT_ECONOMY_SHOW_COST.getKey(), true);
             }
 
+            /**
+             * Sets whether the cost message is shown to the player before the operation.
+             *
+             * @param enabled {@code true} to show cost
+             * @return {@code true} if the persisted value matches
+             */
             public static boolean setShowCostEnabled(boolean enabled) {
                 config.set(ConfigKeys.SHATTERMENT_ECONOMY_SHOW_COST.getKey(), enabled);
                 save();
@@ -711,10 +812,21 @@ public class Config {
                 return isShowCostEnabled() == enabled;
             }
 
+            /**
+             * Checks whether a charge confirmation message is sent after the operation.
+             *
+             * @return {@code true} if the charge message is enabled
+             */
             public static boolean isChargeMessageEnabled() {
                 return config.getBoolean(ConfigKeys.SHATTERMENT_ECONOMY_CHARGE_MESSAGE.getKey(), true);
             }
 
+            /**
+             * Sets whether a charge confirmation message is sent after the operation.
+             *
+             * @param enabled {@code true} to send the message
+             * @return {@code true} if the persisted value matches
+             */
             public static boolean setChargeMessageEnabled(boolean enabled) {
                 config.set(ConfigKeys.SHATTERMENT_ECONOMY_CHARGE_MESSAGE.getKey(), enabled);
                 save();

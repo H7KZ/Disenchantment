@@ -653,6 +653,11 @@ public class GUIComponent {
          * Factory methods for disenchantment economy configuration items.
          */
         public static class Disenchantment {
+            /**
+             * Creates the economy-enabled indicator item (lime terracotta) for disenchantment.
+             *
+             * @return the enabled state {@link ItemStack}
+             */
             public static ItemStack enabled() {
                 return new ItemBuilder(Material.LIME_TERRACOTTA)
                         .setDisplayName(I18n.GUI.Economy.Disenchantment.Enabled.title())
@@ -661,6 +666,11 @@ public class GUIComponent {
                         .build();
             }
 
+            /**
+             * Creates the economy-disabled indicator item (red terracotta) for disenchantment.
+             *
+             * @return the disabled state {@link ItemStack}
+             */
             public static ItemStack disabled() {
                 return new ItemBuilder(Material.RED_TERRACOTTA)
                         .setDisplayName(I18n.GUI.Economy.Disenchantment.Enabled.title())
@@ -669,6 +679,13 @@ public class GUIComponent {
                         .build();
             }
 
+            /**
+             * Creates the economy cost item for disenchantment.
+             *
+             * @param cost   the current cost
+             * @param amount the stack amount
+             * @return the cost {@link ItemStack}
+             */
             public static ItemStack cost(double cost, int amount) {
                 return new ItemBuilder(Material.GOLD_NUGGET)
                         .setAmount(amount)
@@ -678,6 +695,11 @@ public class GUIComponent {
                         .build();
             }
 
+            /**
+             * Creates the show-cost-enabled item (lime terracotta) for disenchantment.
+             *
+             * @return the enabled state {@link ItemStack}
+             */
             public static ItemStack showCostEnabled() {
                 return new ItemBuilder(Material.LIME_TERRACOTTA)
                         .setDisplayName(I18n.GUI.Economy.Disenchantment.ShowCost.title())
@@ -686,6 +708,11 @@ public class GUIComponent {
                         .build();
             }
 
+            /**
+             * Creates the show-cost-disabled item (red terracotta) for disenchantment.
+             *
+             * @return the disabled state {@link ItemStack}
+             */
             public static ItemStack showCostDisabled() {
                 return new ItemBuilder(Material.RED_TERRACOTTA)
                         .setDisplayName(I18n.GUI.Economy.Disenchantment.ShowCost.title())
@@ -694,6 +721,11 @@ public class GUIComponent {
                         .build();
             }
 
+            /**
+             * Creates the charge-message-enabled item (lime terracotta) for disenchantment.
+             *
+             * @return the enabled state {@link ItemStack}
+             */
             public static ItemStack chargeMessageEnabled() {
                 return new ItemBuilder(Material.LIME_TERRACOTTA)
                         .setDisplayName(I18n.GUI.Economy.Disenchantment.ChargeMessage.title())
@@ -702,6 +734,11 @@ public class GUIComponent {
                         .build();
             }
 
+            /**
+             * Creates the charge-message-disabled item (red terracotta) for disenchantment.
+             *
+             * @return the disabled state {@link ItemStack}
+             */
             public static ItemStack chargeMessageDisabled() {
                 return new ItemBuilder(Material.RED_TERRACOTTA)
                         .setDisplayName(I18n.GUI.Economy.Disenchantment.ChargeMessage.title())
@@ -715,6 +752,11 @@ public class GUIComponent {
          * Factory methods for shatterment economy configuration items.
          */
         public static class Shatterment {
+            /**
+             * Creates the economy-enabled item (lime terracotta) for shatterment.
+             *
+             * @return the enabled state {@link ItemStack}
+             */
             public static ItemStack enabled() {
                 return new ItemBuilder(Material.LIME_TERRACOTTA)
                         .setDisplayName(I18n.GUI.Economy.Shatterment.Enabled.title())
@@ -723,6 +765,11 @@ public class GUIComponent {
                         .build();
             }
 
+            /**
+             * Creates the economy-disabled item (red terracotta) for shatterment.
+             *
+             * @return the disabled state {@link ItemStack}
+             */
             public static ItemStack disabled() {
                 return new ItemBuilder(Material.RED_TERRACOTTA)
                         .setDisplayName(I18n.GUI.Economy.Shatterment.Enabled.title())
@@ -731,6 +778,13 @@ public class GUIComponent {
                         .build();
             }
 
+            /**
+             * Creates the economy cost item for shatterment.
+             *
+             * @param cost   the current cost
+             * @param amount the stack amount
+             * @return the cost {@link ItemStack}
+             */
             public static ItemStack cost(double cost, int amount) {
                 return new ItemBuilder(Material.GOLD_NUGGET)
                         .setAmount(amount)
@@ -740,6 +794,11 @@ public class GUIComponent {
                         .build();
             }
 
+            /**
+             * Creates the show-cost-enabled item (lime terracotta) for shatterment.
+             *
+             * @return the enabled state {@link ItemStack}
+             */
             public static ItemStack showCostEnabled() {
                 return new ItemBuilder(Material.LIME_TERRACOTTA)
                         .setDisplayName(I18n.GUI.Economy.Shatterment.ShowCost.title())
@@ -748,6 +807,11 @@ public class GUIComponent {
                         .build();
             }
 
+            /**
+             * Creates the show-cost-disabled item (red terracotta) for shatterment.
+             *
+             * @return the disabled state {@link ItemStack}
+             */
             public static ItemStack showCostDisabled() {
                 return new ItemBuilder(Material.RED_TERRACOTTA)
                         .setDisplayName(I18n.GUI.Economy.Shatterment.ShowCost.title())
@@ -756,6 +820,11 @@ public class GUIComponent {
                         .build();
             }
 
+            /**
+             * Creates the charge-message-enabled item (lime terracotta) for shatterment.
+             *
+             * @return the enabled state {@link ItemStack}
+             */
             public static ItemStack chargeMessageEnabled() {
                 return new ItemBuilder(Material.LIME_TERRACOTTA)
                         .setDisplayName(I18n.GUI.Economy.Shatterment.ChargeMessage.title())
@@ -764,6 +833,11 @@ public class GUIComponent {
                         .build();
             }
 
+            /**
+             * Creates the charge-message-disabled item (red terracotta) for shatterment.
+             *
+             * @return the disabled state {@link ItemStack}
+             */
             public static ItemStack chargeMessageDisabled() {
                 return new ItemBuilder(Material.RED_TERRACOTTA)
                         .setDisplayName(I18n.GUI.Economy.Shatterment.ChargeMessage.title())

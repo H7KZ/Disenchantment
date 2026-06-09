@@ -254,9 +254,13 @@ public class I18n {
     }
 
     /**
-     * Localized strings for command output (help pages, status, enchantments, etc.).
+     * Localized strings for command output (help pages, status,
+     * enchantments, repair, sound, worlds, and economy sub-commands).
      */
     public static class Commands {
+        /**
+         * Localized strings for the help command output.
+         */
         public static class Help {
             public static String title(String page) {
                 return I18n.translateColors(
@@ -287,6 +291,9 @@ public class I18n {
             }
         }
 
+        /**
+         * Localized strings for the status command output.
+         */
         public static class Status {
             public static String title() {
                 return I18n.translateColors(localeConfig.getString(I18nKeys.COMMANDS_STATUS_TITLE.getKey()));
@@ -323,6 +330,9 @@ public class I18n {
             }
         }
 
+        /**
+         * Localized strings for the enchantments command output.
+         */
         public static class Enchantments {
             public static class Disenchantment {
                 public static String title() {
@@ -361,6 +371,9 @@ public class I18n {
             }
         }
 
+        /**
+         * Localized strings for the materials command output.
+         */
         public static class Materials {
             public static String title() {
                 return I18n.translateColors(localeConfig.getString(I18nKeys.COMMANDS_MATERIALS_TITLE.getKey()));
@@ -385,6 +398,9 @@ public class I18n {
             }
         }
 
+        /**
+         * Localized strings for the repair cost command output.
+         */
         public static class Repair {
             public static class Disenchantment {
                 public static String title() {
@@ -474,6 +490,9 @@ public class I18n {
             }
         }
 
+        /**
+         * Localized strings for the sound command output.
+         */
         public static class Sound {
             public static class Disenchantment {
                 public static String title() {
@@ -550,6 +569,9 @@ public class I18n {
             }
         }
 
+        /**
+         * Localized strings for the worlds command output.
+         */
         public static class Worlds {
             public static class Disenchantment {
                 public static String title() {
@@ -600,6 +622,9 @@ public class I18n {
             }
         }
 
+        /**
+         * Localized strings for the economy command output.
+         */
         public static class Economy {
             public static class Disenchantment {
                 public static String title() {
