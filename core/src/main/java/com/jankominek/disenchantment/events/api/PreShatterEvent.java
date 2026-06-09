@@ -5,12 +5,13 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
+import org.jetbrains.annotations.NotNull;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.List;
 
 /**
- * Fired immediately before a book-shattering (splitting) operation is executed —
+ * Fired immediately before a book-shattering (splitting) operation is executed â€”
  * after all internal validation passes (permissions, XP cost, economy) but before
  * any enchantments are moved between books.
  *
@@ -79,7 +80,7 @@ public class PreShatterEvent extends Event implements Cancellable {
     }
 
     @Override
-    public HandlerList getHandlers() {
+    public @NotNull HandlerList getHandlers() {
         return HANDLERS;
     }
 

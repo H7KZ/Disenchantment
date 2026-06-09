@@ -7,6 +7,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.plugin.EventExecutor;
+import org.jetbrains.annotations.NotNull;
 
 import static com.jankominek.disenchantment.Disenchantment.plugin;
 import static org.bukkit.Bukkit.getServer;
@@ -42,7 +43,7 @@ public class DisenchantClickListener implements EventExecutor {
      * Delegates to {@link DisenchantClickEvent#onEvent(Event)}.
      */
     @Override
-    public void execute(Listener l, Event e) throws EventException {
+    public void execute(@NotNull Listener l, @NotNull Event e) throws EventException {
         DisenchantClickEvent.onEvent(e);
     }
 }

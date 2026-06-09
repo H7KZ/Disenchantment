@@ -5,12 +5,13 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
+import org.jetbrains.annotations.NotNull;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.List;
 
 /**
- * Fired immediately before the disenchantment operation is executed — after all
+ * Fired immediately before the disenchantment operation is executed â€” after all
  * internal validation passes (permissions, XP cost, economy) but before any
  * enchantments are removed from the source item.
  *
@@ -79,7 +80,7 @@ public class PreDisenchantEvent extends Event implements Cancellable {
     }
 
     @Override
-    public HandlerList getHandlers() {
+    public @NotNull HandlerList getHandlers() {
         return HANDLERS;
     }
 

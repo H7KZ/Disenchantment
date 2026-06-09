@@ -14,6 +14,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * GUI for configuring anvil sound settings for a given {@link AnvilFeature}.
@@ -239,7 +240,7 @@ public class SoundGUI implements InventoryHolder {
      * {@inheritDoc}
      */
     @Override
-    public Inventory getInventory() {
+    public @NotNull Inventory getInventory() {
         return this.inventory;
     }
 }

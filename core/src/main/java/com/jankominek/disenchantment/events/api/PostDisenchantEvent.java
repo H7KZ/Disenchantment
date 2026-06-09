@@ -3,10 +3,11 @@ package com.jankominek.disenchantment.events.api;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
+import org.jetbrains.annotations.NotNull;
 import org.bukkit.inventory.ItemStack;
 
 /**
- * Fired after a disenchantment operation has fully completed — enchantments have
+ * Fired after a disenchantment operation has fully completed â€” enchantments have
  * been removed from the source item, the result book has been placed on the
  * player's cursor, XP has been deducted, and the anvil sound has played.
  *
@@ -60,7 +61,7 @@ public class PostDisenchantEvent extends Event {
     }
 
     @Override
-    public HandlerList getHandlers() {
+    public @NotNull HandlerList getHandlers() {
         return HANDLERS;
     }
 

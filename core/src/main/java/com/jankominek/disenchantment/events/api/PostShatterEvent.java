@@ -3,10 +3,11 @@ package com.jankominek.disenchantment.events.api;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
+import org.jetbrains.annotations.NotNull;
 import org.bukkit.inventory.ItemStack;
 
 /**
- * Fired after a book-shattering (splitting) operation has fully completed —
+ * Fired after a book-shattering (splitting) operation has fully completed â€”
  * one enchantment has been split off onto a new book, the original book has been
  * updated, XP has been deducted, and the anvil sound has played.
  *
@@ -60,7 +61,7 @@ public class PostShatterEvent extends Event {
     }
 
     @Override
-    public HandlerList getHandlers() {
+    public @NotNull HandlerList getHandlers() {
         return HANDLERS;
     }
 

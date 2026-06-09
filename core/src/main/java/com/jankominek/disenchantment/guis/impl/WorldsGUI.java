@@ -13,6 +13,7 @@ import org.bukkit.World;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -119,7 +120,7 @@ public class WorldsGUI implements InventoryHolder {
                     freeSlots[i],
                     GUIComponent.Worlds.worldByEnvironment(
                             environment,
-                            "§7§l" + world.getName(),
+                            "Â§7Â§l" + world.getName(),
                             disenchantmentDisabled.get(),
                             shattermentDisabled.get()
                     ),
@@ -154,7 +155,7 @@ public class WorldsGUI implements InventoryHolder {
                         event.setCurrentItem(
                                 GUIComponent.Worlds.worldByEnvironment(
                                         environment,
-                                        "§7§l" + world.getName(),
+                                        "Â§7Â§l" + world.getName(),
                                         disenchantmentDisabled.get(),
                                         shattermentDisabled.get()
                                 )
@@ -181,7 +182,7 @@ public class WorldsGUI implements InventoryHolder {
      * {@inheritDoc}
      */
     @Override
-    public Inventory getInventory() {
+    public @NotNull Inventory getInventory() {
         return this.inventory;
     }
 }

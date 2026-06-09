@@ -15,6 +15,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Main navigation GUI for the Disenchantment plugin configuration.
@@ -184,7 +185,7 @@ public class NavigationGUI implements InventoryHolder {
      * {@inheritDoc}
      */
     @Override
-    public Inventory getInventory() {
+    public @NotNull Inventory getInventory() {
         return this.inventory;
     }
 }

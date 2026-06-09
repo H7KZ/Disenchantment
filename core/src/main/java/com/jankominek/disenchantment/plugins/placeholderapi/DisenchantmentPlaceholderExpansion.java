@@ -4,6 +4,7 @@ import com.jankominek.disenchantment.config.Config;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.OfflinePlayer;
 
+import org.jetbrains.annotations.NotNull;
 import static com.jankominek.disenchantment.Disenchantment.plugin;
 
 /**
@@ -12,13 +13,13 @@ import static com.jankominek.disenchantment.Disenchantment.plugin;
  *
  * <p>Available placeholders:</p>
  * <ul>
- *   <li>{@code %disenchantment_enabled%} — {@code "true"} / {@code "false"}: whether the
+ *   <li>{@code %disenchantment_enabled%} â€” {@code "true"} / {@code "false"}: whether the
  *       plugin is globally enabled</li>
- *   <li>{@code %disenchantment_disenchant_enabled%} — {@code "true"} / {@code "false"}:
+ *   <li>{@code %disenchantment_disenchant_enabled%} â€” {@code "true"} / {@code "false"}:
  *       whether the disenchanting feature is enabled</li>
- *   <li>{@code %disenchantment_shatter_enabled%} — {@code "true"} / {@code "false"}:
+ *   <li>{@code %disenchantment_shatter_enabled%} â€” {@code "true"} / {@code "false"}:
  *       whether the shattering (book splitting) feature is enabled</li>
- *   <li>{@code %disenchantment_version%} — the plugin version string (e.g. {@code "6.4.0"})</li>
+ *   <li>{@code %disenchantment_version%} â€” the plugin version string (e.g. {@code "6.4.0"})</li>
  * </ul>
  *
  * <p>{@link #persist()} returns {@code true} so PlaceholderAPI does not unregister this
@@ -30,7 +31,7 @@ public class DisenchantmentPlaceholderExpansion extends PlaceholderExpansion {
      * @return the placeholder identifier prefix ({@code "disenchantment"})
      */
     @Override
-    public String getIdentifier() {
+    public @NotNull String getIdentifier() {
         return "disenchantment";
     }
 
@@ -38,7 +39,7 @@ public class DisenchantmentPlaceholderExpansion extends PlaceholderExpansion {
      * @return the plugin author(s) from {@code plugin.yml}
      */
     @Override
-    public String getAuthor() {
+    public @NotNull String getAuthor() {
         return String.join(", ", plugin.getDescription().getAuthors());
     }
 
@@ -46,7 +47,7 @@ public class DisenchantmentPlaceholderExpansion extends PlaceholderExpansion {
      * @return the plugin version from {@code plugin.yml}
      */
     @Override
-    public String getVersion() {
+    public @NotNull String getVersion() {
         return plugin.getDescription().getVersion();
     }
 

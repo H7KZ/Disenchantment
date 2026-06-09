@@ -11,6 +11,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import org.junit.jupiter.api.Test;
 import org.mockbukkit.mockbukkit.entity.PlayerMock;
+import java.util.Objects;
 import org.mockito.Mockito;
 
 import java.lang.reflect.Proxy;
@@ -192,7 +193,7 @@ class DisenchantEventTest extends DisenchantmentTestBase {
     void givenPlayerInDisabledWorld_whenPrepareAnvil_thenResultNotSet() {
         server.addSimpleWorld("disabled_world");
         PlayerMock player = server.addPlayer("TestPlayer");
-        player.teleport(server.getWorld("disabled_world").getSpawnLocation());
+        player.teleport(Objects.requireNonNull(server.getWorld("disabled_world")).getSpawnLocation());
         setConfig("disenchantment.disabled-worlds", List.of("disabled_world"));
         PrepareAnvilEvent event = buildEvent(player, sword("sharpness", 5), new ItemStack(Material.BOOK));
 

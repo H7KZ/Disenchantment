@@ -15,6 +15,7 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Comparator;
 import java.util.HashMap;
@@ -122,7 +123,7 @@ public class EnchantmentsGUI implements InventoryHolder {
             worldItems[i] = new GUIItem(
                     freeSlots[i],
                     GUIComponent.Enchantments.enchantment(
-                            "§7§l" + enchantment.getKey().getKey(),
+                            "Â§7Â§l" + enchantment.getKey().getKey(),
                             disenchantmentState.get(),
                             shattermentState.get()
                     ),
@@ -165,7 +166,7 @@ public class EnchantmentsGUI implements InventoryHolder {
                         }
 
                         event.setCurrentItem(GUIComponent.Enchantments.enchantment(
-                                "§7§l" + enchantment.getKey().getKey(),
+                                "Â§7Â§l" + enchantment.getKey().getKey(),
                                 disenchantmentState.get(),
                                 shattermentState.get()
                         ));
@@ -191,7 +192,7 @@ public class EnchantmentsGUI implements InventoryHolder {
      * {@inheritDoc}
      */
     @Override
-    public Inventory getInventory() {
+    public @NotNull Inventory getInventory() {
         return this.inventory;
     }
 }

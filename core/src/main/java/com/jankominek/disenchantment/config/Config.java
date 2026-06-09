@@ -730,11 +730,7 @@ public class Config {
             if (ENCHANTMENT_STATES_CACHE != null) return ENCHANTMENT_STATES_CACHE;
 
             List<String> list = config.getStringList(ConfigKeys.SHATTERMENT_ENCHANTMENTS_STATES.getKey());
-            HashMap<String, EnchantmentStateType> enchantmentStates = new HashMap<>();
-
-            List<Enchantment> enchantments = EnchantmentUtils.getRegisteredEnchantments();
-
-            for (String enchantmentState : list) {
+            HashMap<String, EnchantmentStateType> enchantmentStates = new HashMap<>();\n            for (String enchantmentState : list) {
                 String[] split = enchantmentState.split(":");
 
                 if (split.length != 2) continue;

@@ -10,6 +10,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import org.junit.jupiter.api.Test;
 import org.mockbukkit.mockbukkit.entity.PlayerMock;
+import java.util.Objects;
 import org.mockito.Mockito;
 
 import java.lang.reflect.Proxy;
@@ -208,7 +209,7 @@ class ShatterEventTest extends DisenchantmentTestBase {
     void givenPlayerInDisabledWorld_whenPrepareAnvil_thenResultNotSet() {
         server.addSimpleWorld("no_shatter");
         PlayerMock player = server.addPlayer("TestPlayer");
-        player.teleport(server.getWorld("no_shatter").getSpawnLocation());
+        player.teleport(Objects.requireNonNull(server.getWorld("no_shatter")).getSpawnLocation());
         setConfig("shatterment.disabled-worlds", List.of("no_shatter"));
         PrepareAnvilEvent event = buildEvent(player, enchantedBook("sharpness", "mending"), new ItemStack(Material.BOOK));
 

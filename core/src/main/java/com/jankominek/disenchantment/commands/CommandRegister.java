@@ -3,6 +3,7 @@ package com.jankominek.disenchantment.commands;
 import com.jankominek.disenchantment.commands.impl.*;
 import com.jankominek.disenchantment.utils.DiagnosticUtils;
 import org.bukkit.command.CommandExecutor;
+import org.jetbrains.annotations.NotNull;
 import org.bukkit.command.CommandSender;
 
 import java.util.HashMap;
@@ -50,7 +51,7 @@ public class CommandRegister implements CommandExecutor {
      * @return true if the command was handled, false if an exception occurred
      */
     @Override
-    public boolean onCommand(CommandSender sender, org.bukkit.command.Command command, String label, String[] args) {
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull org.bukkit.command.Command command, @NotNull String label, String[] args) {
         try {
             if (args.length == 0) return executeCommand("help", sender, args);
 

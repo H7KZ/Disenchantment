@@ -83,8 +83,8 @@ public class ShatterEvent {
 
         List<IPluginEnchantment> enchantments = AnvilEventGuards.collectEnchantments(
                 firstItem, secondItem, true,
-                (f, s, ip) -> EventUtils.Shatterment.getShattermentEnchantments(f, s, ip),
-                (f, s, ip, plugin, world) -> EventUtils.Shatterment.getShattermentEnchantments(f, s, ip, plugin, world),
+                EventUtils.Shatterment::getShattermentEnchantments,
+                EventUtils.Shatterment::getShattermentEnchantments,
                 p.getWorld());
 
         if (enchantments.isEmpty()) {

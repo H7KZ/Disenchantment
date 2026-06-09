@@ -34,7 +34,7 @@ public class SchedulerUtils {
     private static Method asyncCancelTasks;
 
     static {
-        boolean folia = false;
+        boolean folia;
         try {
             Class.forName("io.papermc.paper.threadedregions.RegionizedServer");
             folia = true;
