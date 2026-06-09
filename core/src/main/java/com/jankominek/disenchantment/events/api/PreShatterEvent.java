@@ -11,7 +11,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 
 /**
- * Fired immediately before a book-shattering (splitting) operation is executed â€”
+ * Fired immediately before a book-shattering (splitting) operation is executed €”
  * after all internal validation passes (permissions, XP cost, economy) but before
  * any enchantments are moved between books.
  *

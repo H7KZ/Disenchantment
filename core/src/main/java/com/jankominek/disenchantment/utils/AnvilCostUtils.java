@@ -63,6 +63,12 @@ public class AnvilCostUtils {
      */
     public static int costForEnchantment(String key, int level, double base, double multiplier, Map<String, Integer> overrides) {
         if (overrides.containsKey(key)) return overrides.get(key);
+        // Also try the short key without namespace (e.g. "mending" for "minecraft:mending")
+        int colon = key.indexOf(':');
+        if (colon >= 0) {
+            String shortKey = key.substring(colon + 1);
+            if (overrides.containsKey(shortKey)) return overrides.get(shortKey);
+        }
         return (int) Math.round(base + level * multiplier);
     }
 
@@ -118,9 +124,10 @@ public class AnvilCostUtils {
 
         for (IPluginEnchantment enchantment : sortedEnchantments) {
             String key = enchantment.getKey() != null ? enchantment.getKey() : "";
-            if (overrides.containsKey(key)) {
+            String shortKey = key.contains(":") ? key.substring(key.indexOf(':') + 1) : key;
+            if (overrides.containsKey(key) || overrides.containsKey(shortKey)) {
                 // fixed override cost — does not interact with the level*multiplier formula
-                totalCost += overrides.get(key);
+                totalCost += overrides.containsKey(key) ? overrides.get(key) : overrides.get(shortKey);
                 // do NOT advance multiplier for overridden enchantments
             } else {
                 // formula path — delegate to costForEnchantment with base=0 (base already seeded into totalCost)

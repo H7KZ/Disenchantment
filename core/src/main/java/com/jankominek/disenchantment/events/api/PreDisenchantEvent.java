@@ -11,7 +11,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 
 /**
- * Fired immediately before the disenchantment operation is executed â€” after all
+ * Fired immediately before the disenchantment operation is executed €” after all
  * internal validation passes (permissions, XP cost, economy) but before any
  * enchantments are removed from the source item.
  *

@@ -7,7 +7,7 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Fired after a disenchantment operation has fully completed â€” enchantments have
+ * Fired after a disenchantment operation has fully completed €” enchantments have
  * been removed from the source item, the result book has been placed on the
  * player's cursor, XP has been deducted, and the anvil sound has played.
  *

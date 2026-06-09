@@ -123,7 +123,7 @@ public class EnchantmentsGUI implements InventoryHolder {
             worldItems[i] = new GUIItem(
                     freeSlots[i],
                     GUIComponent.Enchantments.enchantment(
-                            "Â§7Â§l" + enchantment.getKey().getKey(),
+                            "§7§l" + enchantment.getKey().getKey(),
                             disenchantmentState.get(),
                             shattermentState.get()
                     ),
@@ -166,7 +166,7 @@ public class EnchantmentsGUI implements InventoryHolder {
                         }
 
                         event.setCurrentItem(GUIComponent.Enchantments.enchantment(
-                                "Â§7Â§l" + enchantment.getKey().getKey(),
+                                "§7§l" + enchantment.getKey().getKey(),
                                 disenchantmentState.get(),
                                 shattermentState.get()
                         ));

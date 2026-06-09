@@ -7,7 +7,7 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Fired after a book-shattering (splitting) operation has fully completed â€”
+ * Fired after a book-shattering (splitting) operation has fully completed €”
  * one enchantment has been split off onto a new book, the original book has been
  * updated, XP has been deducted, and the anvil sound has played.
  *

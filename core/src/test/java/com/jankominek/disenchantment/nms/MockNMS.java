@@ -13,7 +13,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Test-only NMS stub. All methods use Bukkit API only â€” no reflection, no NMS internals.
+ * Test-only NMS stub. All methods use Bukkit API only €” no reflection, no NMS internals.
  * Injected via Mockito.mockStatic(NMSMapper.class) before each test so onEnable() succeeds
  * without a real NMS jar on the classpath.
  */
@@ -60,7 +60,7 @@ public class MockNMS implements NMS {
 
     @Override
     public void setItemRepairCost(ItemStack item, int repairCost) {
-        // No NBT in tests â€” ItemMeta has no repair cost API, intentional no-op
+        // No NBT in tests €” ItemMeta has no repair cost API, intentional no-op
     }
 
     @Override

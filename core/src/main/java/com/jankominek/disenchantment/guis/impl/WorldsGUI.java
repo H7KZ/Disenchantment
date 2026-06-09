@@ -120,7 +120,7 @@ public class WorldsGUI implements InventoryHolder {
                     freeSlots[i],
                     GUIComponent.Worlds.worldByEnvironment(
                             environment,
-                            "Â§7Â§l" + world.getName(),
+                            "§7§l" + world.getName(),
                             disenchantmentDisabled.get(),
                             shattermentDisabled.get()
                     ),
@@ -155,7 +155,7 @@ public class WorldsGUI implements InventoryHolder {
                         event.setCurrentItem(
                                 GUIComponent.Worlds.worldByEnvironment(
                                         environment,
-                                        "Â§7Â§l" + world.getName(),
+                                        "§7§l" + world.getName(),
                                         disenchantmentDisabled.get(),
                                         shattermentDisabled.get()
                                 )

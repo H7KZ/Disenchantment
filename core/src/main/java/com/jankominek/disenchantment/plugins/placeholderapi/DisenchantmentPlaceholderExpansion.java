@@ -14,13 +14,13 @@ import static com.jankominek.disenchantment.Disenchantment.plugin;
  *
  * <p>Available placeholders:</p>
  * <ul>
- *   <li>{@code %disenchantment_enabled%} â€” {@code "true"} / {@code "false"}: whether the
+ *   <li>{@code %disenchantment_enabled%} €” {@code "true"} / {@code "false"}: whether the
  *       plugin is globally enabled</li>
- *   <li>{@code %disenchantment_disenchant_enabled%} â€” {@code "true"} / {@code "false"}:
+ *   <li>{@code %disenchantment_disenchant_enabled%} €” {@code "true"} / {@code "false"}:
  *       whether the disenchanting feature is enabled</li>
- *   <li>{@code %disenchantment_shatter_enabled%} â€” {@code "true"} / {@code "false"}:
+ *   <li>{@code %disenchantment_shatter_enabled%} €” {@code "true"} / {@code "false"}:
  *       whether the shattering (book splitting) feature is enabled</li>
- *   <li>{@code %disenchantment_version%} â€” the plugin version string (e.g. {@code "6.5.0"})</li>
+ *   <li>{@code %disenchantment_version%} €” the plugin version string (e.g. {@code "6.5.0"})</li>
  * </ul>
  *
  * <p>{@link #persist()} returns {@code true} so PlaceholderAPI does not unregister this
