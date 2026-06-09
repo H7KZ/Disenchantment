@@ -95,22 +95,19 @@ public class Disenchantment extends JavaPlugin {
         }
         nms = mappedNMS;
 
-        // Locale
+        // Locale — extract bundled files to data folder first (best-effort; skips existing files)
         ConfigUtils.setupLocaleConfigs();
         String locale = Config.getLocale();
-        File localesFolder = new File(plugin.getDataFolder().getAbsolutePath() + "/locales");
-        if (!localesFolder.exists()) {
-            logger.severe("Locales folder does not exist. Please reinstall the plugin.");
-            getServer().getPluginManager().disablePlugin(this);
-            return;
-        }
-        String finalLocale = locale;
-        if (Arrays.stream(Objects.requireNonNull(localesFolder.listFiles())).noneMatch(file -> file.getName().equals(finalLocale + ".yml")))
-            locale = "en";
+        // Fall back to "en" if the configured locale file is not available on disk
         File localeFile = new File(plugin.getDataFolder(), "locales/" + locale + ".yml");
+        if (!localeFile.exists() && !locale.equals("en")) {
+            locale = "en";
+            localeFile = new File(plugin.getDataFolder(), "locales/en.yml");
+        }
         if (localeFile.exists()) {
             localeConfig = YamlConfiguration.loadConfiguration(localeFile);
         } else {
+            // Fall back to JAR resource (always available; also used in test environments)
             var stream = plugin.getResource("locales/" + locale + ".yml");
             if (stream != null) {
                 localeConfig = YamlConfiguration.loadConfiguration(
@@ -118,7 +115,7 @@ public class Disenchantment extends JavaPlugin {
                 );
             } else {
                 logger.severe("Could not load locale '" + locale + "' from JAR — missing resource.");
-                Bukkit.getPluginManager().disablePlugin(plugin);
+                getServer().getPluginManager().disablePlugin(this);
                 return;
             }
         }
