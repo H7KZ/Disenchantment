@@ -6,7 +6,6 @@ import com.jankominek.disenchantment.nms.NMSMapper;
 import com.jankominek.disenchantment.plugins.ISupportedPlugin;
 import com.jankominek.disenchantment.plugins.SupportedPluginManager;
 import com.jankominek.disenchantment.types.EnchantmentStateType;
-import com.jankominek.disenchantment.types.LogLevelType;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -34,6 +33,12 @@ import static com.jankominek.disenchantment.Disenchantment.plugin;
  * server environment, configuration, and player permissions.
  */
 public class DiagnosticUtils {
+    private static volatile boolean debugEnabled = false;
+
+    public static void setDebugEnabled(boolean enabled) {
+        debugEnabled = enabled;
+    }
+
     /**
      * Generates a diagnostic report string containing plugin, server, and configuration information.
      *
@@ -120,8 +125,7 @@ public class DiagnosticUtils {
      * @return {@code true} if {@code logging.level} is set to {@link LogLevelType#DEBUG}
      */
     public static boolean isDebugEnabled() {
-        if (Disenchantment.config == null) return false;
-        return Config.Logging.getLevel().isAtLeast(LogLevelType.DEBUG);
+        return debugEnabled;
     }
 
     /**
@@ -133,9 +137,7 @@ public class DiagnosticUtils {
      * @param msg      the debug message
      */
     public static void debug(String category, String msg) {
-        if (Disenchantment.config == null) return;
-        if (Config.Logging.getLevel().isAtLeast(LogLevelType.DEBUG))
-            logger.info("[DEBUG][" + category + "] " + msg);
+        if (debugEnabled) logger.info("[DEBUG][" + category + "] " + msg);
     }
 
     /**

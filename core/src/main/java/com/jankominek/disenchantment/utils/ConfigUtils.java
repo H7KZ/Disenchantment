@@ -1,5 +1,6 @@
 package com.jankominek.disenchantment.utils;
 
+import com.jankominek.disenchantment.Disenchantment;
 import com.jankominek.disenchantment.config.Config;
 import com.jankominek.disenchantment.config.migration.ConfigMigrations;
 import org.bukkit.configuration.file.FileConfiguration;
