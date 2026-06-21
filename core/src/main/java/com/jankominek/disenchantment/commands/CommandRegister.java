@@ -1,6 +1,7 @@
 package com.jankominek.disenchantment.commands;
 
 import com.jankominek.disenchantment.commands.impl.*;
+import com.jankominek.disenchantment.commands.impl.Debug;
 import com.jankominek.disenchantment.utils.DiagnosticUtils;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -37,6 +38,7 @@ public class CommandRegister implements CommandExecutor {
             put(ShatterSound.command.name(), ShatterSound.command);
             put(Diagnostic.command.name(), Diagnostic.command);
             put(Reload.command.name(), Reload.command);
+            put(Debug.command.name(), Debug.command);
         }
     };
 
