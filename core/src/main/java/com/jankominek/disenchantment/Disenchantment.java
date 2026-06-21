@@ -231,6 +231,7 @@ public class Disenchantment extends JavaPlugin {
         config = getConfig();
 
         // 2. Locale
+        ConfigUtils.setupLocaleConfigs();
         String locale = Config.getLocale();
         File localeFile = new File(plugin.getDataFolder(), "locales/" + locale + ".yml");
         if (!localeFile.exists() && !locale.equals("en")) {

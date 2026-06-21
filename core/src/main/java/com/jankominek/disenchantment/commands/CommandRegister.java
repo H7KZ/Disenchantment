@@ -1,7 +1,6 @@
 package com.jankominek.disenchantment.commands;
 
 import com.jankominek.disenchantment.commands.impl.*;
-import com.jankominek.disenchantment.commands.impl.Debug;
 import com.jankominek.disenchantment.utils.DiagnosticUtils;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
