@@ -104,6 +104,10 @@ public enum PermissionGroupType {
             PermissionType.COMMAND_ALL,
             PermissionType.COMMAND_RELOAD
     ),
+    COMMAND_DEBUG(
+            PermissionType.COMMAND_ALL,
+            PermissionType.COMMAND_DEBUG
+    ),
 
     GUI(
             PermissionType.GUI_ALL,

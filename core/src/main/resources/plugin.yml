@@ -89,6 +89,9 @@ permissions:
   disenchantment.command.reload:
     description: Access to the reload command.
     default: op
+  disenchantment.command.debug:
+    description: Access to the debug toggle command.
+    default: op
   disenchantment.gui:
     description: Allows the player to open the GUI.
     default: op
