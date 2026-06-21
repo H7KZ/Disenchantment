@@ -85,6 +85,7 @@ public class Disenchantment extends JavaPlugin {
         // Config (loaded before NMS so debug logging is available during NMS setup)
         ConfigUtils.setupConfig();
         config = getConfig();
+        DiagnosticUtils.setDebugEnabled(Config.Logging.getLevel().isAtLeast(LogLevelType.DEBUG));
 
         // NMS net.minecraft.server
         NMS mappedNMS = NMSMapper.setup();
