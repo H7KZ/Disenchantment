@@ -35,6 +35,7 @@ import static com.jankominek.disenchantment.Disenchantment.plugin;
 public class DiagnosticUtils {
     private static volatile boolean debugEnabled = false;
 
+    /** Sets whether debug-level logging is active. Call on startup and on reload. */
     public static void setDebugEnabled(boolean enabled) {
         debugEnabled = enabled;
     }
@@ -117,13 +118,7 @@ public class DiagnosticUtils {
         }
     }
 
-    /**
-     * Returns {@code true} if debug-level logging is currently active.
-     * Safe to call at any point in the plugin lifecycle — returns {@code false} if
-     * config is not yet loaded.
-     *
-     * @return {@code true} if {@code logging.level} is set to {@link LogLevelType#DEBUG}
-     */
+    /** Returns {@code true} if debug-level logging is currently active. */
     public static boolean isDebugEnabled() {
         return debugEnabled;
     }
@@ -131,7 +126,6 @@ public class DiagnosticUtils {
     /**
      * Logs a categorised debug message when {@link LogLevelType#DEBUG} is active.
      * Output format: {@code [DEBUG][CATEGORY] message}
-     * <p>Safe to call before config is fully loaded — silently dropped if config is unavailable.</p>
      *
      * @param category short subsystem tag, e.g. {@code "ECONOMY"}, {@code "NMS"}, {@code "DISENCHANT"}
      * @param msg      the debug message

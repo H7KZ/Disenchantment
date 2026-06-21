@@ -1,11 +1,17 @@
 package com.jankominek.disenchantment.utils;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class DiagnosticUtilsTest {
+    @BeforeEach
+    void resetDebugState() {
+        DiagnosticUtils.setDebugEnabled(false);
+    }
+
     @Test
-    void debugDisabledByDefault() {
+    void debugCanBeDisabled() {
         DiagnosticUtils.setDebugEnabled(false);
         assertFalse(DiagnosticUtils.isDebugEnabled());
     }
