@@ -2,16 +2,9 @@ package com.jankominek.disenchantment.commands.impl;
 
 import com.jankominek.disenchantment.Disenchantment;
 import com.jankominek.disenchantment.commands.CommandBuilder;
-import com.jankominek.disenchantment.config.Config;
 import com.jankominek.disenchantment.config.I18n;
 import com.jankominek.disenchantment.types.PermissionGroupType;
-import com.jankominek.disenchantment.utils.ConfigUtils;
 import org.bukkit.command.CommandSender;
-import org.bukkit.configuration.file.YamlConfiguration;
-
-import java.io.File;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,26 +32,7 @@ public class Reload {
      * @param args   the command arguments
      */
     public static void execute(CommandSender sender, String[] args) {
-        ConfigUtils.setupConfig();
-        ConfigUtils.setupLocaleConfigs();
-
-        // Re-read locale file from disk into memory (setupLocaleConfigs only copies JAR→disk)
-        String locale = Config.getLocale();
-        File localeFile = new File(Disenchantment.plugin.getDataFolder(), "locales/" + locale + ".yml");
-        if (!localeFile.exists() && !locale.equals("en")) {
-            locale = "en";
-            localeFile = new File(Disenchantment.plugin.getDataFolder(), "locales/en.yml");
-        }
-        if (localeFile.exists()) {
-            Disenchantment.localeConfig = YamlConfiguration.loadConfiguration(localeFile);
-        } else {
-            var stream = Disenchantment.plugin.getResource("locales/" + locale + ".yml");
-            if (stream != null) {
-                Disenchantment.localeConfig = YamlConfiguration.loadConfiguration(
-                        new InputStreamReader(stream, StandardCharsets.UTF_8));
-            }
-        }
-
+        Disenchantment.plugin.reload();
         sender.sendMessage(I18n.getPrefix() + " Config reloaded.");
     }
 
