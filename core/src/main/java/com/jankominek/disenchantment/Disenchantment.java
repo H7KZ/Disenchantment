@@ -219,6 +219,65 @@ public class Disenchantment extends JavaPlugin {
         logger.info("Disenchantment disabled!");
     }
 
+    /**
+     * Hot-reloads the plugin without a server restart.
+     * Re-reads config and locale from disk, syncs the debug flag, unregisters and
+     * re-registers all event listeners with updated priorities, re-detects third-party
+     * plugin adapters, and re-hooks economy.
+     */
+    public void reload() {
+        // 1. Config
+        ConfigUtils.setupConfig();
+        config = getConfig();
+
+        // 2. Locale
+        String locale = Config.getLocale();
+        File localeFile = new File(plugin.getDataFolder(), "locales/" + locale + ".yml");
+        if (!localeFile.exists() && !locale.equals("en")) {
+            locale = "en";
+            localeFile = new File(plugin.getDataFolder(), "locales/en.yml");
+        }
+        if (localeFile.exists()) {
+            localeConfig = YamlConfiguration.loadConfiguration(localeFile);
+        } else {
+            var stream = plugin.getResource("locales/" + locale + ".yml");
+            if (stream != null) {
+                localeConfig = YamlConfiguration.loadConfiguration(
+                        new InputStreamReader(stream, StandardCharsets.UTF_8));
+            }
+        }
+
+        // 3. Debug flag
+        DiagnosticUtils.setDebugEnabled(Config.Logging.getLevel().isAtLeast(LogLevelType.DEBUG));
+
+        // 4. Unregister all our listeners
+        org.bukkit.event.HandlerList.unregisterAll(plugin);
+
+        // 5. Re-register listeners with fresh priorities
+        new DisenchantListener(Config.EventPriorities.getDisenchantEvent());
+        new DisenchantClickListener(Config.EventPriorities.getDisenchantClickEvent());
+        new ShatterListener(Config.EventPriorities.getShatterEvent());
+        new ShatterClickListener(Config.EventPriorities.getShatterClickEvent());
+        getServer().getPluginManager().registerEvents(new GUIClickEvent(), plugin);
+
+        // 6. Re-detect plugin adapters
+        SupportedPluginManager.deactivateAllPlugins();
+        List<String> activePluginNames = Arrays.stream(getServer().getPluginManager().getPlugins())
+                .map(Plugin::getName)
+                .toList();
+        SupportedPluginManager.activatePlugins(activePluginNames);
+
+        // 7. Re-hook economy
+        EconomyUtils.reset();
+        EconomyUtils.setup();
+
+        // 8. Sync enabled flag
+        Disenchantment.enabled = Config.isPluginEnabled();
+
+        DiagnosticUtils.debug("RELOAD", "Full reload complete");
+        logger.info("Disenchantment reloaded.");
+    }
+
     @Override
     public void onEnable() {
         try {
