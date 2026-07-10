@@ -1,6 +1,8 @@
 package com.jankominek.disenchantment.plugins.placeholderapi;
 
 import com.jankominek.disenchantment.config.Config;
+import com.jankominek.disenchantment.stats.StatsCache;
+import com.jankominek.disenchantment.stats.StatsManager;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.OfflinePlayer;
 
@@ -76,7 +78,46 @@ public class DisenchantmentPlaceholderExpansion extends PlaceholderExpansion {
             case "disenchant_enabled" -> String.valueOf(Config.Disenchantment.isEnabled());
             case "shatter_enabled" -> String.valueOf(Config.Shatterment.isEnabled());
             case "version" -> plugin.getDescription().getVersion();
+            case "player_disenchants" -> playerStat(player, s -> s.disenchants());
+            case "player_shatters" -> playerStat(player, s -> s.shatters());
+            case "player_xp_spent" -> playerStat(player, s -> s.xpSpent());
+            case "player_last_operation" -> playerLastOp(player);
+            case "total_operations" -> totalOps();
+            case "top_enchantment" -> topEnchantment();
             default -> null;
         };
+    }
+
+    private String playerStat(OfflinePlayer player, java.util.function.Function<StatsCache.PlayerStats, Long> getter) {
+        if (player == null) return "0";
+        StatsManager manager = StatsManager.getInstance();
+        if (manager == null) return "0";
+        StatsCache.PlayerStats ps = manager.getCache().getPlayerStats(player.getUniqueId());
+        if (ps == null) return "0";
+        return String.valueOf(getter.apply(ps));
+    }
+
+    private String playerLastOp(OfflinePlayer player) {
+        if (player == null) return "none";
+        StatsManager manager = StatsManager.getInstance();
+        if (manager == null) return "none";
+        StatsCache.PlayerStats ps = manager.getCache().getPlayerStats(player.getUniqueId());
+        if (ps == null) return "none";
+        return java.time.format.DateTimeFormatter.ISO_LOCAL_DATE_TIME
+                .withZone(java.time.ZoneId.systemDefault())
+                .format(ps.lastOperation());
+    }
+
+    private String totalOps() {
+        StatsManager manager = StatsManager.getInstance();
+        if (manager == null) return "0";
+        StatsCache c = manager.getCache();
+        return String.valueOf(c.getTotalDisenchants() + c.getTotalShatters());
+    }
+
+    private String topEnchantment() {
+        StatsManager manager = StatsManager.getInstance();
+        if (manager == null) return "none";
+        return manager.getCache().getTopEnchantment();
     }
 }
