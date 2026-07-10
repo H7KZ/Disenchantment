@@ -194,7 +194,9 @@ public class ShatterClickEvent {
         if (p.getGameMode() != org.bukkit.GameMode.CREATIVE) p.setLevel(exp);
 
         p.setItemOnCursor(result);
-        org.bukkit.Bukkit.getPluginManager().callEvent(new PostShatterEvent(p, result.clone(), finalFirstItem.clone()));
+        double economyCost = (Config.Shatterment.Economy.isEnabled() && p.getGameMode() != org.bukkit.GameMode.CREATIVE)
+                ? Config.Shatterment.Economy.getCost() : 0.0;
+        org.bukkit.Bukkit.getPluginManager().callEvent(new PostShatterEvent(p, result.clone(), finalFirstItem.clone(), repairCost, economyCost));
 
         if (Config.Shatterment.Anvil.Sound.isEnabled())
             p.playSound(
