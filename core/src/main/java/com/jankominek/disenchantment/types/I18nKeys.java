@@ -226,6 +226,9 @@ public enum I18nKeys {
 
     GUI_NAVIGATION_ECONOMY_TITLE("gui.navigation.economy.title"),
     GUI_NAVIGATION_ECONOMY_LORE("gui.navigation.economy.lore"),
+    GUI_NAVIGATION_STATS_TITLE("gui.navigation.stats.title"),
+    GUI_NAVIGATION_STATS_LORE("gui.navigation.stats.lore"),
+    GUI_STATS_INVENTORY("gui.stats.inventory"),
 
     GUI_ECONOMY_DISENCHANTMENT_INVENTORY("gui.economy.disenchantment.inventory"),
     GUI_ECONOMY_DISENCHANTMENT_ENABLED_TITLE("gui.economy.disenchantment.enabled.title"),

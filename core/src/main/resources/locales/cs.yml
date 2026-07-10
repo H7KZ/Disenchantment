@@ -229,6 +229,10 @@ gui:
       title: "&6&lOdkaz na spigot&r"
       lore:
         - "&7Přesměruje na stránku pluginu na spigotmc.org"
+    stats:
+      title: "&b&lStats&r"
+      lore:
+        - "&7View operation statistics"
   worlds:
     inventory: "&7&lSvěty&r"
     lore:
@@ -385,3 +389,5 @@ gui:
           - "&7Aktuální hodnota: &f{pitch}&r"
           - "&7LEVÝ KLIK pro zvýšení"
           - "&7PRAVÝ KLIK pro snížení"
+  stats:
+    inventory: "&7&lStatistics&r"

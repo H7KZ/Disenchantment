@@ -133,6 +133,19 @@ public class GUIComponent {
         }
 
         /**
+         * Creates the stats navigation item.
+         *
+         * @return the stats {@link ItemStack}
+         */
+        public static ItemStack stats() {
+            return new ItemBuilder(Material.BOOK)
+                    .setDisplayName(I18n.GUI.Navigation.Stats.title())
+                    .setLore(I18n.GUI.Navigation.Stats.lore())
+                    .addAllFlags()
+                    .build();
+        }
+
+        /**
          * Creates the Spigot resource page navigation item.
          *
          * @return the Spigot link {@link ItemStack}

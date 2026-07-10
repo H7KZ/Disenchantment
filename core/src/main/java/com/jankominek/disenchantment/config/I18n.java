@@ -819,6 +819,17 @@ public class I18n {
                             .stream().map(I18n::translateColors).toList();
                 }
             }
+
+            public static class Stats {
+                public static String title() {
+                    return I18n.translateColors(localeConfig.getString(I18nKeys.GUI_NAVIGATION_STATS_TITLE.getKey()));
+                }
+
+                public static List<String> lore() {
+                    return localeConfig.getStringList(I18nKeys.GUI_NAVIGATION_STATS_LORE.getKey())
+                            .stream().map(I18n::translateColors).toList();
+                }
+            }
         }
 
         public static class Worlds {
@@ -1311,6 +1322,12 @@ public class I18n {
                         }
                     }
                 }
+            }
+        }
+
+        public static class Stats {
+            public static String inventory() {
+                return I18n.translateColors(localeConfig.getString(I18nKeys.GUI_STATS_INVENTORY.getKey()));
             }
         }
     }

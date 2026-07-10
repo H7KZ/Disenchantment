@@ -245,6 +245,10 @@ gui:
         - "&7Edit the economy settings"
         - "&7LEFT CLICK to edit disenchantment"
         - "&7RIGHT CLICK to edit shatterment"
+    stats:
+      title: "&b&lStats&r"
+      lore:
+        - "&7View operation statistics"
   worlds:
     inventory: "&7&lWorlds&r"
     lore:
@@ -472,3 +476,5 @@ gui:
           disabled:
             - "&cDisabled&r"
             - "&7Click to Enable&r"
+  stats:
+    inventory: "&7&lStatistics&r"

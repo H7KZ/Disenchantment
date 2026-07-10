@@ -156,6 +156,17 @@ public class NavigationGUI implements InventoryHolder {
                             }
                         }
                     }
+            ),
+            new GUIItem(
+                    23,
+                    GUIComponent.Navigation.stats(),
+                    event -> {
+                        event.setCancelled(true);
+
+                        if (!PermissionGroupType.GUI_STATUS.hasPermission(event.getWhoClicked(), true)) return;
+
+                        event.getWhoClicked().openInventory(new StatsGUI().getInventory());
+                    }
             )
     );
 
