@@ -108,6 +108,10 @@ public enum PermissionGroupType {
             PermissionType.COMMAND_ALL,
             PermissionType.COMMAND_DEBUG
     ),
+    COMMAND_STATS(
+            PermissionType.COMMAND_ALL,
+            PermissionType.COMMAND_STATS
+    ),
 
     GUI(
             PermissionType.GUI_ALL,

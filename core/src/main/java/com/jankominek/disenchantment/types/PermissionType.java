@@ -40,6 +40,7 @@ public enum PermissionType {
     COMMAND_DIAGNOSTIC("disenchantment.command.diagnostic"),
     COMMAND_RELOAD("disenchantment.command.reload"),
     COMMAND_DEBUG("disenchantment.command.debug"),
+    COMMAND_STATS("disenchantment.command.stats"),
 
     GUI("disenchantment.gui"),
     GUI_ALL("disenchantment.gui.all"),

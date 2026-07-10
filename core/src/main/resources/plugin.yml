@@ -92,6 +92,9 @@ permissions:
   disenchantment.command.debug:
     description: Access to the debug toggle command.
     default: op
+  disenchantment.command.stats:
+    description: Access to the stats command.
+    default: op
   disenchantment.gui:
     description: Allows the player to open the GUI.
     default: op
