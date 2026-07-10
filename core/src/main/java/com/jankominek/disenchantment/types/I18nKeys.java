@@ -36,6 +36,7 @@ public enum I18nKeys {
     MESSAGES_WORLD_NOT_FOUND("messages.world-not-found"),
     MESSAGES_WORLD_IS_ENABLED("messages.world-is-enabled"),
     MESSAGES_WORLD_IS_DISABLED("messages.world-is-disabled"),
+    MESSAGES_UNKNOWN_ENCHANTMENT("messages.unknown-enchantment"),
 
     MESSAGES_ECONOMY_COST("messages.economy-cost"),
     MESSAGES_ECONOMY_INSUFFICIENT_FUNDS("messages.economy-insufficient-funds"),

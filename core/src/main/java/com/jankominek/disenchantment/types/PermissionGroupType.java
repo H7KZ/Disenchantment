@@ -189,7 +189,6 @@ public enum PermissionGroupType {
      * @return {@code true} if the permissible holds at least one permission in this group
      */
     public boolean hasPermission(Permissible permissible, boolean feedback) {
-        if (Stream.of(permissions).anyMatch(p -> p == PermissionType.ALL)) return true;
         if (Stream.of(permissions).anyMatch(p -> p.hasPermission(permissible))) return true;
 
         if (permissible instanceof CommandSender sender && feedback)
