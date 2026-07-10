@@ -216,6 +216,39 @@ class EventUtilsDisenchantTest extends DisenchantmentTestBase {
         assertTrue(toDelete.isEmpty());
     }
 
+    // -> enchantment namespace normalization
+
+    @Test
+    void givenKEEPStateWithNamespacedKey_whenGetEnchantments_thenEnchantmentFiltered() {
+        // Users may write "minecraft:sharpness" in config; must match server's short key "sharpness"
+        setDisenchantEnchantmentStates(List.of("minecraft:sharpness:keep"));
+        ItemStack sword = sword("sharpness", "efficiency");
+        List<IPluginEnchantment> result =
+                EventUtils.Disenchantment.getDisenchantedEnchantments(sword, blankBook(), false);
+        assertTrue(result.stream().noneMatch(e -> e.getKey().equals("sharpness")),
+                "Namespaced config key minecraft:sharpness must match short key sharpness");
+        assertTrue(result.stream().anyMatch(e -> e.getKey().equals("efficiency")));
+    }
+
+    @Test
+    void givenDISABLEStateWithNamespacedKey_whenGetEnchantments_thenOperationBlocked() {
+        setDisenchantEnchantmentStates(List.of("minecraft:mending:disable"));
+        ItemStack sword = sword("sharpness", "mending");
+        List<IPluginEnchantment> result =
+                EventUtils.Disenchantment.getDisenchantedEnchantments(sword, blankBook(), false);
+        assertTrue(result.isEmpty(), "Namespaced config key minecraft:mending must block when mending is present");
+    }
+
+    @Test
+    void givenDELETEStateWithNamespacedKey_whenFindToDelete_thenEnchantmentFound() {
+        setDisenchantEnchantmentStates(List.of("minecraft:mending:delete"));
+        List<IPluginEnchantment> enchantments = List.of(
+                EnchantmentUtils.remapEnchantment(enchantment("mending"), 1)
+        );
+        List<IPluginEnchantment> toDelete = EventUtils.Disenchantment.findEnchantmentsToDelete(enchantments);
+        assertEquals(1, toDelete.size(), "Namespaced config key minecraft:mending must match for DELETE");
+    }
+
     // -> multiple enchantments preserved
 
     @Test
