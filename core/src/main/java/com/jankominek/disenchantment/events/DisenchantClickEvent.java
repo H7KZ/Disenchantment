@@ -185,9 +185,11 @@ public class DisenchantClickEvent {
         if (p.getGameMode() != org.bukkit.GameMode.CREATIVE) p.setLevel(exp);
 
         p.setItemOnCursor(result);
-        double economyCost = (Config.Disenchantment.Economy.isEnabled() && p.getGameMode() != org.bukkit.GameMode.CREATIVE)
+        boolean creative = p.getGameMode() == org.bukkit.GameMode.CREATIVE;
+        int xpCost = creative ? 0 : repairCost;
+        double economyCost = (Config.Disenchantment.Economy.isEnabled() && !creative)
                 ? Config.Disenchantment.Economy.getCost() : 0.0;
-        org.bukkit.Bukkit.getPluginManager().callEvent(new PostDisenchantEvent(p, result.clone(), finalFirstItem.clone(), repairCost, economyCost));
+        org.bukkit.Bukkit.getPluginManager().callEvent(new PostDisenchantEvent(p, result.clone(), finalFirstItem.clone(), xpCost, economyCost));
 
         if (Config.Disenchantment.Anvil.Sound.isEnabled())
             p.playSound(
