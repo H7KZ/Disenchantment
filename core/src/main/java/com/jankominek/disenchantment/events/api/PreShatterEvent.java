@@ -11,13 +11,12 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 
 /**
- * Fired immediately before a book-shattering (splitting) operation is executed €”
- * after all internal validation passes (permissions, XP cost, economy) but before
- * any enchantments are moved between books.
+ * Fired immediately before a book-shattering (splitting) operation is executed —
+ * after permission and XP checks pass, but before economy is charged or any
+ * enchantments are moved between books.
  *
  * <p>Cancelling this event prevents the shattering from completing. The player's
- * XP and economy balance are <em>not</em> affected when cancelled because the
- * cancellation happens before the deduction step.</p>
+ * XP and economy balance are <em>not</em> affected when cancelled.</p>
  *
  * <p>Example usage:</p>
  * <pre>{@code
@@ -62,8 +61,8 @@ public class PreShatterEvent extends Event implements Cancellable {
     }
 
     /**
-     * @return the list of all enchantments on the source book; modifying this
-     * list does <em>not</em> affect the actual operation
+     * @return the enchantments on the source book that are eligible for splitting;
+     * removing entries from this list prevents those enchantments from being removed
      */
     public List<IPluginEnchantment> getEnchantments() {
         return enchantments;

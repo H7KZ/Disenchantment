@@ -11,13 +11,12 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 
 /**
- * Fired immediately before the disenchantment operation is executed €” after all
- * internal validation passes (permissions, XP cost, economy) but before any
+ * Fired immediately before the disenchantment operation is executed — after
+ * permission and XP checks pass, but before economy is charged or any
  * enchantments are removed from the source item.
  *
  * <p>Cancelling this event prevents the disenchantment from completing. The
- * player's XP and economy balance are <em>not</em> affected when cancelled
- * because the cancellation happens before the deduction step.</p>
+ * player's XP and economy balance are <em>not</em> affected when cancelled.</p>
  *
  * <p>Example usage:</p>
  * <pre>{@code
@@ -62,8 +61,8 @@ public class PreDisenchantEvent extends Event implements Cancellable {
     }
 
     /**
-     * @return the list of enchantments that will be transferred; modifying this
-     * list does <em>not</em> affect the actual operation
+     * @return the enchantments that will be transferred; removing entries from this
+     * list prevents those enchantments from being removed from the source item
      */
     public List<IPluginEnchantment> getEnchantments() {
         return enchantments;

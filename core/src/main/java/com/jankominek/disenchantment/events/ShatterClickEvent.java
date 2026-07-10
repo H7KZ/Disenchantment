@@ -81,6 +81,7 @@ public class ShatterClickEvent {
         ItemStack secondItem = anvilInventory.getItem(1);
 
         if (firstItem == null) return;
+        if (secondItem == null) return;
 
         List<ISupportedPlugin> activatedPlugins = SupportedPluginManager.getAllActivatedPlugins();
 
@@ -123,7 +124,14 @@ public class ShatterClickEvent {
             return;
         }
 
-        // Economy check
+        PreShatterEvent preEvent = new PreShatterEvent(p, firstItem.clone(), new ArrayList<>(enchantments));
+        org.bukkit.Bukkit.getPluginManager().callEvent(preEvent);
+        if (preEvent.isCancelled()) {
+            e.setCancelled(true);
+            return;
+        }
+
+        // Economy check — runs after PreShatterEvent so cancellation doesn't charge the player
         DiagnosticUtils.debug("SHATTER", "Click: economy check — enabled=" + Config.Shatterment.Economy.isEnabled() + ", gameMode=" + p.getGameMode());
         AnvilEventGuards.EconomyResult economyResult = AnvilEventGuards.processEconomy(p, ECONOMY_CONFIG);
         if (economyResult == AnvilEventGuards.EconomyResult.NOT_AVAILABLE) {
@@ -139,21 +147,14 @@ public class ShatterClickEvent {
             return;
         }
 
-        PreShatterEvent preEvent = new PreShatterEvent(p, firstItem.clone(), new ArrayList<>(enchantments));
-        org.bukkit.Bukkit.getPluginManager().callEvent(preEvent);
-        if (preEvent.isCancelled()) {
-            e.setCancelled(true);
-            return;
-        }
-
         int exp = p.getLevel() - repairCost;
         DiagnosticUtils.debug("SHATTER", "Click: xp → " + p.getLevel() + " - " + repairCost + " = " + exp);
 
         // ----------------------------------------------------------------------------------------------------
-        // Disenchantment plugins
+        // Shatterment plugins
 
         ItemStack finalFirstItem = firstItem.clone();
-        List<IPluginEnchantment> enchantmentsToDelete = EventUtils.Shatterment.findEnchantmentsToDelete(enchantments);
+        List<IPluginEnchantment> enchantmentsToDelete = EventUtils.Shatterment.findEnchantmentsToDelete(preEvent.getEnchantments());
 
         EnchantmentStorageMeta resultItemMeta = (EnchantmentStorageMeta) result.getItemMeta();
 
@@ -182,14 +183,12 @@ public class ShatterClickEvent {
             }
         }
 
-        // Disenchantment plugins
+        // Shatterment plugins
         // ----------------------------------------------------------------------------------------------------
 
         if (Config.Shatterment.Anvil.Repair.isResetEnabled()) AnvilCostUtils.setItemRepairCost(finalFirstItem, 0);
 
         anvilInventory.setItem(0, finalFirstItem);
-
-        if (secondItem == null) return;
         AnvilEventGuards.scheduleSecondItemRemoval(p, anvilInventory, secondItem);
 
         if (p.getGameMode() != org.bukkit.GameMode.CREATIVE) p.setLevel(exp);

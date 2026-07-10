@@ -85,6 +85,7 @@ public class DisenchantClickEvent {
         ItemStack secondItem = anvilInventory.getItem(1);
 
         if (firstItem == null) return;
+        if (secondItem == null) return;
 
         List<ISupportedPlugin> activatedPlugins = SupportedPluginManager.getAllActivatedPlugins();
 
@@ -117,7 +118,14 @@ public class DisenchantClickEvent {
             return;
         }
 
-        // Economy check
+        PreDisenchantEvent preEvent = new PreDisenchantEvent(p, firstItem.clone(), new ArrayList<>(enchantments));
+        org.bukkit.Bukkit.getPluginManager().callEvent(preEvent);
+        if (preEvent.isCancelled()) {
+            e.setCancelled(true);
+            return;
+        }
+
+        // Economy check — runs after PreDisenchantEvent so cancellation doesn't charge the player
         DiagnosticUtils.debug("DISENCHANT", "Click: economy check — enabled=" + Config.Disenchantment.Economy.isEnabled() + ", gameMode=" + p.getGameMode());
         AnvilEventGuards.EconomyResult economyResult = AnvilEventGuards.processEconomy(p, ECONOMY_CONFIG);
         if (economyResult == AnvilEventGuards.EconomyResult.NOT_AVAILABLE) {
@@ -133,13 +141,6 @@ public class DisenchantClickEvent {
             return;
         }
 
-        PreDisenchantEvent preEvent = new PreDisenchantEvent(p, firstItem.clone(), new ArrayList<>(enchantments));
-        org.bukkit.Bukkit.getPluginManager().callEvent(preEvent);
-        if (preEvent.isCancelled()) {
-            e.setCancelled(true);
-            return;
-        }
-
         int exp = p.getLevel() - repairCost;
         DiagnosticUtils.debug("DISENCHANT", "Click: xp → " + p.getLevel() + " - " + repairCost + " = " + exp);
 
@@ -147,7 +148,7 @@ public class DisenchantClickEvent {
         // Supported plugins
 
         ItemStack finalFirstItem = firstItem.clone();
-        List<IPluginEnchantment> enchantmentsToDelete = EventUtils.Disenchantment.findEnchantmentsToDelete(enchantments);
+        List<IPluginEnchantment> enchantmentsToDelete = EventUtils.Disenchantment.findEnchantmentsToDelete(preEvent.getEnchantments());
 
         EnchantmentStorageMeta resultItemMeta = (EnchantmentStorageMeta) result.getItemMeta();
 
@@ -179,8 +180,6 @@ public class DisenchantClickEvent {
         if (Config.Disenchantment.Anvil.Repair.isResetEnabled()) AnvilCostUtils.setItemRepairCost(finalFirstItem, 0);
 
         anvilInventory.setItem(0, finalFirstItem);
-
-        if (secondItem == null) return;
         AnvilEventGuards.scheduleSecondItemRemoval(p, anvilInventory, secondItem);
 
         if (p.getGameMode() != org.bukkit.GameMode.CREATIVE) p.setLevel(exp);
