@@ -15,6 +15,7 @@ import com.jankominek.disenchantment.plugins.ISupportedPlugin;
 import com.jankominek.disenchantment.plugins.SupportedPluginManager;
 import com.jankominek.disenchantment.plugins.placeholderapi.DisenchantmentPlaceholderExpansion;
 import com.jankominek.disenchantment.types.LogLevelType;
+import com.jankominek.disenchantment.stats.StatsManager;
 import com.jankominek.disenchantment.utils.*;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -189,7 +190,11 @@ public class Disenchantment extends JavaPlugin {
         Objects.requireNonNull(getCommand(Disenchantment.commandName)).setTabCompleter(new CommandCompleter());
 
         // BStats
-        new BStatsMetrics(plugin, bstatsId);
+        BStatsMetrics metrics = new BStatsMetrics(plugin, bstatsId);
+
+        if (Config.Logging.isOperationsEnabled()) {
+            StatsManager.init(plugin.getDataFolder(), metrics);
+        }
 
         // Automatic update check
         tasks.add(new UpdateChecker(spigotmcId).run(plugin, plugin.getDescription().getVersion()));
@@ -215,6 +220,7 @@ public class Disenchantment extends JavaPlugin {
 
         SupportedPluginManager.deactivateAllPlugins();
         EconomyUtils.reset();
+        StatsManager.shutdown();
 
         logger.info("Disenchantment disabled!");
     }
@@ -274,6 +280,13 @@ public class Disenchantment extends JavaPlugin {
 
         // 8. Sync enabled flag
         Disenchantment.enabled = Config.isPluginEnabled();
+
+        // 9. Stats manager
+        StatsManager.shutdown();
+        if (Config.Logging.isOperationsEnabled()) {
+            BStatsMetrics reloadMetrics = new BStatsMetrics(plugin, bstatsId);
+            StatsManager.init(plugin.getDataFolder(), reloadMetrics);
+        }
 
         DiagnosticUtils.debug("RELOAD", "Full reload complete");
         logger.info("Disenchantment reloaded.");
