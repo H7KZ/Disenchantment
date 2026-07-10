@@ -128,7 +128,7 @@ public enum PermissionType {
 
         String message = "";
         message += "/!\\ Caution /!\\";
-        message += "\nIt look like you are using deprecated permission ( \" + permission + \")";
+        message += "\nIt looks like you are using deprecated permission (" + permission + ")";
         message += "\nCheckout the new permission system at";
         message += "\nthe plugin's spigot page or the plugin's github.";
 
