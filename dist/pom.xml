@@ -30,8 +30,15 @@
                             <artifactSet>
                                 <includes>
                                     <include>com.jankominek:disenchantment-*</include>
+                                    <include>org.xerial:sqlite-jdbc</include>
                                 </includes>
                             </artifactSet>
+                            <relocations>
+                                <relocation>
+                                    <pattern>org.sqlite</pattern>
+                                    <shadedPattern>com.jankominek.disenchantment.libs.sqlite</shadedPattern>
+                                </relocation>
+                            </relocations>
                         </configuration>
                     </execution>
                 </executions>
