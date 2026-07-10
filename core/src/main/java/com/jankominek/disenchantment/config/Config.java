@@ -343,15 +343,21 @@ public class Config {
             for (String enchantmentState : list) {
                 String[] split = enchantmentState.split(":");
 
-                if (split.length != 2) continue;
+                String key;
+                EnchantmentStateType state;
 
-                String key = split[0];
-                EnchantmentStateType state = EnchantmentStateType.getStateByName(split[1]);
+                if (split.length == 2) {
+                    key = split[0];
+                    state = EnchantmentStateType.getStateByName(split[1]);
+                } else if (split.length == 3) {
+                    // "minecraft:sharpness:keep" — namespace prefix, drop it
+                    key = split[1];
+                    state = EnchantmentStateType.getStateByName(split[2]);
+                } else {
+                    continue;
+                }
 
-                enchantmentStates.put(
-                        key,
-                        state
-                );
+                enchantmentStates.put(key, state);
             }
 
             ENCHANTMENT_STATES_CACHE = enchantmentStates;
@@ -733,15 +739,21 @@ public class Config {
             for (String enchantmentState : list) {
                 String[] split = enchantmentState.split(":");
 
-                if (split.length != 2) continue;
+                String key;
+                EnchantmentStateType state;
 
-                String key = split[0];
-                EnchantmentStateType state = EnchantmentStateType.getStateByName(split[1]);
+                if (split.length == 2) {
+                    key = split[0];
+                    state = EnchantmentStateType.getStateByName(split[1]);
+                } else if (split.length == 3) {
+                    // "minecraft:sharpness:keep" — namespace prefix, drop it
+                    key = split[1];
+                    state = EnchantmentStateType.getStateByName(split[2]);
+                } else {
+                    continue;
+                }
 
-                enchantmentStates.put(
-                        key,
-                        state
-                );
+                enchantmentStates.put(key, state);
             }
 
             ENCHANTMENT_STATES_CACHE = enchantmentStates;

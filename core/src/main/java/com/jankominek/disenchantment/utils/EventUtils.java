@@ -64,7 +64,7 @@ public class EventUtils {
                 EnchantmentStateType state = entry.getValue();
 
                 if (EnchantmentStateType.KEEP.equals(state) || (withDelete && EnchantmentStateType.DELETE.equals(state)))
-                    firstEnchants.removeIf(e -> e.getKey().equalsIgnoreCase(key));
+                    firstEnchants.removeIf(e -> normalizeKey(e.getKey()).equalsIgnoreCase(normalizeKey(key)));
             }
 
             if (DiagnosticUtils.isDebugEnabled() && beforeFilter != firstEnchants.size()) {
@@ -117,7 +117,7 @@ public class EventUtils {
                 EnchantmentStateType state = entry.getValue();
 
                 if (EnchantmentStateType.KEEP.equals(state) || (withDelete && EnchantmentStateType.DELETE.equals(state)))
-                    firstEnchants.removeIf(e -> e.getKey().equalsIgnoreCase(key));
+                    firstEnchants.removeIf(e -> normalizeKey(e.getKey()).equalsIgnoreCase(normalizeKey(key)));
             }
 
             if (DiagnosticUtils.isDebugEnabled() && beforeFilter != firstEnchants.size()) {
@@ -136,11 +136,10 @@ public class EventUtils {
          */
         public static List<IPluginEnchantment> findEnchantmentsToDelete(List<IPluginEnchantment> enchantments) {
             List<IPluginEnchantment> result = new ArrayList<>();
+            Map<String, EnchantmentStateType> states = Config.Disenchantment.getEnchantmentStates();
 
             for (IPluginEnchantment enchantment : enchantments) {
-                String key = enchantment.getKey();
-
-                if (Config.Disenchantment.getEnchantmentStates().getOrDefault(key, EnchantmentStateType.ENABLE) == EnchantmentStateType.DELETE)
+                if (getStateForKey(states, enchantment.getKey()) == EnchantmentStateType.DELETE)
                     result.add(enchantment);
             }
 
@@ -151,9 +150,7 @@ public class EventUtils {
             Map<String, EnchantmentStateType> states = Config.Disenchantment.getEnchantmentStates();
 
             for (IPluginEnchantment enchantment : enchantments) {
-                String key = enchantment.getKey();
-
-                if (states.getOrDefault(key, EnchantmentStateType.ENABLE) == EnchantmentStateType.DISABLE) return true;
+                if (getStateForKey(states, enchantment.getKey()) == EnchantmentStateType.DISABLE) return true;
             }
 
             return false;
@@ -210,7 +207,7 @@ public class EventUtils {
                 EnchantmentStateType state = entry.getValue();
 
                 if (EnchantmentStateType.KEEP.equals(state) || (withDelete && EnchantmentStateType.DELETE.equals(state)))
-                    firstEnchants.removeIf(e -> e.getKey().equalsIgnoreCase(key));
+                    firstEnchants.removeIf(e -> normalizeKey(e.getKey()).equalsIgnoreCase(normalizeKey(key)));
             }
 
             if (DiagnosticUtils.isDebugEnabled() && beforeFilter != firstEnchants.size()) {
@@ -263,7 +260,7 @@ public class EventUtils {
                 EnchantmentStateType state = entry.getValue();
 
                 if (EnchantmentStateType.KEEP.equals(state) || (withDelete && EnchantmentStateType.DELETE.equals(state)))
-                    firstEnchants.removeIf(e -> e.getKey().equalsIgnoreCase(key));
+                    firstEnchants.removeIf(e -> normalizeKey(e.getKey()).equalsIgnoreCase(normalizeKey(key)));
             }
 
             if (DiagnosticUtils.isDebugEnabled() && beforeFilter != firstEnchants.size()) {
@@ -282,11 +279,10 @@ public class EventUtils {
          */
         public static List<IPluginEnchantment> findEnchantmentsToDelete(List<IPluginEnchantment> enchantments) {
             List<IPluginEnchantment> result = new ArrayList<>();
+            Map<String, EnchantmentStateType> states = Config.Shatterment.getEnchantmentStates();
 
             for (IPluginEnchantment enchantment : enchantments) {
-                String key = enchantment.getKey();
-
-                if (Config.Shatterment.getEnchantmentStates().getOrDefault(key, EnchantmentStateType.ENABLE) == EnchantmentStateType.DELETE)
+                if (getStateForKey(states, enchantment.getKey()) == EnchantmentStateType.DELETE)
                     result.add(enchantment);
             }
 
@@ -297,12 +293,25 @@ public class EventUtils {
             Map<String, EnchantmentStateType> states = Config.Shatterment.getEnchantmentStates();
 
             for (IPluginEnchantment enchantment : enchantments) {
-                String key = enchantment.getKey();
-
-                if (states.getOrDefault(key, EnchantmentStateType.ENABLE) == EnchantmentStateType.DISABLE) return true;
+                if (getStateForKey(states, enchantment.getKey()) == EnchantmentStateType.DISABLE) return true;
             }
 
             return false;
         }
+    }
+
+    // Strips namespace prefix (e.g. "minecraft:mending" → "mending") so config keys written
+    // with or without a namespace both match server-returned short keys.
+    static String normalizeKey(String key) {
+        int colon = key.indexOf(':');
+        return colon >= 0 ? key.substring(colon + 1) : key;
+    }
+
+    static EnchantmentStateType getStateForKey(Map<String, EnchantmentStateType> states, String enchantmentKey) {
+        String normalized = normalizeKey(enchantmentKey);
+        for (Map.Entry<String, EnchantmentStateType> entry : states.entrySet()) {
+            if (normalizeKey(entry.getKey()).equalsIgnoreCase(normalized)) return entry.getValue();
+        }
+        return EnchantmentStateType.ENABLE;
     }
 }
