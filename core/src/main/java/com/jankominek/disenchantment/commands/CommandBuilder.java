@@ -51,15 +51,15 @@ public record CommandBuilder(String name, PermissionGroupType permission, String
             return true;
         }
 
-        boolean areArgsValid = true;
+        boolean argFound = false;
 
         for (String arg : this.args)
             if (arg.equalsIgnoreCase(args[1])) {
-                areArgsValid = false;
+                argFound = true;
                 break;
             }
 
-        if (areArgsValid) {
+        if (!argFound) {
             sender.sendMessage(I18n.getPrefix() + " " + I18n.Messages.invalidArgument());
             return true;
         }
