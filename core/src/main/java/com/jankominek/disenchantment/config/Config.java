@@ -253,6 +253,10 @@ public class Config {
         public static boolean isSaveReportsEnabled() {
             return config.getBoolean(ConfigKeys.LOGGING_SAVE_REPORTS.getKey(), true);
         }
+
+        public static boolean isOperationsEnabled() {
+            return config.getBoolean(ConfigKeys.LOGGING_OPERATIONS.getKey(), false);
+        }
     }
 
     /**

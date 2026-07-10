@@ -16,6 +16,7 @@ public enum ConfigKeys {
     // Logging settings
     LOGGING_LEVEL("logging.level"),
     LOGGING_SAVE_REPORTS("logging.save-reports"),
+    LOGGING_OPERATIONS("logging.operations"),
 
     // Event priority settings
     EVENT_PRIORITIES_DISENCHANT_CLICK("event-priorities.disenchant-click"),

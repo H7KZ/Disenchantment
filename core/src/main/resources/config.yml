@@ -24,6 +24,8 @@ logging:
   # Set to DEBUG when reporting issues — logs [DEBUG][CATEGORY] lines to the console for every anvil interaction.
   level: INFO
   save-reports: true
+  # Set to true to record every disenchant/shatter to plugins/Disenchantment/stats.db
+  operations: false
 
 # ----------------------------------------------------------------------------------------
 
