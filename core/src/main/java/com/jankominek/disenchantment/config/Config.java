@@ -395,6 +395,48 @@ public class Config {
         }
 
         /**
+         * Gets the per-enchantment success chance overrides for disenchantment.
+         * Enchantments not present in this map always succeed (chance 1.0).
+         *
+         * @return map of enchantment key to its success chance (0.0-1.0)
+         */
+        public static Map<String, Double> getEnchantmentChances() {
+            var section = config.getConfigurationSection(ConfigKeys.DISENCHANTMENT_ENCHANTMENT_CHANCES.getKey());
+            if (section == null) return new HashMap<>();
+            Map<String, Double> chances = new HashMap<>();
+            for (String key : section.getKeys(false)) {
+                chances.put(key.toLowerCase(), section.getDouble(key));
+            }
+            return chances;
+        }
+
+        /**
+         * Gets the success chance for a specific enchantment key. Missing keys default to 1.0 (always succeeds).
+         *
+         * @param key the enchantment key (namespaced or short form)
+         * @return the configured chance, clamped to [0.0, 1.0]
+         */
+        public static double getEnchantmentChance(String key) {
+            if (key == null) return 1.0;
+            String shortKey = key.contains(":") ? key.substring(key.indexOf(':') + 1) : key;
+            Map<String, Double> chances = getEnchantmentChances();
+            Double chance = chances.get(shortKey.toLowerCase());
+            if (chance == null) return 1.0;
+            return Math.max(0.0, Math.min(1.0, chance));
+        }
+
+        /**
+         * Sets the success chance for a specific enchantment key and persists the change.
+         *
+         * @param key    the enchantment key
+         * @param chance the desired chance (0.0-1.0)
+         */
+        public static void setEnchantmentChance(String key, double chance) {
+            config.set(ConfigKeys.DISENCHANTMENT_ENCHANTMENT_CHANCES.getKey() + "." + key.toLowerCase(), Math.max(0.0, Math.min(1.0, chance)));
+            save();
+        }
+
+        /**
          * Economy settings for disenchantment operations.
          */
         public static class Economy {
@@ -664,9 +706,58 @@ public class Config {
                     if (section == null) return new HashMap<>();
                     Map<String, Integer> costs = new HashMap<>();
                     for (String key : section.getKeys(false)) {
-                        costs.put(key, section.getInt(key));
+                        // Two supported shapes: "sharpness: 5" (XP-only, legacy) or
+                        // "mending: { xp: 10, economy: 500 }" (XP + economy override).
+                        var sub = section.getConfigurationSection(key);
+                        if (sub != null) {
+                            if (sub.contains("xp")) costs.put(key, sub.getInt("xp"));
+                        } else {
+                            costs.put(key, section.getInt(key));
+                        }
                     }
                     return costs;
+                }
+
+                /**
+                 * Gets the per-enchantment economy cost overrides for disenchantment, parsed from
+                 * the map-shaped entries of {@code enchantment-costs} (e.g. {@code mending: { economy: 500 }}).
+                 * Enchantments without a map-shaped entry are absent from this map.
+                 *
+                 * @return map of enchantment key to its economy cost override
+                 */
+                public static Map<String, Double> getEnchantmentEconomyCosts() {
+                    var section = config.getConfigurationSection(ConfigKeys.DISENCHANTMENT_ANVIL_REPAIR_ENCHANTMENT_COSTS.getKey());
+                    if (section == null) return new HashMap<>();
+                    Map<String, Double> costs = new HashMap<>();
+                    for (String key : section.getKeys(false)) {
+                        var sub = section.getConfigurationSection(key);
+                        if (sub != null && sub.contains("economy")) {
+                            costs.put(key, sub.getDouble("economy"));
+                        }
+                    }
+                    return costs;
+                }
+
+                /**
+                 * Gets the maximum XP cost cap for disenchantment. {@code -1} means no cap (default).
+                 *
+                 * @return the configured max cost, or -1 if uncapped
+                 */
+                public static int getMaxCost() {
+                    return config.getInt(ConfigKeys.DISENCHANTMENT_REPAIR_MAX_COST.getKey(), -1);
+                }
+
+                /**
+                 * Sets the maximum XP cost cap for disenchantment and persists the change.
+                 *
+                 * @param maxCost the desired max cost, or -1 for no cap
+                 * @return {@code true} if the persisted value matches
+                 */
+                public static boolean setMaxCost(int maxCost) {
+                    config.set(ConfigKeys.DISENCHANTMENT_REPAIR_MAX_COST.getKey(), maxCost);
+                    save();
+
+                    return getMaxCost() == maxCost;
                 }
             }
         }
@@ -788,6 +879,48 @@ public class Config {
             ENCHANTMENT_STATES_CACHE = new HashMap<>(enchantmentStates);
 
             return getEnchantmentStates().equals(enchantmentStates);
+        }
+
+        /**
+         * Gets the per-enchantment success chance overrides for shatterment.
+         * Enchantments not present in this map always succeed (chance 1.0).
+         *
+         * @return map of enchantment key to its success chance (0.0-1.0)
+         */
+        public static Map<String, Double> getEnchantmentChances() {
+            var section = config.getConfigurationSection(ConfigKeys.SHATTERMENT_ENCHANTMENT_CHANCES.getKey());
+            if (section == null) return new HashMap<>();
+            Map<String, Double> chances = new HashMap<>();
+            for (String key : section.getKeys(false)) {
+                chances.put(key.toLowerCase(), section.getDouble(key));
+            }
+            return chances;
+        }
+
+        /**
+         * Gets the success chance for a specific enchantment key. Missing keys default to 1.0 (always succeeds).
+         *
+         * @param key the enchantment key (namespaced or short form)
+         * @return the configured chance, clamped to [0.0, 1.0]
+         */
+        public static double getEnchantmentChance(String key) {
+            if (key == null) return 1.0;
+            String shortKey = key.contains(":") ? key.substring(key.indexOf(':') + 1) : key;
+            Map<String, Double> chances = getEnchantmentChances();
+            Double chance = chances.get(shortKey.toLowerCase());
+            if (chance == null) return 1.0;
+            return Math.max(0.0, Math.min(1.0, chance));
+        }
+
+        /**
+         * Sets the success chance for a specific enchantment key and persists the change.
+         *
+         * @param key    the enchantment key
+         * @param chance the desired chance (0.0-1.0)
+         */
+        public static void setEnchantmentChance(String key, double chance) {
+            config.set(ConfigKeys.SHATTERMENT_ENCHANTMENT_CHANCES.getKey() + "." + key.toLowerCase(), Math.max(0.0, Math.min(1.0, chance)));
+            save();
         }
 
         /**
@@ -1060,9 +1193,56 @@ public class Config {
                     if (section == null) return new HashMap<>();
                     Map<String, Integer> costs = new HashMap<>();
                     for (String key : section.getKeys(false)) {
-                        costs.put(key, section.getInt(key));
+                        var sub = section.getConfigurationSection(key);
+                        if (sub != null) {
+                            if (sub.contains("xp")) costs.put(key, sub.getInt("xp"));
+                        } else {
+                            costs.put(key, section.getInt(key));
+                        }
                     }
                     return costs;
+                }
+
+                /**
+                 * Gets the per-enchantment economy cost overrides for shatterment, parsed from
+                 * the map-shaped entries of {@code enchantment-costs} (e.g. {@code mending: { economy: 500 }}).
+                 * Enchantments without a map-shaped entry are absent from this map.
+                 *
+                 * @return map of enchantment key to its economy cost override
+                 */
+                public static Map<String, Double> getEnchantmentEconomyCosts() {
+                    var section = config.getConfigurationSection(ConfigKeys.SHATTERMENT_ANVIL_REPAIR_ENCHANTMENT_COSTS.getKey());
+                    if (section == null) return new HashMap<>();
+                    Map<String, Double> costs = new HashMap<>();
+                    for (String key : section.getKeys(false)) {
+                        var sub = section.getConfigurationSection(key);
+                        if (sub != null && sub.contains("economy")) {
+                            costs.put(key, sub.getDouble("economy"));
+                        }
+                    }
+                    return costs;
+                }
+
+                /**
+                 * Gets the maximum XP cost cap for shatterment. {@code -1} means no cap (default).
+                 *
+                 * @return the configured max cost, or -1 if uncapped
+                 */
+                public static int getMaxCost() {
+                    return config.getInt(ConfigKeys.SHATTERMENT_REPAIR_MAX_COST.getKey(), -1);
+                }
+
+                /**
+                 * Sets the maximum XP cost cap for shatterment and persists the change.
+                 *
+                 * @param maxCost the desired max cost, or -1 for no cap
+                 * @return {@code true} if the persisted value matches
+                 */
+                public static boolean setMaxCost(int maxCost) {
+                    config.set(ConfigKeys.SHATTERMENT_REPAIR_MAX_COST.getKey(), maxCost);
+                    save();
+
+                    return getMaxCost() == maxCost;
                 }
             }
         }

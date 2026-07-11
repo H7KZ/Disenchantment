@@ -86,6 +86,7 @@ public class AnvilCostUtils {
         double totalCost;
         double baseMultiplier;
         Map<String, Integer> overrides;
+        int maxCost;
         String category = anvilEventType == AnvilEventType.DISENCHANTMENT ? "DISENCHANT" : "SHATTER";
 
         switch (anvilEventType) {
@@ -98,6 +99,7 @@ public class AnvilCostUtils {
                 totalCost = Config.Disenchantment.Anvil.Repair.getBaseCost();
                 baseMultiplier = Config.Disenchantment.Anvil.Repair.getCostMultiplier();
                 overrides = Config.Disenchantment.Anvil.Repair.getEnchantmentCosts();
+                maxCost = Config.Disenchantment.Anvil.Repair.getMaxCost();
                 break;
             case SHATTERMENT:
                 if (!Config.Shatterment.Anvil.Repair.isCostEnabled()) {
@@ -108,6 +110,7 @@ public class AnvilCostUtils {
                 totalCost = Config.Shatterment.Anvil.Repair.getBaseCost();
                 baseMultiplier = Config.Shatterment.Anvil.Repair.getCostMultiplier();
                 overrides = Config.Shatterment.Anvil.Repair.getEnchantmentCosts();
+                maxCost = Config.Shatterment.Anvil.Repair.getMaxCost();
                 break;
             default:
                 return 0;
@@ -137,7 +140,48 @@ public class AnvilCostUtils {
         }
 
         int result = (int) Math.round(totalCost);
+
+        if (maxCost > 0 && result > maxCost) {
+            DiagnosticUtils.debug(category, "AnvilCost: capped " + result + " → " + maxCost + " (max-cost)");
+            result = maxCost;
+        }
+
         DiagnosticUtils.debug(category, "AnvilCost: calculated=" + result + " XP levels");
         return result;
+    }
+
+    /**
+     * Calculates the total economy cost for a set of enchantments. When one or more
+     * enchantments has a per-enchantment economy override, the total is the sum of those
+     * overrides plus the flat {@code economy.cost} once if any enchantment lacks an override.
+     * When no enchantment has an override, the total is simply the flat cost (legacy behavior).
+     *
+     * @param enchantments      the enchantments involved in the operation
+     * @param flatCost          the configured flat economy cost (economy.cost)
+     * @param economyOverrides  map of enchantment key → per-enchantment economy cost override
+     * @return the total economy cost to charge
+     */
+    public static double economyCostForEnchantments(List<IPluginEnchantment> enchantments, double flatCost, Map<String, Double> economyOverrides) {
+        if (economyOverrides == null || economyOverrides.isEmpty()) return flatCost;
+
+        double total = 0;
+        boolean hasUnoverridden = false;
+
+        for (IPluginEnchantment enchantment : enchantments) {
+            String key = enchantment.getKey() != null ? enchantment.getKey() : "";
+            String shortKey = key.contains(":") ? key.substring(key.indexOf(':') + 1) : key;
+
+            if (economyOverrides.containsKey(key)) {
+                total += economyOverrides.get(key);
+            } else if (economyOverrides.containsKey(shortKey)) {
+                total += economyOverrides.get(shortKey);
+            } else {
+                hasUnoverridden = true;
+            }
+        }
+
+        if (hasUnoverridden) total += flatCost;
+
+        return total;
     }
 }

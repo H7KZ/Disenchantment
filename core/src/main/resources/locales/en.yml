@@ -298,6 +298,13 @@ gui:
           - "&7LEFT CLICK to increase"
           - "&7RIGHT CLICK to decrease"
           - "&7[ base + (level * multiply) ]"
+      maxcost:
+        title: "&7&lMax Cost&r"
+        lore:
+          - "&7Current value: &f{cost}&r"
+          - "&7LEFT CLICK to increase"
+          - "&7RIGHT CLICK to decrease"
+        unlimited: "No cap"
     shatterment:
       inventory: "&7&lRepair | Shatterment&r"
       cost:
@@ -331,6 +338,13 @@ gui:
           - "&7LEFT CLICK to increase"
           - "&7RIGHT CLICK to decrease"
           - "&7[ base + (level * multiply) ]"
+      maxcost:
+        title: "&7&lMax Cost&r"
+        lore:
+          - "&7Current value: &f{cost}&r"
+          - "&7LEFT CLICK to increase"
+          - "&7RIGHT CLICK to decrease"
+        unlimited: "No cap"
   enchantments:
     inventory: "&7&lEnchantments&r"
     lore:

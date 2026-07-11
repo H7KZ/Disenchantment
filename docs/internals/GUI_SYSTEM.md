@@ -148,12 +148,13 @@ whether the material is disabled for disenchanting.
 
 ### `RepairGUI`
 
-Takes `AnvilFeature feature` (DISENCHANTMENT or SHATTERMENT). Shows four toggleable/adjustable items:
+Takes `AnvilFeature feature` (DISENCHANTMENT or SHATTERMENT). Shows five toggleable/adjustable items:
 
 - Cost enabled toggle
 - Reset enabled toggle
 - Base cost value (click to change)
 - Multiplier value (click to change)
+- Max cost cap value (slot 16, click to change; left-click increments, right-click decrements down to `-1`, displayed as "No cap"/"Unlimited")
 
 ### `SoundGUI`
 

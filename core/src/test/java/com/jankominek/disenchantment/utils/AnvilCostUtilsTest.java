@@ -86,4 +86,67 @@ class AnvilCostUtilsTest extends DisenchantmentTestBase {
         int cost = AnvilCostUtils.countAnvilCost(List.of(enchant), AnvilEventType.DISENCHANTMENT);
         assertEquals(expected, cost);
     }
+
+    // ----------------------------------------------------------------------------------------------------
+    // max-cost cap (Feature 3)
+
+    @Test
+    void givenMaxCostBelowCalculatedCost_whenCountCost_thenCapsResult() {
+        // base=10, multiplier=0.25, level=5 → 11.25 → 11, capped to 5
+        setConfig("disenchantment.anvil.repair.max-cost", 5);
+        IPluginEnchantment sharpnessV = EnchantmentUtils.remapEnchantment(enchantment("sharpness"), 5);
+        int cost = AnvilCostUtils.countAnvilCost(List.of(sharpnessV), AnvilEventType.DISENCHANTMENT);
+        assertEquals(5, cost);
+    }
+
+    @Test
+    void givenMaxCostOfMinusOne_whenCountCost_thenNoCapApplied() {
+        setConfig("disenchantment.anvil.repair.max-cost", -1);
+        IPluginEnchantment sharpnessV = EnchantmentUtils.remapEnchantment(enchantment("sharpness"), 5);
+        int cost = AnvilCostUtils.countAnvilCost(List.of(sharpnessV), AnvilEventType.DISENCHANTMENT);
+        assertEquals(11, cost);
+    }
+
+    @Test
+    void givenMaxCostAboveCalculatedCost_whenCountCost_thenUnaffected() {
+        setConfig("disenchantment.anvil.repair.max-cost", 1000);
+        IPluginEnchantment sharpnessV = EnchantmentUtils.remapEnchantment(enchantment("sharpness"), 5);
+        int cost = AnvilCostUtils.countAnvilCost(List.of(sharpnessV), AnvilEventType.DISENCHANTMENT);
+        assertEquals(11, cost);
+    }
+
+    @Test
+    void givenShattermentMaxCost_whenCountCost_thenCapsResult() {
+        setConfig("shatterment.anvil.repair.max-cost", 3);
+        IPluginEnchantment sharpnessV = EnchantmentUtils.remapEnchantment(enchantment("sharpness"), 5);
+        int cost = AnvilCostUtils.countAnvilCost(List.of(sharpnessV), AnvilEventType.SHATTERMENT);
+        assertEquals(3, cost);
+    }
+
+    // ----------------------------------------------------------------------------------------------------
+    // Per-enchantment economy overrides (Feature 2)
+
+    @Test
+    void givenNoEconomyOverrides_whenEconomyCostForEnchantments_thenReturnsFlatCost() {
+        IPluginEnchantment sharpnessV = EnchantmentUtils.remapEnchantment(enchantment("sharpness"), 5);
+        double cost = AnvilCostUtils.economyCostForEnchantments(List.of(sharpnessV), 100.0, Map.of());
+        assertEquals(100.0, cost);
+    }
+
+    @Test
+    void givenOverrideForAllEnchantments_whenEconomyCostForEnchantments_thenSumsOverridesOnly() {
+        IPluginEnchantment mendingI = EnchantmentUtils.remapEnchantment(enchantment("mending"), 1);
+        Map<String, Double> overrides = Map.of("mending", 500.0);
+        double cost = AnvilCostUtils.economyCostForEnchantments(List.of(mendingI), 100.0, overrides);
+        assertEquals(500.0, cost);
+    }
+
+    @Test
+    void givenMixOfOverriddenAndPlainEnchantments_whenEconomyCostForEnchantments_thenSumsOverridesPlusFlatOnce() {
+        IPluginEnchantment mendingI = EnchantmentUtils.remapEnchantment(enchantment("mending"), 1);
+        IPluginEnchantment sharpnessV = EnchantmentUtils.remapEnchantment(enchantment("sharpness"), 5);
+        Map<String, Double> overrides = Map.of("mending", 500.0);
+        double cost = AnvilCostUtils.economyCostForEnchantments(List.of(mendingI, sharpnessV), 100.0, overrides);
+        assertEquals(600.0, cost); // 500 (mending override) + 100 (flat, for sharpness which has no override)
+    }
 }

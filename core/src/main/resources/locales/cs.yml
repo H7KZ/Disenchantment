@@ -282,6 +282,13 @@ gui:
           - "&7LEVÝ KLIK pro zvýšení"
           - "&7PRAVÝ KLIK pro snížení"
           - "&7[ base + (level * multiply) ]"
+      maxcost:
+        title: "&7&lMaximální cena&r"
+        lore:
+          - "&7Aktuální hodnota: &f{cost}&r"
+          - "&7LEVÝ KLIK pro zvýšení"
+          - "&7PRAVÝ KLIK pro snížení"
+        unlimited: "Bez limitu"
     shatterment:
       inventory: "&7&lOprava | Roztříštění&r"
       cost:
@@ -315,6 +322,13 @@ gui:
           - "&7LEVÝ KLIK pro zvýšení"
           - "&7PRAVÝ KLIK pro snížení"
           - "&7[ base + (level * multiply) ]"
+      maxcost:
+        title: "&7&lMaximální cena&r"
+        lore:
+          - "&7Aktuální hodnota: &f{cost}&r"
+          - "&7LEVÝ KLIK pro zvýšení"
+          - "&7PRAVÝ KLIK pro snížení"
+        unlimited: "Bez limitu"
   enchantments:
     inventory: "&7&lOčarování&r"
     lore:

@@ -181,6 +181,25 @@ public final class AnvilEventGuards {
 
     public enum EconomyResult {OK, NOT_AVAILABLE, INSUFFICIENT_FUNDS}
 
+    /**
+     * Same as {@link #processEconomy(Player, EconomyConfig)} but charges an explicit
+     * {@code cost} instead of {@link EconomyConfig#getCost()} — used when the effective
+     * cost has been recalculated from per-enchantment economy overrides.
+     */
+    public static EconomyResult processEconomyCost(Player p, EconomyConfig config, double cost) {
+        if (!config.isEnabled() || p.getGameMode() == GameMode.CREATIVE) return EconomyResult.OK;
+
+        if (!EconomyUtils.isAvailable()) return EconomyResult.NOT_AVAILABLE;
+
+        if (!EconomyUtils.has(p, cost)) return EconomyResult.INSUFFICIENT_FUNDS;
+
+        EconomyUtils.withdraw(p, cost);
+        if (config.isChargeMessageEnabled()) {
+            p.sendMessage(I18n.getPrefix() + " " + I18n.Messages.economyCharged(EconomyUtils.format(cost)));
+        }
+        return EconomyResult.OK;
+    }
+
     // ----------------------------------------------------------------------------------------------------
     // Economy action bar (PrepareAnvil)
 
@@ -188,12 +207,20 @@ public final class AnvilEventGuards {
      * Sends the economy cost action bar to the player when economy display conditions are met.
      */
     public static void showEconomyActionBar(Player p, EconomyConfig config) {
+        showEconomyActionBarCost(p, config, config.getCost());
+    }
+
+    /**
+     * Same as {@link #showEconomyActionBar(Player, EconomyConfig)} but displays an explicit
+     * {@code cost} instead of {@link EconomyConfig#getCost()}.
+     */
+    public static void showEconomyActionBarCost(Player p, EconomyConfig config, double cost) {
         if (config.isEnabled()
                 && EconomyUtils.isAvailable()
                 && config.isShowCostEnabled()
                 && p.getGameMode() != GameMode.CREATIVE) {
             p.sendActionBar(LegacyComponentSerializer.legacySection().deserialize(
-                    I18n.Messages.economyCost(EconomyUtils.format(config.getCost()))
+                    I18n.Messages.economyCost(EconomyUtils.format(cost))
             ));
         }
     }

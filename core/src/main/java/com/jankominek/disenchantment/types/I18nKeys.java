@@ -42,6 +42,16 @@ public enum I18nKeys {
     MESSAGES_ECONOMY_INSUFFICIENT_FUNDS("messages.economy-insufficient-funds"),
     MESSAGES_ECONOMY_CHARGED("messages.economy-charged"),
     MESSAGES_ECONOMY_NOT_AVAILABLE("messages.economy-not-available"),
+    MESSAGES_SOME_ENCHANTMENTS_MAY_NOT_TRANSFER("messages.some-enchantments-may-not-transfer"),
+    MESSAGES_SPECIFY_ENCHANTMENT_CHANCE("messages.specify-enchantment-chance"),
+    MESSAGES_ENCHANTMENT_CHANCE_IS_SET("messages.enchantment-chance-is-set"),
+
+    COMMANDS_CHANCES_DISENCHANTMENT_TITLE("commands.chances.disenchantment.title"),
+    COMMANDS_CHANCES_DISENCHANTMENT_EMPTY("commands.chances.disenchantment.empty"),
+    COMMANDS_CHANCES_DISENCHANTMENT_ENCHANTMENT("commands.chances.disenchantment.enchantment"),
+    COMMANDS_CHANCES_SHATTERMENT_TITLE("commands.chances.shatterment.title"),
+    COMMANDS_CHANCES_SHATTERMENT_EMPTY("commands.chances.shatterment.empty"),
+    COMMANDS_CHANCES_SHATTERMENT_ENCHANTMENT("commands.chances.shatterment.enchantment"),
 
     STATES_ENABLE("states.enabled"),
     STATES_KEEP("states.keep"),
@@ -181,6 +191,9 @@ public enum I18nKeys {
     GUI_REPAIR_DISENCHANTMENT_BASE_LORE("gui.repair.disenchantment.base.lore"),
     GUI_REPAIR_DISENCHANTMENT_MULTIPLIER_TITLE("gui.repair.disenchantment.multiplier.title"),
     GUI_REPAIR_DISENCHANTMENT_MULTIPLIER_LORE("gui.repair.disenchantment.multiplier.lore"),
+    GUI_REPAIR_DISENCHANTMENT_MAXCOST_TITLE("gui.repair.disenchantment.maxcost.title"),
+    GUI_REPAIR_DISENCHANTMENT_MAXCOST_LORE("gui.repair.disenchantment.maxcost.lore"),
+    GUI_REPAIR_DISENCHANTMENT_MAXCOST_UNLIMITED("gui.repair.disenchantment.maxcost.unlimited"),
 
     GUI_REPAIR_SHATTERMENT_INVENTORY("gui.repair.shatterment.inventory"),
     GUI_REPAIR_SHATTERMENT_COST_LORE_TITLE("gui.repair.shatterment.cost.title"),
@@ -193,6 +206,9 @@ public enum I18nKeys {
     GUI_REPAIR_SHATTERMENT_BASE_LORE("gui.repair.shatterment.base.lore"),
     GUI_REPAIR_SHATTERMENT_MULTIPLIER_TITLE("gui.repair.shatterment.multiplier.title"),
     GUI_REPAIR_SHATTERMENT_MULTIPLIER_LORE("gui.repair.shatterment.multiplier.lore"),
+    GUI_REPAIR_SHATTERMENT_MAXCOST_TITLE("gui.repair.shatterment.maxcost.title"),
+    GUI_REPAIR_SHATTERMENT_MAXCOST_LORE("gui.repair.shatterment.maxcost.lore"),
+    GUI_REPAIR_SHATTERMENT_MAXCOST_UNLIMITED("gui.repair.shatterment.maxcost.unlimited"),
 
     GUI_ENCHANTMENTS_INVENTORY("gui.enchantments.inventory"),
     GUI_ENCHANTMENTS_LORE_DISENCHANTMENT("gui.enchantments.lore.disenchantment"),

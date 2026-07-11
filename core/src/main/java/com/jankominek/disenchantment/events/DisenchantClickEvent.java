@@ -19,7 +19,9 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -127,7 +129,9 @@ public class DisenchantClickEvent {
 
         // Economy check — runs after PreDisenchantEvent so cancellation doesn't charge the player
         DiagnosticUtils.debug("DISENCHANT", "Click: economy check — enabled=" + Config.Disenchantment.Economy.isEnabled() + ", gameMode=" + p.getGameMode());
-        AnvilEventGuards.EconomyResult economyResult = AnvilEventGuards.processEconomy(p, ECONOMY_CONFIG);
+        double economyCost = AnvilCostUtils.economyCostForEnchantments(
+                preEvent.getEnchantments(), Config.Disenchantment.Economy.getCost(), Config.Disenchantment.Anvil.Repair.getEnchantmentEconomyCosts());
+        AnvilEventGuards.EconomyResult economyResult = AnvilEventGuards.processEconomyCost(p, ECONOMY_CONFIG, economyCost);
         if (economyResult == AnvilEventGuards.EconomyResult.NOT_AVAILABLE) {
             DiagnosticUtils.debug("DISENCHANT", "Click: economy not available → CANCELLED");
             p.sendMessage(I18n.getPrefix() + " " + I18n.Messages.economyNotAvailable());
@@ -136,7 +140,7 @@ public class DisenchantClickEvent {
         }
         if (economyResult == AnvilEventGuards.EconomyResult.INSUFFICIENT_FUNDS) {
             DiagnosticUtils.debug("DISENCHANT", "Click: insufficient funds → CANCELLED");
-            p.sendMessage(I18n.getPrefix() + " " + I18n.Messages.economyInsufficientFunds(EconomyUtils.format(Config.Disenchantment.Economy.getCost())));
+            p.sendMessage(I18n.getPrefix() + " " + I18n.Messages.economyInsufficientFunds(EconomyUtils.format(economyCost)));
             e.setCancelled(true);
             return;
         }
@@ -184,12 +188,26 @@ public class DisenchantClickEvent {
 
         if (p.getGameMode() != org.bukkit.GameMode.CREATIVE) p.setLevel(exp);
 
+        // Per-enchantment chance roll — failed enchantments are destroyed (already stripped from
+        // the source item above via the full stored-enchant set) rather than transferred to the book.
+        if (resultItemMeta != null) {
+            Map<org.bukkit.enchantments.Enchantment, Integer> stored = new HashMap<>(resultItemMeta.getStoredEnchants());
+            boolean rollChanged = false;
+            for (Map.Entry<org.bukkit.enchantments.Enchantment, Integer> entry : stored.entrySet()) {
+                double chance = Config.Disenchantment.getEnchantmentChance(entry.getKey().getKey().getKey());
+                if (chance < 1.0 && Math.random() >= chance) {
+                    resultItemMeta.removeStoredEnchant(entry.getKey());
+                    rollChanged = true;
+                }
+            }
+            if (rollChanged) result.setItemMeta(resultItemMeta);
+        }
+
         p.setItemOnCursor(result);
         boolean creative = p.getGameMode() == org.bukkit.GameMode.CREATIVE;
         int xpCost = creative ? 0 : repairCost;
-        double economyCost = (Config.Disenchantment.Economy.isEnabled() && !creative)
-                ? Config.Disenchantment.Economy.getCost() : 0.0;
-        org.bukkit.Bukkit.getPluginManager().callEvent(new PostDisenchantEvent(p, result.clone(), finalFirstItem.clone(), xpCost, economyCost));
+        double finalEconomyCost = (Config.Disenchantment.Economy.isEnabled() && !creative) ? economyCost : 0.0;
+        org.bukkit.Bukkit.getPluginManager().callEvent(new PostDisenchantEvent(p, result.clone(), finalFirstItem.clone(), xpCost, finalEconomyCost));
 
         if (Config.Disenchantment.Anvil.Sound.isEnabled())
             p.playSound(

@@ -288,6 +288,22 @@ public class GUIComponent {
             }
 
             /**
+             * Creates the max cost cap item for disenchantment repair.
+             *
+             * @param maxCost the max cost value to display, or {@code -1} for no cap
+             * @param amount  the stack amount (clamped to 64)
+             * @return the max cost {@link ItemStack}
+             */
+            public static ItemStack maxCost(int maxCost, int amount) {
+                return new ItemBuilder(Material.BARRIER)
+                        .setAmount(amount)
+                        .setDisplayName(I18n.GUI.Repair.Disenchantment.MaxCost.title())
+                        .setLore(I18n.GUI.Repair.Disenchantment.MaxCost.lore(maxCost < 0 ? I18n.GUI.Repair.Disenchantment.MaxCost.unlimited() : String.valueOf(maxCost)))
+                        .addAllFlags()
+                        .build();
+            }
+
+            /**
              * Factory methods for the disenchantment repair cost toggle item.
              */
             public static class Cost {
@@ -382,6 +398,22 @@ public class GUIComponent {
                         .setAmount(amount)
                         .setDisplayName(I18n.GUI.Repair.Shatterment.Multiplier.title())
                         .setLore(I18n.GUI.Repair.Shatterment.Multiplier.lore(String.valueOf(cost)))
+                        .addAllFlags()
+                        .build();
+            }
+
+            /**
+             * Creates the max cost cap item for shatterment repair.
+             *
+             * @param maxCost the max cost value to display, or {@code -1} for no cap
+             * @param amount  the stack amount (clamped to 64)
+             * @return the max cost {@link ItemStack}
+             */
+            public static ItemStack maxCost(int maxCost, int amount) {
+                return new ItemBuilder(Material.BARRIER)
+                        .setAmount(amount)
+                        .setDisplayName(I18n.GUI.Repair.Shatterment.MaxCost.title())
+                        .setLore(I18n.GUI.Repair.Shatterment.MaxCost.lore(maxCost < 0 ? I18n.GUI.Repair.Shatterment.MaxCost.unlimited() : String.valueOf(maxCost)))
                         .addAllFlags()
                         .build();
             }

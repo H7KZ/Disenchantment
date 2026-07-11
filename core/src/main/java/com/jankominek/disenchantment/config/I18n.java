@@ -188,6 +188,22 @@ public class I18n {
             return I18n.translateColors(localeConfig.getString(I18nKeys.MESSAGES_ECONOMY_NOT_AVAILABLE.getKey()));
         }
 
+        public static String someEnchantmentsMayNotTransfer() {
+            return I18n.translateColors(localeConfig.getString(I18nKeys.MESSAGES_SOME_ENCHANTMENTS_MAY_NOT_TRANSFER.getKey(), "&7Some enchantments may not transfer"));
+        }
+
+        public static String specifyEnchantmentChance() {
+            return I18n.translateColors(localeConfig.getString(I18nKeys.MESSAGES_SPECIFY_ENCHANTMENT_CHANCE.getKey(), "&cSpecify an enchantment and a chance between 0.0 and 1.0"));
+        }
+
+        public static String enchantmentChanceIsSet(String enchantment, String chance) {
+            return I18n.translateColors(
+                    localeConfig.getString(I18nKeys.MESSAGES_ENCHANTMENT_CHANCE_IS_SET.getKey(), "&aChance for {enchantment} set to {chance}")
+                            .replace("{enchantment}", enchantment)
+                            .replace("{chance}", chance)
+            );
+        }
+
         public static String economyEnabledIsEnabled() {
             return I18n.translateColors(localeConfig.getString(I18nKeys.MESSAGES_ECONOMY_ENABLED_IS_ENABLED.getKey()));
         }
@@ -354,6 +370,47 @@ public class I18n {
                             localeConfig.getString(I18nKeys.COMMANDS_ENCHANTMENTS_SHATTERMENT_ENCHANTMENT.getKey(), "default")
                                     .replace("{enchantment}", enchantment)
                                     .replace("{state}", state)
+                    );
+                }
+            }
+        }
+
+        /**
+         * Localized strings for the enchantment chances command output.
+         */
+        public static class Chances {
+            public static class Disenchantment {
+                public static String title() {
+                    return I18n.translateColors(localeConfig.getString(I18nKeys.COMMANDS_CHANCES_DISENCHANTMENT_TITLE.getKey(), "&6Disenchantment enchantment chances:"));
+                }
+
+                public static String empty() {
+                    return I18n.translateColors(localeConfig.getString(I18nKeys.COMMANDS_CHANCES_DISENCHANTMENT_EMPTY.getKey(), "No custom chances configured."));
+                }
+
+                public static String enchantment(String enchantment, String chance) {
+                    return I18n.translateColors(
+                            localeConfig.getString(I18nKeys.COMMANDS_CHANCES_DISENCHANTMENT_ENCHANTMENT.getKey(), "&7{enchantment}: &f{chance}")
+                                    .replace("{enchantment}", enchantment)
+                                    .replace("{chance}", chance)
+                    );
+                }
+            }
+
+            public static class Shatterment {
+                public static String title() {
+                    return I18n.translateColors(localeConfig.getString(I18nKeys.COMMANDS_CHANCES_SHATTERMENT_TITLE.getKey(), "&6Shatterment enchantment chances:"));
+                }
+
+                public static String empty() {
+                    return I18n.translateColors(localeConfig.getString(I18nKeys.COMMANDS_CHANCES_SHATTERMENT_EMPTY.getKey(), "No custom chances configured."));
+                }
+
+                public static String enchantment(String enchantment, String chance) {
+                    return I18n.translateColors(
+                            localeConfig.getString(I18nKeys.COMMANDS_CHANCES_SHATTERMENT_ENCHANTMENT.getKey(), "&7{enchantment}: &f{chance}")
+                                    .replace("{enchantment}", enchantment)
+                                    .replace("{chance}", chance)
                     );
                 }
             }
@@ -940,6 +997,24 @@ public class I18n {
                                 .toList();
                     }
                 }
+
+                public static class MaxCost {
+                    public static String title() {
+                        return I18n.translateColors(localeConfig.getString(I18nKeys.GUI_REPAIR_DISENCHANTMENT_MAXCOST_TITLE.getKey()));
+                    }
+
+                    public static List<String> lore(String cost) {
+                        return localeConfig.getStringList(I18nKeys.GUI_REPAIR_DISENCHANTMENT_MAXCOST_LORE.getKey())
+                                .stream()
+                                .map(I18n::translateColors)
+                                .map(s -> s.replace("{cost}", cost))
+                                .toList();
+                    }
+
+                    public static String unlimited() {
+                        return I18n.translateColors(localeConfig.getString(I18nKeys.GUI_REPAIR_DISENCHANTMENT_MAXCOST_UNLIMITED.getKey()));
+                    }
+                }
             }
 
             public static class Shatterment {
@@ -1008,6 +1083,24 @@ public class I18n {
                                 .map(I18n::translateColors)
                                 .map(s -> s.replace("{multiplier}", multiplier))
                                 .toList();
+                    }
+                }
+
+                public static class MaxCost {
+                    public static String title() {
+                        return I18n.translateColors(localeConfig.getString(I18nKeys.GUI_REPAIR_SHATTERMENT_MAXCOST_TITLE.getKey()));
+                    }
+
+                    public static List<String> lore(String cost) {
+                        return localeConfig.getStringList(I18nKeys.GUI_REPAIR_SHATTERMENT_MAXCOST_LORE.getKey())
+                                .stream()
+                                .map(I18n::translateColors)
+                                .map(s -> s.replace("{cost}", cost))
+                                .toList();
+                    }
+
+                    public static String unlimited() {
+                        return I18n.translateColors(localeConfig.getString(I18nKeys.GUI_REPAIR_SHATTERMENT_MAXCOST_UNLIMITED.getKey()));
                     }
                 }
             }

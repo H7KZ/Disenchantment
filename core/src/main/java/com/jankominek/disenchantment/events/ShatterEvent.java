@@ -126,6 +126,19 @@ public class ShatterEvent {
             book = pluginEnchantment.addToBook(book);
         }
 
+        boolean anyChanceBelowOne = pluginEnchantments.stream()
+                .anyMatch(ench -> Config.Shatterment.getEnchantmentChance(ench.getKey()) < 1.0);
+
+        if (anyChanceBelowOne) {
+            var meta = book.getItemMeta();
+            if (meta != null) {
+                java.util.List<String> lore = meta.hasLore() && meta.getLore() != null ? new java.util.ArrayList<>(meta.getLore()) : new java.util.ArrayList<String>();
+                lore.add(com.jankominek.disenchantment.config.I18n.Messages.someEnchantmentsMayNotTransfer());
+                meta.setLore(lore);
+                book.setItemMeta(meta);
+            }
+        }
+
         // Disenchantment plugins
         // ----------------------------------------------------------------------------------------------------
 
@@ -139,6 +152,9 @@ public class ShatterEvent {
                 + ", show-cost=" + Config.Shatterment.Economy.isShowCostEnabled()
                 + ", gameMode=" + p.getGameMode());
 
-        AnvilEventGuards.showEconomyActionBar(p, ECONOMY_CONFIG);
+        double economyCost = AnvilCostUtils.economyCostForEnchantments(
+                pluginEnchantments, Config.Shatterment.Economy.getCost(), Config.Shatterment.Anvil.Repair.getEnchantmentEconomyCosts());
+
+        AnvilEventGuards.showEconomyActionBarCost(p, ECONOMY_CONFIG, economyCost);
     }
 }

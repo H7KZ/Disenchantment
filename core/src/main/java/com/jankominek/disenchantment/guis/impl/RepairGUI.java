@@ -130,7 +130,32 @@ public class RepairGUI implements InventoryHolder {
                             event.setCurrentItem(multiplier(multiplier, Math.min((int) (multiplier * 10), 64)));
                         }
                 ),
-                GUIBorderComponent.border(16),
+                new GUIItem(
+                        16,
+                        maxCost(getMaxCost(), getMaxCost() < 0 ? 1 : Math.min(Math.max(getMaxCost(), 1), 64)),
+                        event -> {
+                            event.setCancelled(true);
+
+                            int cost = getMaxCost();
+
+                            switch (event.getClick()) {
+                                case LEFT: {
+                                    cost = cost < 0 ? 0 : cost + 1;
+                                    break;
+                                }
+                                case RIGHT: {
+                                    cost = cost <= 0 ? -1 : cost - 1;
+                                    break;
+                                }
+                                default:
+                                    return;
+                            }
+
+                            setMaxCost(cost);
+
+                            event.setCurrentItem(maxCost(cost, cost < 0 ? 1 : Math.min(Math.max(cost, 1), 64)));
+                        }
+                ),
                 GUIBorderComponent.border(17)
         );
 
@@ -248,6 +273,25 @@ public class RepairGUI implements InventoryHolder {
         };
     }
 
+    private int getMaxCost() {
+        return switch (feature) {
+            case DISENCHANTMENT -> Config.Disenchantment.Anvil.Repair.getMaxCost();
+            case SHATTERMENT -> Config.Shatterment.Anvil.Repair.getMaxCost();
+        };
+    }
+
+    private void setMaxCost(int value) {
+        Config.beginBatch();
+        try {
+            switch (feature) {
+                case DISENCHANTMENT -> Config.Disenchantment.Anvil.Repair.setMaxCost(value);
+                case SHATTERMENT -> Config.Shatterment.Anvil.Repair.setMaxCost(value);
+            }
+        } finally {
+            Config.commitBatch();
+        }
+    }
+
     private org.bukkit.inventory.ItemStack base(int cost, int amount) {
         return switch (feature) {
             case DISENCHANTMENT -> GUIComponent.Repair.Disenchantment.base(cost, amount);
@@ -259,6 +303,13 @@ public class RepairGUI implements InventoryHolder {
         return switch (feature) {
             case DISENCHANTMENT -> GUIComponent.Repair.Disenchantment.multiplier(multiplier, amount);
             case SHATTERMENT -> GUIComponent.Repair.Shatterment.multiplier(multiplier, amount);
+        };
+    }
+
+    private org.bukkit.inventory.ItemStack maxCost(int maxCost, int amount) {
+        return switch (feature) {
+            case DISENCHANTMENT -> GUIComponent.Repair.Disenchantment.maxCost(maxCost, amount);
+            case SHATTERMENT -> GUIComponent.Repair.Shatterment.maxCost(maxCost, amount);
         };
     }
 
