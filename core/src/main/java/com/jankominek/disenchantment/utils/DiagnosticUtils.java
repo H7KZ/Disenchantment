@@ -17,6 +17,10 @@ import org.bukkit.plugin.RegisteredListener;
 
 import java.io.File;
 import java.io.FileWriter;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
@@ -89,6 +93,61 @@ public class DiagnosticUtils {
                 logger.severe("Crash report saved to: " + path);
             }
         }
+
+        postToDiscordAsync(e, reportStr);
+    }
+
+    private static void postToDiscordAsync(Throwable e, String diagnosticSummary) {
+        String webhookUrl;
+        try {
+            webhookUrl = Config.Logging.getDiscordWebhook();
+        } catch (Exception ignored) {
+            return;
+        }
+        if (webhookUrl == null || webhookUrl.isBlank()) return;
+
+        String version = "unknown";
+        try { version = plugin.getDescription().getVersion(); } catch (Exception ignored) {}
+        String serverVersion = "unknown";
+        try { serverVersion = Bukkit.getVersion(); } catch (Exception ignored) {}
+
+        StackTraceElement[] stack = e.getStackTrace();
+        StringBuilder stackArray = new StringBuilder("[");
+        for (int i = 0; i < Math.min(10, stack.length); i++) {
+            if (i > 0) stackArray.append(",");
+            stackArray.append("\"").append(stack[i].toString().replace("\\", "\\\\").replace("\"", "\\\"")).append("\"");
+        }
+        stackArray.append("]");
+
+        // Escape first, then truncate on a safe boundary to avoid splitting an escape sequence
+        String escapedSummary = diagnosticSummary.replace("\\", "\\\\").replace("\"", "\\\"").replace("\n", "\\n").replace("\r", "");
+        if (escapedSummary.length() > 500) escapedSummary = escapedSummary.substring(0, 500);
+
+        String payload = "{" +
+                "\"plugin_version\":\"" + version.replace("\\", "\\\\").replace("\"", "\\\"") + "\"," +
+                "\"server_version\":\"" + serverVersion.replace("\\", "\\\\").replace("\"", "\\\"") + "\"," +
+                "\"exception_class\":\"" + e.getClass().getName() + "\"," +
+                "\"exception_message\":\"" + (e.getMessage() != null ? e.getMessage().replace("\\", "\\\\").replace("\"", "\\\"").replace("\n", "\\n") : "") + "\"," +
+                "\"stack_trace_lines\":" + stackArray + "," +
+                "\"diagnostic_summary\":\"" + escapedSummary + "\"" +
+                "}";
+
+        final String finalUrl = webhookUrl;
+        Thread t = new Thread(() -> {
+            try {
+                HttpClient client = HttpClient.newHttpClient();
+                HttpRequest request = HttpRequest.newBuilder()
+                        .uri(URI.create(finalUrl))
+                        .header("Content-Type", "application/json")
+                        .POST(HttpRequest.BodyPublishers.ofString(payload, StandardCharsets.UTF_8))
+                        .build();
+                client.send(request, HttpResponse.BodyHandlers.discarding());
+            } catch (Exception ex) {
+                logger.warning("Failed to post crash report to Discord webhook: " + ex.getMessage());
+            }
+        });
+        t.setDaemon(true);
+        t.start();
     }
 
     /**

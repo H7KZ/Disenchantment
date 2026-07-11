@@ -17,6 +17,7 @@ public enum ConfigKeys {
     LOGGING_LEVEL("logging.level"),
     LOGGING_SAVE_REPORTS("logging.save-reports"),
     LOGGING_OPERATIONS("logging.operations"),
+    LOGGING_DISCORD_WEBHOOK("logging.discord-webhook"),
 
     // Event priority settings
     EVENT_PRIORITIES_DISENCHANT_CLICK("event-priorities.disenchant-click"),

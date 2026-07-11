@@ -1,7 +1,7 @@
 prefix: "&7[Disenchantment]&r"
 
 messages:
-  requires-permission: "&cYou do not have permission to use this feature/command.&r"
+  requires-permission: "&cYou do not have permission to use this feature/command. [DISE-001]&r"
   invalid-argument: "&cInvalid argument!&r"
   unknown-enchantment: "&cUnknown enchantment!&r"
   specify-enchantment-state: "&cPlease specify an enchantment state!&r"
@@ -36,9 +36,9 @@ messages:
   economy-charge-message-is-enabled: "&aCharge message is enabled!&r"
   economy-charge-message-is-disabled: "&cCharge message is disabled!&r"
   economy-cost: "&7Economy cost: &f{cost}&r"
-  economy-insufficient-funds: "&cInsufficient funds! This operation costs &f{cost}&c.&r"
+  economy-insufficient-funds: "&cInsufficient funds! This operation costs &f{cost}&c. [DISE-005]&r"
   economy-charged: "&7You have been charged &f{cost}&7.&r"
-  economy-not-available: "&cEconomy is enabled in config but no economy plugin was found. Please install Vault and an economy plugin.&r"
+  economy-not-available: "&cEconomy is enabled in config but no economy plugin was found. Please install Vault and an economy plugin. [DISE-006]&r"
 
 states:
   enabled: "&aEnabled&r"

@@ -26,6 +26,8 @@ logging:
   save-reports: true
   # Set to true to record every disenchant/shatter to plugins/Disenchantment/stats.db
   operations: false
+  # Discord webhook URL — if set, crash reports are POSTed asynchronously. Leave empty to disable.
+  discord-webhook: ""
 
 # ----------------------------------------------------------------------------------------
 

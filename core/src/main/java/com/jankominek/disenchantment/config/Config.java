@@ -257,6 +257,10 @@ public class Config {
         public static boolean isOperationsEnabled() {
             return config.getBoolean(ConfigKeys.LOGGING_OPERATIONS.getKey(), false);
         }
+
+        public static String getDiscordWebhook() {
+            return config.getString(ConfigKeys.LOGGING_DISCORD_WEBHOOK.getKey(), "");
+        }
     }
 
     /**
