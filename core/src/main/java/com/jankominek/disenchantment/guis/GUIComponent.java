@@ -526,17 +526,21 @@ public class GUIComponent {
      */
     public static class Materials {
         /**
-         * Creates a material item showing whether disenchantment is disabled for it.
+         * Creates a material item showing whether disenchantment and shatterment are disabled for it.
          *
          * @param material       the material to display
          * @param disenchantment whether disenchantment is disabled for this material
+         * @param shatterment    whether shatterment is disabled for this material
          * @return the material {@link ItemStack}
          */
-        public static ItemStack material(Material material, boolean disenchantment) {
+        public static ItemStack material(Material material, boolean disenchantment, boolean shatterment) {
             List<String> lore = new ArrayList<>();
 
-            if (!disenchantment) lore.add(I18n.GUI.Materials.Lore.enabled());
-            else lore.add(I18n.GUI.Materials.Lore.disabled());
+            if (!disenchantment) lore.add(I18n.GUI.Materials.Lore.Disenchantment.enabled());
+            else lore.add(I18n.GUI.Materials.Lore.Disenchantment.disabled());
+
+            if (!shatterment) lore.add(I18n.GUI.Materials.Lore.Shatterment.enabled());
+            else lore.add(I18n.GUI.Materials.Lore.Shatterment.disabled());
 
             return new ItemBuilder(material)
                     .setDisplayName("§7" + material.getKey().getKey())

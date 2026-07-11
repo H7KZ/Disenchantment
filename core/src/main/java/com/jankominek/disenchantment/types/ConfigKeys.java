@@ -60,6 +60,7 @@ public enum ConfigKeys {
     // Shatterment settings
     SHATTERMENT_ENABLED("shatterment.enabled"),
     SHATTERMENT_DISABLED_WORLDS("shatterment.disabled-worlds"),
+    SHATTERMENT_DISABLED_MATERIALS("shatterment.disabled-materials"),
     SHATTERMENT_ENCHANTMENTS_STATES("shatterment.enchantments-states"),
 
     SHATTERMENT_ANVIL_SOUND_ENABLED("shatterment.anvil.sound.enabled"),

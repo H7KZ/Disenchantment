@@ -366,13 +366,18 @@ gui:
   materials:
     inventory: "&7&lMaterials&r"
     lore:
-      enabled: "&7Disenchantment: &aEnabled&r"
-      disabled: "&7Disenchantment: &cDisabled&r"
+      disenchantment:
+        enabled: "&7Disenchantment: &aEnabled&r"
+        disabled: "&7Disenchantment: &cDisabled&r"
+      shatterment:
+        enabled: "&7Shatterment: &aEnabled&r"
+        disabled: "&7Shatterment: &cDisabled&r"
     help:
       title: "&d&lHelp&r"
       lore:
         - "&7Click to toggle materials on or off"
-        - "&7Only for disenchantment feature"
+        - "&7LEFT CLICK for disenchantment"
+        - "&7RIGHT CLICK for shatterment"
         - "&7To edit other materials, use the&r"
         - "&7command: /disenchantment disenchantment:materials&r"
   sound:

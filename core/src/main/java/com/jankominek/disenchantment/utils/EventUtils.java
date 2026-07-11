@@ -182,6 +182,11 @@ public class EventUtils {
             if (firstItem.getType() != Material.ENCHANTED_BOOK) return List.of();
             if (secondItem.getType() != Material.BOOK) return List.of();
 
+            if (isMaterialDisabled(firstItem)) {
+                DiagnosticUtils.debug("SHATTER", "EventUtils: rejected — material " + firstItem.getType() + " is disabled by config");
+                return List.of();
+            }
+
             List<IPluginEnchantment> secondEnchants = EnchantmentUtils.getItemEnchantments(secondItem);
 
             if (!secondEnchants.isEmpty()) {
@@ -234,6 +239,11 @@ public class EventUtils {
 
             if (firstItem.getType() != Material.ENCHANTED_BOOK) return List.of();
             if (secondItem.getType() != Material.BOOK) return List.of();
+
+            if (isMaterialDisabled(firstItem)) {
+                DiagnosticUtils.debug("SHATTER", "EventUtils [" + activatedPlugin.getName() + "]: rejected — material " + firstItem.getType() + " is disabled by config");
+                return List.of();
+            }
 
             List<IPluginEnchantment> secondEnchants = activatedPlugin.getItemEnchantments(secondItem, world);
 
@@ -297,6 +307,10 @@ public class EventUtils {
             }
 
             return false;
+        }
+
+        private static boolean isMaterialDisabled(ItemStack item) {
+            return Config.Shatterment.getDisabledMaterials().stream().anyMatch(m -> m.equals(item.getType()));
         }
     }
 

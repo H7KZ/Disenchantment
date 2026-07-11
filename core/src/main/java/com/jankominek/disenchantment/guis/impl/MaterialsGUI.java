@@ -110,7 +110,8 @@ public class MaterialsGUI implements InventoryHolder {
 
         GUIItem[] materialItems = new GUIItem[pageSize];
 
-        List<Material> disabledMaterials = Config.Disenchantment.getDisabledMaterials();
+        List<Material> disabledDisenchantMaterials = Config.Disenchantment.getDisabledMaterials();
+        List<Material> disabledShatterMaterials = Config.Shatterment.getDisabledMaterials();
 
         for (int i = 0; i < pageSize; i++) {
             int slot = i + this.page * 28;
@@ -121,16 +122,30 @@ public class MaterialsGUI implements InventoryHolder {
 
             materialItems[i] = new GUIItem(
                     freeSlots[i],
-                    GUIComponent.Materials.material(material, disabledMaterials.contains(material)),
+                    GUIComponent.Materials.material(material, disabledDisenchantMaterials.contains(material), disabledShatterMaterials.contains(material)),
                     event -> {
                         event.setCancelled(true);
 
-                        if (disabledMaterials.contains(material)) disabledMaterials.remove(material);
-                        else disabledMaterials.add(material);
+                        switch (event.getClick()) {
+                            case LEFT: {
+                                if (disabledDisenchantMaterials.contains(material)) disabledDisenchantMaterials.remove(material);
+                                else disabledDisenchantMaterials.add(material);
 
-                        Config.Disenchantment.setDisabledMaterials(disabledMaterials);
+                                Config.Disenchantment.setDisabledMaterials(disabledDisenchantMaterials);
+                                break;
+                            }
+                            case RIGHT: {
+                                if (disabledShatterMaterials.contains(material)) disabledShatterMaterials.remove(material);
+                                else disabledShatterMaterials.add(material);
 
-                        event.setCurrentItem(GUIComponent.Materials.material(material, disabledMaterials.contains(material)));
+                                Config.Shatterment.setDisabledMaterials(disabledShatterMaterials);
+                                break;
+                            }
+                            default:
+                                return;
+                        }
+
+                        event.setCurrentItem(GUIComponent.Materials.material(material, disabledDisenchantMaterials.contains(material), disabledShatterMaterials.contains(material)));
                     }
             );
         }

@@ -218,8 +218,10 @@ public enum I18nKeys {
     GUI_ENCHANTMENTS_HELP_LORE("gui.enchantments.help.lore"),
 
     GUI_MATERIALS_INVENTORY("gui.materials.inventory"),
-    GUI_MATERIALS_LORE_ENABLED("gui.materials.lore.enabled"),
-    GUI_MATERIALS_LORE_DISABLED("gui.materials.lore.disabled"),
+    GUI_MATERIALS_LORE_DISENCHANTMENT_ENABLED("gui.materials.lore.disenchantment.enabled"),
+    GUI_MATERIALS_LORE_DISENCHANTMENT_DISABLED("gui.materials.lore.disenchantment.disabled"),
+    GUI_MATERIALS_LORE_SHATTERMENT_ENABLED("gui.materials.lore.shatterment.enabled"),
+    GUI_MATERIALS_LORE_SHATTERMENT_DISABLED("gui.materials.lore.shatterment.disabled"),
     GUI_MATERIALS_HELP_TITLE("gui.materials.help.title"),
     GUI_MATERIALS_HELP_LORE("gui.materials.help.lore"),
 

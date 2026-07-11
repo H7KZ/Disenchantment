@@ -1152,12 +1152,24 @@ public class I18n {
             }
 
             public static class Lore {
-                public static String enabled() {
-                    return I18n.translateColors(localeConfig.getString(I18nKeys.GUI_MATERIALS_LORE_ENABLED.getKey()));
+                public static class Disenchantment {
+                    public static String enabled() {
+                        return I18n.translateColors(localeConfig.getString(I18nKeys.GUI_MATERIALS_LORE_DISENCHANTMENT_ENABLED.getKey()));
+                    }
+
+                    public static String disabled() {
+                        return I18n.translateColors(localeConfig.getString(I18nKeys.GUI_MATERIALS_LORE_DISENCHANTMENT_DISABLED.getKey()));
+                    }
                 }
 
-                public static String disabled() {
-                    return I18n.translateColors(localeConfig.getString(I18nKeys.GUI_MATERIALS_LORE_DISABLED.getKey()));
+                public static class Shatterment {
+                    public static String enabled() {
+                        return I18n.translateColors(localeConfig.getString(I18nKeys.GUI_MATERIALS_LORE_SHATTERMENT_ENABLED.getKey()));
+                    }
+
+                    public static String disabled() {
+                        return I18n.translateColors(localeConfig.getString(I18nKeys.GUI_MATERIALS_LORE_SHATTERMENT_DISABLED.getKey()));
+                    }
                 }
             }
 
