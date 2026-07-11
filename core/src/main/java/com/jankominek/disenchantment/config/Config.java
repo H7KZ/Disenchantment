@@ -4,6 +4,7 @@ import com.jankominek.disenchantment.types.AnvilFeature;
 import com.jankominek.disenchantment.types.ConfigKeys;
 import com.jankominek.disenchantment.types.EnchantmentStateType;
 import com.jankominek.disenchantment.types.LogLevelType;
+import com.jankominek.disenchantment.types.SplitCountRange;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -165,6 +166,22 @@ public class Config {
      */
     public static String getLocale() {
         return config.getString(ConfigKeys.LOCALE.getKey());
+    }
+
+    /**
+     * Gets the configured enchantment groups, shared by both disenchantment and shatterment.
+     * Each entry maps a group name to the list of enchantment keys (lowercase) it contains.
+     *
+     * @return map of group name to its member enchantment keys
+     */
+    public static Map<String, List<String>> getEnchantmentGroups() {
+        var section = config.getConfigurationSection(ConfigKeys.ENCHANTMENT_GROUPS.getKey());
+        if (section == null) return new HashMap<>();
+        Map<String, List<String>> groups = new HashMap<>();
+        for (String key : section.getKeys(false)) {
+            groups.put(key.toLowerCase(), section.getStringList(key).stream().map(String::toLowerCase).toList());
+        }
+        return groups;
     }
 
     /**
@@ -864,12 +881,61 @@ public class Config {
         }
 
         /**
-         * Gets the number of enchantments to split off per shatter operation.
+         * Gets the list of materials that cannot be shattered. Since the item losing enchantments
+         * during shatterment is always the {@code ENCHANTED_BOOK} in slot 0, this list is checked
+         * against that item's material — mirroring how disenchantment checks the donating item.
          *
-         * @return the configured split count, defaulting to 1
+         * @return list of disabled {@link Material} types
          */
-        public static int getSplitCount() {
-            return config.getInt(ConfigKeys.SHATTERMENT_SPLIT_COUNT.getKey(), 1);
+        public static List<Material> getDisabledMaterials() {
+            return new ArrayList<>(config.getStringList(ConfigKeys.SHATTERMENT_DISABLED_MATERIALS.getKey()).stream().map(Material::getMaterial).filter(java.util.Objects::nonNull).toList());
+        }
+
+        /**
+         * Sets the list of materials that cannot be shattered and persists the change.
+         *
+         * @param materials the materials to disable
+         * @return {@code true} if the persisted value matches the requested list
+         */
+        public static boolean setDisabledMaterials(List<Material> materials) {
+            config.set(ConfigKeys.SHATTERMENT_DISABLED_MATERIALS.getKey(), materials.stream().map(Material::name).toList());
+            save();
+
+            return getDisabledMaterials().equals(materials);
+        }
+
+        /**
+         * Gets the number of enchantments to split off per shatter operation. The underlying
+         * YAML value may be a plain integer (fixed count) or a map with {@code min}/{@code max}
+         * keys (random range). Legacy plain-integer configs parse as a fixed range ({@code min == max}).
+         *
+         * @return the configured {@link SplitCountRange}, defaulting to a fixed range of 1
+         */
+        public static SplitCountRange getSplitCount() {
+            var section = config.getConfigurationSection(ConfigKeys.SHATTERMENT_SPLIT_COUNT.getKey());
+            if (section != null && section.contains("min") && section.contains("max")) {
+                return new SplitCountRange(section.getInt("min"), section.getInt("max"));
+            }
+
+            int value = config.getInt(ConfigKeys.SHATTERMENT_SPLIT_COUNT.getKey(), 1);
+            return new SplitCountRange(value, value);
+        }
+
+        /**
+         * Sets the split count and persists the change. Fixed ranges ({@code min == max}) are
+         * written as a plain integer to keep existing configs looking unchanged; ranges with
+         * distinct bounds are written as a {@code min}/{@code max} map.
+         *
+         * @param range the desired split count range
+         */
+        public static void setSplitCount(SplitCountRange range) {
+            if (range.isFixed()) {
+                config.set(ConfigKeys.SHATTERMENT_SPLIT_COUNT.getKey(), range.min());
+            } else {
+                config.set(ConfigKeys.SHATTERMENT_SPLIT_COUNT.getKey() + ".min", range.min());
+                config.set(ConfigKeys.SHATTERMENT_SPLIT_COUNT.getKey() + ".max", range.max());
+            }
+            save();
         }
 
         /**

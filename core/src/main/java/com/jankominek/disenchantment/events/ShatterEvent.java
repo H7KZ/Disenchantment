@@ -4,6 +4,7 @@ import com.jankominek.disenchantment.config.Config;
 import com.jankominek.disenchantment.plugins.IPluginEnchantment;
 import com.jankominek.disenchantment.types.AnvilEventType;
 import com.jankominek.disenchantment.types.PermissionGroupType;
+import com.jankominek.disenchantment.types.SplitCountRange;
 import com.jankominek.disenchantment.utils.AnvilCostUtils;
 import com.jankominek.disenchantment.utils.DiagnosticUtils;
 import com.jankominek.disenchantment.utils.EconomyUtils;
@@ -108,7 +109,10 @@ public class ShatterEvent {
         List<IPluginEnchantment> shuffleEnchantments = new ArrayList<>(enchantments);
         Collections.shuffle(shuffleEnchantments);
 
-        int splitCount = Config.Shatterment.getSplitCount();
+        SplitCountRange splitCountRange = Config.Shatterment.getSplitCount();
+        int splitCount = splitCountRange.isFixed()
+                ? splitCountRange.min()
+                : java.util.concurrent.ThreadLocalRandom.current().nextInt(splitCountRange.min(), splitCountRange.max() + 1);
         int halfSize = Math.min(Math.max(1, splitCount), shuffleEnchantments.size() - 1);
 
         for (int i = 0; i < halfSize; i++) {
