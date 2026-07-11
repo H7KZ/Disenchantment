@@ -4,6 +4,7 @@ import com.google.common.util.concurrent.AtomicDouble;
 import com.jankominek.disenchantment.config.Config;
 import com.jankominek.disenchantment.plugins.IPluginEnchantment;
 import com.jankominek.disenchantment.types.AnvilEventType;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.AnvilInventory;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
@@ -83,6 +84,20 @@ public class AnvilCostUtils {
      * @return the calculated cost in experience levels, or 0 if cost is disabled
      */
     public static int countAnvilCost(List<IPluginEnchantment> enchantments, AnvilEventType anvilEventType) {
+        return countAnvilCost(enchantments, anvilEventType, null);
+    }
+
+    /**
+     * Same as {@link #countAnvilCost(List, AnvilEventType)} but additionally applies the
+     * player's resolved cost multiplier (LuckPerms meta or {@code disenchantment.discount.N}
+     * permission node) to the final cost before returning.
+     *
+     * @param enchantments   the enchantments involved in the operation
+     * @param anvilEventType the type of anvil event (DISENCHANTMENT or SHATTERMENT)
+     * @param player         the player performing the operation, or {@code null} to skip the multiplier
+     * @return the calculated cost in experience levels, or 0 if cost is disabled
+     */
+    public static int countAnvilCost(List<IPluginEnchantment> enchantments, AnvilEventType anvilEventType, Player player) {
         double totalCost;
         double baseMultiplier;
         Map<String, Integer> overrides;
@@ -144,6 +159,15 @@ public class AnvilCostUtils {
         if (maxCost > 0 && result > maxCost) {
             DiagnosticUtils.debug(category, "AnvilCost: capped " + result + " → " + maxCost + " (max-cost)");
             result = maxCost;
+        }
+
+        if (player != null) {
+            double costMultiplier = CostMultiplierUtils.getMultiplier(player);
+            if (costMultiplier != 1.0) {
+                int discounted = (int) Math.round(result * costMultiplier);
+                DiagnosticUtils.debug(category, "AnvilCost: multiplier=" + costMultiplier + " → " + result + " → " + discounted);
+                result = discounted;
+            }
         }
 
         DiagnosticUtils.debug(category, "AnvilCost: calculated=" + result + " XP levels");

@@ -128,7 +128,7 @@ public class DisenchantEvent {
 
         e.setResult(book);
 
-        DiagnosticUtils.debug("DISENCHANT", "PrepareAnvil: anvil cost=" + AnvilCostUtils.countAnvilCost(pluginEnchantments, AnvilEventType.DISENCHANTMENT));
+        DiagnosticUtils.debug("DISENCHANT", "PrepareAnvil: anvil cost=" + AnvilCostUtils.countAnvilCost(pluginEnchantments, AnvilEventType.DISENCHANTMENT, p));
         AnvilEventGuards.applyAnvilCostAndSchedule(e, p, pluginEnchantments, AnvilEventType.DISENCHANTMENT);
 
         DiagnosticUtils.debug("DISENCHANT", "PrepareAnvil: economy display — enabled=" + Config.Disenchantment.Economy.isEnabled()

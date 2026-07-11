@@ -220,6 +220,7 @@ public class Disenchantment extends JavaPlugin {
 
         SupportedPluginManager.deactivateAllPlugins();
         EconomyUtils.reset();
+        LuckPermsUtils.reset();
         StatsManager.shutdown();
 
         logger.info("Disenchantment disabled!");
@@ -277,6 +278,7 @@ public class Disenchantment extends JavaPlugin {
         // 7. Re-hook economy
         EconomyUtils.reset();
         EconomyUtils.setup();
+        LuckPermsUtils.reset();
 
         // 8. Sync enabled flag
         Disenchantment.enabled = Config.isPluginEnabled();

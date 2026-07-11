@@ -37,6 +37,11 @@ disenchantment:
   disabled-materials: [ ]
   enchantments-states: [ ]
   enchantment-chances: { }
+  cost-multiplier:
+    # When true, the player's effective LuckPerms meta value "disenchantment_multiplier"
+    # is used as the XP cost multiplier. Falls back to disenchantment.discount.N permission
+    # nodes (N = 5, 10, ..., 95) when LuckPerms is absent, disabled, or has no meta set.
+    luckperms: false
   anvil:
     sound:
       enabled: true

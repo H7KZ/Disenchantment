@@ -243,12 +243,12 @@ public final class AnvilEventGuards {
             List<IPluginEnchantment> pluginEnchantments,
             AnvilEventType eventType) {
 
-        int anvilCost = AnvilCostUtils.countAnvilCost(pluginEnchantments, eventType);
+        int anvilCost = AnvilCostUtils.countAnvilCost(pluginEnchantments, eventType, p);
         AnvilCostUtils.setAnvilRepairCost(e.getInventory(), e.getView(), anvilCost);
 
         SchedulerUtils.runForEntity(Disenchantment.plugin, p, () -> {
             AnvilCostUtils.setAnvilRepairCost(e.getInventory(), e.getView(),
-                    AnvilCostUtils.countAnvilCost(pluginEnchantments, eventType));
+                    AnvilCostUtils.countAnvilCost(pluginEnchantments, eventType, p));
             p.updateInventory();
         });
     }

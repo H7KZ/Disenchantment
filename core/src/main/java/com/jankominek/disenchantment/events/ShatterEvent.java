@@ -144,7 +144,7 @@ public class ShatterEvent {
 
         e.setResult(book);
 
-        DiagnosticUtils.debug("SHATTER", "PrepareAnvil: anvil cost=" + AnvilCostUtils.countAnvilCost(pluginEnchantments, AnvilEventType.SHATTERMENT));
+        DiagnosticUtils.debug("SHATTER", "PrepareAnvil: anvil cost=" + AnvilCostUtils.countAnvilCost(pluginEnchantments, AnvilEventType.SHATTERMENT, p));
         AnvilEventGuards.applyAnvilCostAndSchedule(e, p, pluginEnchantments, AnvilEventType.SHATTERMENT);
 
         DiagnosticUtils.debug("SHATTER", "PrepareAnvil: economy display — enabled=" + Config.Shatterment.Economy.isEnabled()

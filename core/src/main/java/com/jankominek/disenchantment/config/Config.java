@@ -264,6 +264,22 @@ public class Config {
     }
 
     /**
+     * Configuration for the optional LuckPerms-based XP cost multiplier.
+     */
+    public static class CostMultiplier {
+        /**
+         * Returns whether LuckPerms meta should be queried for a per-player cost multiplier.
+         * When {@code false}, LuckPerms is never queried and only the permission-node
+         * discount fallback applies.
+         *
+         * @return {@code true} if LuckPerms-based cost multiplier is enabled
+         */
+        public static boolean isLuckPermsEnabled() {
+            return config.getBoolean(ConfigKeys.COST_MULTIPLIER_LUCKPERMS.getKey(), false);
+        }
+    }
+
+    /**
      * Configuration section for disenchantment (extracting enchantments from items to books).
      * Includes settings for enabled state, disabled worlds/materials, enchantment states,
      * and anvil sound/repair parameters.

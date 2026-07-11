@@ -49,6 +49,9 @@ public enum ConfigKeys {
     DISENCHANTMENT_ECONOMY_SHOW_COST("disenchantment.economy.show-cost"),
     DISENCHANTMENT_ECONOMY_CHARGE_MESSAGE("disenchantment.economy.charge-message"),
 
+    // Cost multiplier settings (LuckPerms meta / permission-node discount)
+    COST_MULTIPLIER_LUCKPERMS("disenchantment.cost-multiplier.luckperms"),
+
     // Shatterment settings
     SHATTERMENT_ENABLED("shatterment.enabled"),
     SHATTERMENT_DISABLED_WORLDS("shatterment.disabled-worlds"),

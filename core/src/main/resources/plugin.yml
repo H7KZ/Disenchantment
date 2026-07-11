@@ -7,7 +7,7 @@ folia-supported: true
 author: Jan Komínek
 website: https://github.com/H7KZ/Disenchantment
 
-softdepend: [ Vault, VaultUnlocked, ExcellentEnchants, EcoEnchants, eco, AdvancedEnchantments, UberEnchant, EnchantsSquared, PlaceholderAPI ]
+softdepend: [ Vault, VaultUnlocked, ExcellentEnchants, EcoEnchants, eco, AdvancedEnchantments, UberEnchant, EnchantsSquared, PlaceholderAPI, LuckPerms ]
 
 commands:
   disenchantment:
@@ -131,3 +131,60 @@ permissions:
   disenchantment.gui.shatter.economy:
     description: Allows the player to set the shatter economy settings.
     default: op
+  disenchantment.discount.5:
+    description: Grants a 5% XP cost discount on anvil operations.
+    default: false
+  disenchantment.discount.10:
+    description: Grants a 10% XP cost discount on anvil operations.
+    default: false
+  disenchantment.discount.15:
+    description: Grants a 15% XP cost discount on anvil operations.
+    default: false
+  disenchantment.discount.20:
+    description: Grants a 20% XP cost discount on anvil operations.
+    default: false
+  disenchantment.discount.25:
+    description: Grants a 25% XP cost discount on anvil operations.
+    default: false
+  disenchantment.discount.30:
+    description: Grants a 30% XP cost discount on anvil operations.
+    default: false
+  disenchantment.discount.35:
+    description: Grants a 35% XP cost discount on anvil operations.
+    default: false
+  disenchantment.discount.40:
+    description: Grants a 40% XP cost discount on anvil operations.
+    default: false
+  disenchantment.discount.45:
+    description: Grants a 45% XP cost discount on anvil operations.
+    default: false
+  disenchantment.discount.50:
+    description: Grants a 50% XP cost discount on anvil operations.
+    default: false
+  disenchantment.discount.55:
+    description: Grants a 55% XP cost discount on anvil operations.
+    default: false
+  disenchantment.discount.60:
+    description: Grants a 60% XP cost discount on anvil operations.
+    default: false
+  disenchantment.discount.65:
+    description: Grants a 65% XP cost discount on anvil operations.
+    default: false
+  disenchantment.discount.70:
+    description: Grants a 70% XP cost discount on anvil operations.
+    default: false
+  disenchantment.discount.75:
+    description: Grants a 75% XP cost discount on anvil operations.
+    default: false
+  disenchantment.discount.80:
+    description: Grants a 80% XP cost discount on anvil operations.
+    default: false
+  disenchantment.discount.85:
+    description: Grants a 85% XP cost discount on anvil operations.
+    default: false
+  disenchantment.discount.90:
+    description: Grants a 90% XP cost discount on anvil operations.
+    default: false
+  disenchantment.discount.95:
+    description: Grants a 95% XP cost discount on anvil operations.
+    default: false
