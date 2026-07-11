@@ -11,7 +11,6 @@ import java.sql.SQLException;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
 import java.util.logging.Logger;
 
 import static com.jankominek.disenchantment.Disenchantment.plugin;
@@ -36,17 +35,15 @@ public class StatsManager {
             StatsCache c = new StatsCache();
             instance = new StatsManager(db, c);
 
-            // Async boot load → sync cache init on main thread
-            CompletableFuture.runAsync(() -> {
-                try {
-                    BootData bd = db.loadBootData();
-                    Bukkit.getScheduler().runTask(plugin, () -> c.initialize(bd));
-                } catch (SQLException e) {
-                    Logger.getLogger("Disenchantment").warning("StatsManager boot load failed: " + e.getMessage());
-                }
-            });
-
-            Bukkit.getPluginManager().registerEvents(new StatsListener(instance), plugin);
+            // Boot load runs on writeExecutor (same thread as inserts) to avoid concurrent Connection use.
+            // Listener registers after cache init so no boot-window records are overwritten.
+            db.loadBootDataAsync(
+                bd -> Bukkit.getScheduler().runTask(plugin, () -> {
+                    c.initialize(bd);
+                    Bukkit.getPluginManager().registerEvents(new StatsListener(instance), plugin);
+                }),
+                e -> Logger.getLogger("Disenchantment").warning("StatsManager boot load failed: " + e.getMessage())
+            );
 
             if (metrics != null) registerCharts(metrics);
 

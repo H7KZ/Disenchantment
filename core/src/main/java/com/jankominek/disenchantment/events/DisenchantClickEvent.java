@@ -70,11 +70,13 @@ public class DisenchantClickEvent {
 
         if (!Config.isPluginEnabled() || !Config.Disenchantment.isEnabled()) return;
 
+        if (!AnvilEventGuards.isAnvilResultSlotClick(e, p)) return;
+
         if (AnvilEventGuards.isMaintenanceBlocked(p)) return;
 
         if (AnvilEventGuards.isWorldBlocked(p, Config.Disenchantment.getDisabledWorlds().contains(p.getWorld()))) return;
 
-        if (!AnvilEventGuards.isAnvilResultSlotClick(e, p)) return;
+        if (AnvilEventGuards.isOnCooldown(p)) { e.setCancelled(true); return; }
 
         AnvilInventory anvilInventory = (AnvilInventory) e.getInventory();
 

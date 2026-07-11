@@ -4,6 +4,8 @@ import java.sql.*;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 import java.util.logging.Logger;
 
 public class StatsDatabase {
@@ -131,8 +133,24 @@ public class StatsDatabase {
         return new BootData(disenchants, shatters, xpSpent, moneySpent, enchCounts, playerStats);
     }
 
+    /** Submits the boot load onto writeExecutor so it shares the connection thread with inserts. */
+    public void loadBootDataAsync(Consumer<BootData> onLoaded, Consumer<SQLException> onError) {
+        writeExecutor.submit(() -> {
+            try {
+                onLoaded.accept(loadBootData());
+            } catch (SQLException e) {
+                onError.accept(e);
+            }
+        });
+    }
+
     public void close() {
         writeExecutor.shutdown();
+        try {
+            writeExecutor.awaitTermination(5, TimeUnit.SECONDS);
+        } catch (InterruptedException ignored) {
+            Thread.currentThread().interrupt();
+        }
         try { connection.close(); } catch (SQLException ignored) {}
     }
 }

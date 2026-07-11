@@ -70,11 +70,13 @@ public class ShatterClickEvent {
 
         if (!Config.isPluginEnabled() || !Config.Shatterment.isEnabled()) return;
 
+        if (!AnvilEventGuards.isAnvilResultSlotClick(e, p)) return;
+
         if (AnvilEventGuards.isMaintenanceBlocked(p)) return;
 
         if (AnvilEventGuards.isWorldBlocked(p, Config.Shatterment.getDisabledWorlds().contains(p.getWorld()))) return;
 
-        if (!AnvilEventGuards.isAnvilResultSlotClick(e, p)) return;
+        if (AnvilEventGuards.isOnCooldown(p)) { e.setCancelled(true); return; }
 
         AnvilInventory anvilInventory = (AnvilInventory) e.getInventory();
 

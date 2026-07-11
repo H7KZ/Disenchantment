@@ -28,6 +28,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Static utility class holding shared guard and helper logic used by the four
@@ -338,7 +339,8 @@ public final class AnvilEventGuards {
     // ----------------------------------------------------------------------------------------------------
     // "Too Expensive!" bypass
 
-    private static final Map<UUID, Integer> bypassCostCache = new HashMap<>();
+    // ponytail: ConcurrentHashMap for Folia region-thread safety
+    private static final Map<UUID, Integer> bypassCostCache = new ConcurrentHashMap<>();
 
     private static boolean isBypassEnabled(AnvilEventType eventType) {
         return eventType == AnvilEventType.DISENCHANTMENT
