@@ -18,17 +18,18 @@ import static com.jankominek.disenchantment.Disenchantment.logger;
  * to the corresponding {@link IConfigMigration} implementation.
  */
 public class ConfigMigrations {
-    private static final Map<Integer, IConfigMigration> migrations = Map.of(
-            1, new Migration1(),
-            2, new Migration2(),
-            3, new Migration3(),
-            4, new Migration4(),
-            5, new Migration5(),
-            6, new Migration6(),
-            7, new Migration7(),
-            8, new Migration8(),
-            9, new Migration9(),
-            10, new Migration10()
+    private static final Map<Integer, IConfigMigration> migrations = Map.ofEntries(
+            Map.entry(1, new Migration1()),
+            Map.entry(2, new Migration2()),
+            Map.entry(3, new Migration3()),
+            Map.entry(4, new Migration4()),
+            Map.entry(5, new Migration5()),
+            Map.entry(6, new Migration6()),
+            Map.entry(7, new Migration7()),
+            Map.entry(8, new Migration8()),
+            Map.entry(9, new Migration9()),
+            Map.entry(10, new Migration10()),
+            Map.entry(11, new Migration11())
     );
 
     /**

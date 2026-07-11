@@ -96,6 +96,12 @@ public class DisenchantEvent {
             DiagnosticUtils.debug("DISENCHANT", "PrepareAnvil: enchantments=[" + names + "] (" + pluginEnchantments.size() + " total)");
         }
 
+        if (AnvilEventGuards.isOnCooldown(p)) {
+            DiagnosticUtils.debug("DISENCHANT", "PrepareAnvil: player on cooldown → CANCELLED");
+            e.setResult(null);
+            return;
+        }
+
         if (!PermissionGroupType.DISENCHANT_EVENT.hasPermission(p)) {
             DiagnosticUtils.debug("DISENCHANT", "PrepareAnvil: permission denied → exit");
             return;

@@ -52,6 +52,11 @@ public enum ConfigKeys {
     // Cost multiplier settings (LuckPerms meta / permission-node discount)
     COST_MULTIPLIER_LUCKPERMS("disenchantment.cost-multiplier.luckperms"),
 
+    // Cooldown settings
+    COOLDOWN_SECONDS("disenchantment.cooldown.seconds"),
+    COOLDOWN_USE_CMI("disenchantment.cooldown.use-cmi"),
+    COOLDOWN_USE_ESSENTIALS("disenchantment.cooldown.use-essentials"),
+
     // Shatterment settings
     SHATTERMENT_ENABLED("shatterment.enabled"),
     SHATTERMENT_DISABLED_WORLDS("shatterment.disabled-worlds"),

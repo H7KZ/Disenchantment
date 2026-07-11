@@ -280,6 +280,38 @@ public class Config {
     }
 
     /**
+     * Configuration for the optional per-player anvil-operation cooldown.
+     */
+    public static class Cooldown {
+        /**
+         * Gets the configured cooldown duration in seconds. 0 disables cooldowns entirely.
+         *
+         * @return the cooldown duration in seconds
+         */
+        public static int getSeconds() {
+            return config.getInt(ConfigKeys.COOLDOWN_SECONDS.getKey(), 0);
+        }
+
+        /**
+         * Returns whether cooldowns should be delegated to CMI when it is installed.
+         *
+         * @return {@code true} if the CMI cooldown delegate is enabled
+         */
+        public static boolean isUseCmiEnabled() {
+            return config.getBoolean(ConfigKeys.COOLDOWN_USE_CMI.getKey(), false);
+        }
+
+        /**
+         * Returns whether cooldowns should be delegated to EssentialsX when it is installed.
+         *
+         * @return {@code true} if the EssentialsX cooldown delegate is enabled
+         */
+        public static boolean isUseEssentialsEnabled() {
+            return config.getBoolean(ConfigKeys.COOLDOWN_USE_ESSENTIALS.getKey(), false);
+        }
+    }
+
+    /**
      * Configuration section for disenchantment (extracting enchantments from items to books).
      * Includes settings for enabled state, disabled worlds/materials, enchantment states,
      * and anvil sound/repair parameters.

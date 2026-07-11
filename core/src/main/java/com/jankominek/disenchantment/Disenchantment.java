@@ -221,6 +221,7 @@ public class Disenchantment extends JavaPlugin {
         SupportedPluginManager.deactivateAllPlugins();
         EconomyUtils.reset();
         LuckPermsUtils.reset();
+        CooldownManager.reset();
         StatsManager.shutdown();
 
         logger.info("Disenchantment disabled!");

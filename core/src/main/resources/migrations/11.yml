@@ -20,13 +20,9 @@ event-priorities:
 # ----------------------------------------------------------------------------------------
 
 logging:
-  # NONE = silent | INFO = startup summary | DEBUG = full operation tracing (NMS, adapters, economy, event flow)
-  # Set to DEBUG when reporting issues — logs [DEBUG][CATEGORY] lines to the console for every anvil interaction.
   level: INFO
   save-reports: true
-  # Set to true to record every disenchant/shatter to plugins/Disenchantment/stats.db
   operations: false
-  # Discord webhook URL — if set, crash reports are POSTed asynchronously. Leave empty to disable.
   discord-webhook: ""
 
 # ----------------------------------------------------------------------------------------
@@ -38,16 +34,10 @@ disenchantment:
   enchantments-states: [ ]
   enchantment-chances: { }
   cost-multiplier:
-    # When true, the player's effective LuckPerms meta value "disenchantment_multiplier"
-    # is used as the XP cost multiplier. Falls back to disenchantment.discount.N permission
-    # nodes (N = 5, 10, ..., 95) when LuckPerms is absent, disabled, or has no meta set.
     luckperms: false
   cooldown:
-    # Minimum seconds a player must wait between any disenchant/shatter operation. 0 = disabled.
     seconds: 0
-    # Delegate cooldown tracking to CMI (if installed). Takes priority over use-essentials.
     use-cmi: false
-    # Delegate cooldown tracking to EssentialsX (if installed).
     use-essentials: false
   anvil:
     sound:

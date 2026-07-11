@@ -92,6 +92,12 @@ public class ShatterEvent {
             return;
         }
 
+        if (AnvilEventGuards.isOnCooldown(p)) {
+            DiagnosticUtils.debug("SHATTER", "PrepareAnvil: player on cooldown → CANCELLED");
+            e.setResult(null);
+            return;
+        }
+
         if (!PermissionGroupType.SHATTER_EVENT.hasPermission(p)) {
             DiagnosticUtils.debug("SHATTER", "PrepareAnvil: permission denied → exit");
             return;

@@ -7,6 +7,7 @@ import com.jankominek.disenchantment.plugins.ISupportedPlugin;
 import com.jankominek.disenchantment.plugins.SupportedPluginManager;
 import com.jankominek.disenchantment.types.AnvilEventType;
 import com.jankominek.disenchantment.utils.AnvilCostUtils;
+import com.jankominek.disenchantment.utils.CooldownManager;
 import com.jankominek.disenchantment.utils.EconomyUtils;
 import com.jankominek.disenchantment.utils.SchedulerUtils;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
@@ -119,6 +120,32 @@ public final class AnvilEventGuards {
             seen.putIfAbsent(enc.getKey(), enc);
         }
         return new ArrayList<>(seen.values());
+    }
+
+    // ----------------------------------------------------------------------------------------------------
+    // Cooldown guard
+
+    /**
+     * Checks whether the player is currently on cooldown for anvil operations. When on
+     * cooldown, sends the remaining-time message to the player. Callers are responsible
+     * for cancelling the event when this returns {@code true}.
+     *
+     * @param p the player to check
+     * @return {@code true} if the player must be blocked from proceeding
+     */
+    public static boolean isOnCooldown(Player p) {
+        if (!CooldownManager.isOnCooldown(p)) return false;
+
+        long remaining = CooldownManager.getRemainingSeconds(p);
+        p.sendMessage(I18n.getPrefix() + " " + I18n.Messages.cooldownActive(String.valueOf(remaining)));
+        return true;
+    }
+
+    /**
+     * Records that the player just completed an anvil operation, starting a new cooldown.
+     */
+    public static void recordCooldownOperation(Player p) {
+        CooldownManager.recordOperation(p);
     }
 
     // ----------------------------------------------------------------------------------------------------

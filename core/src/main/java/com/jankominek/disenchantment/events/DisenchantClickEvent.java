@@ -207,6 +207,7 @@ public class DisenchantClickEvent {
         boolean creative = p.getGameMode() == org.bukkit.GameMode.CREATIVE;
         int xpCost = creative ? 0 : repairCost;
         double finalEconomyCost = (Config.Disenchantment.Economy.isEnabled() && !creative) ? economyCost : 0.0;
+        AnvilEventGuards.recordCooldownOperation(p);
         org.bukkit.Bukkit.getPluginManager().callEvent(new PostDisenchantEvent(p, result.clone(), finalFirstItem.clone(), xpCost, finalEconomyCost));
 
         if (Config.Disenchantment.Anvil.Sound.isEnabled())

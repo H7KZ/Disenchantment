@@ -39,6 +39,7 @@ messages:
   economy-insufficient-funds: "&cInsufficient funds! This operation costs &f{cost}&c. [DISE-005]&r"
   economy-charged: "&7You have been charged &f{cost}&7.&r"
   economy-not-available: "&cEconomy is enabled in config but no economy plugin was found. Please install Vault and an economy plugin. [DISE-006]&r"
+  cooldown-active: "&cYou must wait &f{seconds}s &cbefore doing that again. [DISE-007]&r"
 
 states:
   enabled: "&aEnabled&r"

@@ -188,6 +188,13 @@ public class I18n {
             return I18n.translateColors(localeConfig.getString(I18nKeys.MESSAGES_ECONOMY_NOT_AVAILABLE.getKey()));
         }
 
+        public static String cooldownActive(String seconds) {
+            return I18n.translateColors(
+                    localeConfig.getString(I18nKeys.MESSAGES_COOLDOWN_ACTIVE.getKey(), "&cYou must wait &f{seconds}s &cbefore doing that again.&r")
+                            .replace("{seconds}", seconds)
+            );
+        }
+
         public static String someEnchantmentsMayNotTransfer() {
             return I18n.translateColors(localeConfig.getString(I18nKeys.MESSAGES_SOME_ENCHANTMENTS_MAY_NOT_TRANSFER.getKey(), "&7Some enchantments may not transfer"));
         }

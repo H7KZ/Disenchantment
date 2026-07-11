@@ -7,7 +7,7 @@ folia-supported: true
 author: Jan Komínek
 website: https://github.com/H7KZ/Disenchantment
 
-softdepend: [ Vault, VaultUnlocked, ExcellentEnchants, EcoEnchants, eco, AdvancedEnchantments, UberEnchant, EnchantsSquared, PlaceholderAPI, LuckPerms ]
+softdepend: [ Vault, VaultUnlocked, ExcellentEnchants, EcoEnchants, eco, AdvancedEnchantments, UberEnchant, EnchantsSquared, PlaceholderAPI, LuckPerms, CMI, Essentials ]
 
 commands:
   disenchantment:
@@ -130,6 +130,9 @@ permissions:
     default: op
   disenchantment.gui.shatter.economy:
     description: Allows the player to set the shatter economy settings.
+    default: op
+  disenchantment.cooldown.bypass:
+    description: Allows the player to bypass the anvil operation cooldown.
     default: op
   disenchantment.discount.5:
     description: Grants a 5% XP cost discount on anvil operations.
