@@ -18,6 +18,15 @@ import java.util.stream.Collectors;
  * Determines which enchantments should be transferred based on configuration states.
  */
 public class EventUtils {
+    // ponytail: single static flag, not a Player-keyed map — anvil handlers run synchronously
+    // on the main thread and each call site clears it in a finally block, so there's no
+    // re-entrancy risk. Revisit with a threaded parameter if that assumption ever breaks.
+    private static boolean materialBypassActive = false;
+
+    public static void setMaterialBypass(boolean bypass) {
+        materialBypassActive = bypass;
+    }
+
     /**
      * Event utilities for disenchantment operations (extracting enchantments from items to books).
      */
@@ -157,6 +166,7 @@ public class EventUtils {
         }
 
         private static boolean isMaterialDisabled(ItemStack item) {
+            if (materialBypassActive) return false;
             return Config.Disenchantment.getDisabledMaterials().stream().anyMatch(m -> m.equals(item.getType()));
         }
     }
@@ -310,6 +320,7 @@ public class EventUtils {
         }
 
         private static boolean isMaterialDisabled(ItemStack item) {
+            if (materialBypassActive) return false;
             return Config.Shatterment.getDisabledMaterials().stream().anyMatch(m -> m.equals(item.getType()));
         }
     }

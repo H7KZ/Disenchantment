@@ -599,6 +599,15 @@ public class Config {
          */
         public static class Anvil {
             /**
+             * Checks whether the "Too Expensive!" anvil screen bypass is enabled for disenchantment.
+             *
+             * @return {@code true} if the bypass is enabled
+             */
+            public static boolean isBypassTooExpensiveEnabled() {
+                return config.getBoolean(ConfigKeys.DISENCHANTMENT_ANVIL_BYPASS_TOO_EXPENSIVE.getKey());
+            }
+
+            /**
              * Sound settings for the disenchantment anvil interaction.
              */
             public static class Sound {
@@ -1134,6 +1143,15 @@ public class Config {
          * Anvil-related settings for shatterment operations.
          */
         public static class Anvil {
+            /**
+             * Checks whether the "Too Expensive!" anvil screen bypass is enabled for shatterment.
+             *
+             * @return {@code true} if the bypass is enabled
+             */
+            public static boolean isBypassTooExpensiveEnabled() {
+                return config.getBoolean(ConfigKeys.SHATTERMENT_ANVIL_BYPASS_TOO_EXPENSIVE.getKey());
+            }
+
             /**
              * Sound settings for the shatterment anvil interaction.
              */

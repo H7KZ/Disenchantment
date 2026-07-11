@@ -195,6 +195,24 @@ public class I18n {
             );
         }
 
+        public static String maintenanceActive() {
+            return I18n.translateColors(
+                    localeConfig.getString(I18nKeys.MESSAGES_MAINTENANCE_ACTIVE.getKey(), "&cDisenchantment is currently under maintenance. Please try again later.&r")
+            );
+        }
+
+        public static String maintenanceIsEnabled() {
+            return I18n.translateColors(
+                    localeConfig.getString(I18nKeys.MESSAGES_MAINTENANCE_IS_ENABLED.getKey(), "&aMaintenance mode is now &fenabled&a.&r")
+            );
+        }
+
+        public static String maintenanceIsDisabled() {
+            return I18n.translateColors(
+                    localeConfig.getString(I18nKeys.MESSAGES_MAINTENANCE_IS_DISABLED.getKey(), "&aMaintenance mode is now &fdisabled&a.&r")
+            );
+        }
+
         public static String someEnchantmentsMayNotTransfer() {
             return I18n.translateColors(localeConfig.getString(I18nKeys.MESSAGES_SOME_ENCHANTMENTS_MAY_NOT_TRANSFER.getKey(), "&7Some enchantments may not transfer"));
         }

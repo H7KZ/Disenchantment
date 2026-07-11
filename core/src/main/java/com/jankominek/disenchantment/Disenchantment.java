@@ -50,6 +50,8 @@ public class Disenchantment extends JavaPlugin {
     public static final int spigotmcId = 110741;
     public static final int bstatsId = 19058;
     public static boolean enabled = true;
+    // Session-only — always false after a restart, never persisted to config.
+    public static boolean maintenanceEnabled = false;
     public static Instant startedAt;
 
     // Globally known instances (Does not need to be used with class name)

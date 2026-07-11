@@ -52,6 +52,18 @@ public class AnvilCostUtils {
     }
 
     /**
+     * Sets a non-blocking (below the vanilla "Too Expensive!" cap) repair cost on the anvil GUI
+     * via NMS, used when {@code bypass-too-expensive} is enabled.
+     *
+     * @param anvilInventory the anvil inventory
+     * @param inventoryView  the player's inventory view
+     * @param repairCost     the displayed repair cost (should be below 40)
+     */
+    public static void setAnvilRepairCostBypass(AnvilInventory anvilInventory, InventoryView inventoryView, int repairCost) {
+        nms.setAnvilRepairCostBypass(anvilInventory, inventoryView, repairCost);
+    }
+
+    /**
      * Calculates the cost for a single enchantment, using a fixed override if present,
      * otherwise falling back to the formula: base + level * multiplier.
      *

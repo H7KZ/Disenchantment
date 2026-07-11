@@ -41,6 +41,7 @@ public enum ConfigKeys {
     DISENCHANTMENT_REPAIR_COST_MULTIPLIER("disenchantment.anvil.repair.multiply"),
     DISENCHANTMENT_ANVIL_REPAIR_ENCHANTMENT_COSTS("disenchantment.anvil.repair.enchantment-costs"),
     DISENCHANTMENT_REPAIR_MAX_COST("disenchantment.anvil.repair.max-cost"),
+    DISENCHANTMENT_ANVIL_BYPASS_TOO_EXPENSIVE("disenchantment.anvil.bypass-too-expensive"),
 
     DISENCHANTMENT_ENCHANTMENT_CHANCES("disenchantment.enchantment-chances"),
 
@@ -73,6 +74,7 @@ public enum ConfigKeys {
     SHATTERMENT_REPAIR_COST_MULTIPLIER("shatterment.anvil.repair.multiply"),
     SHATTERMENT_ANVIL_REPAIR_ENCHANTMENT_COSTS("shatterment.anvil.repair.enchantment-costs"),
     SHATTERMENT_REPAIR_MAX_COST("shatterment.anvil.repair.max-cost"),
+    SHATTERMENT_ANVIL_BYPASS_TOO_EXPENSIVE("shatterment.anvil.bypass-too-expensive"),
 
     SHATTERMENT_ENCHANTMENT_CHANCES("shatterment.enchantment-chances"),
 

@@ -1,14 +1,17 @@
 package com.jankominek.disenchantment.events;
 
 import com.jankominek.disenchantment.Disenchantment;
+import com.jankominek.disenchantment.config.Config;
 import com.jankominek.disenchantment.config.I18n;
 import com.jankominek.disenchantment.plugins.IPluginEnchantment;
 import com.jankominek.disenchantment.plugins.ISupportedPlugin;
 import com.jankominek.disenchantment.plugins.SupportedPluginManager;
 import com.jankominek.disenchantment.types.AnvilEventType;
+import com.jankominek.disenchantment.types.PermissionType;
 import com.jankominek.disenchantment.utils.AnvilCostUtils;
 import com.jankominek.disenchantment.utils.CooldownManager;
 import com.jankominek.disenchantment.utils.EconomyUtils;
+import com.jankominek.disenchantment.utils.EventUtils;
 import com.jankominek.disenchantment.utils.SchedulerUtils;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.GameMode;
@@ -20,9 +23,11 @@ import org.bukkit.inventory.AnvilInventory;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * Static utility class holding shared guard and helper logic used by the four
@@ -120,6 +125,56 @@ public final class AnvilEventGuards {
             seen.putIfAbsent(enc.getKey(), enc);
         }
         return new ArrayList<>(seen.values());
+    }
+
+    /**
+     * Same as {@link #collectEnchantments(ItemStack, ItemStack, boolean, EnchantmentCollector, PluginEnchantmentCollector, World)}
+     * but honors {@code disenchantment.bypass.material} for {@code p} while collecting.
+     */
+    public static List<IPluginEnchantment> collectEnchantments(
+            ItemStack firstItem,
+            ItemStack secondItem,
+            boolean isPrepare,
+            EnchantmentCollector baseCollector,
+            PluginEnchantmentCollector pluginCollector,
+            World world,
+            Player p) {
+
+        EventUtils.setMaterialBypass(PermissionType.BYPASS_MATERIAL.hasPermission(p));
+        try {
+            return collectEnchantments(firstItem, secondItem, isPrepare, baseCollector, pluginCollector, world);
+        } finally {
+            EventUtils.setMaterialBypass(false);
+        }
+    }
+
+    // ----------------------------------------------------------------------------------------------------
+    // Maintenance guard
+
+    /**
+     * Returns {@code true} when maintenance mode is active and the player lacks the bypass
+     * permission. Sends the maintenance message when blocking. Callers are responsible for
+     * exiting the handler (without cancelling — mirrors how the disabled-world/material checks
+     * silently no-op rather than cancel).
+     */
+    public static boolean isMaintenanceBlocked(Player p) {
+        if (!Disenchantment.maintenanceEnabled) return false;
+        if (PermissionType.MAINTENANCE_BYPASS.hasPermission(p)) return false;
+
+        p.sendMessage(I18n.getPrefix() + " " + I18n.Messages.maintenanceActive());
+        return true;
+    }
+
+    // ----------------------------------------------------------------------------------------------------
+    // World bypass guard
+
+    /**
+     * Returns {@code true} when the player's world is disabled for the given feature AND the
+     * player lacks {@code disenchantment.bypass.world}.
+     */
+    public static boolean isWorldBlocked(Player p, boolean disabledForWorld) {
+        if (!disabledForWorld) return false;
+        return !PermissionType.BYPASS_WORLD.hasPermission(p);
     }
 
     // ----------------------------------------------------------------------------------------------------
@@ -271,13 +326,56 @@ public final class AnvilEventGuards {
             AnvilEventType eventType) {
 
         int anvilCost = AnvilCostUtils.countAnvilCost(pluginEnchantments, eventType, p);
-        AnvilCostUtils.setAnvilRepairCost(e.getInventory(), e.getView(), anvilCost);
+        applyDisplayedCost(e.getInventory(), e.getView(), p, eventType, anvilCost);
 
         SchedulerUtils.runForEntity(Disenchantment.plugin, p, () -> {
-            AnvilCostUtils.setAnvilRepairCost(e.getInventory(), e.getView(),
-                    AnvilCostUtils.countAnvilCost(pluginEnchantments, eventType, p));
+            int refreshedCost = AnvilCostUtils.countAnvilCost(pluginEnchantments, eventType, p);
+            applyDisplayedCost(e.getInventory(), e.getView(), p, eventType, refreshedCost);
             p.updateInventory();
         });
+    }
+
+    // ----------------------------------------------------------------------------------------------------
+    // "Too Expensive!" bypass
+
+    private static final Map<UUID, Integer> bypassCostCache = new HashMap<>();
+
+    private static boolean isBypassEnabled(AnvilEventType eventType) {
+        return eventType == AnvilEventType.DISENCHANTMENT
+                ? Config.Disenchantment.Anvil.isBypassTooExpensiveEnabled()
+                : Config.Shatterment.Anvil.isBypassTooExpensiveEnabled();
+    }
+
+    // Vanilla blocks the anvil result slot ("Too Expensive!") at repair cost >= 40.
+    private static final int VANILLA_TOO_EXPENSIVE_THRESHOLD = 40;
+    private static final int BYPASS_DISPLAYED_COST = 1;
+
+    private static void applyDisplayedCost(AnvilInventory anvilInventory, org.bukkit.inventory.InventoryView inventoryView, Player p, AnvilEventType eventType, int realCost) {
+        if (isBypassEnabled(eventType) && realCost >= VANILLA_TOO_EXPENSIVE_THRESHOLD) {
+            bypassCostCache.put(p.getUniqueId(), realCost);
+            AnvilCostUtils.setAnvilRepairCostBypass(anvilInventory, inventoryView, BYPASS_DISPLAYED_COST);
+        } else {
+            bypassCostCache.remove(p.getUniqueId());
+            AnvilCostUtils.setAnvilRepairCost(anvilInventory, inventoryView, realCost);
+        }
+    }
+
+    /**
+     * Returns the cached real cost for {@code p} if a "Too Expensive!" bypass is active,
+     * otherwise {@code displayedCost} unchanged. Does not clear the cache — call
+     * {@link #clearBypassCost(Player)} once the operation actually completes.
+     */
+    public static int peekBypassCost(Player p, int displayedCost) {
+        Integer cached = bypassCostCache.get(p.getUniqueId());
+        return cached != null ? cached : displayedCost;
+    }
+
+    /**
+     * Clears the cached bypass cost for {@code p}, e.g. after the anvil result has been
+     * collected and the real XP cost charged.
+     */
+    public static void clearBypassCost(Player p) {
+        bypassCostCache.remove(p.getUniqueId());
     }
 
     // ----------------------------------------------------------------------------------------------------

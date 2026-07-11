@@ -69,8 +69,11 @@ public class DisenchantEvent {
         if (e.getInventory().getViewers().isEmpty() || !(e.getInventory().getViewers().get(0) instanceof Player p))
             return;
 
-        if (!Config.isPluginEnabled() || !Config.Disenchantment.isEnabled() || Config.Disenchantment.getDisabledWorlds().contains(p.getWorld()))
-            return;
+        if (!Config.isPluginEnabled() || !Config.Disenchantment.isEnabled()) return;
+
+        if (AnvilEventGuards.isMaintenanceBlocked(p)) return;
+
+        if (AnvilEventGuards.isWorldBlocked(p, Config.Disenchantment.getDisabledWorlds().contains(p.getWorld()))) return;
 
         DiagnosticUtils.debug("DISENCHANT", "PrepareAnvil: player=" + p.getName() + ", world=" + p.getWorld().getName());
 
@@ -84,7 +87,7 @@ public class DisenchantEvent {
                 firstItem, secondItem, true,
                 EventUtils.Disenchantment::getDisenchantedEnchantments,
                 EventUtils.Disenchantment::getDisenchantedEnchantments,
-                p.getWorld());
+                p.getWorld(), p);
 
         if (pluginEnchantments.isEmpty()) {
             DiagnosticUtils.debug("DISENCHANT", "PrepareAnvil: no eligible enchantments → exit");

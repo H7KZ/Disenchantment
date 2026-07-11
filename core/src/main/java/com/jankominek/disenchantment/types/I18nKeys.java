@@ -44,6 +44,9 @@ public enum I18nKeys {
     MESSAGES_ECONOMY_NOT_AVAILABLE("messages.economy-not-available"),
     MESSAGES_SOME_ENCHANTMENTS_MAY_NOT_TRANSFER("messages.some-enchantments-may-not-transfer"),
     MESSAGES_COOLDOWN_ACTIVE("messages.cooldown-active"),
+    MESSAGES_MAINTENANCE_ACTIVE("messages.maintenance-active"),
+    MESSAGES_MAINTENANCE_IS_ENABLED("messages.maintenance-is-enabled"),
+    MESSAGES_MAINTENANCE_IS_DISABLED("messages.maintenance-is-disabled"),
     MESSAGES_SPECIFY_ENCHANTMENT_CHANCE("messages.specify-enchantment-chance"),
     MESSAGES_ENCHANTMENT_CHANCE_IS_SET("messages.enchantment-chance-is-set"),
 

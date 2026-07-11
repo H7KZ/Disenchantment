@@ -68,8 +68,11 @@ public class DisenchantClickEvent {
         Player p = AnvilEventGuards.getPlayer(e);
         if (p == null) return;
 
-        if (!Config.isPluginEnabled() || !Config.Disenchantment.isEnabled() || Config.Disenchantment.getDisabledWorlds().contains(p.getWorld()))
-            return;
+        if (!Config.isPluginEnabled() || !Config.Disenchantment.isEnabled()) return;
+
+        if (AnvilEventGuards.isMaintenanceBlocked(p)) return;
+
+        if (AnvilEventGuards.isWorldBlocked(p, Config.Disenchantment.getDisabledWorlds().contains(p.getWorld()))) return;
 
         if (!AnvilEventGuards.isAnvilResultSlotClick(e, p)) return;
 
@@ -95,7 +98,7 @@ public class DisenchantClickEvent {
                 firstItem, secondItem, false,
                 EventUtils.Disenchantment::getDisenchantedEnchantments,
                 EventUtils.Disenchantment::getDisenchantedEnchantments,
-                p.getWorld());
+                p.getWorld(), p);
 
         if (enchantments.isEmpty()) {
             DiagnosticUtils.debug("DISENCHANT", "Click: no eligible enchantments → exit");
@@ -107,7 +110,7 @@ public class DisenchantClickEvent {
             DiagnosticUtils.debug("DISENCHANT", "Click: enchantments=[" + names + "]");
         }
 
-        int repairCost = AnvilCostUtils.getRepairCost(anvilInventory, e.getView());
+        int repairCost = AnvilEventGuards.peekBypassCost(p, AnvilCostUtils.getRepairCost(anvilInventory, e.getView()));
         DiagnosticUtils.debug("DISENCHANT", "Click: xp check — repairCost=" + repairCost + ", playerLevel=" + p.getLevel());
         if (!AnvilEventGuards.hasEnoughXp(p, repairCost)) {
             DiagnosticUtils.debug("DISENCHANT", "Click: insufficient XP → CANCELLED");
@@ -144,6 +147,8 @@ public class DisenchantClickEvent {
             e.setCancelled(true);
             return;
         }
+
+        AnvilEventGuards.clearBypassCost(p);
 
         int exp = p.getLevel() - repairCost;
         DiagnosticUtils.debug("DISENCHANT", "Click: xp → " + p.getLevel() + " - " + repairCost + " = " + exp);

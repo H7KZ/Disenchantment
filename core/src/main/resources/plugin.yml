@@ -95,6 +95,18 @@ permissions:
   disenchantment.command.stats:
     description: Access to the stats command.
     default: op
+  disenchantment.command.maintenance:
+    description: Access to the maintenance command.
+    default: op
+  disenchantment.maintenance.bypass:
+    description: Allows the player to use the anvil while maintenance mode is enabled.
+    default: op
+  disenchantment.bypass.world:
+    description: Allows the player to bypass disabled-world restrictions.
+    default: op
+  disenchantment.bypass.material:
+    description: Allows the player to bypass disabled-material restrictions.
+    default: op
   disenchantment.gui:
     description: Allows the player to open the GUI.
     default: op

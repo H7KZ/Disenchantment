@@ -41,6 +41,11 @@ public enum PermissionType {
     COMMAND_RELOAD("disenchantment.command.reload"),
     COMMAND_DEBUG("disenchantment.command.debug"),
     COMMAND_STATS("disenchantment.command.stats"),
+    COMMAND_MAINTENANCE("disenchantment.command.maintenance"),
+
+    MAINTENANCE_BYPASS("disenchantment.maintenance.bypass"),
+    BYPASS_WORLD("disenchantment.bypass.world"),
+    BYPASS_MATERIAL("disenchantment.bypass.material"),
 
     GUI("disenchantment.gui"),
     GUI_ALL("disenchantment.gui.all"),

@@ -68,8 +68,11 @@ public class ShatterClickEvent {
         Player p = AnvilEventGuards.getPlayer(e);
         if (p == null) return;
 
-        if (!Config.isPluginEnabled() || !Config.Shatterment.isEnabled() || Config.Shatterment.getDisabledWorlds().contains(p.getWorld()))
-            return;
+        if (!Config.isPluginEnabled() || !Config.Shatterment.isEnabled()) return;
+
+        if (AnvilEventGuards.isMaintenanceBlocked(p)) return;
+
+        if (AnvilEventGuards.isWorldBlocked(p, Config.Shatterment.getDisabledWorlds().contains(p.getWorld()))) return;
 
         if (!AnvilEventGuards.isAnvilResultSlotClick(e, p)) return;
 
@@ -91,7 +94,7 @@ public class ShatterClickEvent {
                 firstItem, secondItem, false,
                 EventUtils.Shatterment::getShattermentEnchantments,
                 EventUtils.Shatterment::getShattermentEnchantments,
-                p.getWorld());
+                p.getWorld(), p);
 
         if (enchantments.isEmpty()) {
             DiagnosticUtils.debug("SHATTER", "Click: no eligible enchantments → exit");
@@ -113,7 +116,7 @@ public class ShatterClickEvent {
             return;
         }
 
-        int repairCost = AnvilCostUtils.getRepairCost(anvilInventory, e.getView());
+        int repairCost = AnvilEventGuards.peekBypassCost(p, AnvilCostUtils.getRepairCost(anvilInventory, e.getView()));
         DiagnosticUtils.debug("SHATTER", "Click: xp check — repairCost=" + repairCost + ", playerLevel=" + p.getLevel());
         if (!AnvilEventGuards.hasEnoughXp(p, repairCost)) {
             DiagnosticUtils.debug("SHATTER", "Click: insufficient XP → CANCELLED");
@@ -150,6 +153,8 @@ public class ShatterClickEvent {
             e.setCancelled(true);
             return;
         }
+
+        AnvilEventGuards.clearBypassCost(p);
 
         int exp = p.getLevel() - repairCost;
         DiagnosticUtils.debug("SHATTER", "Click: xp → " + p.getLevel() + " - " + repairCost + " = " + exp);

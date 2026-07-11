@@ -71,8 +71,11 @@ public class ShatterEvent {
         if (e.getInventory().getViewers().isEmpty() || !(e.getInventory().getViewers().get(0) instanceof Player p))
             return;
 
-        if (!Config.isPluginEnabled() || !Config.Shatterment.isEnabled() || Config.Shatterment.getDisabledWorlds().contains(p.getWorld()))
-            return;
+        if (!Config.isPluginEnabled() || !Config.Shatterment.isEnabled()) return;
+
+        if (AnvilEventGuards.isMaintenanceBlocked(p)) return;
+
+        if (AnvilEventGuards.isWorldBlocked(p, Config.Shatterment.getDisabledWorlds().contains(p.getWorld()))) return;
 
         DiagnosticUtils.debug("SHATTER", "PrepareAnvil: player=" + p.getName() + ", world=" + p.getWorld().getName());
 
@@ -86,7 +89,7 @@ public class ShatterEvent {
                 firstItem, secondItem, true,
                 EventUtils.Shatterment::getShattermentEnchantments,
                 EventUtils.Shatterment::getShattermentEnchantments,
-                p.getWorld());
+                p.getWorld(), p);
 
         if (enchantments.isEmpty()) {
             DiagnosticUtils.debug("SHATTER", "PrepareAnvil: no eligible enchantments → exit");

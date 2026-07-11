@@ -112,6 +112,10 @@ public enum PermissionGroupType {
             PermissionType.COMMAND_ALL,
             PermissionType.COMMAND_STATS
     ),
+    COMMAND_MAINTENANCE(
+            PermissionType.COMMAND_ALL,
+            PermissionType.COMMAND_MAINTENANCE
+    ),
 
     GUI(
             PermissionType.GUI_ALL,

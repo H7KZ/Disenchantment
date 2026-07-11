@@ -87,6 +87,19 @@ public interface NMS {
     }
 
     /**
+     * Sets the repair cost displayed in an anvil inventory without regard for the vanilla
+     * "Too Expensive!" cap (client blocks the result slot at cost &gt;= 40). Used to display
+     * a low, non-blocking cost while the real cost is charged separately on pickup.
+     *
+     * @param anvilInventory the anvil inventory to update
+     * @param inventoryView  the player's view of the inventory
+     * @param repairCost     the repair cost to display (expected to be below the vanilla cap)
+     */
+    default void setAnvilRepairCostBypass(AnvilInventory anvilInventory, InventoryView inventoryView, int repairCost) {
+        setAnvilRepairCost(anvilInventory, inventoryView, repairCost);
+    }
+
+    /**
      * Applies a Base64-encoded skin texture to a {@link HeadBuilder} for player head items.
      *
      * @param headBuilder the head builder to modify

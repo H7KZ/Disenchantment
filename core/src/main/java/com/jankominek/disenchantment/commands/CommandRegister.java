@@ -41,6 +41,7 @@ public class CommandRegister implements CommandExecutor {
             put(Reload.command.name(), Reload.command);
             put(Debug.command.name(), Debug.command);
             put(Stats.command.name(), Stats.command);
+            put(Maintenance.command.name(), Maintenance.command);
         }
     };
 
