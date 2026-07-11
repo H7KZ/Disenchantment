@@ -82,6 +82,9 @@ public enum ConfigKeys {
     SHATTERMENT_ECONOMY_CHARGE_MESSAGE("shatterment.economy.charge-message"),
 
     SHATTERMENT_SPLIT_COUNT("shatterment.split-count"),
+
+    // Shared settings
+    ENCHANTMENT_GROUPS("enchantment-groups"),
     ;
 
     private final String key;

@@ -69,9 +69,19 @@ disenchantment:
 
 # ----------------------------------------------------------------------------------------
 
+# Named groups of enchantment keys shared by disenchantment and shatterment. A group name may
+# be used in place of an enchantment key with the enchantments commands to apply a state to
+# every enchantment in the group at once, e.g. "/disenchantment disenchant:enchantments combat disable".
+enchantment-groups: { }
+#  combat: [ sharpness, smite, bane_of_arthropods ]
+#  utility: [ efficiency, unbreaking ]
+
+# ----------------------------------------------------------------------------------------
+
 shatterment:
   enabled: true
   disabled-worlds: [ ]
+  disabled-materials: [ ]
   enchantments-states: [ ]
   enchantment-chances: { }
   split-count: 1

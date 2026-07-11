@@ -69,46 +69,58 @@ public class DisenchantEnchantments {
 
         String key = args[1].toLowerCase();
         String state = args[2].toLowerCase();
+
+        // A group name expands to every enchantment key it contains — write-time expansion,
+        // so each member enchantment is stored individually (no group-aware runtime resolution needed).
+        List<String> groupMembers = Config.getEnchantmentGroups().get(key);
+
+        if (groupMembers != null) {
+            boolean applied = false;
+            for (String member : groupMembers) applied |= applyState(member, state);
+
+            if (!applied) {
+                s.sendMessage(I18n.Messages.specifyEnchantmentState());
+                return;
+            }
+        } else if (!applyState(key, state)) {
+            s.sendMessage(I18n.Messages.specifyEnchantmentState());
+            return;
+        }
+
+        if (EnchantmentStateType.ENABLE.getConfigName().equalsIgnoreCase(state))
+            s.sendMessage(I18n.Messages.enchantmentIsEnabled(key));
+        else if (EnchantmentStateType.KEEP.getConfigName().equalsIgnoreCase(state))
+            s.sendMessage(I18n.Messages.enchantmentIsKept(key));
+        else if (EnchantmentStateType.DELETE.getConfigName().equalsIgnoreCase(state))
+            s.sendMessage(I18n.Messages.enchantmentIsDeleted(key));
+        else if (EnchantmentStateType.DISABLE.getConfigName().equalsIgnoreCase(state))
+            s.sendMessage(I18n.Messages.enchantmentIsDisabled(key));
+    }
+
+    /**
+     * Applies the requested state to a single enchantment key and persists it.
+     *
+     * @param key   the enchantment key
+     * @param state the requested state name
+     * @return {@code true} if the state was recognized and applied
+     */
+    private static boolean applyState(String key, String state) {
         HashMap<String, EnchantmentStateType> enchantments = Config.Disenchantment.getEnchantmentStates();
 
         if (EnchantmentStateType.ENABLE.getConfigName().equalsIgnoreCase(state)) {
             enchantments.remove(key);
-
-            Config.Disenchantment.setEnchantmentStates(enchantments);
-
-            s.sendMessage(I18n.Messages.enchantmentIsEnabled(key));
-
-            return;
         } else if (EnchantmentStateType.KEEP.getConfigName().equalsIgnoreCase(state)) {
-            if (enchantments.containsKey(key)) enchantments.replace(key, EnchantmentStateType.KEEP);
-            else enchantments.put(key, EnchantmentStateType.KEEP);
-
-            Config.Disenchantment.setEnchantmentStates(enchantments);
-
-            s.sendMessage(I18n.Messages.enchantmentIsKept(key));
-
-            return;
+            enchantments.put(key, EnchantmentStateType.KEEP);
         } else if (EnchantmentStateType.DELETE.getConfigName().equalsIgnoreCase(state)) {
-            if (enchantments.containsKey(key)) enchantments.replace(key, EnchantmentStateType.DELETE);
-            else enchantments.put(key, EnchantmentStateType.DELETE);
-
-            Config.Disenchantment.setEnchantmentStates(enchantments);
-
-            s.sendMessage(I18n.Messages.enchantmentIsDeleted(key));
-
-            return;
+            enchantments.put(key, EnchantmentStateType.DELETE);
         } else if (EnchantmentStateType.DISABLE.getConfigName().equalsIgnoreCase(state)) {
-            if (enchantments.containsKey(key)) enchantments.replace(key, EnchantmentStateType.DISABLE);
-            else enchantments.put(key, EnchantmentStateType.DISABLE);
-
-            Config.Disenchantment.setEnchantmentStates(enchantments);
-
-            s.sendMessage(I18n.Messages.enchantmentIsDisabled(key));
-
-            return;
+            enchantments.put(key, EnchantmentStateType.DISABLE);
+        } else {
+            return false;
         }
 
-        s.sendMessage(I18n.Messages.specifyEnchantmentState());
+        Config.Disenchantment.setEnchantmentStates(enchantments);
+        return true;
     }
 
     /**
@@ -130,6 +142,8 @@ public class DisenchantEnchantments {
             }
             // Add custom keys already in config states
             keys.addAll(Config.Disenchantment.getEnchantmentStates().keySet());
+            // Add group names
+            keys.addAll(Config.getEnchantmentGroups().keySet());
             // Filter by current input
             for (String key : keys) {
                 if (key.toLowerCase().startsWith(args[1].toLowerCase()))
