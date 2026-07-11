@@ -250,6 +250,11 @@ gui:
       title: "&b&lStats&r"
       lore:
         - "&7View operation statistics"
+    split-count:
+      title: "&d&lSplit Count&r"
+      lore:
+        - "&7Configure how many enchantments"
+        - "&7are split per shatter operation"
   worlds:
     inventory: "&7&lWorlds&r"
     lore:
@@ -498,3 +503,29 @@ gui:
             - "&7Click to Enable&r"
   stats:
     inventory: "&7&lStatistics&r"
+  split-count:
+    inventory: "&7&lSplit Count&r"
+    count:
+      title: "&7&lSplit Count&r"
+      lore:
+        fixed:
+          - "&7Current value: &f{value}&r"
+          - "&7LEFT CLICK to increase"
+          - "&7RIGHT CLICK to decrease"
+        min:
+          - "&7Minimum: &f{value}&r"
+          - "&7LEFT CLICK to increase"
+          - "&7RIGHT CLICK to decrease"
+        max:
+          - "&7Maximum: &f{value}&r"
+          - "&7LEFT CLICK to increase"
+          - "&7RIGHT CLICK to decrease"
+    mode:
+      title: "&7&lMode&r"
+      lore:
+        fixed:
+          - "&7Currently: &fFixed&r"
+          - "&7Click to switch to Range&r"
+        range:
+          - "&7Currently: &fRange&r"
+          - "&7Click to switch to Fixed&r"

@@ -146,6 +146,19 @@ public class GUIComponent {
         }
 
         /**
+         * Creates the split count navigation item.
+         *
+         * @return the split count {@link ItemStack}
+         */
+        public static ItemStack splitCount() {
+            return new ItemBuilder(Material.WRITABLE_BOOK)
+                    .setDisplayName(I18n.GUI.Navigation.SplitCount.title())
+                    .setLore(I18n.GUI.Navigation.SplitCount.lore())
+                    .addAllFlags()
+                    .build();
+        }
+
+        /**
          * Creates the Spigot resource page navigation item.
          *
          * @return the Spigot link {@link ItemStack}

@@ -225,6 +225,15 @@ public enum I18nKeys {
     GUI_MATERIALS_HELP_TITLE("gui.materials.help.title"),
     GUI_MATERIALS_HELP_LORE("gui.materials.help.lore"),
 
+    GUI_SPLIT_COUNT_INVENTORY("gui.split-count.inventory"),
+    GUI_SPLIT_COUNT_COUNT_TITLE("gui.split-count.count.title"),
+    GUI_SPLIT_COUNT_COUNT_LORE_FIXED("gui.split-count.count.lore.fixed"),
+    GUI_SPLIT_COUNT_COUNT_LORE_MIN("gui.split-count.count.lore.min"),
+    GUI_SPLIT_COUNT_COUNT_LORE_MAX("gui.split-count.count.lore.max"),
+    GUI_SPLIT_COUNT_MODE_TITLE("gui.split-count.mode.title"),
+    GUI_SPLIT_COUNT_MODE_LORE_FIXED("gui.split-count.mode.lore.fixed"),
+    GUI_SPLIT_COUNT_MODE_LORE_RANGE("gui.split-count.mode.lore.range"),
+
     GUI_SOUND_DISENCHANTMENT_INVENTORY("gui.sound.disenchantment.inventory"),
     GUI_SOUND_DISENCHANTMENT_TITLE("gui.sound.disenchantment.title"),
     GUI_SOUND_DISENCHANTMENT_LORE_ENABLED("gui.sound.disenchantment.lore.enabled"),
@@ -247,6 +256,8 @@ public enum I18nKeys {
     GUI_NAVIGATION_ECONOMY_LORE("gui.navigation.economy.lore"),
     GUI_NAVIGATION_STATS_TITLE("gui.navigation.stats.title"),
     GUI_NAVIGATION_STATS_LORE("gui.navigation.stats.lore"),
+    GUI_NAVIGATION_SPLIT_COUNT_TITLE("gui.navigation.split-count.title"),
+    GUI_NAVIGATION_SPLIT_COUNT_LORE("gui.navigation.split-count.lore"),
     GUI_STATS_INVENTORY("gui.stats.inventory"),
 
     GUI_ECONOMY_DISENCHANTMENT_INVENTORY("gui.economy.disenchantment.inventory"),

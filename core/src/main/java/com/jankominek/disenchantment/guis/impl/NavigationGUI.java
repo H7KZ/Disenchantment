@@ -24,7 +24,7 @@ import org.jetbrains.annotations.NotNull;
  */
 public class NavigationGUI implements InventoryHolder {
     private final GUIItem[] items = ArrayUtils.addAll(
-            GUIBorderComponent.border9x3(),
+            GUIBorderComponent.border9x3(new Integer[]{24}),
             new GUIItem(
                     10,
                     Config.isPluginEnabled() ? GUIComponent.Navigation.Plugin.enabled() : GUIComponent.Navigation.Plugin.disabled(),
@@ -166,6 +166,17 @@ public class NavigationGUI implements InventoryHolder {
                         if (!PermissionGroupType.GUI_STATUS.hasPermission(event.getWhoClicked(), true)) return;
 
                         event.getWhoClicked().openInventory(new StatsGUI().getInventory());
+                    }
+            ),
+            new GUIItem(
+                    24,
+                    GUIComponent.Navigation.splitCount(),
+                    event -> {
+                        event.setCancelled(true);
+
+                        if (!PermissionGroupType.GUI_SHATTER_REPAIR.hasPermission(event.getWhoClicked(), true)) return;
+
+                        event.getWhoClicked().openInventory(new SplitCountGUI().getInventory());
                     }
             )
     );

@@ -894,6 +894,17 @@ public class I18n {
                             .stream().map(I18n::translateColors).toList();
                 }
             }
+
+            public static class SplitCount {
+                public static String title() {
+                    return I18n.translateColors(localeConfig.getString(I18nKeys.GUI_NAVIGATION_SPLIT_COUNT_TITLE.getKey()));
+                }
+
+                public static List<String> lore() {
+                    return localeConfig.getStringList(I18nKeys.GUI_NAVIGATION_SPLIT_COUNT_LORE.getKey())
+                            .stream().map(I18n::translateColors).toList();
+                }
+            }
         }
 
         public static class Worlds {
@@ -1440,6 +1451,49 @@ public class I18n {
         public static class Stats {
             public static String inventory() {
                 return I18n.translateColors(localeConfig.getString(I18nKeys.GUI_STATS_INVENTORY.getKey()));
+            }
+        }
+
+        public static class SplitCount {
+            public static String inventory() {
+                return I18n.translateColors(localeConfig.getString(I18nKeys.GUI_SPLIT_COUNT_INVENTORY.getKey()));
+            }
+
+            public static class Count {
+                public static String title() {
+                    return I18n.translateColors(localeConfig.getString(I18nKeys.GUI_SPLIT_COUNT_COUNT_TITLE.getKey()));
+                }
+
+                public static List<String> loreFixed(String value) {
+                    return localeConfig.getStringList(I18nKeys.GUI_SPLIT_COUNT_COUNT_LORE_FIXED.getKey())
+                            .stream().map(I18n::translateColors).map(s -> s.replace("{value}", value)).toList();
+                }
+
+                public static List<String> loreMin(String value) {
+                    return localeConfig.getStringList(I18nKeys.GUI_SPLIT_COUNT_COUNT_LORE_MIN.getKey())
+                            .stream().map(I18n::translateColors).map(s -> s.replace("{value}", value)).toList();
+                }
+
+                public static List<String> loreMax(String value) {
+                    return localeConfig.getStringList(I18nKeys.GUI_SPLIT_COUNT_COUNT_LORE_MAX.getKey())
+                            .stream().map(I18n::translateColors).map(s -> s.replace("{value}", value)).toList();
+                }
+            }
+
+            public static class Mode {
+                public static String title() {
+                    return I18n.translateColors(localeConfig.getString(I18nKeys.GUI_SPLIT_COUNT_MODE_TITLE.getKey()));
+                }
+
+                public static List<String> loreFixed() {
+                    return localeConfig.getStringList(I18nKeys.GUI_SPLIT_COUNT_MODE_LORE_FIXED.getKey())
+                            .stream().map(I18n::translateColors).toList();
+                }
+
+                public static List<String> loreRange() {
+                    return localeConfig.getStringList(I18nKeys.GUI_SPLIT_COUNT_MODE_LORE_RANGE.getKey())
+                            .stream().map(I18n::translateColors).toList();
+                }
             }
         }
     }
