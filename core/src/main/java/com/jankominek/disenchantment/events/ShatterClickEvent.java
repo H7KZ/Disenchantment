@@ -76,7 +76,10 @@ public class ShatterClickEvent {
 
         if (AnvilEventGuards.isWorldBlocked(p, Config.Shatterment.getDisabledWorlds().contains(p.getWorld()))) return;
 
-        if (AnvilEventGuards.isOnCooldown(p)) { e.setCancelled(true); return; }
+        if (AnvilEventGuards.isOnCooldown(p)) {
+            e.setCancelled(true);
+            return;
+        }
 
         AnvilInventory anvilInventory = (AnvilInventory) e.getInventory();
 

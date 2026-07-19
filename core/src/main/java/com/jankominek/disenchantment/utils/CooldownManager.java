@@ -18,8 +18,8 @@ public class CooldownManager {
     private static final CmiCooldownDelegate CMI = new CmiCooldownDelegate();
     private static final EssentialsCooldownDelegate ESSENTIALS = new EssentialsCooldownDelegate();
 
-    private static boolean warnedCmi = false;
-    private static boolean warnedEssentials = false;
+    private static volatile boolean warnedCmi = false;
+    private static volatile boolean warnedEssentials = false;
 
     private static CooldownDelegate resolveDelegate() {
         if (Config.Cooldown.isUseCmiEnabled()) {
@@ -32,7 +32,8 @@ public class CooldownManager {
         }
 
         if (Config.Cooldown.isUseEssentialsEnabled()) {
-            if (Bukkit.getPluginManager().getPlugin("Essentials") != null && ESSENTIALS.isAvailable()) return ESSENTIALS;
+            if (Bukkit.getPluginManager().getPlugin("Essentials") != null && ESSENTIALS.isAvailable())
+                return ESSENTIALS;
             if (!warnedEssentials) {
                 warnedEssentials = true;
                 DiagnosticUtils.debug("COOLDOWN", "use-essentials is enabled but EssentialsX is not present/resolvable — falling back to internal cooldown map");

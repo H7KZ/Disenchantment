@@ -25,7 +25,7 @@ public class CostMultiplierUtils {
 
         if (Config.CostMultiplier.isLuckPermsEnabled() && LuckPermsUtils.isAvailable()) {
             Double meta = LuckPermsUtils.getMultiplier(player);
-            if (meta != null) return meta;
+            if (meta != null) return Math.max(0.0, meta);
         }
 
         int bestDiscount = 0;

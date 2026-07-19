@@ -1,13 +1,16 @@
 package com.jankominek.disenchantment.stats;
 
 import java.time.Instant;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * In-memory aggregate of all recorded operations.
- * All mutation happens on the Bukkit main thread (Post events fire on main thread),
- * so no synchronisation is needed for writes. Reads from async threads (PAPI, bStats)
- * see eventually-consistent data, which is acceptable for display purposes.
+ * Writes happen on the Bukkit main thread; reads come from async threads (PAPI, bStats).
+ * ConcurrentHashMap avoids ConcurrentModificationException on concurrent iterator/stream use.
  */
 public class StatsCache {
 
@@ -33,10 +36,12 @@ public class StatsCache {
     private long totalShatters;
     private long totalXpSpent;
     private double totalMoneySpent;
-    private final Map<String, Long> enchantmentCounts = new HashMap<>();
-    private final Map<UUID, PlayerStats> playerStats = new HashMap<>();
+    private final Map<String, Long> enchantmentCounts = new ConcurrentHashMap<>();
+    private final Map<UUID, PlayerStats> playerStats = new ConcurrentHashMap<>();
 
-    /** Populates cache from a DB boot-load snapshot. Call once before any record() calls. */
+    /**
+     * Populates cache from a DB boot-load snapshot. Call once before any record() calls.
+     */
     public void initialize(BootData bd) {
         totalDisenchants = bd.disenchants();
         totalShatters = bd.shatters();
@@ -48,7 +53,9 @@ public class StatsCache {
                         pbs.moneySpent(), Instant.ofEpochSecond(pbs.lastOperationEpoch()))));
     }
 
-    /** Records one operation in the cache. Call on main thread. */
+    /**
+     * Records one operation in the cache. Call on main thread.
+     */
     public void record(OperationType type, List<String> enchantmentKeys,
                        UUID playerUuid, String playerName, int xpCost, double economyCost, Instant timestamp) {
         if (type == OperationType.DISENCHANT) totalDisenchants++;
@@ -66,10 +73,21 @@ public class StatsCache {
                 (existing, n) -> existing.add(type, xpCost, economyCost, timestamp));
     }
 
-    public long getTotalDisenchants() { return totalDisenchants; }
-    public long getTotalShatters() { return totalShatters; }
-    public long getTotalXpSpent() { return totalXpSpent; }
-    public double getTotalMoneySpent() { return totalMoneySpent; }
+    public long getTotalDisenchants() {
+        return totalDisenchants;
+    }
+
+    public long getTotalShatters() {
+        return totalShatters;
+    }
+
+    public long getTotalXpSpent() {
+        return totalXpSpent;
+    }
+
+    public double getTotalMoneySpent() {
+        return totalMoneySpent;
+    }
 
     public long getEnchantmentCount(String key) {
         return enchantmentCounts.getOrDefault(key, 0L);
@@ -87,7 +105,9 @@ public class StatsCache {
         return Collections.unmodifiableMap(playerStats);
     }
 
-    /** Returns the enchantment key with the highest operation count, or "none" if empty. */
+    /**
+     * Returns the enchantment key with the highest operation count, or "none" if empty.
+     */
     public String getTopEnchantment() {
         return enchantmentCounts.entrySet().stream()
                 .max(Map.Entry.comparingByValue())

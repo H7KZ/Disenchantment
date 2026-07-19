@@ -32,10 +32,10 @@ public class StatsGUI implements InventoryHolder {
                 ? StatsManager.getInstance().getCache() : null;
 
         long disenchants = cache != null ? cache.getTotalDisenchants() : 0;
-        long shatters    = cache != null ? cache.getTotalShatters() : 0;
-        long xpSpent     = cache != null ? cache.getTotalXpSpent() : 0;
-        double money     = cache != null ? cache.getTotalMoneySpent() : 0.0;
-        String topEnch   = cache != null ? cache.getTopEnchantment() : "none";
+        long shatters = cache != null ? cache.getTotalShatters() : 0;
+        long xpSpent = cache != null ? cache.getTotalXpSpent() : 0;
+        double money = cache != null ? cache.getTotalMoneySpent() : 0.0;
+        String topEnch = cache != null ? cache.getTopEnchantment() : "none";
 
         this.items = ArrayUtils.addAll(
                 GUIBorderComponent.border9x3(new Integer[]{0, 10, 12, 14, 16, 22}),
@@ -52,7 +52,7 @@ public class StatsGUI implements InventoryHolder {
                 ),
                 new GUIItem(
                         10,
-                        new ItemBuilder(Material.ENCHANTED_BOOK)
+                        new ItemBuilder(Material.BOOK)
                                 .setDisplayName("§b§lDisenchants")
                                 .setLore(List.of("§7Total: §f" + disenchants))
                                 .addAllFlags()
@@ -88,7 +88,7 @@ public class StatsGUI implements InventoryHolder {
                 ),
                 new GUIItem(
                         22,
-                        new ItemBuilder(Material.NETHER_STAR)
+                        new ItemBuilder(Material.ENCHANTED_BOOK)
                                 .setDisplayName("§e§lTop Enchantment")
                                 .setLore(List.of("§7Key: §f" + topEnch))
                                 .addAllFlags()

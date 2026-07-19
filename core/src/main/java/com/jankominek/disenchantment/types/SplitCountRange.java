@@ -10,6 +10,17 @@ package com.jankominek.disenchantment.types;
  */
 public record SplitCountRange(int min, int max) {
     /**
+     * Ensures min ≤ max regardless of config input order.
+     */
+    public SplitCountRange {
+        if (min > max) {
+            int tmp = min;
+            min = max;
+            max = tmp;
+        }
+    }
+
+    /**
      * Returns {@code true} when this range represents a fixed (non-random) split count.
      *
      * @return {@code true} if {@code min == max}

@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class EnchantmentGroupExpansionTest extends DisenchantmentTestBase {
 
@@ -49,6 +50,6 @@ class EnchantmentGroupExpansionTest extends DisenchantmentTestBase {
 
         List<String> suggestions = DisenchantEnchantments.complete(server.addPlayer("TestPlayer"), new String[]{"disenchant:enchantments", "com"});
 
-        assertEquals(true, suggestions.contains("combat"));
+        assertTrue(suggestions.contains("combat"));
     }
 }

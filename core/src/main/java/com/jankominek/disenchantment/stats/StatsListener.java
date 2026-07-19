@@ -43,7 +43,9 @@ public class StatsListener implements Listener {
         );
     }
 
-    /** Extracts enchantment keys from the result book's EnchantmentStorageMeta. */
+    /**
+     * Extracts enchantment keys from the result book's EnchantmentStorageMeta.
+     */
     static List<String> extractEnchantmentKeys(ItemStack resultBook) {
         if (resultBook == null) return List.of();
         if (!(resultBook.getItemMeta() instanceof EnchantmentStorageMeta meta)) return List.of();

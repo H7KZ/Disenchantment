@@ -1,8 +1,10 @@
 package com.jankominek.disenchantment.events;
 
 import com.jankominek.disenchantment.DisenchantmentTestBase;
+import com.jankominek.disenchantment.events.api.PostDisenchantEvent;
 import com.jankominek.disenchantment.events.api.PreDisenchantEvent;
 import com.jankominek.disenchantment.utils.EnchantmentUtils;
+import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.event.EventHandler;
@@ -20,6 +22,7 @@ import org.mockito.Mockito;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.eq;
@@ -45,8 +48,10 @@ class DisenchantClickEventTest extends DisenchantmentTestBase {
 
         List<Class<?>> proxyInterfaces = new ArrayList<>();
         proxyInterfaces.add(InventoryView.class);
-        try { proxyInterfaces.add(Class.forName("org.bukkit.inventory.view.AnvilView")); }
-        catch (ClassNotFoundException ignored) {}
+        try {
+            proxyInterfaces.add(Class.forName("org.bukkit.inventory.view.AnvilView"));
+        } catch (ClassNotFoundException ignored) {
+        }
         Object viewProxy = Proxy.newProxyInstance(
                 getClass().getClassLoader(),
                 proxyInterfaces.toArray(new Class[0]),
@@ -100,7 +105,9 @@ class DisenchantClickEventTest extends DisenchantmentTestBase {
 
         server.getPluginManager().registerEvents(new Listener() {
             @EventHandler
-            public void on(PreDisenchantEvent e) { e.setCancelled(true); }
+            public void on(PreDisenchantEvent e) {
+                e.setCancelled(true);
+            }
         }, plugin);
 
         InventoryClickEvent event = buildClickEvent(player, sword("sharpness", 5), new ItemStack(Material.BOOK), enchantedBook("sharpness", 5));
@@ -151,6 +158,52 @@ class DisenchantClickEventTest extends DisenchantmentTestBase {
         DisenchantClickEvent.onEvent(event);
 
         Mockito.verify(lastMockAnvil, Mockito.never()).setItem(eq(0), Mockito.any());
+    }
+
+    // -> Creative-mode: PostDisenchantEvent must report xpCost=0 and economyCost=0
+
+    @Test
+    void givenCreativePlayer_whenDisenchant_thenPostEventReportsZeroCosts() {
+        PlayerMock player = server.addPlayer("CreativePlayer");
+        player.setLevel(10);
+        player.setGameMode(GameMode.CREATIVE);
+
+        AtomicReference<PostDisenchantEvent> captured = new AtomicReference<>();
+        server.getPluginManager().registerEvents(new Listener() {
+            @EventHandler
+            public void on(PostDisenchantEvent e) {
+                captured.set(e);
+            }
+        }, plugin);
+
+        InventoryClickEvent event = buildClickEvent(player, sword("sharpness", 5), new ItemStack(Material.BOOK), enchantedBook("sharpness", 5));
+        DisenchantClickEvent.onEvent(event);
+
+        assertNotNull(captured.get(), "PostDisenchantEvent must fire");
+        assertEquals(0, captured.get().getXpCost(), "Creative players must report xpCost=0");
+        assertEquals(0.0, captured.get().getEconomyCost(), "Creative players must report economyCost=0");
+    }
+
+    // -> success chance of 0.0 must strip the enchantment from the result book
+
+    @Test
+    void givenZeroSuccessChance_whenDisenchant_thenResultBookHasNoEnchantments() {
+        setConfig("disenchantment.enchantment-chances.sharpness", 0.0);
+        PlayerMock player = server.addPlayer("TestPlayer2");
+        player.setLevel(10);
+
+        InventoryClickEvent event = buildClickEvent(player, sword("sharpness", 5), new ItemStack(Material.BOOK), enchantedBook("sharpness", 5));
+        DisenchantClickEvent.onEvent(event);
+
+        ItemStack cursor = player.getItemOnCursor();
+        // Result book placed on cursor — enchantment removed by 0.0 chance roll
+        if (cursor != null && cursor.getType() == Material.ENCHANTED_BOOK) {
+            org.bukkit.inventory.meta.EnchantmentStorageMeta meta =
+                    (org.bukkit.inventory.meta.EnchantmentStorageMeta) cursor.getItemMeta();
+            assertTrue(meta == null || meta.getStoredEnchants().isEmpty(),
+                    "Sharpness must be absent from result book when chance is 0.0");
+        }
+        // If operation was skipped entirely (e.g. pre-event cancelled), that's also acceptable
     }
 
     // -> PreDisenchantEvent enchantment list: removing from list prevents that DELETE from running

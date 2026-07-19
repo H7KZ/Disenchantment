@@ -71,9 +71,13 @@ public class DisenchantEvent {
 
         if (!Config.isPluginEnabled() || !Config.Disenchantment.isEnabled()) return;
 
-        if (AnvilEventGuards.isMaintenanceBlocked(p)) return;
+        if (AnvilEventGuards.isMaintenanceBlocked(p)) {
+            e.setResult(null);
+            return;
+        }
 
-        if (AnvilEventGuards.isWorldBlocked(p, Config.Disenchantment.getDisabledWorlds().contains(p.getWorld()))) return;
+        if (AnvilEventGuards.isWorldBlocked(p, Config.Disenchantment.getDisabledWorlds().contains(p.getWorld())))
+            return;
 
         DiagnosticUtils.debug("DISENCHANT", "PrepareAnvil: player=" + p.getName() + ", world=" + p.getWorld().getName());
 

@@ -1,10 +1,6 @@
 package com.jankominek.disenchantment.config;
 
-import com.jankominek.disenchantment.types.AnvilFeature;
-import com.jankominek.disenchantment.types.ConfigKeys;
-import com.jankominek.disenchantment.types.EnchantmentStateType;
-import com.jankominek.disenchantment.types.LogLevelType;
-import com.jankominek.disenchantment.types.SplitCountRange;
+import com.jankominek.disenchantment.types.*;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -486,6 +482,7 @@ public class Config {
             String shortKey = key.contains(":") ? key.substring(key.indexOf(':') + 1) : key;
             Map<String, Double> chances = getEnchantmentChances();
             Double chance = chances.get(shortKey.toLowerCase());
+            if (chance == null) chance = chances.get(key.toLowerCase()); // also match full namespaced key
             if (chance == null) return 1.0;
             return Math.max(0.0, Math.min(1.0, chance));
         }
@@ -1031,6 +1028,7 @@ public class Config {
             String shortKey = key.contains(":") ? key.substring(key.indexOf(':') + 1) : key;
             Map<String, Double> chances = getEnchantmentChances();
             Double chance = chances.get(shortKey.toLowerCase());
+            if (chance == null) chance = chances.get(key.toLowerCase()); // also match full namespaced key
             if (chance == null) return 1.0;
             return Math.max(0.0, Math.min(1.0, chance));
         }

@@ -128,14 +128,16 @@ public class MaterialsGUI implements InventoryHolder {
 
                         switch (event.getClick()) {
                             case LEFT: {
-                                if (disabledDisenchantMaterials.contains(material)) disabledDisenchantMaterials.remove(material);
+                                if (disabledDisenchantMaterials.contains(material))
+                                    disabledDisenchantMaterials.remove(material);
                                 else disabledDisenchantMaterials.add(material);
 
                                 Config.Disenchantment.setDisabledMaterials(disabledDisenchantMaterials);
                                 break;
                             }
                             case RIGHT: {
-                                if (disabledShatterMaterials.contains(material)) disabledShatterMaterials.remove(material);
+                                if (disabledShatterMaterials.contains(material))
+                                    disabledShatterMaterials.remove(material);
                                 else disabledShatterMaterials.add(material);
 
                                 Config.Shatterment.setDisabledMaterials(disabledShatterMaterials);

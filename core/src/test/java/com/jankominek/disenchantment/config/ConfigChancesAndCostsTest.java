@@ -3,8 +3,7 @@ package com.jankominek.disenchantment.config;
 import com.jankominek.disenchantment.DisenchantmentTestBase;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class ConfigChancesAndCostsTest extends DisenchantmentTestBase {
 
@@ -69,7 +68,7 @@ class ConfigChancesAndCostsTest extends DisenchantmentTestBase {
         assertEquals(10, Config.Disenchantment.Anvil.Repair.getEnchantmentCosts().get("mending"));
         assertEquals(5, Config.Disenchantment.Anvil.Repair.getEnchantmentCosts().get("sharpness"));
         assertEquals(500.0, Config.Disenchantment.Anvil.Repair.getEnchantmentEconomyCosts().get("mending"));
-        assertTrue(!Config.Disenchantment.Anvil.Repair.getEnchantmentEconomyCosts().containsKey("sharpness"));
+        assertFalse(Config.Disenchantment.Anvil.Repair.getEnchantmentEconomyCosts().containsKey("sharpness"));
     }
 
     // ----------------------------------------------------------------------------------------------------

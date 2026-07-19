@@ -39,7 +39,9 @@ import static com.jankominek.disenchantment.Disenchantment.plugin;
 public class DiagnosticUtils {
     private static volatile boolean debugEnabled = false;
 
-    /** Sets whether debug-level logging is active. Call on startup and on reload. */
+    /**
+     * Sets whether debug-level logging is active. Call on startup and on reload.
+     */
     public static void setDebugEnabled(boolean enabled) {
         debugEnabled = enabled;
     }
@@ -107,9 +109,15 @@ public class DiagnosticUtils {
         if (webhookUrl == null || webhookUrl.isBlank()) return;
 
         String version = "unknown";
-        try { version = plugin.getDescription().getVersion(); } catch (Exception ignored) {}
+        try {
+            version = plugin.getDescription().getVersion();
+        } catch (Exception ignored) {
+        }
         String serverVersion = "unknown";
-        try { serverVersion = Bukkit.getVersion(); } catch (Exception ignored) {}
+        try {
+            serverVersion = Bukkit.getVersion();
+        } catch (Exception ignored) {
+        }
 
         StackTraceElement[] stack = e.getStackTrace();
         StringBuilder stackArray = new StringBuilder("[");
@@ -140,6 +148,7 @@ public class DiagnosticUtils {
                         .uri(URI.create(finalUrl))
                         .header("Content-Type", "application/json")
                         .POST(HttpRequest.BodyPublishers.ofString(payload, StandardCharsets.UTF_8))
+                        .timeout(Duration.ofSeconds(10))
                         .build();
                 client.send(request, HttpResponse.BodyHandlers.discarding());
             } catch (Exception ex) {
@@ -177,7 +186,9 @@ public class DiagnosticUtils {
         }
     }
 
-    /** Returns {@code true} if debug-level logging is currently active. */
+    /**
+     * Returns {@code true} if debug-level logging is currently active.
+     */
     public static boolean isDebugEnabled() {
         return debugEnabled;
     }

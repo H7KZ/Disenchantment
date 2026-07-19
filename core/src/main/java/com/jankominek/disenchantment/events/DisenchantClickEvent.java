@@ -74,9 +74,13 @@ public class DisenchantClickEvent {
 
         if (AnvilEventGuards.isMaintenanceBlocked(p)) return;
 
-        if (AnvilEventGuards.isWorldBlocked(p, Config.Disenchantment.getDisabledWorlds().contains(p.getWorld()))) return;
+        if (AnvilEventGuards.isWorldBlocked(p, Config.Disenchantment.getDisabledWorlds().contains(p.getWorld())))
+            return;
 
-        if (AnvilEventGuards.isOnCooldown(p)) { e.setCancelled(true); return; }
+        if (AnvilEventGuards.isOnCooldown(p)) {
+            e.setCancelled(true);
+            return;
+        }
 
         AnvilInventory anvilInventory = (AnvilInventory) e.getInventory();
 

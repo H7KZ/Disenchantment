@@ -2,13 +2,13 @@ package com.jankominek.disenchantment.commands;
 
 import com.jankominek.disenchantment.DisenchantmentTestBase;
 import com.jankominek.disenchantment.types.PermissionGroupType;
-import org.bukkit.command.CommandSender;
 import org.junit.jupiter.api.Test;
 import org.mockbukkit.mockbukkit.entity.PlayerMock;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class CommandBuilderTest extends DisenchantmentTestBase {
 

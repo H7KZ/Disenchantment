@@ -20,7 +20,7 @@ public class PostDisenchantEvent extends Event {
     private final double economyCost;
 
     public PostDisenchantEvent(Player player, ItemStack resultBook, ItemStack modifiedSourceItem,
-                                int xpCost, double economyCost) {
+                               int xpCost, double economyCost) {
         this.player = player;
         this.resultBook = resultBook;
         this.modifiedSourceItem = modifiedSourceItem;
@@ -28,15 +28,38 @@ public class PostDisenchantEvent extends Event {
         this.economyCost = economyCost;
     }
 
-    public Player getPlayer() { return player; }
-    public ItemStack getResultBook() { return resultBook; }
-    public ItemStack getModifiedSourceItem() { return modifiedSourceItem; }
-    /** XP levels deducted from the player for this operation. */
-    public int getXpCost() { return xpCost; }
-    /** Money charged via economy for this operation (0.0 if economy disabled). */
-    public double getEconomyCost() { return economyCost; }
+    public Player getPlayer() {
+        return player;
+    }
+
+    public ItemStack getResultBook() {
+        return resultBook;
+    }
+
+    public ItemStack getModifiedSourceItem() {
+        return modifiedSourceItem;
+    }
+
+    /**
+     * XP levels deducted from the player for this operation.
+     */
+    public int getXpCost() {
+        return xpCost;
+    }
+
+    /**
+     * Money charged via economy for this operation (0.0 if economy disabled).
+     */
+    public double getEconomyCost() {
+        return economyCost;
+    }
 
     @Override
-    public @NotNull HandlerList getHandlers() { return HANDLERS; }
-    public static HandlerList getHandlerList() { return HANDLERS; }
+    public @NotNull HandlerList getHandlers() {
+        return HANDLERS;
+    }
+
+    public static HandlerList getHandlerList() {
+        return HANDLERS;
+    }
 }

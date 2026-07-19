@@ -73,7 +73,10 @@ public class ShatterEvent {
 
         if (!Config.isPluginEnabled() || !Config.Shatterment.isEnabled()) return;
 
-        if (AnvilEventGuards.isMaintenanceBlocked(p)) return;
+        if (AnvilEventGuards.isMaintenanceBlocked(p)) {
+            e.setResult(null);
+            return;
+        }
 
         if (AnvilEventGuards.isWorldBlocked(p, Config.Shatterment.getDisabledWorlds().contains(p.getWorld()))) return;
 

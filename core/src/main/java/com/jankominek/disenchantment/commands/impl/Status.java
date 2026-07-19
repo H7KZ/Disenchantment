@@ -13,7 +13,6 @@ import org.bukkit.command.CommandSender;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -60,7 +59,8 @@ public class Status {
                 net.milkbowl.vault.economy.Economy e =
                         Bukkit.getServicesManager().getRegistration(net.milkbowl.vault.economy.Economy.class).getProvider();
                 economyPluginName = "\"" + e.getName().replace("\"", "\\\"") + "\"";
-            } catch (Exception ignored) {}
+            } catch (Exception ignored) {
+            }
         }
 
         List<String> adapters = SupportedPluginManager.getAllActivatedPlugins()

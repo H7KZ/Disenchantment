@@ -8,11 +8,7 @@ import com.jankominek.disenchantment.plugins.ISupportedPlugin;
 import com.jankominek.disenchantment.plugins.SupportedPluginManager;
 import com.jankominek.disenchantment.types.AnvilEventType;
 import com.jankominek.disenchantment.types.PermissionType;
-import com.jankominek.disenchantment.utils.AnvilCostUtils;
-import com.jankominek.disenchantment.utils.CooldownManager;
-import com.jankominek.disenchantment.utils.EconomyUtils;
-import com.jankominek.disenchantment.utils.EventUtils;
-import com.jankominek.disenchantment.utils.SchedulerUtils;
+import com.jankominek.disenchantment.utils.*;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.GameMode;
 import org.bukkit.World;
@@ -22,12 +18,7 @@ import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.AnvilInventory;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**

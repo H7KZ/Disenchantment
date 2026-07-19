@@ -20,7 +20,7 @@ public class PostShatterEvent extends Event {
     private final double economyCost;
 
     public PostShatterEvent(Player player, ItemStack resultBook, ItemStack modifiedSourceItem,
-                             int xpCost, double economyCost) {
+                            int xpCost, double economyCost) {
         this.player = player;
         this.resultBook = resultBook;
         this.modifiedSourceItem = modifiedSourceItem;
@@ -28,13 +28,32 @@ public class PostShatterEvent extends Event {
         this.economyCost = economyCost;
     }
 
-    public Player getPlayer() { return player; }
-    public ItemStack getResultBook() { return resultBook; }
-    public ItemStack getModifiedSourceItem() { return modifiedSourceItem; }
-    public int getXpCost() { return xpCost; }
-    public double getEconomyCost() { return economyCost; }
+    public Player getPlayer() {
+        return player;
+    }
+
+    public ItemStack getResultBook() {
+        return resultBook;
+    }
+
+    public ItemStack getModifiedSourceItem() {
+        return modifiedSourceItem;
+    }
+
+    public int getXpCost() {
+        return xpCost;
+    }
+
+    public double getEconomyCost() {
+        return economyCost;
+    }
 
     @Override
-    public @NotNull HandlerList getHandlers() { return HANDLERS; }
-    public static HandlerList getHandlerList() { return HANDLERS; }
+    public @NotNull HandlerList getHandlers() {
+        return HANDLERS;
+    }
+
+    public static HandlerList getHandlerList() {
+        return HANDLERS;
+    }
 }

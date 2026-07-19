@@ -1,3 +1,7 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
 # Disenchantment - Minecraft Plugin
 
 A Spigot/Paper/Folia Minecraft plugin that adds disenchanting and book-splitting mechanics to the vanilla anvil. Players
@@ -12,10 +16,20 @@ can remove enchantments from items onto books, or split multi-enchantment books 
 - **Author**: Jan Kominek (H7KZ)
 - **Entry point**: `com.jankominek.disenchantment.Disenchantment` (registered in `core/src/main/resources/plugin.yml`)
 
-## Build
+## Build & Test
 
 ```bash
+# Full build (requires BuildTools JARs installed — see CONTRIBUTING.md)
 mvn clean package
+
+# Run all core tests (offline, no BuildTools required)
+& "C:\Users\honzi\Documents\Spigot BuildTools\apache-maven-3.9.6\bin\mvn.cmd" test -pl core --offline
+
+# Run a single test class
+& "C:\Users\honzi\Documents\Spigot BuildTools\apache-maven-3.9.6\bin\mvn.cmd" test -pl core --offline -Dtest=StatsCacheTest
+
+# Run a single test method
+& "C:\Users\honzi\Documents\Spigot BuildTools\apache-maven-3.9.6\bin\mvn.cmd" test -pl core --offline -Dtest=StatsCacheTest#testRecord
 ```
 
 **Prerequisites** (see CONTRIBUTING.md):
@@ -24,6 +38,7 @@ mvn clean package
 - JDK 21+
 - Spigot BuildTools with versions 1.21, 1.20.5, and 1.18 installed
 - Output JAR lands in `target/Disenchantment-<version>.jar`
+- Tests use **MockBukkit + JUnit 5**; core tests run without a live server
 
 ## Module Structure
 
@@ -75,18 +90,35 @@ Disenchantment.java          Main plugin class (extends JavaPlugin)
 commands/                    Command framework (register, builder, completer, implementations)
   impl/                      Individual command handlers (Help, Toggle, Status, GUI, Diagnostic, etc.)
 config/                      Config reading/writing, i18n, migration system
-  migration/                 Config migration framework with numbered steps (1-5)
+  migration/                 Config migration framework with numbered steps (1-N)
 events/                      Custom Bukkit events (DisenchantEvent, ShatterEvent, click variants)
+                             Pre* and Post* API events expose xpCost + economyCost to third-party plugins
 guis/                        In-game GUI system (InventoryBuilder, ItemBuilder, HeadBuilder, components)
-  impl/                      GUI screens (NavigationGUI, WorldsGUI, EnchantmentsGUI, repair/sound GUIs)
+  impl/                      GUI screens (NavigationGUI, WorldsGUI, EnchantmentsGUI, repair/sound GUIs,
+                             StatsGUI, SplitCountGUI, MaterialsGUI)
 listeners/                   Event listeners registering at configurable EventPriority
 nms/                         NMS interface, mapper, version enum
 plugins/                     ISupportedPlugin, IPluginEnchantment interfaces, SupportedPluginManager
+stats/                       SQLite-backed analytics: StatsDatabase, StatsCache, StatsManager,
+                             StatsListener, OperationRecord/Type, BootData
 types/                       Enums (ConfigKeys, I18nKeys, PermissionType, EnchantmentStateType, etc.)
 utils/                       Utilities (AnvilCostUtils, BStatsMetrics, ConfigUtils, DiagnosticUtils,
                               EnchantmentUtils, EventUtils, MapUtils, MaterialUtils, PrecisionUtils,
-                              SchedulerUtils, UpdateChecker)
+                              SchedulerUtils, UpdateChecker, CostMultiplierUtils, CooldownManager)
 ```
+
+### Stats system
+
+`StatsManager` is a nullable singleton — `getInstance()` returns `null` when `logging.operations: false`. All call sites
+must null-check. `StatsCache` is the in-memory read path (never query the DB on the hot path). Writes go async via
+`StatsDatabase.insertAsync()`; cache is updated synchronously on the main thread immediately after. Boot data is loaded
+async, then applied to the cache on the main thread via a `runTask` callback.
+
+### Event flow (anvil click)
+
+`PrepareAnvilEvent` → `DisenchantEvent`/`ShatterEvent` (cancellable, fires `PreDisenchantEvent`/`PreShatterEvent`) → on
+result click: `DisenchantClickEvent`/`ShatterClickEvent` → charges economy → deducts XP → fires `PostDisenchantEvent`/
+`PostShatterEvent` (carries `xpCost` + `economyCost`). `StatsListener` listens on the Post events.
 
 ### Key Mechanics
 
@@ -138,6 +170,8 @@ The `docs/` directory contains comprehensive documentation for all audiences:
 - **`docs/engineering/`** — architecture, dev setup, contributing, adding new MC versions
 - **`docs/internals/`** — deep-dive reference for LLM agents and contributors (core, NMS, events, GUI, commands, config,
   utils)
+- **`docs/superpowers/specs/`** — approved design specs for implemented features (ground truth for spec compliance)
+- **`docs/superpowers/plans/`** — step-by-step implementation plans corresponding to each spec
 
 When working on this codebase, consult `docs/internals/` for how systems work and
 `docs/engineering/ADDING_NEW_VERSION.md` for version support changes.

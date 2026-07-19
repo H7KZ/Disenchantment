@@ -27,7 +27,9 @@ public class StatsManager {
         this.cache = cache;
     }
 
-    /** Initialises StatsManager, opens the DB, async-loads boot data, registers listener and bStats charts. */
+    /**
+     * Initialises StatsManager, opens the DB, async-loads boot data, registers listener and bStats charts.
+     */
     public static void init(File dataFolder, BStatsMetrics metrics) {
         if (instance != null) return;
         try {
@@ -38,11 +40,11 @@ public class StatsManager {
             // Boot load runs on writeExecutor (same thread as inserts) to avoid concurrent Connection use.
             // Listener registers after cache init so no boot-window records are overwritten.
             db.loadBootDataAsync(
-                bd -> Bukkit.getScheduler().runTask(plugin, () -> {
-                    c.initialize(bd);
-                    Bukkit.getPluginManager().registerEvents(new StatsListener(instance), plugin);
-                }),
-                e -> Logger.getLogger("Disenchantment").warning("StatsManager boot load failed: " + e.getMessage())
+                    bd -> Bukkit.getScheduler().runTask(plugin, () -> {
+                        c.initialize(bd);
+                        Bukkit.getPluginManager().registerEvents(new StatsListener(instance), plugin);
+                    }),
+                    e -> Logger.getLogger("Disenchantment").warning("StatsManager boot load failed: " + e.getMessage())
             );
 
             if (metrics != null) registerCharts(metrics);
@@ -58,7 +60,9 @@ public class StatsManager {
         instance = null;
     }
 
-    /** Returns the active instance, or null when logging.operations is disabled. */
+    /**
+     * Returns the active instance, or null when logging.operations is disabled.
+     */
     public static @Nullable StatsManager getInstance() {
         return instance;
     }
@@ -67,7 +71,9 @@ public class StatsManager {
         return cache;
     }
 
-    /** Records one operation: sync cache update + async DB write. */
+    /**
+     * Records one operation: sync cache update + async DB write.
+     */
     public void record(OperationType type, Player player, ItemStack resultBook,
                        String itemMaterial, int xpCost, double economyCost) {
         List<String> enchKeys = StatsListener.extractEnchantmentKeys(resultBook);

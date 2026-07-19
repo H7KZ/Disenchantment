@@ -1,7 +1,9 @@
 package com.jankominek.disenchantment.stats;
 
 import java.sql.*;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -18,12 +20,16 @@ public class StatsDatabase {
         return t;
     });
 
-    /** Production constructor — opens plugins/Disenchantment/stats.db. */
+    /**
+     * Production constructor — opens plugins/Disenchantment/stats.db.
+     */
     public StatsDatabase(java.io.File dataFolder) throws SQLException {
         this("jdbc:sqlite:" + new java.io.File(dataFolder, "stats.db").getAbsolutePath());
     }
 
-    /** Package-private for tests — accepts any JDBC URL (e.g. "jdbc:sqlite::memory:"). */
+    /**
+     * Package-private for tests — accepts any JDBC URL (e.g. "jdbc:sqlite::memory:").
+     */
     StatsDatabase(String jdbcUrl) throws SQLException {
         connection = DriverManager.getConnection(jdbcUrl);
         createSchema();
@@ -32,20 +38,21 @@ public class StatsDatabase {
     private void createSchema() throws SQLException {
         try (Statement stmt = connection.createStatement()) {
             stmt.execute("""
-                CREATE TABLE IF NOT EXISTS operations (
-                    id              INTEGER PRIMARY KEY AUTOINCREMENT,
-                    timestamp       INTEGER NOT NULL,
-                    player_uuid     TEXT    NOT NULL,
-                    player_name     TEXT    NOT NULL,
-                    world           TEXT    NOT NULL,
-                    operation_type  TEXT    NOT NULL,
-                    item_material   TEXT    NOT NULL,
-                    enchantment_keys TEXT   NOT NULL,
-                    xp_cost         INTEGER NOT NULL,
-                    economy_cost    REAL    NOT NULL
-                )""");
+                    CREATE TABLE IF NOT EXISTS operations (
+                        id              INTEGER PRIMARY KEY AUTOINCREMENT,
+                        timestamp       INTEGER NOT NULL,
+                        player_uuid     TEXT    NOT NULL,
+                        player_name     TEXT    NOT NULL,
+                        world           TEXT    NOT NULL,
+                        operation_type  TEXT    NOT NULL,
+                        item_material   TEXT    NOT NULL,
+                        enchantment_keys TEXT   NOT NULL,
+                        xp_cost         INTEGER NOT NULL,
+                        economy_cost    REAL    NOT NULL
+                    )""");
             stmt.execute("CREATE INDEX IF NOT EXISTS idx_player_uuid ON operations(player_uuid)");
             stmt.execute("CREATE INDEX IF NOT EXISTS idx_operation_type ON operations(operation_type)");
+            stmt.execute("CREATE INDEX IF NOT EXISTS idx_enchantment_keys ON operations(enchantment_keys)");
         }
     }
 
@@ -59,7 +66,9 @@ public class StatsDatabase {
         });
     }
 
-    /** Synchronous insert — used by tests and the async executor. */
+    /**
+     * Synchronous insert — used by tests and the async executor.
+     */
     void insertSync(OperationRecord r) throws SQLException {
         try (PreparedStatement ps = connection.prepareStatement(
                 "INSERT INTO operations (timestamp,player_uuid,player_name,world,operation_type,item_material,enchantment_keys,xp_cost,economy_cost) VALUES (?,?,?,?,?,?,?,?,?)")) {
@@ -76,7 +85,9 @@ public class StatsDatabase {
         }
     }
 
-    /** Loads aggregate stats for populating the in-memory cache at boot. Runs on async thread. */
+    /**
+     * Loads aggregate stats for populating the in-memory cache at boot. Runs on async thread.
+     */
     public BootData loadBootData() throws SQLException {
         long disenchants = 0, shatters = 0, xpSpent = 0;
         double moneySpent = 0.0;
@@ -101,11 +112,11 @@ public class StatsDatabase {
         // Per-player stats
         try (ResultSet rs = connection.createStatement().executeQuery(
                 """
-                SELECT player_uuid, player_name,
-                  SUM(CASE WHEN operation_type='DISENCHANT' THEN 1 ELSE 0 END),
-                  SUM(CASE WHEN operation_type='SHATTER' THEN 1 ELSE 0 END),
-                  SUM(xp_cost), SUM(economy_cost), MAX(timestamp)
-                FROM operations GROUP BY player_uuid""")) {
+                        SELECT player_uuid, player_name,
+                          SUM(CASE WHEN operation_type='DISENCHANT' THEN 1 ELSE 0 END),
+                          SUM(CASE WHEN operation_type='SHATTER' THEN 1 ELSE 0 END),
+                          SUM(xp_cost), SUM(economy_cost), MAX(timestamp)
+                        FROM operations GROUP BY player_uuid""")) {
             while (rs.next()) {
                 UUID uuid = UUID.fromString(rs.getString(1));
                 playerStats.put(uuid, new BootData.PlayerBootStats(
@@ -133,7 +144,9 @@ public class StatsDatabase {
         return new BootData(disenchants, shatters, xpSpent, moneySpent, enchCounts, playerStats);
     }
 
-    /** Submits the boot load onto writeExecutor so it shares the connection thread with inserts. */
+    /**
+     * Submits the boot load onto writeExecutor so it shares the connection thread with inserts.
+     */
     public void loadBootDataAsync(Consumer<BootData> onLoaded, Consumer<SQLException> onError) {
         writeExecutor.submit(() -> {
             try {
@@ -151,6 +164,9 @@ public class StatsDatabase {
         } catch (InterruptedException ignored) {
             Thread.currentThread().interrupt();
         }
-        try { connection.close(); } catch (SQLException ignored) {}
+        try {
+            connection.close();
+        } catch (SQLException ignored) {
+        }
     }
 }

@@ -2,11 +2,7 @@ package com.jankominek.disenchantment.guis.impl;
 
 import com.jankominek.disenchantment.config.Config;
 import com.jankominek.disenchantment.config.I18n;
-import com.jankominek.disenchantment.guis.GUIBorderComponent;
-import com.jankominek.disenchantment.guis.GUIComponent;
-import com.jankominek.disenchantment.guis.GUIItem;
-import com.jankominek.disenchantment.guis.ItemBuilder;
-import com.jankominek.disenchantment.guis.InventoryBuilder;
+import com.jankominek.disenchantment.guis.*;
 import com.jankominek.disenchantment.types.SplitCountRange;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.apache.commons.lang3.ArrayUtils;

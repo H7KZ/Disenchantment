@@ -118,6 +118,7 @@ public class DisenchantmentPlaceholderExpansion extends PlaceholderExpansion {
     private String topEnchantment() {
         StatsManager manager = StatsManager.getInstance();
         if (manager == null) return "none";
-        return manager.getCache().getTopEnchantment();
+        String top = manager.getCache().getTopEnchantment();
+        return top != null ? top : "none";
     }
 }

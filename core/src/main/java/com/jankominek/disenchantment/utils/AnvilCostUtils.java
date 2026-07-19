@@ -192,9 +192,9 @@ public class AnvilCostUtils {
      * overrides plus the flat {@code economy.cost} once if any enchantment lacks an override.
      * When no enchantment has an override, the total is simply the flat cost (legacy behavior).
      *
-     * @param enchantments      the enchantments involved in the operation
-     * @param flatCost          the configured flat economy cost (economy.cost)
-     * @param economyOverrides  map of enchantment key → per-enchantment economy cost override
+     * @param enchantments     the enchantments involved in the operation
+     * @param flatCost         the configured flat economy cost (economy.cost)
+     * @param economyOverrides map of enchantment key → per-enchantment economy cost override
      * @return the total economy cost to charge
      */
     public static double economyCostForEnchantments(List<IPluginEnchantment> enchantments, double flatCost, Map<String, Double> economyOverrides) {
