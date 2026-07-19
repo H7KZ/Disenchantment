@@ -2,8 +2,8 @@
 
 # Disenchantment Documentation
 
-Disenchantment is a Spigot/Paper/Folia plugin that extends the vanilla anvil with two mechanics: **disenchanting** (
-strip enchantments from gear onto books) and **shattering** (split multi-enchantment books into individual ones). It
+Disenchantment is a Spigot/Paper/Folia plugin that extends the vanilla anvil with two mechanics: **disenchanting**
+(strip enchantments from gear onto books) and **shattering** (split multi-enchantment books into individual ones). It
 supports Minecraft 1.18 through the latest 1.21.x releases and integrates with custom enchantment plugins, Vault, and
 PlaceholderAPI.
 

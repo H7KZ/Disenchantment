@@ -64,7 +64,7 @@ Match the existing formatting throughout. The rules:
    `docs/` prefixes help reviewers at a glance.
 2. Make your changes following the code style above.
 3. Add or update tests for any logic changes. See [TESTING.md](TESTING.md) for guidance.
-4. Test on a real server with at least the Minecraft version(s) your change affects. For NMS changes, test all versions
+4. Test on a real server with at least the Minecraft version (s) your change affects. For NMS changes, test all versions
    covered by the affected module.
 5. Open a pull request against `master` with a clear description of what was changed and why. Reference any related
    issue numbers.

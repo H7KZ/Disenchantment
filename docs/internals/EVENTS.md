@@ -201,8 +201,8 @@ collectors. Key differences:
 - Slot 0 must be `ENCHANTED_BOOK` (not a regular enchanted item).
 - Requires `>= 2` enchantments on the book (`EventUtils.Shatterment.getShattermentEnchantments` rejects single-enchant
   books).
-- Result is a new `ENCHANTED_BOOK` with only the split-off enchantment(s). `Config.Shatterment.getSplitCount()` controls
-  how many enchantments split off per operation (default 1).
+- Result is a new `ENCHANTED_BOOK` with only the split-off enchantment (s). `Config.Shatterment.getSplitCount()`
+  controls how many enchantments split off per operation (default 1).
 - Public API events: `PreShatterEvent` / `PostShatterEvent`.
 
 ---

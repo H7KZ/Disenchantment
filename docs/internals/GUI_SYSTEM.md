@@ -154,8 +154,8 @@ Takes `AnvilFeature feature` (DISENCHANTMENT or SHATTERMENT). Shows five togglea
 - Reset enabled toggle
 - Base cost value (click to change)
 - Multiplier value (click to change)
-- Max cost cap value (slot 16, click to change; left-click increments, right-click decrements down to `-1`, displayed
-  as "No cap"/"Unlimited")
+- Max cost cap value (slot 16, click to change; left-click increments, right-click decrements down to `-1`, displayed as
+  "No cap"/"Unlimited")
 
 ### `SoundGUI`
 

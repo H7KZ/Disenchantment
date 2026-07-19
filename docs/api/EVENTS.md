@@ -13,9 +13,8 @@ All events are in the package `com.jankominek.disenchantment.events.api`.
 ## PreDisenchantEvent
 
 **Package:** `com.jankominek.disenchantment.events.api`
-**Cancellable:** Yes
-**When it fires:** Immediately before a disenchant operation executes. Cancelling this event prevents the enchantments
-from being transferred and the XP cost from being applied.
+**Cancellable:** Yes **When it fires:** Immediately before a disenchant operation executes. Cancelling this event
+prevents the enchantments from being transferred and the XP cost from being applied.
 
 ### Methods
 
@@ -69,9 +68,8 @@ public class MyListener implements Listener {
 ## PostDisenchantEvent
 
 **Package:** `com.jankominek.disenchantment.events.api`
-**Cancellable:** No
-**When it fires:** After a disenchant operation has completed successfully. The result book and modified source item
-have already been placed into the player's inventory.
+**Cancellable:** No **When it fires:** After a disenchant operation has completed successfully. The result book and
+modified source item have already been placed into the player's inventory.
 
 ### Methods
 
@@ -113,9 +111,8 @@ public class MyListener implements Listener {
 ## PreShatterEvent
 
 **Package:** `com.jankominek.disenchantment.events.api`
-**Cancellable:** Yes
-**When it fires:** Immediately before a shatter operation executes. Shattering splits one enchantment off a
-multi-enchantment book onto a blank book. Cancelling this event prevents the split from occurring.
+**Cancellable:** Yes **When it fires:** Immediately before a shatter operation executes. Shattering splits one
+enchantment off a multi-enchantment book onto a blank book. Cancelling this event prevents the split from occurring.
 
 ### Methods
 
@@ -164,9 +161,8 @@ public class MyListener implements Listener {
 ## PostShatterEvent
 
 **Package:** `com.jankominek.disenchantment.events.api`
-**Cancellable:** No
-**When it fires:** After a shatter operation has completed successfully. The result book containing the split
-enchantment and the modified source book have already been placed into the player's inventory.
+**Cancellable:** No **When it fires:** After a shatter operation has completed successfully. The result book containing
+the split enchantment and the modified source book have already been placed into the player's inventory.
 
 ### Methods
 

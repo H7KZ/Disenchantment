@@ -40,8 +40,8 @@ containing only the split enchantment.
 
 ### Configuration
 
-All settings can be changed in `plugins/Disenchantment/config.yml`, via `/disenchantment gui` in-game, or via commands (
-see [COMMANDS.md](COMMANDS.md)). Features can be restricted per-world, per-material, and per-enchantment. An optional
+All settings can be changed in `plugins/Disenchantment/config.yml`, via `/disenchantment gui` in-game, or via commands
+(see [COMMANDS.md](COMMANDS.md)). Features can be restricted per-world, per-material, and per-enchantment. An optional
 Vault economy integration can charge players an in-game currency cost per operation.
 
 ## Supported Minecraft Versions

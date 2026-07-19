@@ -100,7 +100,7 @@ more.
 | Book with one enchantment (any shatter) | same formula for that enchantment | varies    |
 
 > **Tip:** To make disenchanting free, set `disenchantment.anvil.repair.cost: false` in config, or run
-`/disenchantment disenchant:repair cost disable`.
+> `/disenchantment disenchant:repair cost disable`.
 
 ### Economy Cost (Optional)
 

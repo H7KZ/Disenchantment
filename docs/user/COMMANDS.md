@@ -59,7 +59,7 @@ report.
 | `/disenchantment diagnostic log`  | Prints the full report to the server console. Useful for RCON users who cannot click in-game.                                         | `disenchantment.command.diagnostic` |
 
 > **Tip:** Run `/disenchantment diagnostic save` and attach the generated file when opening a GitHub issue, or run
-`/disenchantment diagnostic` in-game and paste the copied code block directly into the issue body.
+> `/disenchantment diagnostic` in-game and paste the copied code block directly into the issue body.
 
 ---
 

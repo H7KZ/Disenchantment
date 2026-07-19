@@ -197,8 +197,8 @@ Vanilla overload (no plugin). Validates:
 - Second item has no enchantments (must be blank).
 - No enchantment on the first item has state `DISABLE` (if any do, the entire operation is blocked).
 
-Then applies enchantment state filtering: removes enchantments with state `KEEP` from the result. If `withDelete=true` (
-PrepareAnvil — show what will happen), also removes `DELETE` state enchantments from the result set (they will be
+Then applies enchantment state filtering: removes enchantments with state `KEEP` from the result. If `withDelete=true`
+(PrepareAnvil — show what will happen), also removes `DELETE` state enchantments from the result set (they will be
 removed from the source item but not placed on the book). If `withDelete=false` (InventoryClick — execution), DELETE
 enchantments remain in the result so they can be removed from the source.
 

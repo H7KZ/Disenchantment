@@ -5,7 +5,7 @@
 `core/src/main/java/com/jankominek/disenchantment/plugins/`
 
 The adapter system allows Disenchantment to read and manipulate enchantments added by third-party enchantment plugins.
-Each supported plugin gets a dedicated adapter class in the `plugins/` subpackage of the relevant NMS module(s).
+Each supported plugin gets a dedicated adapter class in the `plugins/` subpackage of the relevant NMS module (s).
 
 ---
 

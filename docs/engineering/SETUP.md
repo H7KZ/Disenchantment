@@ -51,8 +51,8 @@ minutes per version on first run (BuildTools compiles Spigot from source).
 mvn clean package
 ```
 
-The shaded output JAR is written to `target/Disenchantment-<version>.jar` (e.g. `target/Disenchantment-6.5.0.jar`). This
-is the file you drop into a server's `plugins/` folder.
+The shaded output JAR is written to `target/Disenchantment-<version>.jar` (e.g. `target/Disenchantment-6.5.11.jar`).
+This is the file you drop into a server's `plugins/` folder.
 
 If you only need to compile (no JAR output) to check for errors:
 

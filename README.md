@@ -38,8 +38,8 @@ books.
 
 ### Economy Integration
 
-Server owners can optionally require players to pay an in-game currency cost for each disenchant or shatter
-operation, in addition to (or instead of) the XP cost.
+Server owners can optionally require players to pay an in-game currency cost for each disenchant or shatter operation,
+in addition to (or instead of) the XP cost.
 
 - Requires [Vault](https://www.spigotmc.org/resources/34315/) and any compatible economy plugin (EssentialsX, CMI,
   PlayerPoints, etc.).
@@ -51,8 +51,8 @@ operation, in addition to (or instead of) the XP cost.
 
 - **Truly Vanilla-Friendly** - No new machines or confusing UIs. All functions are handled through the standard anvil.
 - **Lightweight & Efficient** - Adds valuable features without causing server lag or performance issues.
-- **Fully Customizable** - Configure XP costs, economy costs, per-world/per-enchantment/per-material restrictions,
-  event priorities, and more.
+- **Fully Customizable** - Configure XP costs, economy costs, per-world/per-enchantment/per-material restrictions, event
+  priorities, and more.
 - **Economy Ready** - Optional Vault integration lets server owners add a currency cost to every operation.
 - **Folia Support** - Compatible with the Folia server software for regionized multithreading.
 
@@ -82,13 +82,13 @@ Get the latest release from any of these sources:
 
 | Plugin                                                           | 1.21.8 - 1.21.11+ | 1.21.7 - 1.21.5 | 1.21.4 - 1.21 | 1.20.6 - 1.20.5 | 1.20.4 - 1.18 |
 |------------------------------------------------------------------|:-----------------:|:---------------:|:-------------:|:---------------:|:-------------:|
-| [AdvancedEnchantments](https://www.spigotmc.org/resources/43058) |         ✓         |        ✓        |       ✓       |        ✓        |       ✓       |
-| [EcoEnchants](https://www.spigotmc.org/resources/79573)          |         ✓         |        ✓        |       ✓       |        ✓        |       ✓       |
-| [EnchantsSquared](https://www.spigotmc.org/resources/86747)      |         ✓         |        ✓        |       ✓       |        ✓        |       ✓       |
-| [UberEnchant](https://www.spigotmc.org/resources/19448)          |         ✓         |        ✓        |       ✓       |        ✓        |       ✓       |
-| [ExcellentEnchants](https://www.spigotmc.org/resources/61693)    |         ✓         |        ✓        |       ✓       |        -        |       -       |
-| [Vane](https://modrinth.com/plugin/vane)                         |         ✓         |        ✓        |       ✓       |        -        |       -       |
-| [Zenchantments](https://github.com/moikheck/Zenchantments)       |         ✓         |        ✓        |       ✓       |        -        |       -       |
+| [AdvancedEnchantments](https://www.spigotmc.org/resources/43058) |        ✓         |       ✓        |      ✓       |       ✓        |      ✓       |
+| [EcoEnchants](https://www.spigotmc.org/resources/79573)          |        ✓         |       ✓        |      ✓       |       ✓        |      ✓       |
+| [EnchantsSquared](https://www.spigotmc.org/resources/86747)      |        ✓         |       ✓        |      ✓       |       ✓        |      ✓       |
+| [UberEnchant](https://www.spigotmc.org/resources/19448)          |        ✓         |       ✓        |      ✓       |       ✓        |      ✓       |
+| [ExcellentEnchants](https://www.spigotmc.org/resources/61693)    |        ✓         |       ✓        |      ✓       |        -        |       -       |
+| [Vane](https://modrinth.com/plugin/vane)                         |        ✓         |       ✓        |      ✓       |        -        |       -       |
+| [Zenchantments](https://github.com/moikheck/Zenchantments)       |        ✓         |       ✓        |      ✓       |        -        |       -       |
 
 > **Note:** EcoEnchants V13.0.0 is supported natively with Disenchantment 6.4.0+. No patched build is required.
 

@@ -227,8 +227,8 @@ disenchantment:
 | `disabled-materials`  | List\<String\> | `[]`    | Materials that cannot be disenchanted (e.g. `DIAMOND_SWORD`). Material names are case-insensitive. |
 | `enchantments-states` | List\<String\> | `[]`    | Per-enchantment behavior overrides in `"key:state"` format (see below).                            |
 
-**Enchantment state format:** Each entry is a string like `"sharpness:keep"`. The key is the Bukkit enchantment key (
-tab-completion is available in-game via the command).
+**Enchantment state format:** Each entry is a string like `"sharpness:keep"`. The key is the Bukkit enchantment key
+(tab-completion is available in-game via the command).
 
 **State comparison:**
 

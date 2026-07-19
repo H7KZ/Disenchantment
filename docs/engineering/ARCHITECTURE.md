@@ -10,9 +10,9 @@ environment ready, and [ADDING_NEW_VERSION.md](ADDING_NEW_VERSION.md) for the co
 Disenchantment is a Spigot/Paper/Folia plugin that intercepts vanilla anvil interactions and adds two new mechanics: *
 *disenchanting** (removing all enchantments from an item onto a blank book) and **shattering** (splitting one
 enchantment off a multi-enchantment book). Both features hook into `PrepareAnvilEvent` to compute and preview a result,
-and `InventoryClickEvent` to execute the transfer when the player takes the result. Version-specific NMS operations (
-repair cost manipulation, enchantment registry access, skull textures) are abstracted behind a single `NMS` interface so
-the same core logic runs across every supported Minecraft version.
+and `InventoryClickEvent` to execute the transfer when the player takes the result. Version-specific NMS operations
+(repair cost manipulation, enchantment registry access, skull textures) are abstracted behind a single `NMS` interface
+so the same core logic runs across every supported Minecraft version.
 
 ## Module dependency diagram
 
@@ -223,8 +223,8 @@ VaultUnlocked's bridge is present.
 
 ## Config migration system
 
-The plugin's config schema is versioned. The current version is tracked in `config.yml` under the `migration` key (
-currently `9`). On startup, `ConfigUtils.setupConfig()` compares the user's existing config version against the bundled
+The plugin's config schema is versioned. The current version is tracked in `config.yml` under the `migration` key
+(currently `9`). On startup, `ConfigUtils.setupConfig()` compares the user's existing config version against the bundled
 default, then calls `ConfigMigrations.apply()`.
 
 `ConfigMigrations` holds a `Map<Integer, IConfigMigration>` with one handler per migration step. Each step loads a
@@ -251,8 +251,8 @@ public interface ISupportedPlugin {
 }
 ```
 
-Each NMS module's `NMS_v*_R*.getSupportedPlugins()` returns the full list of adapters that module can support (
-regardless of whether those plugins are installed).
+Each NMS module's `NMS_v*_R*.getSupportedPlugins()` returns the full list of adapters that module can support
+(regardless of whether those plugins are installed).
 
 ### SupportedPluginManager
 
