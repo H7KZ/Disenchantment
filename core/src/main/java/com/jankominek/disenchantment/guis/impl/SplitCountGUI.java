@@ -36,6 +36,11 @@ public class SplitCountGUI implements InventoryHolder {
         if (this.fixed) {
             this.items = ArrayUtils.addAll(
                     GUIBorderComponent.border9x3(new Integer[]{0, 13, 15}),
+                    GUIBorderComponent.border(10),
+                    GUIBorderComponent.border(11),
+                    GUIBorderComponent.border(12),
+                    GUIBorderComponent.border(14),
+                    GUIBorderComponent.border(16),
                     new GUIItem(0, GUIComponent.back(), event -> {
                         event.setCancelled(true);
 
@@ -67,6 +72,10 @@ public class SplitCountGUI implements InventoryHolder {
         } else {
             this.items = ArrayUtils.addAll(
                     GUIBorderComponent.border9x3(new Integer[]{0, 11, 13, 15}),
+                    GUIBorderComponent.border(10),
+                    GUIBorderComponent.border(12),
+                    GUIBorderComponent.border(14),
+                    GUIBorderComponent.border(16),
                     new GUIItem(0, GUIComponent.back(), event -> {
                         event.setCancelled(true);
 

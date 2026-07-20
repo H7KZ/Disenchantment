@@ -97,6 +97,12 @@ public class GUIClickEvent implements Listener {
                 return;
             }
             splitCountGUI.onInventoryClick(e);
+        } else if (clickedHolder instanceof StatsGUI statsGUI) {
+            if (!PermissionGroupType.GUI.hasPermission(p)) {
+                DiagnosticUtils.debug("GUI", "Click denied: " + p.getName() + " lacks permission for StatsGUI");
+                return;
+            }
+            statsGUI.onInventoryClick(e);
         }
     }
 }

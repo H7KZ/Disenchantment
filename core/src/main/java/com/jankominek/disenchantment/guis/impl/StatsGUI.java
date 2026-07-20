@@ -1,10 +1,7 @@
 package com.jankominek.disenchantment.guis.impl;
 
 import com.jankominek.disenchantment.config.I18n;
-import com.jankominek.disenchantment.guis.GUIBorderComponent;
-import com.jankominek.disenchantment.guis.GUIItem;
-import com.jankominek.disenchantment.guis.InventoryBuilder;
-import com.jankominek.disenchantment.guis.ItemBuilder;
+import com.jankominek.disenchantment.guis.*;
 import com.jankominek.disenchantment.stats.StatsCache;
 import com.jankominek.disenchantment.stats.StatsManager;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
@@ -27,6 +24,10 @@ public class StatsGUI implements InventoryHolder {
     private final GUIItem[] items;
     private final Inventory inventory;
 
+    /**
+     * Constructs the stats GUI, reading aggregate totals from {@link StatsCache}.
+     * All values fall back to zero when the stats system is disabled.
+     */
     public StatsGUI() {
         StatsCache cache = StatsManager.getInstance() != null
                 ? StatsManager.getInstance().getCache() : null;
@@ -38,13 +39,13 @@ public class StatsGUI implements InventoryHolder {
         String topEnch = cache != null ? cache.getTopEnchantment() : "none";
 
         this.items = ArrayUtils.addAll(
-                GUIBorderComponent.border9x3(new Integer[]{0, 10, 12, 14, 16, 22}),
+                GUIBorderComponent.border9x3(new Integer[]{0, 10, 11, 12, 13, 14, 15, 16, 22}),
+                GUIBorderComponent.border(11),
+                GUIBorderComponent.border(13),
+                GUIBorderComponent.border(15),
                 new GUIItem(
                         0,
-                        new ItemBuilder(Material.ARROW)
-                                .setDisplayName("§7Back")
-                                .addAllFlags()
-                                .build(),
+                        GUIComponent.back(),
                         event -> {
                             event.setCancelled(true);
                             event.getWhoClicked().openInventory(new NavigationGUI().getInventory());
@@ -108,6 +109,7 @@ public class StatsGUI implements InventoryHolder {
      * @param event the inventory click event
      */
     public void onInventoryClick(InventoryClickEvent event) {
+        event.setCancelled(true);
         for (GUIItem item : this.items) {
             if (item.getSlot() == event.getSlot()) item.onClick(event);
         }

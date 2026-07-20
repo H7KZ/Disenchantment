@@ -15,6 +15,9 @@ import java.util.List;
  * disabled on server restart.
  */
 public class Maintenance {
+    /**
+     * The command definition for the maintenance subcommand.
+     */
     public static final CommandBuilder command = new CommandBuilder(
             "maintenance",
             PermissionGroupType.COMMAND_MAINTENANCE,
@@ -24,6 +27,12 @@ public class Maintenance {
             Maintenance::complete
     );
 
+    /**
+     * Enables or disables maintenance mode for this session.
+     *
+     * @param s    the command sender
+     * @param args the command arguments; args[1] must be "on" or "off"
+     */
     public static void execute(CommandSender s, String[] args) {
         boolean enable = args[1].equalsIgnoreCase("on");
 
@@ -32,6 +41,13 @@ public class Maintenance {
         s.sendMessage(I18n.getPrefix() + " " + (enable ? I18n.Messages.maintenanceIsEnabled() : I18n.Messages.maintenanceIsDisabled()));
     }
 
+    /**
+     * Provides tab completion suggestions for "on" and "off".
+     *
+     * @param sender the command sender
+     * @param args   the current command arguments
+     * @return a list of matching suggestions
+     */
     public static List<String> complete(CommandSender sender, String[] args) {
         List<String> result = new ArrayList<>();
 

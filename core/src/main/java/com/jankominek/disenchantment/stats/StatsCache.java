@@ -14,6 +14,9 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class StatsCache {
 
+    /**
+     * Immutable per-player aggregate statistics held in the cache.
+     */
     public record PlayerStats(
             long disenchants,
             long shatters,
@@ -73,34 +76,62 @@ public class StatsCache {
                 (existing, n) -> existing.add(type, xpCost, economyCost, timestamp));
     }
 
+    /**
+     * Returns the total number of disenchantment operations recorded.
+     */
     public long getTotalDisenchants() {
         return totalDisenchants;
     }
 
+    /**
+     * Returns the total number of shatterment operations recorded.
+     */
     public long getTotalShatters() {
         return totalShatters;
     }
 
+    /**
+     * Returns the total XP levels spent across all operations.
+     */
     public long getTotalXpSpent() {
         return totalXpSpent;
     }
 
+    /**
+     * Returns the total economy currency spent across all operations.
+     */
     public double getTotalMoneySpent() {
         return totalMoneySpent;
     }
 
+    /**
+     * Returns the number of operations recorded for the given enchantment key, or 0 if unknown.
+     *
+     * @param key the enchantment key (e.g. {@code "mending"})
+     */
     public long getEnchantmentCount(String key) {
         return enchantmentCounts.getOrDefault(key, 0L);
     }
 
+    /**
+     * Returns an unmodifiable view of the enchantment operation counts.
+     */
     public Map<String, Long> getEnchantmentCounts() {
         return Collections.unmodifiableMap(enchantmentCounts);
     }
 
+    /**
+     * Returns the cached stats for the given player, or {@code null} if no data exists yet.
+     *
+     * @param uuid the player's UUID
+     */
     public StatsCache.PlayerStats getPlayerStats(UUID uuid) {
         return playerStats.get(uuid);
     }
 
+    /**
+     * Returns an unmodifiable view of all per-player stats in the cache.
+     */
     public Map<UUID, PlayerStats> getAllPlayerStats() {
         return Collections.unmodifiableMap(playerStats);
     }

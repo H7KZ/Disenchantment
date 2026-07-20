@@ -15,11 +15,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Handles the "stats" subcommand which displays server-wide or per-player operation
+ * statistics from the {@link com.jankominek.disenchantment.stats.StatsCache}. Only
+ * available when {@code logging.operations} is {@code true} in config.yml.
+ */
 public class Stats {
 
     private static final DateTimeFormatter ISO = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
             .withZone(ZoneId.systemDefault());
 
+    /**
+     * The command definition for the stats subcommand.
+     */
     public static final CommandBuilder command = new CommandBuilder(
             "stats",
             PermissionGroupType.COMMAND_STATS,
@@ -29,6 +37,12 @@ public class Stats {
             Stats::complete
     );
 
+    /**
+     * Displays server-wide stats, or per-player stats when a player name is given as args[1].
+     *
+     * @param s    the command sender
+     * @param args the command arguments; args[1] is the optional player name
+     */
     public static void execute(CommandSender s, String[] args) {
         if (!Config.Logging.isOperationsEnabled()) {
             s.sendMessage("§cOperation logging is not enabled. Set §flogging.operations: true §cin config.yml to enable stats.");
@@ -70,6 +84,13 @@ public class Stats {
         s.sendMessage("§7Top enchant: §f" + cache.getTopEnchantment());
     }
 
+    /**
+     * Returns an empty list since the stats command performs no argument tab completion.
+     *
+     * @param sender the command sender
+     * @param args   the current command arguments
+     * @return an empty list
+     */
     public static List<String> complete(CommandSender sender, String[] args) {
         return new ArrayList<>(List.of());
     }

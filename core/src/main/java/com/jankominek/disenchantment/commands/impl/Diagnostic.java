@@ -35,17 +35,9 @@ public class Diagnostic {
     );
 
     /**
-     * Executes the diagnostic command.
-     * <ul>
-     *   <li>{@code /disenchantment diagnostic}     – players get a GitHub-ready click-to-copy message;
-     *                                                console receives the plain-text report</li>
-     *   <li>{@code /disenchantment diagnostic all}  – same as above but with extended details</li>
-     *   <li>{@code /disenchantment diagnostic save} – writes the full report to
-     *                                                 {@code plugins/Disenchantment/logs/} and
-     *                                                 reports the file path to the sender</li>
-     *   <li>{@code /disenchantment diagnostic log}  – prints the full report to the server console;
-     *                                                 useful for RCON users who cannot click in-game</li>
-     * </ul>
+     * Generates a diagnostic report. Players receive a GitHub-ready click-to-copy chat message;
+     * console receives plain text. Use {@code all} for extended details, {@code save} to write
+     * a file under {@code plugins/Disenchantment/logs/}, or {@code log} to print to the server console.
      *
      * @param sender the command sender
      * @param args   the command arguments

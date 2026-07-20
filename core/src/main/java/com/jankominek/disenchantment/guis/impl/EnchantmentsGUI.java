@@ -38,7 +38,7 @@ public class EnchantmentsGUI implements InventoryHolder {
     private int page;
     private List<Enchantment> enchantments;
     private GUIItem[] items = org.apache.commons.lang3.ArrayUtils.addAll(
-            GUIBorderComponent.border9x6(new Integer[]{0, 49}),
+            GUIBorderComponent.border9x6(new Integer[]{0, 47, 49, 51}),
             new GUIItem(
                     0,
                     GUIComponent.back(),
@@ -105,7 +105,7 @@ public class EnchantmentsGUI implements InventoryHolder {
     public final GUIItem[] fillPageWithEnchantments() {
         int pageSize = Math.min(this.enchantments.size() - (this.page * 28), 28);
 
-        GUIItem[] worldItems = new GUIItem[pageSize];
+        GUIItem[] enchantmentItems = new GUIItem[pageSize];
 
         HashMap<String, EnchantmentStateType> disenchantmentEnchantmentsStates = Config.Disenchantment.getEnchantmentStates();
         HashMap<String, EnchantmentStateType> shattermentEnchantmentsStates = Config.Shatterment.getEnchantmentStates();
@@ -120,7 +120,7 @@ public class EnchantmentsGUI implements InventoryHolder {
             AtomicReference<EnchantmentStateType> disenchantmentState = new AtomicReference<>(disenchantmentEnchantmentsStates.getOrDefault(enchantment.getKey().getKey(), EnchantmentStateType.ENABLE));
             AtomicReference<EnchantmentStateType> shattermentState = new AtomicReference<>(shattermentEnchantmentsStates.getOrDefault(enchantment.getKey().getKey(), EnchantmentStateType.ENABLE));
 
-            worldItems[i] = new GUIItem(
+            enchantmentItems[i] = new GUIItem(
                     freeSlots[i],
                     GUIComponent.Enchantments.enchantment(
                             "§7§l" + enchantment.getKey().getKey(),
@@ -174,7 +174,7 @@ public class EnchantmentsGUI implements InventoryHolder {
             );
         }
 
-        return worldItems;
+        return enchantmentItems;
     }
 
     /**

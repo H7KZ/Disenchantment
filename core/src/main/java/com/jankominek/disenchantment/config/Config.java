@@ -267,10 +267,21 @@ public class Config {
             return config.getBoolean(ConfigKeys.LOGGING_SAVE_REPORTS.getKey(), true);
         }
 
+        /**
+         * Returns whether operation records should be persisted to the SQLite stats database.
+         *
+         * @return {@code true} if operation logging is enabled
+         */
         public static boolean isOperationsEnabled() {
             return config.getBoolean(ConfigKeys.LOGGING_OPERATIONS.getKey(), false);
         }
 
+        /**
+         * Gets the configured Discord webhook URL for crash-report notifications.
+         * Returns an empty string when no webhook is set.
+         *
+         * @return the Discord webhook URL, or an empty string if not configured
+         */
         public static String getDiscordWebhook() {
             return config.getString(ConfigKeys.LOGGING_DISCORD_WEBHOOK.getKey(), "");
         }

@@ -44,7 +44,6 @@ public class EconomyGUI implements InventoryHolder {
                             event.getWhoClicked().openInventory(new NavigationGUI().getInventory());
                         }
                 ),
-                GUIBorderComponent.border(9),
                 new GUIItem(
                         10,
                         isEnabled() ? enabledItem() : disabledItem(),
@@ -111,16 +110,6 @@ public class EconomyGUI implements InventoryHolder {
                             setChargeMessageEnabled(chargeMessageEnabled);
 
                             event.setCurrentItem(chargeMessageEnabled ? chargeMessageEnabledItem() : chargeMessageDisabledItem());
-                        }
-                ),
-                GUIBorderComponent.border(17),
-                new GUIItem(
-                        22,
-                        GUIComponent.back(),
-                        event -> {
-                            event.setCancelled(true);
-
-                            event.getWhoClicked().openInventory(new NavigationGUI().getInventory());
                         }
                 )
         );

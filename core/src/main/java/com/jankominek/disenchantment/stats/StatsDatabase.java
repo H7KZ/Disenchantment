@@ -10,6 +10,10 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.logging.Logger;
 
+/**
+ * SQLite-backed persistence layer for operation statistics.
+ * All writes are serialised through a single-threaded executor to avoid SQLite locking.
+ */
 public class StatsDatabase {
 
     private final Connection connection;
@@ -56,6 +60,11 @@ public class StatsDatabase {
         }
     }
 
+    /**
+     * Queues a record for asynchronous insertion into the database.
+     *
+     * @param r the operation record to persist
+     */
     public void insertAsync(OperationRecord r) {
         writeExecutor.execute(() -> {
             try {
@@ -157,6 +166,9 @@ public class StatsDatabase {
         });
     }
 
+    /**
+     * Shuts down the write executor (waiting up to 5 seconds for pending writes) and closes the DB connection.
+     */
     public void close() {
         writeExecutor.shutdown();
         try {

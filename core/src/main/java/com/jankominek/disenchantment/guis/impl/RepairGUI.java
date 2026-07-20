@@ -155,8 +155,7 @@ public class RepairGUI implements InventoryHolder {
 
                             event.setCurrentItem(maxCost(cost, cost < 0 ? 1 : Math.min(Math.max(cost, 1), 64)));
                         }
-                ),
-                GUIBorderComponent.border(17)
+                )
         );
 
         String title = switch (feature) {

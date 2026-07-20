@@ -16,13 +16,10 @@ import static com.jankominek.disenchantment.Disenchantment.plugin;
  *
  * <p>Available placeholders:</p>
  * <ul>
- *   <li>{@code %disenchantment_enabled%} €” {@code "true"} / {@code "false"}: whether the
- *       plugin is globally enabled</li>
- *   <li>{@code %disenchantment_disenchant_enabled%} €” {@code "true"} / {@code "false"}:
- *       whether the disenchanting feature is enabled</li>
- *   <li>{@code %disenchantment_shatter_enabled%} €” {@code "true"} / {@code "false"}:
- *       whether the shattering (book splitting) feature is enabled</li>
- *   <li>{@code %disenchantment_version%} €” the plugin version string (e.g. {@code "6.5.11"})</li>
+ *   <li>{@code %disenchantment_enabled%}: {@code “true”} or {@code “false”}, whether the plugin is globally enabled</li>
+ *   <li>{@code %disenchantment_disenchant_enabled%}: whether the disenchanting feature is enabled</li>
+ *   <li>{@code %disenchantment_shatter_enabled%}: whether the shattering (book splitting) feature is enabled</li>
+ *   <li>{@code %disenchantment_version%}: the plugin version string (e.g. {@code “6.5.11”})</li>
  * </ul>
  *
  * <p>{@link #persist()} returns {@code true} so PlaceholderAPI does not unregister this
@@ -31,7 +28,7 @@ import static com.jankominek.disenchantment.Disenchantment.plugin;
 public class DisenchantmentPlaceholderExpansion extends PlaceholderExpansion {
 
     /**
-     * @return the placeholder identifier prefix ({@code "disenchantment"})
+     * Returns the placeholder identifier prefix ({@code "disenchantment"}).
      */
     @Override
     public @NotNull String getIdentifier() {
@@ -39,7 +36,7 @@ public class DisenchantmentPlaceholderExpansion extends PlaceholderExpansion {
     }
 
     /**
-     * @return the plugin author(s) from {@code plugin.yml}
+     * Returns the plugin author(s) from {@code plugin.yml}.
      */
     @Override
     public @NotNull String getAuthor() {
@@ -47,7 +44,7 @@ public class DisenchantmentPlaceholderExpansion extends PlaceholderExpansion {
     }
 
     /**
-     * @return the plugin version from {@code plugin.yml}
+     * Returns the plugin version from {@code plugin.yml}.
      */
     @Override
     public @NotNull String getVersion() {
@@ -55,8 +52,7 @@ public class DisenchantmentPlaceholderExpansion extends PlaceholderExpansion {
     }
 
     /**
-     * Returns {@code true} so this expansion survives plugin reloads without being
-     * re-registered by PlaceholderAPI.
+     * Returns {@code true} so this expansion survives plugin reloads without being re-registered.
      */
     @Override
     public boolean persist() {

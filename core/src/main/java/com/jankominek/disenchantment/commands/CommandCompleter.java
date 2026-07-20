@@ -17,15 +17,6 @@ import static com.jankominek.disenchantment.commands.CommandRegister.commands;
  * corresponding subcommand's completer.
  */
 public class CommandCompleter implements TabCompleter {
-    /**
-     * {@inheritDoc}
-     *
-     * @param sender  the command sender
-     * @param command the command being completed
-     * @param label   the alias used
-     * @param args    the current arguments typed so far
-     * @return a list of tab completion suggestions
-     */
     @Override
     public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
         List<String> result = new ArrayList<>();

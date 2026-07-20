@@ -117,8 +117,7 @@ public class SoundGUI implements InventoryHolder {
                             event.setCurrentItem(pitch(pitch, Math.min((int) (pitch * 10), 64)));
                         }
                 ),
-                GUIBorderComponent.border(16),
-                GUIBorderComponent.border(17)
+                GUIBorderComponent.border(16)
         );
 
         String title = switch (feature) {

@@ -1,5 +1,15 @@
 package com.jankominek.disenchantment.stats;
 
+/**
+ * The type of anvil operation recorded in the stats system.
+ */
 public enum OperationType {
-    DISENCHANT, SHATTER
+    /**
+     * An enchantment was transferred from an item to a blank book.
+     */
+    DISENCHANT,
+    /**
+     * A multi-enchantment book was split into separate books.
+     */
+    SHATTER
 }

@@ -19,16 +19,6 @@ import java.util.List;
  */
 public record CommandBuilder(String name, PermissionGroupType permission, String[] args, boolean requireArgs,
                              ICommandExecutor executor, ICommandCompleter completer) {
-    /**
-     * Constructs a new CommandBuilder.
-     *
-     * @param name        the subcommand name
-     * @param permission  the permission group required to use this command
-     * @param args        the valid argument values
-     * @param requireArgs whether arguments must match the valid argument list
-     * @param executor    the command executor
-     * @param completer   the tab completer
-     */
     public CommandBuilder {
     }
 

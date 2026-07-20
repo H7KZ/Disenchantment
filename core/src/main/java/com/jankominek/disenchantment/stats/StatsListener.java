@@ -11,14 +11,28 @@ import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Bukkit listener that forwards completed disenchantment and shatterment operations
+ * to {@link StatsManager} for recording in the cache and database.
+ */
 public class StatsListener implements Listener {
 
     private final StatsManager manager;
 
+    /**
+     * Constructs a new StatsListener backed by the given manager.
+     *
+     * @param manager the stats manager to forward records to
+     */
     public StatsListener(StatsManager manager) {
         this.manager = manager;
     }
 
+    /**
+     * Records a completed disenchantment operation from a {@link PostDisenchantEvent}.
+     *
+     * @param event the post-disenchant event
+     */
     @EventHandler
     public void onPostDisenchant(PostDisenchantEvent event) {
         manager.record(
@@ -31,6 +45,11 @@ public class StatsListener implements Listener {
         );
     }
 
+    /**
+     * Records a completed shatterment operation from a {@link PostShatterEvent}.
+     *
+     * @param event the post-shatter event
+     */
     @EventHandler
     public void onPostShatter(PostShatterEvent event) {
         manager.record(

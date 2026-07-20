@@ -20,31 +20,31 @@ public class GUIComponent {
      * @return the back navigation {@link ItemStack}
      */
     public static ItemStack back() {
-        return new ItemBuilder(Material.NETHER_STAR)
+        return new ItemBuilder(Material.ARROW)
                 .setDisplayName(I18n.GUI.back())
                 .addAllFlags()
                 .build();
     }
 
     /**
-     * Creates a previous-page navigation item (Firework Star).
+     * Creates a previous-page navigation item (Arrow).
      *
      * @return the previous page {@link ItemStack}
      */
     public static ItemStack previous() {
-        return new ItemBuilder(Material.FIREWORK_STAR)
+        return new ItemBuilder(Material.ARROW)
                 .setDisplayName(I18n.GUI.previous())
                 .addAllFlags()
                 .build();
     }
 
     /**
-     * Creates a next-page navigation item (Firework Star).
+     * Creates a next-page navigation item (Arrow).
      *
      * @return the next page {@link ItemStack}
      */
     public static ItemStack next() {
-        return new ItemBuilder(Material.FIREWORK_STAR)
+        return new ItemBuilder(Material.ARROW)
                 .setDisplayName(I18n.GUI.next())
                 .addAllFlags()
                 .build();

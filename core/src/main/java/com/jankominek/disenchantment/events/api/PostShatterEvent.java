@@ -19,6 +19,13 @@ public class PostShatterEvent extends Event {
     private final int xpCost;
     private final double economyCost;
 
+    /**
+     * @param player             the player who performed the shattering
+     * @param resultBook         the enchanted book the player received (snapshot)
+     * @param modifiedSourceItem the source book after enchantments were removed (snapshot)
+     * @param xpCost             XP levels deducted (0 in creative mode)
+     * @param economyCost        money charged (0.0 if economy disabled or creative mode)
+     */
     public PostShatterEvent(Player player, ItemStack resultBook, ItemStack modifiedSourceItem,
                             int xpCost, double economyCost) {
         this.player = player;
@@ -28,22 +35,37 @@ public class PostShatterEvent extends Event {
         this.economyCost = economyCost;
     }
 
+    /**
+     * Returns the player who performed the shattering.
+     */
     public Player getPlayer() {
         return player;
     }
 
+    /**
+     * Returns the enchanted book the player received (snapshot, not a live reference).
+     */
     public ItemStack getResultBook() {
         return resultBook;
     }
 
+    /**
+     * Returns the source book after enchantments were removed (snapshot, not a live reference).
+     */
     public ItemStack getModifiedSourceItem() {
         return modifiedSourceItem;
     }
 
+    /**
+     * XP levels deducted from the player for this operation.
+     */
     public int getXpCost() {
         return xpCost;
     }
 
+    /**
+     * Money charged via economy for this operation (0.0 if economy disabled).
+     */
     public double getEconomyCost() {
         return economyCost;
     }
@@ -53,6 +75,9 @@ public class PostShatterEvent extends Event {
         return HANDLERS;
     }
 
+    /**
+     * Required by Bukkit's event system for handler registration.
+     */
     public static HandlerList getHandlerList() {
         return HANDLERS;
     }

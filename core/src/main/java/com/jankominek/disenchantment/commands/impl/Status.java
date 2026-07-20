@@ -25,6 +25,9 @@ import static com.jankominek.disenchantment.Disenchantment.enabled;
  * Supports "--json" argument for machine-readable output (RCON/console friendly).
  */
 public class Status {
+    /**
+     * The command definition for the status subcommand.
+     */
     public static final CommandBuilder command = new CommandBuilder(
             "status",
             PermissionGroupType.COMMAND_STATUS,
@@ -34,16 +37,24 @@ public class Status {
             Status::complete
     );
 
+    /**
+     * Displays the current enabled state of all plugin features. Pass {@code --json} as the
+     * first argument for a machine-readable JSON response.
+     *
+     * @param s    the command sender
+     * @param args the command arguments; args[0] may be "--json"
+     */
     public static void execute(CommandSender s, String[] args) {
-        boolean json = args.length > 0 && "--json".equalsIgnoreCase(args[0]);
+        boolean json = args.length > 1 && "--json".equalsIgnoreCase(args[1]);
         if (json) {
             s.sendMessage(buildJson());
             return;
         }
         s.sendMessage(I18n.Commands.Status.title());
+        s.sendMessage("§7Version: §f" + Disenchantment.plugin.getDescription().getVersion());
         s.sendMessage(I18n.Commands.Status.global(enabled ? I18n.Commands.Status.States.enabled() : I18n.Commands.Status.States.disabled()));
-        s.sendMessage(I18n.Commands.Status.disenchantment(enabled ? I18n.Commands.Status.States.enabled() : I18n.Commands.Status.States.disabled()));
-        s.sendMessage(I18n.Commands.Status.shatterment(enabled ? I18n.Commands.Status.States.enabled() : I18n.Commands.Status.States.disabled()));
+        s.sendMessage(I18n.Commands.Status.disenchantment(Config.Disenchantment.isEnabled() ? I18n.Commands.Status.States.enabled() : I18n.Commands.Status.States.disabled()));
+        s.sendMessage(I18n.Commands.Status.shatterment(Config.Shatterment.isEnabled() ? I18n.Commands.Status.States.enabled() : I18n.Commands.Status.States.disabled()));
     }
 
     private static String buildJson() {
@@ -90,6 +101,13 @@ public class Status {
                 "}";
     }
 
+    /**
+     * Suggests {@code --json} as the only tab completion option.
+     *
+     * @param sender the command sender
+     * @param args   the current command arguments
+     * @return a list containing "--json", or an empty list after the first argument
+     */
     public static List<String> complete(CommandSender sender, String[] args) {
         if (args.length == 1) return List.of("--json");
         return List.of();

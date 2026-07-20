@@ -20,10 +20,18 @@ public enum DisenchantmentError {
         this.code = code;
     }
 
+    /**
+     * Returns the stable error code string (e.g. {@code "DISE-001"}).
+     *
+     * @return the error code
+     */
     public String getCode() {
         return code;
     }
 
+    /**
+     * Returns the error code wrapped in brackets, suitable for log output (e.g. {@code "[DISE-001]"}).
+     */
     @Override
     public String toString() {
         return "[" + code + "]";

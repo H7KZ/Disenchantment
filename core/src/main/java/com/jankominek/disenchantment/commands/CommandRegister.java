@@ -46,14 +46,7 @@ public class CommandRegister implements CommandExecutor {
     };
 
     /**
-     * {@inheritDoc}
      * Routes the command to the matching subcommand or defaults to the help command.
-     *
-     * @param sender  the command sender
-     * @param command the executed command
-     * @param label   the alias used
-     * @param args    the command arguments
-     * @return true if the command was handled, false if an exception occurred
      */
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull org.bukkit.command.Command command, @NotNull String label, String[] args) {

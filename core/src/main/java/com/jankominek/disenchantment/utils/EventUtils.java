@@ -21,6 +21,12 @@ public class EventUtils {
     // ThreadLocal so concurrent Folia region threads each get their own flag.
     private static final ThreadLocal<Boolean> materialBypassActive = ThreadLocal.withInitial(() -> false);
 
+    /**
+     * Activates or deactivates the material-bypass flag for the current thread.
+     * When active, disabled-material checks are skipped (used by bypass-permission code paths).
+     *
+     * @param bypass {@code true} to bypass material restrictions on the current thread
+     */
     public static void setMaterialBypass(boolean bypass) {
         materialBypassActive.set(bypass);
     }

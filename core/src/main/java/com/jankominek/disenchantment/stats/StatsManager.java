@@ -15,6 +15,11 @@ import java.util.logging.Logger;
 
 import static com.jankominek.disenchantment.Disenchantment.plugin;
 
+/**
+ * Nullable singleton that coordinates stats recording between the in-memory {@link StatsCache}
+ * and the persistent {@link StatsDatabase}. {@link #getInstance()} returns {@code null} when
+ * {@code logging.operations} is disabled; all call sites must null-check.
+ */
 public class StatsManager {
 
     private static StatsManager instance;
@@ -54,6 +59,9 @@ public class StatsManager {
         }
     }
 
+    /**
+     * Flushes pending DB writes and clears the singleton instance.
+     */
     public static void shutdown() {
         if (instance == null) return;
         instance.database.close();
@@ -67,6 +75,9 @@ public class StatsManager {
         return instance;
     }
 
+    /**
+     * Returns the in-memory stats cache.
+     */
     public StatsCache getCache() {
         return cache;
     }

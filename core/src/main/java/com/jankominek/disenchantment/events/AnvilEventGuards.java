@@ -253,7 +253,23 @@ public final class AnvilEventGuards {
         return EconomyResult.OK;
     }
 
-    public enum EconomyResult {OK, NOT_AVAILABLE, INSUFFICIENT_FUNDS}
+    /**
+     * Result codes returned by {@link #processEconomy} and {@link #processEconomyCost}.
+     */
+    public enum EconomyResult {
+        /**
+         * Economy check passed and the player was charged (or economy is disabled).
+         */
+        OK,
+        /**
+         * No Vault/economy provider is hooked up.
+         */
+        NOT_AVAILABLE,
+        /**
+         * Player does not have enough money to cover the cost.
+         */
+        INSUFFICIENT_FUNDS
+    }
 
     /**
      * Same as {@link #processEconomy(Player, EconomyConfig)} but charges an explicit

@@ -35,7 +35,7 @@ public class MaterialsGUI implements InventoryHolder {
     private int page;
     private List<Material> materials;
     private GUIItem[] items = ArrayUtils.addAll(
-            GUIBorderComponent.border9x6(new Integer[]{0, 49}),
+            GUIBorderComponent.border9x6(new Integer[]{0, 47, 49, 51}),
             new GUIItem(
                     0,
                     GUIComponent.back(),

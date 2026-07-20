@@ -30,9 +30,21 @@ import java.util.regex.Pattern;
  */
 @SuppressWarnings("deprecation")
 public final class NBTEditor_v1_18_R1 {
+    /**
+     * Sentinel value used in {@link #set} to create a new NBTTagCompound at the given key path.
+     */
     public static final Type COMPOUND = Type.COMPOUND;
+    /**
+     * Sentinel value used in {@link #set} to create a new NBTTagList at the given key path.
+     */
     public static final Type LIST = Type.LIST;
+    /**
+     * Sentinel value used in {@link #set} to append a new element to an NBTTagList.
+     */
     public static final Type NEW_ELEMENT = Type.NEW_ELEMENT;
+    /**
+     * Sentinel value used in {@link #set} to remove the tag at the given key path.
+     */
     public static final Type DELETE = Type.DELETE;
     private static final Set<ReflectionTarget> reflectionTargets;
     private static final Map<ClassId, Class<?>> classCache;
