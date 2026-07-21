@@ -27,7 +27,7 @@ jobs:
         26.1 26.1.1 26.1.2
         26.2
       # Loaders for Modrinth and CurseForge.
-      LOADERS: paper spigot folia
+      LOADERS: paper spigot folia purpur
 
       HAS_MODRINTH: ${{ secrets.MODRINTH_TOKEN != '' }}
       HAS_CURSEFORGE: ${{ secrets.CURSEFORGE_TOKEN != '' }}
