@@ -11,6 +11,9 @@ messages:
   enchantment-is-disabled: "&e{enchantment} &7is disabled!&r"
   material-is-enabled: "&a{material} &7is enabled!&r"
   material-is-disabled: "&c{material} &7is disabled!&r"
+  mode-current: "&7{feature} restriction mode: &f{mode}&r"
+  mode-set: "&a{feature} restriction mode set to &f{mode}&r"
+  mode-invalid: "&cInvalid mode '{mode}'. Use ALLOWLIST or DENYLIST.&r"
   specify-repair-value: "&cPlease specify a repair value!&r"
   specify-valid-integer: "&cPlease specify a valid whole number!&r"
   specify-valid-double: "&cPlease specify a valid decimal number!&r"
@@ -273,6 +276,13 @@ gui:
         - "&7Click to toggle worlds on or off"
         - "&7LEFT CLICK for disenchantment"
         - "&7RIGHT CLICK for shatterment"
+    mode:
+      title: "&d&lRestriction Mode&r"
+      lore:
+        - "&7Disenchantment: &f{disenchantment}&r"
+        - "&7Shatterment: &f{shatterment}&r"
+        - "&7LEFT CLICK to cycle disenchantment"
+        - "&7RIGHT CLICK to cycle shatterment"
   repair:
     disenchantment:
       inventory: "&7&lRepair | Disenchantment&r"
@@ -387,7 +397,17 @@ gui:
         - "&7LEFT CLICK for disenchantment"
         - "&7RIGHT CLICK for shatterment"
         - "&7To edit other materials, use the&r"
-        - "&7command: /disenchantment disenchantment:materials&r"
+        - "&7command: /disenchantment disenchant:materials&r"
+    mode:
+      title: "&d&lRestriction Mode&r"
+      lore:
+        - "&7Disenchantment: &f{disenchantment}&r"
+        - "&7Shatterment: &f{shatterment}&r"
+        - "&7LEFT CLICK to cycle disenchantment"
+        - "&7RIGHT CLICK to cycle shatterment"
+  restriction-mode:
+    allowlist: "&aALLOWLIST&r"
+    denylist: "&cDENYLIST&r"
   sound:
     disenchantment:
       inventory: "&7&lSound | Disenchantment&r"
