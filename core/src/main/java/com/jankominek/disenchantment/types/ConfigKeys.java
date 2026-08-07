@@ -27,8 +27,10 @@ public enum ConfigKeys {
 
     // Disenchantment settings
     DISENCHANTMENT_ENABLED("disenchantment.enabled"),
-    DISENCHANTMENT_DISABLED_WORLDS("disenchantment.disabled-worlds"),
-    DISENCHANTMENT_DISABLED_MATERIALS("disenchantment.disabled-materials"),
+    DISENCHANTMENT_WORLDS_MODE("disenchantment.worlds.mode"),
+    DISENCHANTMENT_WORLDS_LIST("disenchantment.worlds.list"),
+    DISENCHANTMENT_MATERIALS_MODE("disenchantment.materials.mode"),
+    DISENCHANTMENT_MATERIALS_LIST("disenchantment.materials.list"),
     DISENCHANTMENT_ENCHANTMENTS_STATES("disenchantment.enchantments-states"),
 
     DISENCHANTMENT_ANVIL_SOUND_ENABLED("disenchantment.anvil.sound.enabled"),
@@ -60,8 +62,10 @@ public enum ConfigKeys {
 
     // Shatterment settings
     SHATTERMENT_ENABLED("shatterment.enabled"),
-    SHATTERMENT_DISABLED_WORLDS("shatterment.disabled-worlds"),
-    SHATTERMENT_DISABLED_MATERIALS("shatterment.disabled-materials"),
+    SHATTERMENT_WORLDS_MODE("shatterment.worlds.mode"),
+    SHATTERMENT_WORLDS_LIST("shatterment.worlds.list"),
+    SHATTERMENT_MATERIALS_MODE("shatterment.materials.mode"),
+    SHATTERMENT_MATERIALS_LIST("shatterment.materials.list"),
     SHATTERMENT_ENCHANTMENTS_STATES("shatterment.enchantments-states"),
 
     SHATTERMENT_ANVIL_SOUND_ENABLED("shatterment.anvil.sound.enabled"),

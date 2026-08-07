@@ -29,7 +29,8 @@ public class ConfigMigrations {
             Map.entry(8, new Migration8()),
             Map.entry(9, new Migration9()),
             Map.entry(10, new Migration10()),
-            Map.entry(11, new Migration11())
+            Map.entry(11, new Migration11()),
+            Map.entry(12, new Migration12())
     );
 
     /**

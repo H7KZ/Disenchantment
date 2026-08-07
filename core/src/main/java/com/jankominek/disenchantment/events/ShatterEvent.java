@@ -78,7 +78,7 @@ public class ShatterEvent {
             return;
         }
 
-        if (AnvilEventGuards.isWorldBlocked(p, Config.Shatterment.getDisabledWorlds().contains(p.getWorld()))) return;
+        if (AnvilEventGuards.isWorldBlocked(p, Config.Shatterment.isWorldRestricted(p.getWorld()))) return;
 
         DiagnosticUtils.debug("SHATTER", "PrepareAnvil: player=" + p.getName() + ", world=" + p.getWorld().getName());
 

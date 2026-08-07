@@ -229,7 +229,7 @@ class ShatterEventTest extends DisenchantmentTestBase {
         server.addSimpleWorld("no_shatter");
         PlayerMock player = server.addPlayer("TestPlayer");
         player.teleport(Objects.requireNonNull(server.getWorld("no_shatter")).getSpawnLocation());
-        setConfig("shatterment.disabled-worlds", List.of("no_shatter"));
+        setConfig("shatterment.worlds.list", List.of("no_shatter"));
         PrepareAnvilEvent event = buildEvent(player, enchantedBook("sharpness", "mending"), new ItemStack(Material.BOOK));
 
         ShatterEvent.onEvent(event);

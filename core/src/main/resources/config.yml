@@ -1,5 +1,5 @@
 # ↓ DO NOT EDIT THESE VALUES ↓
-migration: 11
+migration: 12
 locales: [ "cs", "en" ]
 # ↑ DO NOT EDIT THESE VALUES ↑
 # ----------------------------------------------------------------------------------------
@@ -33,8 +33,15 @@ logging:
 
 disenchantment:
   enabled: true
-  disabled-worlds: [ ]
-  disabled-materials: [ ]
+  # mode: DENYLIST = listed worlds are OFF | ALLOWLIST = only listed worlds are ON.
+  # An ALLOWLIST with an empty list disables the feature everywhere (a startup warning is logged).
+  worlds:
+    mode: DENYLIST
+    list: [ ]
+  # mode: DENYLIST = listed materials cannot be disenchanted | ALLOWLIST = only listed materials can.
+  materials:
+    mode: DENYLIST
+    list: [ ]
   enchantments-states: [ ]
   enchantment-chances: { }
   cost-multiplier:
@@ -83,8 +90,15 @@ enchantment-groups: { }
 
 shatterment:
   enabled: true
-  disabled-worlds: [ ]
-  disabled-materials: [ ]
+  # mode: DENYLIST = listed worlds are OFF | ALLOWLIST = only listed worlds are ON.
+  # An ALLOWLIST with an empty list disables the feature everywhere (a startup warning is logged).
+  worlds:
+    mode: DENYLIST
+    list: [ ]
+  # mode: DENYLIST = listed materials cannot be shattered | ALLOWLIST = only listed materials can.
+  materials:
+    mode: DENYLIST
+    list: [ ]
   enchantments-states: [ ]
   enchantment-chances: { }
   split-count: 1

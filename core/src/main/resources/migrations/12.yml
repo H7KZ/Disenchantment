@@ -1,0 +1,99 @@
+# ↓ DO NOT EDIT THESE VALUES ↓
+migration: 12
+locales: [ "cs", "en" ]
+# ↑ DO NOT EDIT THESE VALUES ↑
+# ----------------------------------------------------------------------------------------
+# For descriptions of each option, see the wiki:
+# https://github.com/H7KZ/Disenchantment/CONFIG.md
+# ----------------------------------------------------------------------------------------
+
+enabled: true
+
+locale: "en"
+
+event-priorities:
+  disenchant-click: HIGHEST
+  disenchant: HIGHEST
+  shatter-click: HIGHEST
+  shatter: HIGHEST
+
+# ----------------------------------------------------------------------------------------
+
+logging:
+  level: INFO
+  save-reports: true
+  operations: false
+  discord-webhook: ""
+
+# ----------------------------------------------------------------------------------------
+
+disenchantment:
+  enabled: true
+  worlds:
+    mode: DENYLIST
+    list: [ ]
+  materials:
+    mode: DENYLIST
+    list: [ ]
+  enchantments-states: [ ]
+  enchantment-chances: { }
+  cost-multiplier:
+    luckperms: false
+  cooldown:
+    seconds: 0
+    use-cmi: false
+    use-essentials: false
+  anvil:
+    sound:
+      enabled: true
+      volume: 1.0
+      pitch: 1.0
+    repair:
+      reset: false
+      cost: true
+      base: 10
+      multiply: 0.25
+      enchantment-costs: { }
+      max-cost: -1
+    bypass-too-expensive: false
+  economy:
+    enabled: false
+    cost: 100.0
+    show-cost: true
+    charge-message: true
+
+# ----------------------------------------------------------------------------------------
+
+enchantment-groups: { }
+
+# ----------------------------------------------------------------------------------------
+
+shatterment:
+  enabled: true
+  worlds:
+    mode: DENYLIST
+    list: [ ]
+  materials:
+    mode: DENYLIST
+    list: [ ]
+  enchantments-states: [ ]
+  enchantment-chances: { }
+  split-count: 1
+  anvil:
+    sound:
+      enabled: true
+      volume: 1.0
+      pitch: 1.0
+    repair:
+      reset: false
+      cost: true
+      base: 10
+      multiply: 0.25
+      enchantment-costs: { }
+      max-cost: -1
+    bypass-too-expensive: false
+  economy:
+    enabled: false
+    cost: 100.0
+    show-cost: true
+    charge-message: true

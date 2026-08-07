@@ -171,7 +171,7 @@ public class EventUtils {
 
         private static boolean isMaterialDisabled(ItemStack item) {
             if (materialBypassActive.get()) return false;
-            return Config.Disenchantment.getDisabledMaterials().stream().anyMatch(m -> m.equals(item.getType()));
+            return Config.Disenchantment.isMaterialRestricted(item.getType());
         }
     }
 
@@ -325,7 +325,7 @@ public class EventUtils {
 
         private static boolean isMaterialDisabled(ItemStack item) {
             if (materialBypassActive.get()) return false;
-            return Config.Shatterment.getDisabledMaterials().stream().anyMatch(m -> m.equals(item.getType()));
+            return Config.Shatterment.isMaterialRestricted(item.getType());
         }
     }
 

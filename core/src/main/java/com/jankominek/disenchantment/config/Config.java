@@ -11,8 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.jankominek.disenchantment.Disenchantment.config;
-import static com.jankominek.disenchantment.Disenchantment.plugin;
+import static com.jankominek.disenchantment.Disenchantment.*;
 
 /**
  * Provides typed access to the plugin's configuration values.
@@ -122,6 +121,38 @@ public class Config {
     public static void invalidateCaches() {
         Disenchantment.ENCHANTMENT_STATES_CACHE = null;
         Shatterment.ENCHANTMENT_STATES_CACHE = null;
+    }
+
+    /**
+     * Logs startup warnings for misconfigured restriction lists across both features: an
+     * unrecognised {@code mode} value (which silently falls back to {@link RestrictionMode#DENYLIST})
+     * and an {@link RestrictionMode#ALLOWLIST} paired with an empty {@code list} (which blocks the
+     * feature entirely). Intended to be called once after the config is loaded.
+     */
+    public static void validateRestrictions() {
+        warnRestriction("disenchantment.worlds", ConfigKeys.DISENCHANTMENT_WORLDS_MODE, ConfigKeys.DISENCHANTMENT_WORLDS_LIST);
+        warnRestriction("disenchantment.materials", ConfigKeys.DISENCHANTMENT_MATERIALS_MODE, ConfigKeys.DISENCHANTMENT_MATERIALS_LIST);
+        warnRestriction("shatterment.worlds", ConfigKeys.SHATTERMENT_WORLDS_MODE, ConfigKeys.SHATTERMENT_WORLDS_LIST);
+        warnRestriction("shatterment.materials", ConfigKeys.SHATTERMENT_MATERIALS_MODE, ConfigKeys.SHATTERMENT_MATERIALS_LIST);
+    }
+
+    private static void warnRestriction(String label, ConfigKeys modeKey, ConfigKeys listKey) {
+        String rawMode = config.getString(modeKey.getKey());
+
+        if (rawMode != null && !rawMode.isBlank()) {
+            boolean recognised = false;
+            for (RestrictionMode m : RestrictionMode.values()) {
+                if (m.name().equalsIgnoreCase(rawMode.trim())) recognised = true;
+            }
+            if (!recognised) {
+                logger.warning("Config: unknown mode '" + rawMode + "' for " + label + ".mode — defaulting to DENYLIST");
+            }
+        }
+
+        RestrictionMode mode = RestrictionMode.fromConfig(rawMode);
+        if (mode == RestrictionMode.ALLOWLIST && config.getStringList(listKey.getKey()).isEmpty()) {
+            logger.warning("Config: " + label + ".mode is ALLOWLIST but " + label + ".list is empty — this blocks the feature entirely (nothing is allowed).");
+        }
     }
 
     /**
@@ -366,47 +397,119 @@ public class Config {
         }
 
         /**
-         * Gets the list of worlds where disenchantment is disabled.
+         * Gets the configured world restriction mode for disenchantment.
          *
-         * @return list of disabled {@link World} instances
+         * @return the {@link RestrictionMode} (defaults to {@link RestrictionMode#DENYLIST})
          */
-        public static List<World> getDisabledWorlds() {
-            return new ArrayList<>(config.getStringList(ConfigKeys.DISENCHANTMENT_DISABLED_WORLDS.getKey()).stream().map(Bukkit::getWorld).filter(java.util.Objects::nonNull).toList());
+        public static RestrictionMode getWorldsMode() {
+            return RestrictionMode.fromConfig(config.getString(ConfigKeys.DISENCHANTMENT_WORLDS_MODE.getKey()));
         }
 
         /**
-         * Sets the list of worlds where disenchantment is disabled and persists the change.
+         * Sets the world restriction mode for disenchantment and persists the change.
          *
-         * @param worlds the worlds to disable disenchantment in
+         * @param mode the mode to apply
+         * @return {@code true} if the persisted value matches the requested mode
+         */
+        public static boolean setWorldsMode(RestrictionMode mode) {
+            config.set(ConfigKeys.DISENCHANTMENT_WORLDS_MODE.getKey(), mode.name());
+            save();
+
+            return getWorldsMode() == mode;
+        }
+
+        /**
+         * Gets the configured world restriction list for disenchantment. Interpretation depends
+         * on {@link #getWorldsMode()}: a DENYLIST blocks these worlds, an ALLOWLIST permits only
+         * these worlds.
+         *
+         * @return list of listed {@link World} instances
+         */
+        public static List<World> getDisabledWorlds() {
+            return new ArrayList<>(config.getStringList(ConfigKeys.DISENCHANTMENT_WORLDS_LIST.getKey()).stream().map(Bukkit::getWorld).filter(java.util.Objects::nonNull).toList());
+        }
+
+        /**
+         * Sets the world restriction list for disenchantment and persists the change.
+         *
+         * @param worlds the worlds to list
          * @return {@code true} if the persisted value matches the requested list
          */
         public static boolean setDisabledWorlds(List<World> worlds) {
-            config.set(ConfigKeys.DISENCHANTMENT_DISABLED_WORLDS.getKey(), worlds.stream().map(World::getName).toList());
+            config.set(ConfigKeys.DISENCHANTMENT_WORLDS_LIST.getKey(), worlds.stream().map(World::getName).toList());
             save();
 
             return getDisabledWorlds().equals(worlds);
         }
 
         /**
-         * Gets the list of materials that cannot be disenchanted.
+         * Returns whether disenchantment is restricted (blocked) in the given world, taking the
+         * configured {@link #getWorldsMode() mode} into account. Bypass permissions are handled
+         * separately by the callers.
          *
-         * @return list of disabled {@link Material} types
+         * @param world the world to check
+         * @return {@code true} if disenchantment must be blocked in that world
          */
-        public static List<Material> getDisabledMaterials() {
-            return new ArrayList<>(config.getStringList(ConfigKeys.DISENCHANTMENT_DISABLED_MATERIALS.getKey()).stream().map(Material::getMaterial).filter(java.util.Objects::nonNull).toList());
+        public static boolean isWorldRestricted(World world) {
+            return getWorldsMode().isRestricted(getDisabledWorlds().contains(world));
         }
 
         /**
-         * Sets the list of materials that cannot be disenchanted and persists the change.
+         * Gets the configured material restriction mode for disenchantment.
          *
-         * @param materials the materials to disable
+         * @return the {@link RestrictionMode} (defaults to {@link RestrictionMode#DENYLIST})
+         */
+        public static RestrictionMode getMaterialsMode() {
+            return RestrictionMode.fromConfig(config.getString(ConfigKeys.DISENCHANTMENT_MATERIALS_MODE.getKey()));
+        }
+
+        /**
+         * Sets the material restriction mode for disenchantment and persists the change.
+         *
+         * @param mode the mode to apply
+         * @return {@code true} if the persisted value matches the requested mode
+         */
+        public static boolean setMaterialsMode(RestrictionMode mode) {
+            config.set(ConfigKeys.DISENCHANTMENT_MATERIALS_MODE.getKey(), mode.name());
+            save();
+
+            return getMaterialsMode() == mode;
+        }
+
+        /**
+         * Gets the configured material restriction list for disenchantment. Interpretation depends
+         * on {@link #getMaterialsMode()}: a DENYLIST blocks these materials, an ALLOWLIST permits
+         * only these materials.
+         *
+         * @return list of listed {@link Material} types
+         */
+        public static List<Material> getDisabledMaterials() {
+            return new ArrayList<>(config.getStringList(ConfigKeys.DISENCHANTMENT_MATERIALS_LIST.getKey()).stream().map(Material::getMaterial).filter(java.util.Objects::nonNull).toList());
+        }
+
+        /**
+         * Sets the material restriction list for disenchantment and persists the change.
+         *
+         * @param materials the materials to list
          * @return {@code true} if the persisted value matches the requested list
          */
         public static boolean setDisabledMaterials(List<Material> materials) {
-            config.set(ConfigKeys.DISENCHANTMENT_DISABLED_MATERIALS.getKey(), materials.stream().map(Material::name).toList());
+            config.set(ConfigKeys.DISENCHANTMENT_MATERIALS_LIST.getKey(), materials.stream().map(Material::name).toList());
             save();
 
             return getDisabledMaterials().equals(materials);
+        }
+
+        /**
+         * Returns whether the given material is restricted (blocked) from disenchantment, taking
+         * the configured {@link #getMaterialsMode() mode} into account. Bypass permissions are
+         * handled separately by the callers.
+         *
+         * @param material the material to check
+         * @return {@code true} if disenchantment must be blocked for that material
+         */
+        public static boolean isMaterialRestricted(Material material) {
+            return getMaterialsMode().isRestricted(getDisabledMaterials().contains(material));
         }
 
         /**
@@ -876,49 +979,121 @@ public class Config {
         }
 
         /**
-         * Gets the list of worlds where shatterment is disabled.
+         * Gets the configured world restriction mode for shatterment.
          *
-         * @return list of disabled {@link World} instances
+         * @return the {@link RestrictionMode} (defaults to {@link RestrictionMode#DENYLIST})
          */
-        public static List<World> getDisabledWorlds() {
-            return new ArrayList<>(config.getStringList(ConfigKeys.SHATTERMENT_DISABLED_WORLDS.getKey()).stream().map(Bukkit::getWorld).filter(java.util.Objects::nonNull).toList());
+        public static RestrictionMode getWorldsMode() {
+            return RestrictionMode.fromConfig(config.getString(ConfigKeys.SHATTERMENT_WORLDS_MODE.getKey()));
         }
 
         /**
-         * Sets the list of worlds where shatterment is disabled and persists the change.
+         * Sets the world restriction mode for shatterment and persists the change.
          *
-         * @param worlds the worlds to disable shatterment in
+         * @param mode the mode to apply
+         * @return {@code true} if the persisted value matches the requested mode
+         */
+        public static boolean setWorldsMode(RestrictionMode mode) {
+            config.set(ConfigKeys.SHATTERMENT_WORLDS_MODE.getKey(), mode.name());
+            save();
+
+            return getWorldsMode() == mode;
+        }
+
+        /**
+         * Gets the configured world restriction list for shatterment. Interpretation depends on
+         * {@link #getWorldsMode()}: a DENYLIST blocks these worlds, an ALLOWLIST permits only
+         * these worlds.
+         *
+         * @return list of listed {@link World} instances
+         */
+        public static List<World> getDisabledWorlds() {
+            return new ArrayList<>(config.getStringList(ConfigKeys.SHATTERMENT_WORLDS_LIST.getKey()).stream().map(Bukkit::getWorld).filter(java.util.Objects::nonNull).toList());
+        }
+
+        /**
+         * Sets the world restriction list for shatterment and persists the change.
+         *
+         * @param worlds the worlds to list
          * @return {@code true} if the persisted value matches the requested list
          */
         public static boolean setDisabledWorlds(List<World> worlds) {
-            config.set(ConfigKeys.SHATTERMENT_DISABLED_WORLDS.getKey(), worlds.stream().map(World::getName).toList());
+            config.set(ConfigKeys.SHATTERMENT_WORLDS_LIST.getKey(), worlds.stream().map(World::getName).toList());
             save();
 
             return getDisabledWorlds().equals(worlds);
         }
 
         /**
-         * Gets the list of materials that cannot be shattered. Since the item losing enchantments
-         * during shatterment is always the {@code ENCHANTED_BOOK} in slot 0, this list is checked
-         * against that item's material — mirroring how disenchantment checks the donating item.
+         * Returns whether shatterment is restricted (blocked) in the given world, taking the
+         * configured {@link #getWorldsMode() mode} into account. Bypass permissions are handled
+         * separately by the callers.
          *
-         * @return list of disabled {@link Material} types
+         * @param world the world to check
+         * @return {@code true} if shatterment must be blocked in that world
          */
-        public static List<Material> getDisabledMaterials() {
-            return new ArrayList<>(config.getStringList(ConfigKeys.SHATTERMENT_DISABLED_MATERIALS.getKey()).stream().map(Material::getMaterial).filter(java.util.Objects::nonNull).toList());
+        public static boolean isWorldRestricted(World world) {
+            return getWorldsMode().isRestricted(getDisabledWorlds().contains(world));
         }
 
         /**
-         * Sets the list of materials that cannot be shattered and persists the change.
+         * Gets the configured material restriction mode for shatterment.
          *
-         * @param materials the materials to disable
+         * @return the {@link RestrictionMode} (defaults to {@link RestrictionMode#DENYLIST})
+         */
+        public static RestrictionMode getMaterialsMode() {
+            return RestrictionMode.fromConfig(config.getString(ConfigKeys.SHATTERMENT_MATERIALS_MODE.getKey()));
+        }
+
+        /**
+         * Sets the material restriction mode for shatterment and persists the change.
+         *
+         * @param mode the mode to apply
+         * @return {@code true} if the persisted value matches the requested mode
+         */
+        public static boolean setMaterialsMode(RestrictionMode mode) {
+            config.set(ConfigKeys.SHATTERMENT_MATERIALS_MODE.getKey(), mode.name());
+            save();
+
+            return getMaterialsMode() == mode;
+        }
+
+        /**
+         * Gets the configured material restriction list for shatterment. Since the item losing
+         * enchantments during shatterment is always the {@code ENCHANTED_BOOK} in slot 0, this
+         * list is checked against that item's material. Interpretation depends on
+         * {@link #getMaterialsMode()}: a DENYLIST blocks these materials, an ALLOWLIST permits
+         * only these materials.
+         *
+         * @return list of listed {@link Material} types
+         */
+        public static List<Material> getDisabledMaterials() {
+            return new ArrayList<>(config.getStringList(ConfigKeys.SHATTERMENT_MATERIALS_LIST.getKey()).stream().map(Material::getMaterial).filter(java.util.Objects::nonNull).toList());
+        }
+
+        /**
+         * Sets the material restriction list for shatterment and persists the change.
+         *
+         * @param materials the materials to list
          * @return {@code true} if the persisted value matches the requested list
          */
         public static boolean setDisabledMaterials(List<Material> materials) {
-            config.set(ConfigKeys.SHATTERMENT_DISABLED_MATERIALS.getKey(), materials.stream().map(Material::name).toList());
+            config.set(ConfigKeys.SHATTERMENT_MATERIALS_LIST.getKey(), materials.stream().map(Material::name).toList());
             save();
 
             return getDisabledMaterials().equals(materials);
+        }
+
+        /**
+         * Returns whether the given material is restricted (blocked) from shatterment, taking the
+         * configured {@link #getMaterialsMode() mode} into account. Bypass permissions are handled
+         * separately by the callers.
+         *
+         * @param material the material to check
+         * @return {@code true} if shatterment must be blocked for that material
+         */
+        public static boolean isMaterialRestricted(Material material) {
+            return getMaterialsMode().isRestricted(getDisabledMaterials().contains(material));
         }
 
         /**

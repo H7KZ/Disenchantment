@@ -107,7 +107,7 @@ class EventUtilsDisenchantTest extends DisenchantmentTestBase {
 
     @Test
     void givenDisabledMaterial_whenGetEnchantments_thenReturnsEmpty() {
-        setConfig("disenchantment.disabled-materials", List.of("DIAMOND_SWORD"));
+        setConfig("disenchantment.materials.list", List.of("DIAMOND_SWORD"));
         List<IPluginEnchantment> result =
                 EventUtils.Disenchantment.getDisenchantedEnchantments(
                         sword("sharpness"), blankBook(), false);
@@ -116,7 +116,7 @@ class EventUtilsDisenchantTest extends DisenchantmentTestBase {
 
     @Test
     void givenOtherMaterialDisabled_whenGetEnchantments_thenStillReturnsEnchantments() {
-        setConfig("disenchantment.disabled-materials", List.of("IRON_SWORD"));
+        setConfig("disenchantment.materials.list", List.of("IRON_SWORD"));
         List<IPluginEnchantment> result =
                 EventUtils.Disenchantment.getDisenchantedEnchantments(
                         sword("sharpness"), blankBook(), false);
