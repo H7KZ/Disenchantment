@@ -127,12 +127,13 @@ Grant them back:
 **"No result appears when I put the items in the anvil."**
 Check these in order:
 
-- Is the world disabled? (`disenchantment.disabled-worlds` in config —
-  see [CONFIG.md](CONFIG.md#feature-toggle-and-restrictions))
+- Is the world disabled? (`disenchantment.worlds` in config —
+  see [CONFIG.md](CONFIG.md#feature-toggle-and-restrictions)). Note an `ALLOWLIST` mode with an empty list disables the
+  feature everywhere.
 - Is the feature enabled? (`disenchantment.enabled: true` in config)
 - Is the item a book in slot 1? Books cannot be disenchanted (only shattering works with books). Make sure the enchanted
   item is in slot 1 and the blank book is in slot 2.
-- Is the material blocked? (`disenchantment.disabled-materials` in config)
+- Is the material blocked? (`disenchantment.materials` in config)
 
 **"An enchantment won't transfer / the book comes out blank."**
 The enchantment may be set to `keep` (stays on item) or `delete` (destroyed) state. Check with:

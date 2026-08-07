@@ -76,17 +76,21 @@ Commands for managing which enchantments, worlds, and materials are active for t
 
 ### Worlds
 
-| Command                                     | Description                                                | Permission                                 |
-|---------------------------------------------|------------------------------------------------------------|--------------------------------------------|
-| `/disenchantment disenchant:worlds`         | List all worlds where disenchanting is currently disabled. | `disenchantment.command.disenchant.worlds` |
-| `/disenchantment disenchant:worlds <world>` | Toggle disenchanting on or off for the named world.        | `disenchantment.command.disenchant.worlds` |
+| Command                                                        | Description                                      | Permission                                 |
+|----------------------------------------------------------------|--------------------------------------------------|--------------------------------------------|
+| `/disenchantment disenchant:worlds`                            | List all worlds in the disenchant `worlds.list`. | `disenchantment.command.disenchant.worlds` |
+| `/disenchantment disenchant:worlds <world>`                    | Toggle the named world in the `worlds.list`.     | `disenchantment.command.disenchant.worlds` |
+| `/disenchantment disenchant:worlds mode`                       | Show the current world restriction mode.         | `disenchantment.command.disenchant.worlds` |
+| `/disenchantment disenchant:worlds mode <ALLOWLIST\|DENYLIST>` | Set the world restriction mode.                  | `disenchantment.command.disenchant.worlds` |
 
 ### Materials
 
-| Command                                           | Description                                                                   | Permission                                    |
-|---------------------------------------------------|-------------------------------------------------------------------------------|-----------------------------------------------|
-| `/disenchantment disenchant:materials`            | List all materials that are currently blocked from disenchanting.             | `disenchantment.command.disenchant.materials` |
-| `/disenchantment disenchant:materials <material>` | Toggle disenchanting on or off for the named material (e.g. `DIAMOND_SWORD`). | `disenchantment.command.disenchant.materials` |
+| Command                                                           | Description                                                               | Permission                                    |
+|-------------------------------------------------------------------|---------------------------------------------------------------------------|-----------------------------------------------|
+| `/disenchantment disenchant:materials`                            | List all materials in the disenchant `materials.list`.                    | `disenchantment.command.disenchant.materials` |
+| `/disenchantment disenchant:materials <material>`                 | Toggle the named material in the `materials.list` (e.g. `DIAMOND_SWORD`). | `disenchantment.command.disenchant.materials` |
+| `/disenchantment disenchant:materials mode`                       | Show the current material restriction mode.                               | `disenchantment.command.disenchant.materials` |
+| `/disenchantment disenchant:materials mode <ALLOWLIST\|DENYLIST>` | Set the material restriction mode.                                        | `disenchantment.command.disenchant.materials` |
 
 ---
 
@@ -148,10 +152,15 @@ Commands for managing which enchantments and worlds are active for the shatter (
 
 ### Worlds
 
-| Command                                  | Description                                             | Permission                              |
-|------------------------------------------|---------------------------------------------------------|-----------------------------------------|
-| `/disenchantment shatter:worlds`         | List all worlds where shattering is currently disabled. | `disenchantment.command.shatter.worlds` |
-| `/disenchantment shatter:worlds <world>` | Toggle shattering on or off for the named world.        | `disenchantment.command.shatter.worlds` |
+| Command                                                     | Description                                   | Permission                              |
+|-------------------------------------------------------------|-----------------------------------------------|-----------------------------------------|
+| `/disenchantment shatter:worlds`                            | List all worlds in the shatter `worlds.list`. | `disenchantment.command.shatter.worlds` |
+| `/disenchantment shatter:worlds <world>`                    | Toggle the named world in the `worlds.list`.  | `disenchantment.command.shatter.worlds` |
+| `/disenchantment shatter:worlds mode`                       | Show the current world restriction mode.      | `disenchantment.command.shatter.worlds` |
+| `/disenchantment shatter:worlds mode <ALLOWLIST\|DENYLIST>` | Set the world restriction mode.               | `disenchantment.command.shatter.worlds` |
+
+> **Shatter materials mode** is configurable in-game via the Materials GUI (right-click the "Restriction Mode" button)
+> or in `config.yml` under `shatterment.materials`; there is no dedicated shatter-materials command.
 
 ---
 

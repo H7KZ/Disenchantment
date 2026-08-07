@@ -349,7 +349,8 @@ public class DiagnosticUtils {
                 report.append("Sound Volume: ").append(Config.Disenchantment.Anvil.Sound.getVolume()).append("\n");
                 report.append("Sound Pitch: ").append(Config.Disenchantment.Anvil.Sound.getPitch()).append("\n");
 
-                report.append("Disabled Worlds: ")
+                report.append("Worlds Mode: ").append(Config.Disenchantment.getWorldsMode().name()).append("\n");
+                report.append("Worlds List: ")
                         .append(
                                 Config.Disenchantment.getDisabledWorlds().isEmpty() ?
                                         "None" :
@@ -361,7 +362,8 @@ public class DiagnosticUtils {
                         )
                         .append("\n");
 
-                report.append("Disabled Materials: ")
+                report.append("Materials Mode: ").append(Config.Disenchantment.getMaterialsMode().name()).append("\n");
+                report.append("Materials List: ")
                         .append(
                                 Config.Disenchantment.getDisabledMaterials().isEmpty() ?
                                         "None" :
@@ -405,13 +407,27 @@ public class DiagnosticUtils {
                 report.append("Sound Volume: ").append(Config.Shatterment.Anvil.Sound.getVolume()).append("\n");
                 report.append("Sound Pitch: ").append(Config.Shatterment.Anvil.Sound.getPitch()).append("\n");
 
-                report.append("Disabled Worlds: ")
+                report.append("Worlds Mode: ").append(Config.Shatterment.getWorldsMode().name()).append("\n");
+                report.append("Worlds List: ")
                         .append(
                                 Config.Shatterment.getDisabledWorlds().isEmpty() ?
                                         "None" :
                                         Config.Shatterment.getDisabledWorlds()
                                                 .stream()
                                                 .map(WorldInfo::getName)
+                                                .reduce((a, b) -> a + ", " + b)
+                                                .orElse("None")
+                        )
+                        .append("\n");
+
+                report.append("Materials Mode: ").append(Config.Shatterment.getMaterialsMode().name()).append("\n");
+                report.append("Materials List: ")
+                        .append(
+                                Config.Shatterment.getDisabledMaterials().isEmpty() ?
+                                        "None" :
+                                        Config.Shatterment.getDisabledMaterials()
+                                                .stream()
+                                                .map(Enum::name)
                                                 .reduce((a, b) -> a + ", " + b)
                                                 .orElse("None")
                         )

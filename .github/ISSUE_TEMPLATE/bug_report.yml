@@ -126,7 +126,9 @@ body:
       placeholder: |
         disenchantment:
           enabled: true
-          disabled-worlds: []
+          worlds:
+            mode: DENYLIST
+            list: []
       render: yaml
 
   - type: textarea
