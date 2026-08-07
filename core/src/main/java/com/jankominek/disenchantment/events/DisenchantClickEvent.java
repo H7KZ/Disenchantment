@@ -74,7 +74,7 @@ public class DisenchantClickEvent {
 
         if (AnvilEventGuards.isMaintenanceBlocked(p)) return;
 
-        if (AnvilEventGuards.isWorldBlocked(p, Config.Disenchantment.getDisabledWorlds().contains(p.getWorld())))
+        if (AnvilEventGuards.isWorldBlocked(p, Config.Disenchantment.isWorldRestricted(p.getWorld())))
             return;
 
         if (AnvilEventGuards.isOnCooldown(p)) {
@@ -108,6 +108,15 @@ public class DisenchantClickEvent {
 
         if (enchantments.isEmpty()) {
             DiagnosticUtils.debug("DISENCHANT", "Click: no eligible enchantments → exit");
+            return;
+        }
+
+        // Genuine disenchant operation confirmed. Block non-standard result-slot clicks
+        // (shift/number-key/swap/double-click/drop/etc.) that would otherwise let vanilla deliver a
+        // second copy of the result in addition to the one the plugin puts on the cursor — item-dupe.
+        if (AnvilEventGuards.isUnsafeResultClick(e)) {
+            DiagnosticUtils.debug("DISENCHANT", "Click: unsafe click type " + e.getClick() + " → CANCELLED");
+            e.setCancelled(true);
             return;
         }
 

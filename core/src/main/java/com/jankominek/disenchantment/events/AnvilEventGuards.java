@@ -13,6 +13,7 @@ import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.GameMode;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.AnvilInventory;
@@ -55,6 +56,29 @@ public final class AnvilEventGuards {
         if (e.getSlot() != 2) return false;
         // We do not want to continue if the player has an item in cursor as it would delete it.
         return p.getItemOnCursor().getType().isAir();
+    }
+
+    /**
+     * Returns {@code true} when the click on the anvil result slot is a type that could
+     * <em>duplicate</em> the result item, and therefore must be blocked.
+     * <p>
+     * The click handlers deliver the result by calling {@code p.setItemOnCursor(result)}
+     * without cancelling the event on the normal-pickup path. Any click that also makes
+     * vanilla move a <em>second</em> copy of the result elsewhere (into the inventory, a
+     * hotbar slot, the off-hand, or the world) yields two books from one operation — an
+     * item-duplication exploit. Rather than enumerate the dangerous click types, this uses a
+     * <strong>whitelist</strong>: only a plain left- or right-click pickup is permitted, so any
+     * present or future non-pickup action (shift-click, number-key swap, off-hand swap,
+     * double-click collect, drops, middle/creative clone, …) is treated as unsafe. A {@code null}
+     * click only occurs under mocked tests; it is treated as safe so it does not block normal
+     * handling there. Callers must {@code setCancelled(true)} and return when this returns
+     * {@code true}, and only after confirming the click is a genuine plugin operation (otherwise
+     * unrelated vanilla anvil result-slot interactions would be blocked).
+     */
+    public static boolean isUnsafeResultClick(InventoryClickEvent e) {
+        ClickType click = e.getClick();
+        if (click == null) return false;
+        return click != ClickType.LEFT && click != ClickType.RIGHT;
     }
 
     // ----------------------------------------------------------------------------------------------------
