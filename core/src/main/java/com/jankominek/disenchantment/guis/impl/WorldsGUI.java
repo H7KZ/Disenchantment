@@ -33,7 +33,7 @@ public class WorldsGUI implements InventoryHolder {
     private int page;
     private List<World> worlds;
     private GUIItem[] items = ArrayUtils.addAll(
-            GUIBorderComponent.border9x6(new Integer[]{0, 47, 49, 51}),
+            GUIBorderComponent.border9x6(new Integer[]{0, 45, 47, 49, 51}),
             new GUIItem(
                     0,
                     GUIComponent.back(),
@@ -41,6 +41,26 @@ public class WorldsGUI implements InventoryHolder {
                         event.setCancelled(true);
 
                         event.getWhoClicked().openInventory(new NavigationGUI().getInventory());
+                    }
+            ),
+            new GUIItem(
+                    45,
+                    GUIComponent.Worlds.mode(Config.Disenchantment.getWorldsMode(), Config.Shatterment.getWorldsMode()),
+                    event -> {
+                        event.setCancelled(true);
+
+                        switch (event.getClick()) {
+                            case LEFT:
+                                Config.Disenchantment.setWorldsMode(Config.Disenchantment.getWorldsMode().toggled());
+                                break;
+                            case RIGHT:
+                                Config.Shatterment.setWorldsMode(Config.Shatterment.getWorldsMode().toggled());
+                                break;
+                            default:
+                                return;
+                        }
+
+                        event.setCurrentItem(GUIComponent.Worlds.mode(Config.Disenchantment.getWorldsMode(), Config.Shatterment.getWorldsMode()));
                     }
             ),
             new GUIItem(
