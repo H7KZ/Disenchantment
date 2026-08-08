@@ -90,7 +90,7 @@ public class DisenchantClickEvent {
 
         if (result.getType() != Material.ENCHANTED_BOOK) return;
 
-        DiagnosticUtils.debug("DISENCHANT", "Click: player=" + p.getName() + ", result=" + result.getType() + ", gameMode=" + p.getGameMode());
+        DiagnosticUtils.debug("DISENCHANT", () -> "Click: player=" + p.getName() + ", result=" + result.getType() + ", gameMode=" + p.getGameMode());
 
         ItemStack firstItem = anvilInventory.getItem(0);
         ItemStack secondItem = anvilInventory.getItem(1);
@@ -115,7 +115,7 @@ public class DisenchantClickEvent {
         // (shift/number-key/swap/double-click/drop/etc.) that would otherwise let vanilla deliver a
         // second copy of the result in addition to the one the plugin puts on the cursor — item-dupe.
         if (AnvilEventGuards.isUnsafeResultClick(e)) {
-            DiagnosticUtils.debug("DISENCHANT", "Click: unsafe click type " + e.getClick() + " → CANCELLED");
+            DiagnosticUtils.debug("DISENCHANT", () -> "Click: unsafe click type " + e.getClick() + " → CANCELLED");
             e.setCancelled(true);
             return;
         }
@@ -126,7 +126,7 @@ public class DisenchantClickEvent {
         }
 
         int repairCost = AnvilEventGuards.peekBypassCost(p, AnvilCostUtils.getRepairCost(anvilInventory, e.getView()));
-        DiagnosticUtils.debug("DISENCHANT", "Click: xp check — repairCost=" + repairCost + ", playerLevel=" + p.getLevel());
+        DiagnosticUtils.debug("DISENCHANT", () -> "Click: xp check — repairCost=" + repairCost + ", playerLevel=" + p.getLevel());
         if (!AnvilEventGuards.hasEnoughXp(p, repairCost)) {
             DiagnosticUtils.debug("DISENCHANT", "Click: insufficient XP → CANCELLED");
             e.setCancelled(true);
@@ -146,7 +146,7 @@ public class DisenchantClickEvent {
         }
 
         // Economy check — runs after PreDisenchantEvent so cancellation doesn't charge the player
-        DiagnosticUtils.debug("DISENCHANT", "Click: economy check — enabled=" + Config.Disenchantment.Economy.isEnabled() + ", gameMode=" + p.getGameMode());
+        DiagnosticUtils.debug("DISENCHANT", () -> "Click: economy check — enabled=" + Config.Disenchantment.Economy.isEnabled() + ", gameMode=" + p.getGameMode());
         double economyCost = AnvilCostUtils.economyCostForEnchantments(
                 preEvent.getEnchantments(), Config.Disenchantment.Economy.getCost(), Config.Disenchantment.Anvil.Repair.getEnchantmentEconomyCosts());
         AnvilEventGuards.EconomyResult economyResult = AnvilEventGuards.processEconomyCost(p, ECONOMY_CONFIG, economyCost);
@@ -166,7 +166,7 @@ public class DisenchantClickEvent {
         AnvilEventGuards.clearBypassCost(p);
 
         int exp = p.getLevel() - repairCost;
-        DiagnosticUtils.debug("DISENCHANT", "Click: xp → " + p.getLevel() + " - " + repairCost + " = " + exp);
+        DiagnosticUtils.debug("DISENCHANT", () -> "Click: xp → " + p.getLevel() + " - " + repairCost + " = " + exp);
 
         // ----------------------------------------------------------------------------------------------------
         // Supported plugins

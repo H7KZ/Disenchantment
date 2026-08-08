@@ -27,6 +27,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import static com.jankominek.disenchantment.Disenchantment.logger;
@@ -123,21 +124,20 @@ public class DiagnosticUtils {
         StringBuilder stackArray = new StringBuilder("[");
         for (int i = 0; i < Math.min(10, stack.length); i++) {
             if (i > 0) stackArray.append(",");
-            stackArray.append("\"").append(stack[i].toString().replace("\\", "\\\\").replace("\"", "\\\"")).append("\"");
+            stackArray.append("\"").append(jsonEscape(stack[i].toString())).append("\"");
         }
         stackArray.append("]");
 
-        // Escape first, then truncate on a safe boundary to avoid splitting an escape sequence
-        String escapedSummary = diagnosticSummary.replace("\\", "\\\\").replace("\"", "\\\"").replace("\n", "\\n").replace("\r", "");
-        if (escapedSummary.length() > 500) escapedSummary = escapedSummary.substring(0, 500);
+        // Truncate the raw summary first, then escape, so truncation can never split an escape sequence
+        String summary = diagnosticSummary.length() > 500 ? diagnosticSummary.substring(0, 500) : diagnosticSummary;
 
         String payload = "{" +
-                "\"plugin_version\":\"" + version.replace("\\", "\\\\").replace("\"", "\\\"") + "\"," +
-                "\"server_version\":\"" + serverVersion.replace("\\", "\\\\").replace("\"", "\\\"") + "\"," +
-                "\"exception_class\":\"" + e.getClass().getName() + "\"," +
-                "\"exception_message\":\"" + (e.getMessage() != null ? e.getMessage().replace("\\", "\\\\").replace("\"", "\\\"").replace("\n", "\\n") : "") + "\"," +
+                "\"plugin_version\":\"" + jsonEscape(version) + "\"," +
+                "\"server_version\":\"" + jsonEscape(serverVersion) + "\"," +
+                "\"exception_class\":\"" + jsonEscape(e.getClass().getName()) + "\"," +
+                "\"exception_message\":\"" + jsonEscape(e.getMessage()) + "\"," +
                 "\"stack_trace_lines\":" + stackArray + "," +
-                "\"diagnostic_summary\":\"" + escapedSummary + "\"" +
+                "\"diagnostic_summary\":\"" + jsonEscape(summary) + "\"" +
                 "}";
 
         final String finalUrl = webhookUrl;
@@ -157,6 +157,22 @@ public class DiagnosticUtils {
         });
         t.setDaemon(true);
         t.start();
+    }
+
+    /**
+     * Escapes a string for safe inclusion inside a JSON string literal. Handles backslash, quote,
+     * and the control characters (newline, carriage return, tab) that are illegal unescaped in JSON.
+     *
+     * @param s the raw string, or {@code null}
+     * @return the escaped string, or an empty string if {@code s} is {@code null}
+     */
+    private static String jsonEscape(String s) {
+        if (s == null) return "";
+        return s.replace("\\", "\\\\")
+                .replace("\"", "\\\"")
+                .replace("\n", "\\n")
+                .replace("\r", "\\r")
+                .replace("\t", "\\t");
     }
 
     /**
@@ -202,6 +218,18 @@ public class DiagnosticUtils {
      */
     public static void debug(String category, String msg) {
         if (debugEnabled) logger.info("[DEBUG][" + category + "] " + msg);
+    }
+
+    /**
+     * Logs a categorised debug message when {@link LogLevelType#DEBUG} is active, building the
+     * message lazily. Prefer this overload on hot paths (per-event handlers) so the message string
+     * is only constructed when debug logging is actually enabled.
+     *
+     * @param category short subsystem tag, e.g. {@code "DISENCHANT"}, {@code "SHATTER"}
+     * @param msg      supplier invoked only when debug is enabled
+     */
+    public static void debug(String category, Supplier<String> msg) {
+        if (debugEnabled) logger.info("[DEBUG][" + category + "] " + msg.get());
     }
 
     /**

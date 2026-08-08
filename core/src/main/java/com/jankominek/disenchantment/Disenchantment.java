@@ -145,7 +145,6 @@ public class Disenchantment extends JavaPlugin {
                 if (Config.Logging.getLevel().isAtLeast(LogLevelType.INFO)) {
                     logger.info("Economy (Vault): " + (economyAvailable ? "hooked" : "not available"));
                 }
-                DiagnosticUtils.debug("STARTUP", "Economy hook (ServerLoadEvent): " + (economyAvailable ? "hooked" : "not available"));
             }
         }, plugin);
 
@@ -160,23 +159,22 @@ public class Disenchantment extends JavaPlugin {
                 logger.info("Plugin adapters active: " + activatedAdapters.stream().map(ISupportedPlugin::getName).collect(Collectors.joining(", ")));
             }
 
-            if (Config.Logging.getLevel().isAtLeast(LogLevelType.DEBUG)) {
-                DiagnosticUtils.debug("STARTUP", "NMS: " + nms.getClass().getSimpleName() + " (MC version: " + MinecraftVersion.getServerVersion().name() + ")");
-                DiagnosticUtils.debug("STARTUP", "Scheduler: Folia=" + SchedulerUtils.isFolia());
-                DiagnosticUtils.debug("STARTUP", "Locale: " + Config.getLocale());
-                DiagnosticUtils.debug("STARTUP", "Event priorities — disenchant: " + Config.EventPriorities.getDisenchantEvent()
-                        + ", disenchant-click: " + Config.EventPriorities.getDisenchantClickEvent()
-                        + ", shatter: " + Config.EventPriorities.getShatterEvent()
-                        + ", shatter-click: " + Config.EventPriorities.getShatterClickEvent());
-                DiagnosticUtils.debug("STARTUP", "Disenchantment: enabled=" + Config.Disenchantment.isEnabled()
-                        + ", economy.enabled=" + Config.Disenchantment.Economy.isEnabled()
-                        + ", economy.cost=" + Config.Disenchantment.Economy.getCost()
-                        + ", economy.show-cost=" + Config.Disenchantment.Economy.isShowCostEnabled());
-                DiagnosticUtils.debug("STARTUP", "Shatterment: enabled=" + Config.Shatterment.isEnabled()
-                        + ", economy.enabled=" + Config.Shatterment.Economy.isEnabled()
-                        + ", economy.cost=" + Config.Shatterment.Economy.getCost()
-                        + ", economy.show-cost=" + Config.Shatterment.Economy.isShowCostEnabled());
-            }
+            // debug() self-guards on the DEBUG level, so no outer level check is needed here.
+            DiagnosticUtils.debug("STARTUP", () -> "NMS: " + nms.getClass().getSimpleName() + " (MC version: " + MinecraftVersion.getServerVersion().name() + ")");
+            DiagnosticUtils.debug("STARTUP", () -> "Scheduler: Folia=" + SchedulerUtils.isFolia());
+            DiagnosticUtils.debug("STARTUP", () -> "Locale: " + Config.getLocale());
+            DiagnosticUtils.debug("STARTUP", () -> "Event priorities — disenchant: " + Config.EventPriorities.getDisenchantEvent()
+                    + ", disenchant-click: " + Config.EventPriorities.getDisenchantClickEvent()
+                    + ", shatter: " + Config.EventPriorities.getShatterEvent()
+                    + ", shatter-click: " + Config.EventPriorities.getShatterClickEvent());
+            DiagnosticUtils.debug("STARTUP", () -> "Disenchantment: enabled=" + Config.Disenchantment.isEnabled()
+                    + ", economy.enabled=" + Config.Disenchantment.Economy.isEnabled()
+                    + ", economy.cost=" + Config.Disenchantment.Economy.getCost()
+                    + ", economy.show-cost=" + Config.Disenchantment.Economy.isShowCostEnabled());
+            DiagnosticUtils.debug("STARTUP", () -> "Shatterment: enabled=" + Config.Shatterment.isEnabled()
+                    + ", economy.enabled=" + Config.Shatterment.Economy.isEnabled()
+                    + ", economy.cost=" + Config.Shatterment.Economy.getCost()
+                    + ", economy.show-cost=" + Config.Shatterment.Economy.isShowCostEnabled());
         }
 
         // Events

@@ -80,12 +80,12 @@ public class ShatterEvent {
 
         if (AnvilEventGuards.isWorldBlocked(p, Config.Shatterment.isWorldRestricted(p.getWorld()))) return;
 
-        DiagnosticUtils.debug("SHATTER", "PrepareAnvil: player=" + p.getName() + ", world=" + p.getWorld().getName());
+        DiagnosticUtils.debug("SHATTER", () -> "PrepareAnvil: player=" + p.getName() + ", world=" + p.getWorld().getName());
 
         ItemStack firstItem = e.getInventory().getItem(0);
         ItemStack secondItem = e.getInventory().getItem(1);
 
-        DiagnosticUtils.debug("SHATTER", "PrepareAnvil: slot0=" + (firstItem != null ? firstItem.getType() : "null")
+        DiagnosticUtils.debug("SHATTER", () -> "PrepareAnvil: slot0=" + (firstItem != null ? firstItem.getType() : "null")
                 + ", slot1=" + (secondItem != null ? secondItem.getType() : "null"));
 
         List<IPluginEnchantment> enchantments = AnvilEventGuards.collectEnchantments(
@@ -160,10 +160,10 @@ public class ShatterEvent {
 
         e.setResult(book);
 
-        DiagnosticUtils.debug("SHATTER", "PrepareAnvil: anvil cost=" + AnvilCostUtils.countAnvilCost(pluginEnchantments, AnvilEventType.SHATTERMENT, p));
+        DiagnosticUtils.debug("SHATTER", () -> "PrepareAnvil: anvil cost=" + AnvilCostUtils.countAnvilCost(pluginEnchantments, AnvilEventType.SHATTERMENT, p));
         AnvilEventGuards.applyAnvilCostAndSchedule(e, p, pluginEnchantments, AnvilEventType.SHATTERMENT);
 
-        DiagnosticUtils.debug("SHATTER", "PrepareAnvil: economy display — enabled=" + Config.Shatterment.Economy.isEnabled()
+        DiagnosticUtils.debug("SHATTER", () -> "PrepareAnvil: economy display — enabled=" + Config.Shatterment.Economy.isEnabled()
                 + ", available=" + EconomyUtils.isAvailable()
                 + ", show-cost=" + Config.Shatterment.Economy.isShowCostEnabled()
                 + ", gameMode=" + p.getGameMode());
