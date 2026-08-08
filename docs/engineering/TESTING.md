@@ -151,7 +151,7 @@ Verifies that activated third-party adapters are consulted during enchantment co
 Unit-tests the eligibility logic in `EventUtils` that determines which enchantments transfer:
 
 - Disabled enchantments are filtered out.
-- Forced enchantments are always included regardless of `disabled-materials` or `disabled-worlds`.
+- Forced enchantments are always included regardless of the `materials` or `worlds` restrictions.
 - Enchantments on a book in slot 0 with a blank book in slot 1 are detected correctly.
 - Edge cases: item with no enchantments, item with all enchantments disabled.
 

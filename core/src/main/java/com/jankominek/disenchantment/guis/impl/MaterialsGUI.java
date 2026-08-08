@@ -35,7 +35,7 @@ public class MaterialsGUI implements InventoryHolder {
     private int page;
     private List<Material> materials;
     private GUIItem[] items = ArrayUtils.addAll(
-            GUIBorderComponent.border9x6(new Integer[]{0, 47, 49, 51}),
+            GUIBorderComponent.border9x6(new Integer[]{0, 45, 47, 49, 51}),
             new GUIItem(
                     0,
                     GUIComponent.back(),
@@ -43,6 +43,26 @@ public class MaterialsGUI implements InventoryHolder {
                         event.setCancelled(true);
 
                         event.getWhoClicked().openInventory(new NavigationGUI().getInventory());
+                    }
+            ),
+            new GUIItem(
+                    45,
+                    GUIComponent.Materials.mode(Config.Disenchantment.getMaterialsMode(), Config.Shatterment.getMaterialsMode()),
+                    event -> {
+                        event.setCancelled(true);
+
+                        switch (event.getClick()) {
+                            case LEFT:
+                                Config.Disenchantment.setMaterialsMode(Config.Disenchantment.getMaterialsMode().toggled());
+                                break;
+                            case RIGHT:
+                                Config.Shatterment.setMaterialsMode(Config.Shatterment.getMaterialsMode().toggled());
+                                break;
+                            default:
+                                return;
+                        }
+
+                        event.setCurrentItem(GUIComponent.Materials.mode(Config.Disenchantment.getMaterialsMode(), Config.Shatterment.getMaterialsMode()));
                     }
             ),
             new GUIItem(

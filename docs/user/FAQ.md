@@ -15,6 +15,7 @@ Common issues and questions about Disenchantment.
 - [How do I reload the config without restarting?](#how-do-i-reload-the-config-without-restarting)
 - [Can I require both XP and economy cost?](#can-i-require-both-xp-and-economy-cost)
 - [What happens to the original item after disenchanting?](#what-happens-to-the-original-item-after-disenchanting)
+- [Can I disenchant or shatter a stack of items?](#can-i-disenchant-or-shatter-a-stack-of-items)
 - [Can players disenchant in Creative mode?](#can-players-disenchant-in-creative-mode)
 - [Why isn't Disenchantment working with EcoEnchants?](#why-isnt-disenchantment-working-with-ecoenchants)
 - [Why aren't UberEnchants working with Disenchantment?](#why-arent-uberenchants-working-with-disenchantment)
@@ -248,3 +249,11 @@ and newer (including the 26.x.x series) to `v1_21_R5` automatically.
 
 If you are running a very new 26.1.x patch release and experience unexpected behavior, update to the latest
 Disenchantment release first, then file a bug report with the output of `/disenchantment diagnostic all`.
+
+---
+
+### Can I disenchant or shatter a stack of items?
+
+No — the operation only runs on a **single** source item (stack size 1). Every enchantable item in vanilla is
+unstackable, so this never affects normal play. It only matters if another plugin makes enchanted items stackable: in
+that case a stacked source produces no anvil result. Split the stack to one item to disenchant or shatter it.

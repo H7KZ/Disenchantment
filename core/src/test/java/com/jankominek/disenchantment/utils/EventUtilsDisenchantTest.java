@@ -103,11 +103,32 @@ class EventUtilsDisenchantTest extends DisenchantmentTestBase {
         assertTrue(result.isEmpty());
     }
 
+    // -> stacked source item (single-item guard)
+
+    @Test
+    void givenStackedSourceItem_whenGetEnchantments_thenReturnsEmpty() {
+        ItemStack sword = sword("sharpness");
+        sword.setAmount(2);
+        List<IPluginEnchantment> result =
+                EventUtils.Disenchantment.getDisenchantedEnchantments(sword, blankBook(), false);
+        assertTrue(result.isEmpty(), "A stacked source item must be rejected — disenchant operates on a single item");
+    }
+
+    @Test
+    void givenStackedBlankBooks_whenGetEnchantments_thenStillReturnsEnchantments() {
+        // Only the SOURCE item (slot 0) must be single; a stack of blank books in slot 1 is fine.
+        ItemStack books = blankBook();
+        books.setAmount(16);
+        List<IPluginEnchantment> result =
+                EventUtils.Disenchantment.getDisenchantedEnchantments(sword("sharpness"), books, false);
+        assertFalse(result.isEmpty(), "A stack of blank books in slot 1 must not block disenchantment");
+    }
+
     // -> disabled material
 
     @Test
     void givenDisabledMaterial_whenGetEnchantments_thenReturnsEmpty() {
-        setConfig("disenchantment.disabled-materials", List.of("DIAMOND_SWORD"));
+        setConfig("disenchantment.materials.list", List.of("DIAMOND_SWORD"));
         List<IPluginEnchantment> result =
                 EventUtils.Disenchantment.getDisenchantedEnchantments(
                         sword("sharpness"), blankBook(), false);
@@ -116,7 +137,7 @@ class EventUtilsDisenchantTest extends DisenchantmentTestBase {
 
     @Test
     void givenOtherMaterialDisabled_whenGetEnchantments_thenStillReturnsEnchantments() {
-        setConfig("disenchantment.disabled-materials", List.of("IRON_SWORD"));
+        setConfig("disenchantment.materials.list", List.of("IRON_SWORD"));
         List<IPluginEnchantment> result =
                 EventUtils.Disenchantment.getDisenchantedEnchantments(
                         sword("sharpness"), blankBook(), false);

@@ -74,7 +74,7 @@ public class ShatterClickEvent {
 
         if (AnvilEventGuards.isMaintenanceBlocked(p)) return;
 
-        if (AnvilEventGuards.isWorldBlocked(p, Config.Shatterment.getDisabledWorlds().contains(p.getWorld()))) return;
+        if (AnvilEventGuards.isWorldBlocked(p, Config.Shatterment.isWorldRestricted(p.getWorld()))) return;
 
         if (AnvilEventGuards.isOnCooldown(p)) {
             e.setCancelled(true);
@@ -108,21 +108,24 @@ public class ShatterClickEvent {
 
         if (result.getType() != Material.ENCHANTED_BOOK) return;
 
-        DiagnosticUtils.debug("SHATTER", "Click: player=" + p.getName() + ", result=" + result.getType() + ", gameMode=" + p.getGameMode());
+        // Genuine shatter operation confirmed. Block non-standard result-slot clicks
+        // (shift/number-key/swap/double-click/drop/etc.) that would otherwise let vanilla deliver a
+        // second copy of the result in addition to the one the plugin puts on the cursor — item-dupe.
+        if (AnvilEventGuards.isUnsafeResultClick(e)) {
+            DiagnosticUtils.debug("SHATTER", () -> "Click: unsafe click type " + e.getClick() + " → CANCELLED");
+            e.setCancelled(true);
+            return;
+        }
+
+        DiagnosticUtils.debug("SHATTER", () -> "Click: player=" + p.getName() + ", result=" + result.getType() + ", gameMode=" + p.getGameMode());
 
         if (DiagnosticUtils.isDebugEnabled()) {
             String names = enchantments.stream().map(ench -> ench.getKey() + ":" + ench.getLevel()).collect(Collectors.joining(", "));
             DiagnosticUtils.debug("SHATTER", "Click: enchantments=[" + names + "]");
         }
 
-        if (e.isShiftClick()) {
-            DiagnosticUtils.debug("SHATTER", "Click: shift-click blocked → CANCELLED");
-            e.setCancelled(true);
-            return;
-        }
-
         int repairCost = AnvilEventGuards.peekBypassCost(p, AnvilCostUtils.getRepairCost(anvilInventory, e.getView()));
-        DiagnosticUtils.debug("SHATTER", "Click: xp check — repairCost=" + repairCost + ", playerLevel=" + p.getLevel());
+        DiagnosticUtils.debug("SHATTER", () -> "Click: xp check — repairCost=" + repairCost + ", playerLevel=" + p.getLevel());
         if (!AnvilEventGuards.hasEnoughXp(p, repairCost)) {
             DiagnosticUtils.debug("SHATTER", "Click: insufficient XP → CANCELLED");
             e.setCancelled(true);
@@ -142,7 +145,7 @@ public class ShatterClickEvent {
         }
 
         // Economy check — runs after PreShatterEvent so cancellation doesn't charge the player
-        DiagnosticUtils.debug("SHATTER", "Click: economy check — enabled=" + Config.Shatterment.Economy.isEnabled() + ", gameMode=" + p.getGameMode());
+        DiagnosticUtils.debug("SHATTER", () -> "Click: economy check — enabled=" + Config.Shatterment.Economy.isEnabled() + ", gameMode=" + p.getGameMode());
         double economyCost = AnvilCostUtils.economyCostForEnchantments(
                 preEvent.getEnchantments(), Config.Shatterment.Economy.getCost(), Config.Shatterment.Anvil.Repair.getEnchantmentEconomyCosts());
         AnvilEventGuards.EconomyResult economyResult = AnvilEventGuards.processEconomyCost(p, ECONOMY_CONFIG, economyCost);
@@ -162,7 +165,7 @@ public class ShatterClickEvent {
         AnvilEventGuards.clearBypassCost(p);
 
         int exp = p.getLevel() - repairCost;
-        DiagnosticUtils.debug("SHATTER", "Click: xp → " + p.getLevel() + " - " + repairCost + " = " + exp);
+        DiagnosticUtils.debug("SHATTER", () -> "Click: xp → " + p.getLevel() + " - " + repairCost + " = " + exp);
 
         // ----------------------------------------------------------------------------------------------------
         // Shatterment plugins

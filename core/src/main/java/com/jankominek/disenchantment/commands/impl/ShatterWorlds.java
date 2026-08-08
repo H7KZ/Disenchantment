@@ -4,6 +4,7 @@ import com.jankominek.disenchantment.commands.CommandBuilder;
 import com.jankominek.disenchantment.config.Config;
 import com.jankominek.disenchantment.config.I18n;
 import com.jankominek.disenchantment.types.PermissionGroupType;
+import com.jankominek.disenchantment.types.RestrictionMode;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
@@ -37,6 +38,24 @@ public class ShatterWorlds {
      * @param args   the command arguments: [subcommand, world_name]
      */
     public static void execute(CommandSender sender, String[] args) {
+        if (args.length >= 2 && args[1].equalsIgnoreCase("mode")) {
+            if (args.length == 2) {
+                sender.sendMessage(I18n.Messages.modeCurrent("shatterment", Config.Shatterment.getWorldsMode().name()));
+                return;
+            }
+
+            RestrictionMode mode = RestrictionMode.match(args[2]);
+
+            if (mode == null) {
+                sender.sendMessage(I18n.Messages.modeInvalid(args[2]));
+                return;
+            }
+
+            Config.Shatterment.setWorldsMode(mode);
+            sender.sendMessage(I18n.Messages.modeSet("shatterment", mode.name()));
+            return;
+        }
+
         if (args.length == 1) {
             List<World> disabledWorlds = Config.Shatterment.getDisabledWorlds();
 

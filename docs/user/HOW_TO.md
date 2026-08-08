@@ -41,10 +41,15 @@ Running this command toggles the world on or off. Run it again to re-enable. Wor
 
 ```yaml
 disenchantment:
-  disabled-worlds:
-    - world_nether
-    - world_the_end
+  worlds:
+    mode: DENYLIST
+    list:
+      - world_nether
+      - world_the_end
 ```
+
+> **Allowlist instead:** to permit disenchanting in *only* certain worlds, set `mode: ALLOWLIST` and put the allowed
+> worlds in `list`. An empty `ALLOWLIST` blocks the feature everywhere (a warning is logged at startup).
 
 After editing, run `/disenchantment reload` or restart the server.
 
@@ -66,9 +71,11 @@ The same approach as above, but for book splitting.
 
 ```yaml
 shatterment:
-  disabled-worlds:
-    - world_nether
-    - minigames
+  worlds:
+    mode: DENYLIST
+    list:
+      - world_nether
+      - minigames
 ```
 
 > **Check what is disabled:** `/disenchantment shatter:worlds` lists all currently disabled worlds.
@@ -184,14 +191,17 @@ Running the command again toggles the material back on. Material names are the B
 
 ```yaml
 disenchantment:
-  disabled-materials:
-    - NETHERITE_SWORD
-    - ELYTRA
+  materials:
+    mode: DENYLIST
+    list:
+      - NETHERITE_SWORD
+      - ELYTRA
 ```
 
-> **Check what is disabled:** `/disenchantment disenchant:materials` lists all currently blocked materials.
+> **Check what is disabled:** `/disenchantment disenchant:materials` lists all currently listed materials, and
+> `/disenchantment disenchant:materials mode <ALLOWLIST|DENYLIST>` switches the mode.
 
-> **Note:** The shattering feature does not have a `disabled-materials` option — it only applies to enchanted books.
+> **Note:** The shattering feature also has a `materials` restriction, checked against the enchanted book being split.
 
 ---
 

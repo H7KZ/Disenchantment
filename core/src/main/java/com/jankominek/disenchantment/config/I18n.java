@@ -126,6 +126,46 @@ public class I18n {
         }
 
         /**
+         * Returns the localized message reporting the current restriction mode.
+         *
+         * @param feature the feature label to substitute
+         * @param mode    the mode value to substitute
+         */
+        public static String modeCurrent(String feature, String mode) {
+            return I18n.translateColors(
+                    localeConfig.getString(I18nKeys.MESSAGES_MODE_CURRENT.getKey(), "&7{feature} restriction mode: &f{mode}")
+                            .replace("{feature}", feature)
+                            .replace("{mode}", mode)
+            );
+        }
+
+        /**
+         * Returns the localized message confirming a restriction mode change.
+         *
+         * @param feature the feature label to substitute
+         * @param mode    the mode value to substitute
+         */
+        public static String modeSet(String feature, String mode) {
+            return I18n.translateColors(
+                    localeConfig.getString(I18nKeys.MESSAGES_MODE_SET.getKey(), "&a{feature} restriction mode set to &f{mode}")
+                            .replace("{feature}", feature)
+                            .replace("{mode}", mode)
+            );
+        }
+
+        /**
+         * Returns the localized message for an invalid restriction mode value.
+         *
+         * @param mode the invalid mode value to substitute
+         */
+        public static String modeInvalid(String mode) {
+            return I18n.translateColors(
+                    localeConfig.getString(I18nKeys.MESSAGES_MODE_INVALID.getKey(), "&cInvalid mode '{mode}'. Use ALLOWLIST or DENYLIST.")
+                            .replace("{mode}", mode)
+            );
+        }
+
+        /**
          * Returns the localized "specify repair value" prompt.
          */
         public static String specifyRepairValue() {
@@ -1638,6 +1678,32 @@ public class I18n {
                             .stream().map(I18n::translateColors).toList();
                 }
             }
+
+            /**
+             * Localized strings for the restriction-mode button in the worlds GUI.
+             */
+            public static class Mode {
+                /**
+                 * Returns the localized mode button title.
+                 */
+                public static String title() {
+                    return I18n.translateColors(localeConfig.getString(I18nKeys.GUI_WORLDS_MODE_TITLE.getKey()));
+                }
+
+                /**
+                 * Returns the localized mode button lore with the current mode labels substituted.
+                 *
+                 * @param disenchantment the disenchantment mode label
+                 * @param shatterment    the shatterment mode label
+                 */
+                public static List<String> lore(String disenchantment, String shatterment) {
+                    return localeConfig.getStringList(I18nKeys.GUI_WORLDS_MODE_LORE.getKey())
+                            .stream()
+                            .map(line -> line.replace("{disenchantment}", disenchantment).replace("{shatterment}", shatterment))
+                            .map(I18n::translateColors)
+                            .toList();
+                }
+            }
         }
 
         /**
@@ -2098,6 +2164,61 @@ public class I18n {
                     return localeConfig.getStringList(I18nKeys.GUI_MATERIALS_HELP_LORE.getKey())
                             .stream().map(I18n::translateColors).toList();
                 }
+            }
+
+            /**
+             * Localized strings for the restriction-mode button in the materials GUI.
+             */
+            public static class Mode {
+                /**
+                 * Returns the localized mode button title.
+                 */
+                public static String title() {
+                    return I18n.translateColors(localeConfig.getString(I18nKeys.GUI_MATERIALS_MODE_TITLE.getKey()));
+                }
+
+                /**
+                 * Returns the localized mode button lore with the current mode labels substituted.
+                 *
+                 * @param disenchantment the disenchantment mode label
+                 * @param shatterment    the shatterment mode label
+                 */
+                public static List<String> lore(String disenchantment, String shatterment) {
+                    return localeConfig.getStringList(I18nKeys.GUI_MATERIALS_MODE_LORE.getKey())
+                            .stream()
+                            .map(line -> line.replace("{disenchantment}", disenchantment).replace("{shatterment}", shatterment))
+                            .map(I18n::translateColors)
+                            .toList();
+                }
+            }
+        }
+
+        /**
+         * Localized labels for {@link com.jankominek.disenchantment.types.RestrictionMode} values,
+         * shared by the worlds and materials mode buttons.
+         */
+        public static class RestrictionMode {
+            /**
+             * Returns the localized ALLOWLIST label.
+             */
+            public static String allowlist() {
+                return I18n.translateColors(localeConfig.getString(I18nKeys.GUI_RESTRICTION_MODE_ALLOWLIST.getKey()));
+            }
+
+            /**
+             * Returns the localized DENYLIST label.
+             */
+            public static String denylist() {
+                return I18n.translateColors(localeConfig.getString(I18nKeys.GUI_RESTRICTION_MODE_DENYLIST.getKey()));
+            }
+
+            /**
+             * Returns the localized label for the given mode.
+             *
+             * @param mode the mode to label
+             */
+            public static String label(com.jankominek.disenchantment.types.RestrictionMode mode) {
+                return mode == com.jankominek.disenchantment.types.RestrictionMode.ALLOWLIST ? allowlist() : denylist();
             }
         }
 

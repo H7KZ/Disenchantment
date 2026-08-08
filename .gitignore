@@ -37,6 +37,9 @@ hs_err_pid*
 .claude/**/worktrees
 !.claude/skills/build
 docs/superpowers/
+docs/adr/
+.scratch/
+CONTEXT.md
 
 # Env
 **/.env

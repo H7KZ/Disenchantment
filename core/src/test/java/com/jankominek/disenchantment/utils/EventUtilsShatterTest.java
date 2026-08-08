@@ -69,6 +69,16 @@ class EventUtilsShatterTest extends DisenchantmentTestBase {
     }
 
     @Test
+    void givenStackedSourceBook_whenGetShatterEnchantments_thenReturnsEmpty() {
+        // Shatterment operates on a single book; a stacked source must be rejected.
+        ItemStack book = enchantedBook("sharpness", "mending");
+        book.setAmount(2);
+        List<IPluginEnchantment> result =
+                EventUtils.Shatterment.getShattermentEnchantments(book, blankBook(), false);
+        assertTrue(result.isEmpty(), "A stacked source book must be rejected");
+    }
+
+    @Test
     void givenSwordAsFirstItem_whenGetShatterEnchantments_thenReturnsEmpty() {
         ItemStack sword = new ItemStack(Material.DIAMOND_SWORD);
         sword.addUnsafeEnchantment(enchantment("sharpness"), 5);

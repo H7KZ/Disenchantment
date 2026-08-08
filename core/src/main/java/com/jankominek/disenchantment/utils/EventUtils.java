@@ -52,6 +52,11 @@ public class EventUtils {
             if (firstItem.getType() == Material.ENCHANTED_BOOK) return List.of();
             if (secondItem.getType() != Material.BOOK) return List.of();
 
+            if (firstItem.getAmount() > 1) {
+                DiagnosticUtils.debug("DISENCHANT", "EventUtils: rejected — source item is a stack (amount " + firstItem.getAmount() + " > 1); disenchantment operates on a single item");
+                return List.of();
+            }
+
             if (isMaterialDisabled(firstItem)) {
                 DiagnosticUtils.debug("DISENCHANT", "EventUtils: rejected — material " + firstItem.getType() + " is disabled by config");
                 return List.of();
@@ -104,6 +109,11 @@ public class EventUtils {
 
             if (firstItem.getType() == Material.ENCHANTED_BOOK) return List.of();
             if (secondItem.getType() != Material.BOOK) return List.of();
+
+            if (firstItem.getAmount() > 1) {
+                DiagnosticUtils.debug("DISENCHANT", "EventUtils [" + activatedPlugin.getName() + "]: rejected — source item is a stack (amount " + firstItem.getAmount() + " > 1); disenchantment operates on a single item");
+                return List.of();
+            }
 
             if (isMaterialDisabled(firstItem)) {
                 DiagnosticUtils.debug("DISENCHANT", "EventUtils [" + activatedPlugin.getName() + "]: rejected — material " + firstItem.getType() + " is disabled by config");
@@ -171,7 +181,7 @@ public class EventUtils {
 
         private static boolean isMaterialDisabled(ItemStack item) {
             if (materialBypassActive.get()) return false;
-            return Config.Disenchantment.getDisabledMaterials().stream().anyMatch(m -> m.equals(item.getType()));
+            return Config.Disenchantment.isMaterialRestricted(item.getType());
         }
     }
 
@@ -195,6 +205,11 @@ public class EventUtils {
 
             if (firstItem.getType() != Material.ENCHANTED_BOOK) return List.of();
             if (secondItem.getType() != Material.BOOK) return List.of();
+
+            if (firstItem.getAmount() > 1) {
+                DiagnosticUtils.debug("SHATTER", "EventUtils: rejected — source book is a stack (amount " + firstItem.getAmount() + " > 1); shatterment operates on a single item");
+                return List.of();
+            }
 
             if (isMaterialDisabled(firstItem)) {
                 DiagnosticUtils.debug("SHATTER", "EventUtils: rejected — material " + firstItem.getType() + " is disabled by config");
@@ -253,6 +268,11 @@ public class EventUtils {
 
             if (firstItem.getType() != Material.ENCHANTED_BOOK) return List.of();
             if (secondItem.getType() != Material.BOOK) return List.of();
+
+            if (firstItem.getAmount() > 1) {
+                DiagnosticUtils.debug("SHATTER", "EventUtils [" + activatedPlugin.getName() + "]: rejected — source book is a stack (amount " + firstItem.getAmount() + " > 1); shatterment operates on a single item");
+                return List.of();
+            }
 
             if (isMaterialDisabled(firstItem)) {
                 DiagnosticUtils.debug("SHATTER", "EventUtils [" + activatedPlugin.getName() + "]: rejected — material " + firstItem.getType() + " is disabled by config");
@@ -325,7 +345,7 @@ public class EventUtils {
 
         private static boolean isMaterialDisabled(ItemStack item) {
             if (materialBypassActive.get()) return false;
-            return Config.Shatterment.getDisabledMaterials().stream().anyMatch(m -> m.equals(item.getType()));
+            return Config.Shatterment.isMaterialRestricted(item.getType());
         }
     }
 

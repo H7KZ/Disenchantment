@@ -47,11 +47,17 @@ disenchantment:
   # Enable or disable the disenchanting feature.
   enabled: true
 
-  # Worlds where disenchanting is blocked (case-sensitive world names).
-  disabled-worlds: []
+  # World restriction. mode: DENYLIST = listed worlds are blocked |
+  # ALLOWLIST = only listed worlds are allowed (empty list blocks everywhere).
+  worlds:
+    mode: DENYLIST
+    list: []
 
-  # Materials that cannot be disenchanted (e.g. DIAMOND_SWORD).
-  disabled-materials: []
+  # Material restriction. mode: DENYLIST = listed materials cannot be disenchanted |
+  # ALLOWLIST = only listed materials can be disenchanted.
+  materials:
+    mode: DENYLIST
+    list: []
 
   # Per-enchantment behavior overrides. Format: "enchantment_key:state"
   # States: enable (default), keep (stay on item), delete (destroy), disable (block operation)
@@ -93,8 +99,15 @@ shatterment:
   # Enable or disable the book splitting (shattering) feature.
   enabled: true
 
-  # Worlds where shattering is blocked.
-  disabled-worlds: []
+  # World restriction (same mode semantics as disenchantment).
+  worlds:
+    mode: DENYLIST
+    list: []
+
+  # Material restriction (checked against the enchanted book being shattered).
+  materials:
+    mode: DENYLIST
+    list: []
 
   # Per-enchantment behavior overrides — same format as disenchantment.
   enchantments-states: []
@@ -215,17 +228,30 @@ Settings that control removing enchantments from items onto books.
 ```yaml
 disenchantment:
   enabled: true
-  disabled-worlds: []
-  disabled-materials: []
+  worlds:
+    mode: DENYLIST
+    list: []
+  materials:
+    mode: DENYLIST
+    list: []
   enchantments-states: []
 ```
 
-| Key                   | Type           | Default | Description                                                                                        |
-|-----------------------|----------------|---------|----------------------------------------------------------------------------------------------------|
-| `enabled`             | Boolean        | `true`  | Enable or disable the disenchantment feature.                                                      |
-| `disabled-worlds`     | List\<String\> | `[]`    | Worlds where disenchanting is blocked. World names are case-sensitive.                             |
-| `disabled-materials`  | List\<String\> | `[]`    | Materials that cannot be disenchanted (e.g. `DIAMOND_SWORD`). Material names are case-insensitive. |
-| `enchantments-states` | List\<String\> | `[]`    | Per-enchantment behavior overrides in `"key:state"` format (see below).                            |
+| Key                   | Type           | Default    | Description                                                                                 |
+|-----------------------|----------------|------------|---------------------------------------------------------------------------------------------|
+| `enabled`             | Boolean        | `true`     | Enable or disable the disenchantment feature.                                               |
+| `worlds.mode`         | Enum           | `DENYLIST` | `DENYLIST` = `worlds.list` are blocked; `ALLOWLIST` = only `worlds.list` are allowed.       |
+| `worlds.list`         | List\<String\> | `[]`       | World names (case-sensitive) the mode applies to.                                           |
+| `materials.mode`      | Enum           | `DENYLIST` | `DENYLIST` = `materials.list` are blocked; `ALLOWLIST` = only `materials.list` are allowed. |
+| `materials.list`      | List\<String\> | `[]`       | Materials (e.g. `DIAMOND_SWORD`, case-insensitive) the mode applies to.                     |
+| `enchantments-states` | List\<String\> | `[]`       | Per-enchantment behavior overrides in `"key:state"` format (see below).                     |
+
+> **Restriction modes.** Both `worlds` and `materials` use the same `mode` + `list` shape. `DENYLIST` (the default,
+> and the behavior of the old `disabled-worlds`/`disabled-materials` keys) blocks the listed entries. `ALLOWLIST`
+> permits *only* the listed entries — and an **empty `ALLOWLIST` blocks the feature entirely** (a warning is logged at
+> startup). Servers upgrading from an older version are migrated automatically: the old lists become `list` with
+> `mode: DENYLIST`, so behavior is unchanged. The `disenchantment.bypass.world` / `disenchantment.bypass.material`
+> permissions override the restriction under either mode.
 
 **Enchantment state format:** Each entry is a string like `"sharpness:keep"`. The key is the Bukkit enchantment key
 (tab-completion is available in-game via the command).
@@ -376,8 +402,8 @@ disenchantment:
 
 ## Shatterment Settings
 
-Settings that control splitting multi-enchantment books. The structure mirrors disenchantment settings, except there is
-no `disabled-materials` option (shattering only applies to enchanted books).
+Settings that control splitting multi-enchantment books. The structure mirrors disenchantment settings. The `materials`
+restriction is checked against the enchanted book being shattered.
 
 ### Feature Toggle and Restrictions (Shatter)
 
@@ -385,16 +411,29 @@ no `disabled-materials` option (shattering only applies to enchanted books).
 shatterment:
   enabled: true
   split-count: 1
-  disabled-worlds: []
+  worlds:
+    mode: DENYLIST
+    list: []
+  materials:
+    mode: DENYLIST
+    list: []
   enchantments-states: []
 ```
 
-| Key                   | Type           | Default | Description                                                                                        |
-|-----------------------|----------------|---------|----------------------------------------------------------------------------------------------------|
-| `enabled`             | Boolean        | `true`  | Enable or disable the shatterment (book splitting) feature.                                        |
-| `split-count`         | Integer        | `1`     | Number of enchantments to split off per shatter operation. Default is 1 (one enchantment per use). |
-| `disabled-worlds`     | List\<String\> | `[]`    | Worlds where shattering is blocked.                                                                |
-| `enchantments-states` | List\<String\> | `[]`    | Per-enchantment behavior overrides, same format as disenchantment.                                 |
+| Key                   | Type           | Default    | Description                                                                                        |
+|-----------------------|----------------|------------|----------------------------------------------------------------------------------------------------|
+| `enabled`             | Boolean        | `true`     | Enable or disable the shatterment (book splitting) feature.                                        |
+| `split-count`         | Integer        | `1`        | Number of enchantments to split off per shatter operation. Default is 1 (one enchantment per use). |
+| `worlds.mode`         | Enum           | `DENYLIST` | Same semantics as disenchantment `worlds.mode`.                                                    |
+| `worlds.list`         | List\<String\> | `[]`       | Worlds the mode applies to.                                                                        |
+| `materials.mode`      | Enum           | `DENYLIST` | Same semantics as disenchantment `materials.mode` (checked against the enchanted book).            |
+| `materials.list`      | List\<String\> | `[]`       | Materials the mode applies to.                                                                     |
+| `enchantments-states` | List\<String\> | `[]`       | Per-enchantment behavior overrides, same format as disenchantment.                                 |
+
+> The restriction-mode notes from the disenchantment section apply here too. In-game, admins can toggle these modes
+> via the Worlds/Materials GUIs (a "Restriction Mode" button: left-click cycles disenchantment, right-click cycles
+> shatterment) or the commands `/disenchantment disenchant:worlds mode <ALLOWLIST|DENYLIST>` (and the `shatter:worlds`
+> / `disenchant:materials` equivalents).
 
 ### Anvil Sound (Shatter)
 

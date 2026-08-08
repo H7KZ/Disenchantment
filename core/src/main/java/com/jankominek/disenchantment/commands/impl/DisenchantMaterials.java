@@ -4,6 +4,7 @@ import com.jankominek.disenchantment.commands.CommandBuilder;
 import com.jankominek.disenchantment.config.Config;
 import com.jankominek.disenchantment.config.I18n;
 import com.jankominek.disenchantment.types.PermissionGroupType;
+import com.jankominek.disenchantment.types.RestrictionMode;
 import com.jankominek.disenchantment.utils.MaterialUtils;
 import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
@@ -37,6 +38,24 @@ public class DisenchantMaterials {
      * @param args the command arguments: [subcommand, material_name]
      */
     public static void execute(CommandSender s, String[] args) {
+        if (args.length >= 2 && args[1].equalsIgnoreCase("mode")) {
+            if (args.length == 2) {
+                s.sendMessage(I18n.Messages.modeCurrent("disenchantment", Config.Disenchantment.getMaterialsMode().name()));
+                return;
+            }
+
+            RestrictionMode mode = RestrictionMode.match(args[2]);
+
+            if (mode == null) {
+                s.sendMessage(I18n.Messages.modeInvalid(args[2]));
+                return;
+            }
+
+            Config.Disenchantment.setMaterialsMode(mode);
+            s.sendMessage(I18n.Messages.modeSet("disenchantment", mode.name()));
+            return;
+        }
+
         List<Material> materials = Config.Disenchantment.getDisabledMaterials();
 
         if (args.length == 1) {
@@ -56,19 +75,21 @@ public class DisenchantMaterials {
 
         Material material = Material.getMaterial(args[1].toUpperCase());
 
+        // Guard against an unknown material name — otherwise a null slips into the list and
+        // setDisabledMaterials() NPEs on Material::name (assertions are off in production).
+        if (material == null) return;
+
         if (materials.contains(material)) {
             materials.remove(material);
 
             Config.Disenchantment.setDisabledMaterials(materials);
 
-            assert material != null;
             s.sendMessage(I18n.Messages.materialIsEnabled(material.getKey().getKey()));
         } else {
             materials.add(material);
 
             Config.Disenchantment.setDisabledMaterials(materials);
 
-            assert material != null;
             s.sendMessage(I18n.Messages.materialIsDisabled(material.getKey().getKey()));
         }
     }
@@ -82,6 +103,16 @@ public class DisenchantMaterials {
      */
     public static List<String> complete(CommandSender sender, String[] args) {
         List<String> result = new ArrayList<>(List.of());
+
+        if (args.length >= 3 && args[1].equalsIgnoreCase("mode")) {
+            for (RestrictionMode mode : RestrictionMode.values()) {
+                if (mode.name().toLowerCase().startsWith(args[2].toLowerCase())) result.add(mode.name());
+            }
+
+            return result;
+        }
+
+        if ("mode".startsWith(args[1].toLowerCase())) result.add("mode");
 
         for (Material material : MaterialUtils.getMaterials()) {
             if (material.getKey().getKey().toLowerCase().startsWith(args[1].toLowerCase()))

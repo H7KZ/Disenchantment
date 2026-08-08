@@ -2,6 +2,7 @@ package com.jankominek.disenchantment.guis;
 
 import com.jankominek.disenchantment.config.I18n;
 import com.jankominek.disenchantment.types.EnchantmentStateType;
+import com.jankominek.disenchantment.types.RestrictionMode;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.inventory.ItemStack;
@@ -255,6 +256,22 @@ public class GUIComponent {
             return new ItemBuilder(Material.MAP)
                     .setDisplayName(I18n.GUI.Worlds.Help.title())
                     .setLore(I18n.GUI.Worlds.Help.lore())
+                    .addAllFlags()
+                    .build();
+        }
+
+        /**
+         * Creates the restriction-mode toggle item for the worlds GUI, showing the current
+         * disenchantment and shatterment modes.
+         *
+         * @param disenchantment the current disenchantment world restriction mode
+         * @param shatterment    the current shatterment world restriction mode
+         * @return the mode {@link ItemStack}
+         */
+        public static ItemStack mode(RestrictionMode disenchantment, RestrictionMode shatterment) {
+            return new ItemBuilder(Material.COMPARATOR)
+                    .setDisplayName(I18n.GUI.Worlds.Mode.title())
+                    .setLore(I18n.GUI.Worlds.Mode.lore(I18n.GUI.RestrictionMode.label(disenchantment), I18n.GUI.RestrictionMode.label(shatterment)))
                     .addAllFlags()
                     .build();
         }
@@ -571,6 +588,22 @@ public class GUIComponent {
             return new ItemBuilder(Material.MAP)
                     .setDisplayName(I18n.GUI.Materials.Help.title())
                     .setLore(I18n.GUI.Materials.Help.lore())
+                    .addAllFlags()
+                    .build();
+        }
+
+        /**
+         * Creates the restriction-mode toggle item for the materials GUI, showing the current
+         * disenchantment and shatterment modes.
+         *
+         * @param disenchantment the current disenchantment material restriction mode
+         * @param shatterment    the current shatterment material restriction mode
+         * @return the mode {@link ItemStack}
+         */
+        public static ItemStack mode(RestrictionMode disenchantment, RestrictionMode shatterment) {
+            return new ItemBuilder(Material.COMPARATOR)
+                    .setDisplayName(I18n.GUI.Materials.Mode.title())
+                    .setLore(I18n.GUI.Materials.Mode.lore(I18n.GUI.RestrictionMode.label(disenchantment), I18n.GUI.RestrictionMode.label(shatterment)))
                     .addAllFlags()
                     .build();
         }

@@ -11,6 +11,9 @@ messages:
   enchantment-is-disabled: "&e{enchantment} &7je zakázáno!&r"
   material-is-enabled: "&a{material} &7je povoleno!&r"
   material-is-disabled: "&c{material} &7je zakázáno!&r"
+  mode-current: "&7Režim omezení {feature}: &f{mode}&r"
+  mode-set: "&aRežim omezení {feature} nastaven na &f{mode}&r"
+  mode-invalid: "&cNeplatný režim '{mode}'. Použijte ALLOWLIST nebo DENYLIST.&r"
   specify-repair-value: "&cProsím zadejte hodnotu opravy!&r"
   specify-valid-integer: "&cProsím zadejte platné celé číslo!&r"
   specify-valid-double: "&cProsím zadejte platné desetinné číslo!&r"
@@ -249,6 +252,13 @@ gui:
         - "&7Klikněte pro přepnutí světů zapnuto/vypnuto"
         - "&7LEVÝ KLIK pro odčarování"
         - "&7PRAVÝ KLIK pro roztříštění"
+    mode:
+      title: "&d&lRežim omezení&r"
+      lore:
+        - "&7Odčarování: &f{disenchantment}&r"
+        - "&7Roztříštění: &f{shatterment}&r"
+        - "&7LEVÝ KLIK pro přepnutí odčarování"
+        - "&7PRAVÝ KLIK pro přepnutí roztříštění"
   repair:
     disenchantment:
       inventory: "&7&lOprava | Odčarování&r"
@@ -359,6 +369,16 @@ gui:
         - "&7Pouze pro funkci odčarování"
         - "&7Pro úpravu dalších materiálů použijte&r"
         - "&7příkaz: /disenchantment disenchant:materials&r"
+    mode:
+      title: "&d&lRežim omezení&r"
+      lore:
+        - "&7Odčarování: &f{disenchantment}&r"
+        - "&7Roztříštění: &f{shatterment}&r"
+        - "&7LEVÝ KLIK pro přepnutí odčarování"
+        - "&7PRAVÝ KLIK pro přepnutí roztříštění"
+  restriction-mode:
+    allowlist: "&aALLOWLIST&r"
+    denylist: "&cDENYLIST&r"
   sound:
     disenchantment:
       inventory: "&7&lZvuk | Odčarování&r"

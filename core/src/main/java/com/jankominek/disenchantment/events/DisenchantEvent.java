@@ -76,15 +76,15 @@ public class DisenchantEvent {
             return;
         }
 
-        if (AnvilEventGuards.isWorldBlocked(p, Config.Disenchantment.getDisabledWorlds().contains(p.getWorld())))
+        if (AnvilEventGuards.isWorldBlocked(p, Config.Disenchantment.isWorldRestricted(p.getWorld())))
             return;
 
-        DiagnosticUtils.debug("DISENCHANT", "PrepareAnvil: player=" + p.getName() + ", world=" + p.getWorld().getName());
+        DiagnosticUtils.debug("DISENCHANT", () -> "PrepareAnvil: player=" + p.getName() + ", world=" + p.getWorld().getName());
 
         ItemStack firstItem = e.getInventory().getItem(0);
         ItemStack secondItem = e.getInventory().getItem(1);
 
-        DiagnosticUtils.debug("DISENCHANT", "PrepareAnvil: slot0=" + (firstItem != null ? firstItem.getType() : "null")
+        DiagnosticUtils.debug("DISENCHANT", () -> "PrepareAnvil: slot0=" + (firstItem != null ? firstItem.getType() : "null")
                 + ", slot1=" + (secondItem != null ? secondItem.getType() : "null"));
 
         List<IPluginEnchantment> pluginEnchantments = AnvilEventGuards.collectEnchantments(
@@ -141,10 +141,10 @@ public class DisenchantEvent {
 
         e.setResult(book);
 
-        DiagnosticUtils.debug("DISENCHANT", "PrepareAnvil: anvil cost=" + AnvilCostUtils.countAnvilCost(pluginEnchantments, AnvilEventType.DISENCHANTMENT, p));
+        DiagnosticUtils.debug("DISENCHANT", () -> "PrepareAnvil: anvil cost=" + AnvilCostUtils.countAnvilCost(pluginEnchantments, AnvilEventType.DISENCHANTMENT, p));
         AnvilEventGuards.applyAnvilCostAndSchedule(e, p, pluginEnchantments, AnvilEventType.DISENCHANTMENT);
 
-        DiagnosticUtils.debug("DISENCHANT", "PrepareAnvil: economy display — enabled=" + Config.Disenchantment.Economy.isEnabled()
+        DiagnosticUtils.debug("DISENCHANT", () -> "PrepareAnvil: economy display — enabled=" + Config.Disenchantment.Economy.isEnabled()
                 + ", available=" + EconomyUtils.isAvailable()
                 + ", show-cost=" + Config.Disenchantment.Economy.isShowCostEnabled()
                 + ", gameMode=" + p.getGameMode());

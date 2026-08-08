@@ -194,7 +194,7 @@ class DisenchantEventTest extends DisenchantmentTestBase {
         server.addSimpleWorld("disabled_world");
         PlayerMock player = server.addPlayer("TestPlayer");
         player.teleport(Objects.requireNonNull(server.getWorld("disabled_world")).getSpawnLocation());
-        setConfig("disenchantment.disabled-worlds", List.of("disabled_world"));
+        setConfig("disenchantment.worlds.list", List.of("disabled_world"));
         PrepareAnvilEvent event = buildEvent(player, sword("sharpness", 5), new ItemStack(Material.BOOK));
 
         DisenchantEvent.onEvent(event);
@@ -206,7 +206,7 @@ class DisenchantEventTest extends DisenchantmentTestBase {
 
     @Test
     void givenDisabledMaterial_whenPrepareAnvil_thenResultNotSet() {
-        setConfig("disenchantment.disabled-materials", List.of("DIAMOND_SWORD"));
+        setConfig("disenchantment.materials.list", List.of("DIAMOND_SWORD"));
         PlayerMock player = server.addPlayer("TestPlayer");
         PrepareAnvilEvent event = buildEvent(player, sword("sharpness", 5), new ItemStack(Material.BOOK));
 

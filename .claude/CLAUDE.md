@@ -23,13 +23,14 @@ can remove enchantments from items onto books, or split multi-enchantment books 
 mvn clean package
 
 # Run all core tests (offline, no BuildTools required)
-& "C:\Users\honzi\Documents\Spigot BuildTools\apache-maven-3.9.6\bin\mvn.cmd" test -pl core --offline
+# Uses `mvn` from PATH; if Maven isn't on PATH, substitute the path to your mvn/mvn.cmd
+mvn test -pl core --offline
 
 # Run a single test class
-& "C:\Users\honzi\Documents\Spigot BuildTools\apache-maven-3.9.6\bin\mvn.cmd" test -pl core --offline -Dtest=StatsCacheTest
+mvn test -pl core --offline -Dtest=StatsCacheTest
 
 # Run a single test method
-& "C:\Users\honzi\Documents\Spigot BuildTools\apache-maven-3.9.6\bin\mvn.cmd" test -pl core --offline -Dtest=StatsCacheTest#testRecord
+mvn test -pl core --offline -Dtest=StatsCacheTest#testRecord
 ```
 
 **Prerequisites** (see CONTRIBUTING.md):
