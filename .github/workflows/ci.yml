@@ -18,6 +18,13 @@ jobs:
     name: Verify
     runs-on: ubuntu-latest
 
+    # contents:read to check out; pull-requests:write so the PR build link can be
+    # posted as a sticky comment. Fork PRs run with a read-only token and no secrets,
+    # so the comment step is guarded to same-repo PRs and simply skips on forks.
+    permissions:
+      contents: read
+      pull-requests: write
+
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -85,16 +92,68 @@ jobs:
 
           cd .. && rm -rf buildtools
 
+      # PR builds get a self-identifying version (0.0.0-pr<number>-<shortsha>) so
+      # testers can tell one build apart from another — it flows through to the JAR
+      # filename and the in-game plugin version. Pushes keep the plain SNAPSHOT name.
+      - name: Compute build version
+        id: ver
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            SHA="${{ github.event.pull_request.head.sha }}"
+            echo "VERSION=0.0.0-pr${{ github.event.pull_request.number }}-${SHA:0:7}" >> "$GITHUB_OUTPUT"
+          else
+            echo "VERSION=0.0.0-SNAPSHOT" >> "$GITHUB_OUTPUT"
+          fi
+
       # Runs validate -> compile -> test -> package -> verify.
       # Catches compilation errors and any bound verify-phase plugins
       # (e.g. Checkstyle, PMD) without publishing anything.
       - name: Verify
-        run: mvn clean verify -B -Drevision=0.0.0-SNAPSHOT
+        run: mvn clean verify -B -Drevision=${{ steps.ver.outputs.VERSION }}
 
       # Attaches the built JAR to the workflow run for manual download and testing.
+      # id: upload exposes artifact-url, linked from the PR comment below.
       - name: Upload JAR
+        id: upload
         uses: actions/upload-artifact@v7
         with:
-          name: Disenchantment-SNAPSHOT
-          path: target/Disenchantment-0.0.0-SNAPSHOT.jar
+          name: Disenchantment-${{ steps.ver.outputs.VERSION }}
+          path: target/Disenchantment-${{ steps.ver.outputs.VERSION }}.jar
           retention-days: 7
+
+      # Posts (or updates) a single sticky comment on the PR linking the build above.
+      # Same-repo PRs only: fork PRs run with a read-only token that cannot comment.
+      # Uses gh + github.token (no third-party action) and a hidden marker to find and
+      # edit its own comment in place on each push instead of spamming new ones.
+      - name: Comment build link on PR
+        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          PR: ${{ github.event.pull_request.number }}
+          ARTIFACT_URL: ${{ steps.upload.outputs.artifact-url }}
+          VERSION: ${{ steps.ver.outputs.VERSION }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          MARKER="<!-- pr-build-comment -->"
+          {
+            echo "$MARKER"
+            echo "### 🧪 Test build ready"
+            echo ""
+            echo "A fresh plugin JAR was built from this PR."
+            echo ""
+            echo "- **Download:** [\`Disenchantment-${VERSION}.jar\`](${ARTIFACT_URL})"
+            echo "- **Commit:** \`${HEAD_SHA}\`"
+            echo ""
+            echo "> ⚠️ The link points to a workflow artifact: you must be logged into GitHub to download it, it arrives as a \`.zip\`, and it expires in 7 days."
+          } > body.md
+
+          CID=$(gh api "repos/$REPO/issues/$PR/comments" --paginate \
+            --jq ".[] | select(.body | contains(\"$MARKER\")) | .id" | head -n1)
+
+          BODY="$(cat body.md)"
+          if [ -n "$CID" ]; then
+            gh api -X PATCH "repos/$REPO/issues/comments/$CID" -f body="$BODY"
+          else
+            gh api -X POST "repos/$REPO/issues/$PR/comments" -f body="$BODY"
+          fi
