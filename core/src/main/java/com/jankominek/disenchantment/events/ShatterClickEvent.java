@@ -175,29 +175,28 @@ public class ShatterClickEvent {
 
         EnchantmentStorageMeta resultItemMeta = (EnchantmentStorageMeta) result.getItemMeta();
 
-        if (activatedPlugins.isEmpty()) {
-            if (resultItemMeta == null) return;
+        if (resultItemMeta == null) return;
 
-            finalFirstItem = EnchantmentUtils.removeEnchantments(finalFirstItem, resultItemMeta.getStoredEnchants());
+        // Always remove the vanilla/Bukkit enchantments recorded on the result book from the
+        // source book — this must NOT depend on whether a custom enchantment plugin is active.
+        // A namespace-scoped adapter (e.g. Vane) reports no vanilla enchantments, so gating this
+        // on "no plugins active" left the split enchantment on the source book — a dupe (issue #73).
+        finalFirstItem = EnchantmentUtils.removeEnchantments(finalFirstItem, resultItemMeta.getStoredEnchants());
 
-            for (IPluginEnchantment enchantment : enchantmentsToDelete) {
+        // Additionally let each active adapter strip its own (e.g. vane:*) enchantments, which are
+        // not part of the book's vanilla stored-enchant set.
+        for (ISupportedPlugin activatedPlugin : activatedPlugins) {
+            List<IPluginEnchantment> pluginEnchantments = activatedPlugin.getItemEnchantments(result, p.getWorld());
+
+            for (IPluginEnchantment enchantment : pluginEnchantments) {
                 // Use removeFromBook since firstItem is always an ENCHANTED_BOOK in shatterment
                 finalFirstItem = enchantment.removeFromBook(finalFirstItem);
             }
-        } else {
-            for (ISupportedPlugin activatedPlugin : activatedPlugins) {
-                List<IPluginEnchantment> pluginEnchantments = activatedPlugin.getItemEnchantments(result, p.getWorld());
+        }
 
-                for (IPluginEnchantment enchantment : pluginEnchantments) {
-                    // Use removeFromBook since firstItem is always an ENCHANTED_BOOK in shatterment
-                    finalFirstItem = enchantment.removeFromBook(finalFirstItem);
-                }
-            }
-
-            for (IPluginEnchantment enchantment : enchantmentsToDelete) {
-                // Use removeFromBook since firstItem is always an ENCHANTED_BOOK in shatterment
-                finalFirstItem = enchantment.removeFromBook(finalFirstItem);
-            }
+        for (IPluginEnchantment enchantment : enchantmentsToDelete) {
+            // Use removeFromBook since firstItem is always an ENCHANTED_BOOK in shatterment
+            finalFirstItem = enchantment.removeFromBook(finalFirstItem);
         }
 
         // Shatterment plugins

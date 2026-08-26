@@ -79,6 +79,51 @@ class DisenchantEventAdapterTest extends DisenchantmentTestBase {
         assertTrue(meta.hasStoredEnchant(enchantment("efficiency")));
     }
 
+    // -> issue #73: a namespace-scoped adapter (e.g. Vane) that reports no vanilla
+    //    enchantments must NOT suppress collection of the item's real vanilla enchantments.
+    //    A MockPluginAdapter with no enchantments returns an empty list for any item,
+    //    reproducing how Vane's adapter ignores minecraft:* enchantments.
+
+    @Test
+    void givenNamespaceScopedAdapterActive_withVanillaEnchantedItem_thenResultStillProduced() {
+        activateMockPlugin(new MockPluginAdapter("Vane"));
+        PlayerMock player = server.addPlayer("TestPlayer");
+        ItemStack sword = new ItemStack(Material.DIAMOND_SWORD);
+        sword.addUnsafeEnchantment(enchantment("sharpness"), 5);
+        PrepareAnvilEvent event = buildAnvilEvent(player, sword, new ItemStack(Material.BOOK));
+
+        DisenchantEvent.onEvent(event);
+
+        ItemStack result = event.getResult();
+        assertNotNull(result, "Vanilla enchantments must still be collected when a namespace-scoped adapter is active (issue #73)");
+        assertEquals(Material.ENCHANTED_BOOK, result.getType());
+        EnchantmentStorageMeta meta = (EnchantmentStorageMeta) result.getItemMeta();
+        assertNotNull(meta);
+        assertTrue(meta.hasStoredEnchant(enchantment("sharpness")));
+    }
+
+    // -> issue #73: when an adapter is active AND the item also carries a real vanilla
+    //    enchantment, BOTH the vanilla and the adapter enchantments must appear in the result.
+    //    (Vanilla is now collected unconditionally, in addition to the adapter's own keys.)
+
+    @Test
+    void givenAdapterActive_withItemAlsoVanillaEnchanted_thenResultContainsBoth() {
+        activateMockPlugin(new MockPluginAdapter("EcoEnchants", mockEnchant("efficiency", 3)));
+        PlayerMock player = server.addPlayer("TestPlayer");
+        ItemStack sword = new ItemStack(Material.DIAMOND_SWORD);
+        sword.addUnsafeEnchantment(enchantment("sharpness"), 5);
+        PrepareAnvilEvent event = buildAnvilEvent(player, sword, new ItemStack(Material.BOOK));
+
+        DisenchantEvent.onEvent(event);
+
+        ItemStack result = event.getResult();
+        assertNotNull(result);
+        EnchantmentStorageMeta meta = (EnchantmentStorageMeta) result.getItemMeta();
+        assertNotNull(meta);
+        assertTrue(meta.hasStoredEnchant(enchantment("sharpness")), "Vanilla enchantment must be collected alongside the adapter's");
+        assertTrue(meta.hasStoredEnchant(enchantment("efficiency")), "Adapter enchantment must also be present");
+    }
+
     @Test
     void givenAdapterActive_withDISABLEEnchant_thenResultNotSet() {
         setDisenchantEnchantmentStates(List.of("mending:disable"));

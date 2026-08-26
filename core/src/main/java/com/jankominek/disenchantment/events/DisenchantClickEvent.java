@@ -176,26 +176,27 @@ public class DisenchantClickEvent {
 
         EnchantmentStorageMeta resultItemMeta = (EnchantmentStorageMeta) result.getItemMeta();
 
-        if (activatedPlugins.isEmpty()) {
-            if (resultItemMeta == null) return;
+        if (resultItemMeta == null) return;
 
-            finalFirstItem = EnchantmentUtils.removeEnchantments(finalFirstItem, resultItemMeta.getStoredEnchants());
+        // Always remove the vanilla/Bukkit enchantments recorded on the result book from the
+        // source item — this must NOT depend on whether a custom enchantment plugin is active.
+        // A namespace-scoped adapter (e.g. Vane) reports no vanilla enchantments, so gating this
+        // on "no plugins active" left them on the source item: the book was delivered while the
+        // item kept its enchantments — an item dupe (issue #73).
+        finalFirstItem = EnchantmentUtils.removeEnchantments(finalFirstItem, resultItemMeta.getStoredEnchants());
 
-            for (IPluginEnchantment enchantment : enchantmentsToDelete) {
+        // Additionally let each active adapter strip its own (e.g. vane:*) enchantments, which are
+        // not part of the book's vanilla stored-enchant set.
+        for (ISupportedPlugin activatedPlugin : activatedPlugins) {
+            List<IPluginEnchantment> pluginEnchantments = activatedPlugin.getItemEnchantments(result, p.getWorld());
+
+            for (IPluginEnchantment enchantment : pluginEnchantments) {
                 finalFirstItem = enchantment.removeFromItem(finalFirstItem);
             }
-        } else {
-            for (ISupportedPlugin activatedPlugin : activatedPlugins) {
-                List<IPluginEnchantment> pluginEnchantments = activatedPlugin.getItemEnchantments(result, p.getWorld());
+        }
 
-                for (IPluginEnchantment enchantment : pluginEnchantments) {
-                    finalFirstItem = enchantment.removeFromItem(finalFirstItem);
-                }
-            }
-
-            for (IPluginEnchantment enchantment : enchantmentsToDelete) {
-                finalFirstItem = enchantment.removeFromItem(finalFirstItem);
-            }
+        for (IPluginEnchantment enchantment : enchantmentsToDelete) {
+            finalFirstItem = enchantment.removeFromItem(finalFirstItem);
         }
 
         // Supported plugins

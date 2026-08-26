@@ -3,6 +3,7 @@ package com.jankominek.disenchantment.events;
 import com.jankominek.disenchantment.DisenchantmentTestBase;
 import com.jankominek.disenchantment.events.api.PostDisenchantEvent;
 import com.jankominek.disenchantment.events.api.PreDisenchantEvent;
+import com.jankominek.disenchantment.plugins.MockPluginAdapter;
 import com.jankominek.disenchantment.utils.EnchantmentUtils;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
@@ -144,6 +145,26 @@ class DisenchantClickEventTest extends DisenchantmentTestBase {
         DisenchantClickEvent.onEvent(event);
 
         assertEquals(Material.ENCHANTED_BOOK, player.getItemOnCursor().getType(), "Result book must be placed on cursor");
+    }
+
+    // -> issue #73: with a namespace-scoped adapter (Vane) active, a vanilla enchantment
+    //    must still be stripped from the source item. Otherwise the book is delivered while
+    //    the item keeps its enchantment — a dupe.
+
+    @Test
+    void givenNamespaceScopedAdapterActive_whenDisenchantVanillaItem_thenEnchantmentRemovedFromSource() {
+        activateMockPlugin(new MockPluginAdapter("Vane"));
+        PlayerMock player = server.addPlayer("TestPlayer");
+        player.setLevel(10);
+        Enchantment sharpness = enchantment("sharpness");
+
+        InventoryClickEvent event = buildClickEvent(player, sword("sharpness", 5), new ItemStack(Material.BOOK), enchantedBook("sharpness", 5));
+        DisenchantClickEvent.onEvent(event);
+
+        ArgumentCaptor<ItemStack> captor = ArgumentCaptor.forClass(ItemStack.class);
+        Mockito.verify(lastMockAnvil).setItem(eq(0), captor.capture());
+        assertFalse(captor.getValue().containsEnchantment(sharpness),
+                "Sharpness must be removed from source item even when a namespace-scoped adapter is active (issue #73)");
     }
 
     // -> plugin disabled

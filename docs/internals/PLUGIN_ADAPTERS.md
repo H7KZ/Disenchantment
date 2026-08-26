@@ -119,14 +119,24 @@ Clears `activatedPlugins`. Called during `disable()`.
 
 ### How adapters are used in event handlers
 
-`AnvilEventGuards.collectEnchantments()` checks `SupportedPluginManager.getAllActivatedPlugins()`:
+`AnvilEventGuards.collectEnchantments()` always collects from both sources, in this order:
 
-- If empty: calls the vanilla collector (uses `EnchantmentUtils.getItemEnchantments()`).
-- If non-empty: calls the plugin-specific collector for each adapter. Each adapter provides enchantments from its own
-  registry.
+- First, the vanilla collector (uses `EnchantmentUtils.getItemEnchantments()`) seeds every key it finds.
+- Then, for each activated adapter (`SupportedPluginManager.getAllActivatedPlugins()`), the plugin-specific collector
+  overlays the adapter's own enchantments.
 
-After collection, enchantments are deduplicated by key (first occurrence wins) to prevent double-charging when both a
-vanilla wrapper and a plugin wrapper claim the same key.
+The vanilla collector runs unconditionally — even when adapters are active — because a namespace-scoped adapter (e.g.
+Vane) reports only its own enchantments and returns an empty list for a normal item's `minecraft:*` enchantments. Gating
+the vanilla collector on "no adapters active" dropped those enchantments entirely whenever such an adapter was present,
+leaving the anvil output empty (issue #73).
+
+Deduplication is by key: vanilla seeds each key first (`putIfAbsent`), then plugin adapters overlay on collision
+(`put`), so an adapter that owns a key keeps its custom add-to-book/lore handling while vanilla supplies the keys no
+adapter claims. This prevents double-charging when both a vanilla wrapper and a plugin wrapper claim the same key.
+
+The click-side removal paths (`DisenchantClickEvent`, `ShatterClickEvent`) mirror this: they always strip the result
+book's vanilla stored enchantments from the source item **and** let each active adapter strip its own keys, so a
+namespace-scoped adapter no longer leaves vanilla enchantments on the source (an item dupe — issue #73).
 
 ---
 

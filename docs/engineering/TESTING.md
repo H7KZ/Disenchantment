@@ -144,7 +144,8 @@ Verifies `PrepareAnvilEvent` handling end-to-end:
 Verifies that activated third-party adapters are consulted during enchantment collection:
 
 - When a `MockPluginAdapter` is active and returns enchantments, those enchantments appear in the result.
-- When no adapter is active, vanilla enchantments are used.
+- Vanilla enchantments are always collected — adapter active or not. A namespace-scoped adapter (e.g. Vane) that
+  reports no vanilla enchantments must not suppress the item's own `minecraft:*` enchantments (issue #73).
 
 ### `EventUtilsDisenchantTest` / `EventUtilsShatterTest`
 
