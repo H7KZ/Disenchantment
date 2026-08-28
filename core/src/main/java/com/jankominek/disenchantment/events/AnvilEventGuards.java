@@ -124,22 +124,26 @@ public final class AnvilEventGuards {
             World world) {
 
         List<ISupportedPlugin> activatedPlugins = SupportedPluginManager.getAllActivatedPlugins();
-        List<IPluginEnchantment> enchantments = new ArrayList<>();
 
-        if (activatedPlugins.isEmpty()) {
-            enchantments.addAll(baseCollector.collect(firstItem, secondItem, isPrepare));
-        } else {
-            for (ISupportedPlugin activatedPlugin : activatedPlugins) {
-                enchantments.addAll(pluginCollector.collect(firstItem, secondItem, isPrepare, activatedPlugin, world));
+        // Always collect the vanilla enchantments first, THEN overlay any activated adapters.
+        // A namespace-scoped adapter (e.g. Vane) only reports its own enchantments and returns
+        // an empty list for a normal item's minecraft:* enchantments — so gating the vanilla
+        // collector on "no plugins active" dropped those enchantments entirely whenever Vane was
+        // present, leaving the anvil output empty (issue #73). Deduplicate by key; vanilla seeds
+        // each key first (putIfAbsent) and plugin adapters overlay on collision (put) so an
+        // adapter that owns a key keeps its custom add-to-book/lore handling.
+        Map<String, IPluginEnchantment> seen = new LinkedHashMap<>();
+
+        for (IPluginEnchantment enc : baseCollector.collect(firstItem, secondItem, isPrepare)) {
+            seen.putIfAbsent(enc.getKey(), enc);
+        }
+
+        for (ISupportedPlugin activatedPlugin : activatedPlugins) {
+            for (IPluginEnchantment enc : pluginCollector.collect(firstItem, secondItem, isPrepare, activatedPlugin, world)) {
+                seen.put(enc.getKey(), enc);
             }
         }
 
-        // Deduplicate by key — first occurrence wins. Prevents double-cost/double-removal
-        // when multiple adapters claim the same enchantment key.
-        Map<String, IPluginEnchantment> seen = new LinkedHashMap<>();
-        for (IPluginEnchantment enc : enchantments) {
-            seen.putIfAbsent(enc.getKey(), enc);
-        }
         return new ArrayList<>(seen.values());
     }
 
