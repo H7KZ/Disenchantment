@@ -211,17 +211,35 @@ public class ShatterClickEvent {
 
         // Per-enchantment chance roll — failed enchantments are destroyed (already stripped from
         // the source book above via the full stored-enchant set) rather than transferred to the result.
+        //
+        // In the same pass, restore each surviving enchantment's raw source level. The book pulled
+        // from the anvil result slot may have had above-vanilla-max levels clamped down during the
+        // PrepareAnvilEvent → result-slot round-trip (e.g. Unbreaking 4 → 3, issue #76). We re-stamp
+        // from the freshly collected source levels via addStoredEnchant(..., true) and deliver the
+        // book straight to the cursor, so the restored level is not clamped again.
         if (resultItemMeta != null) {
+            Map<String, Integer> sourceLevels = new HashMap<>();
+            for (IPluginEnchantment ench : enchantments) sourceLevels.put(ench.getKey().toLowerCase(), ench.getLevel());
+
             Map<org.bukkit.enchantments.Enchantment, Integer> stored = new HashMap<>(resultItemMeta.getStoredEnchants());
-            boolean rollChanged = false;
+            boolean metaChanged = false;
             for (Map.Entry<org.bukkit.enchantments.Enchantment, Integer> entry : stored.entrySet()) {
-                double chance = Config.Shatterment.getEnchantmentChance(entry.getKey().getKey().getKey());
+                org.bukkit.enchantments.Enchantment enchantment = entry.getKey();
+
+                double chance = Config.Shatterment.getEnchantmentChance(enchantment.getKey().getKey());
                 if (chance < 1.0 && Math.random() >= chance) {
-                    resultItemMeta.removeStoredEnchant(entry.getKey());
-                    rollChanged = true;
+                    resultItemMeta.removeStoredEnchant(enchantment);
+                    metaChanged = true;
+                    continue;
+                }
+
+                Integer rawLevel = sourceLevels.get(enchantment.getKey().getKey().toLowerCase());
+                if (rawLevel != null && !rawLevel.equals(entry.getValue())) {
+                    resultItemMeta.addStoredEnchant(enchantment, rawLevel, true);
+                    metaChanged = true;
                 }
             }
-            if (rollChanged) result.setItemMeta(resultItemMeta);
+            if (metaChanged) result.setItemMeta(resultItemMeta);
         }
 
         p.setItemOnCursor(result);
