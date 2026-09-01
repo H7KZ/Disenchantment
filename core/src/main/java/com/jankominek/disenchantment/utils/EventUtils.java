@@ -351,7 +351,7 @@ public class EventUtils {
 
     // Strips namespace prefix (e.g. "minecraft:mending" → "mending") so config keys written
     // with or without a namespace both match server-returned short keys.
-    static String normalizeKey(String key) {
+    public static String normalizeKey(String key) {
         int colon = key.indexOf(':');
         return colon >= 0 ? key.substring(colon + 1) : key;
     }

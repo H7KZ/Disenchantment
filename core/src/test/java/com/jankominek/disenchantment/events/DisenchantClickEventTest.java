@@ -227,6 +227,30 @@ class DisenchantClickEventTest extends DisenchantmentTestBase {
         // If operation was skipped entirely (e.g. pre-event cancelled), that's also acceptable
     }
 
+    // -> issue #76: an above-vanilla-max source level must survive to the delivered book, even
+    //    when the anvil result slot carries a clamped-down level (simulates the server clamping
+    //    the level during the PrepareAnvilEvent → result-slot round-trip).
+
+    @Test
+    void givenResultSlotBookClampedBelowSourceLevel_whenClickResult_thenDeliveredBookKeepsRawLevel() {
+        PlayerMock player = server.addPlayer("TestPlayer");
+        player.setLevel(10);
+        Enchantment unbreaking = enchantment("unbreaking");
+
+        // Source item is Unbreaking 4 (above the vanilla max of 3); result slot holds a book whose
+        // level has been clamped to 3, as a clamping server would leave it in slot 2.
+        InventoryClickEvent event = buildClickEvent(player, sword("unbreaking", 4), new ItemStack(Material.BOOK), enchantedBook("unbreaking", 3));
+        DisenchantClickEvent.onEvent(event);
+
+        ItemStack cursor = player.getItemOnCursor();
+        assertEquals(Material.ENCHANTED_BOOK, cursor.getType(), "Result book must be placed on cursor");
+        org.bukkit.inventory.meta.EnchantmentStorageMeta meta =
+                (org.bukkit.inventory.meta.EnchantmentStorageMeta) cursor.getItemMeta();
+        assertNotNull(meta, "Result book must have stored-enchant meta");
+        assertEquals(4, meta.getStoredEnchantLevel(unbreaking),
+                "Delivered book must carry the raw source level (4), not the clamped result-slot level (3) — issue #76");
+    }
+
     // -> PreDisenchantEvent enchantment list: removing from list prevents that DELETE from running
 
     @Test
