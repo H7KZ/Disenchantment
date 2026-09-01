@@ -219,7 +219,7 @@ public class DisenchantClickEvent {
         // book straight to the cursor, so the restored level is not clamped again.
         if (resultItemMeta != null) {
             Map<String, Integer> sourceLevels = new HashMap<>();
-            for (IPluginEnchantment ench : enchantments) sourceLevels.put(ench.getKey().toLowerCase(), ench.getLevel());
+            for (IPluginEnchantment ench : enchantments) sourceLevels.put(EventUtils.normalizeKey(ench.getKey()).toLowerCase(), ench.getLevel());
 
             Map<org.bukkit.enchantments.Enchantment, Integer> stored = new HashMap<>(resultItemMeta.getStoredEnchants());
             boolean metaChanged = false;
@@ -233,7 +233,7 @@ public class DisenchantClickEvent {
                     continue;
                 }
 
-                Integer rawLevel = sourceLevels.get(enchantment.getKey().getKey().toLowerCase());
+                Integer rawLevel = sourceLevels.get(EventUtils.normalizeKey(enchantment.getKey().getKey()).toLowerCase());
                 if (rawLevel != null && !rawLevel.equals(entry.getValue())) {
                     resultItemMeta.addStoredEnchant(enchantment, rawLevel, true);
                     metaChanged = true;

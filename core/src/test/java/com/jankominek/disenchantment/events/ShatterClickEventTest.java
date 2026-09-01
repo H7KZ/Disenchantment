@@ -19,6 +19,7 @@ import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -100,5 +101,30 @@ class ShatterClickEventTest extends DisenchantmentTestBase {
                 "Split enchantment must be removed from source book even when a namespace-scoped adapter is active (issue #73)");
         assertTrue(meta.hasStoredEnchant(enchantment("unbreaking")),
                 "Non-split enchantment must remain on the source book");
+    }
+
+    // -> issue #76: an above-vanilla-max source level must survive to the delivered split book,
+    //    even when the anvil result slot carries a clamped-down level (simulates the server
+    //    clamping the level during the PrepareAnvilEvent → result-slot round-trip).
+
+    @Test
+    void givenResultSlotBookClampedBelowSourceLevel_whenClickResult_thenDeliveredBookKeepsRawLevel() {
+        PlayerMock player = server.addPlayer("TestPlayer");
+        player.setLevel(10);
+
+        // Source book holds Unbreaking 4 (above the vanilla max of 3); the split-off result book
+        // has been clamped to 3, as a clamping server would leave it in slot 2.
+        ItemStack sourceBook = enchantedBook("unbreaking", "4", "sharpness", "1");
+        ItemStack resultBook = enchantedBook("unbreaking", "3");
+
+        InventoryClickEvent event = buildClickEvent(player, sourceBook, new ItemStack(Material.BOOK), resultBook);
+        ShatterClickEvent.onEvent(event);
+
+        ItemStack cursor = player.getItemOnCursor();
+        assertEquals(Material.ENCHANTED_BOOK, cursor.getType(), "Result book must be placed on cursor");
+        EnchantmentStorageMeta meta = (EnchantmentStorageMeta) cursor.getItemMeta();
+        assertNotNull(meta, "Result book must have stored-enchant meta");
+        assertEquals(4, meta.getStoredEnchantLevel(enchantment("unbreaking")),
+                "Delivered book must carry the raw source level (4), not the clamped result-slot level (3) — issue #76");
     }
 }
