@@ -18,9 +18,9 @@ Step-by-step guide for installing Disenchantment on your Minecraft server.
 
 | Requirement     | Version                          |
 |-----------------|----------------------------------|
-| Java            | 21 or newer                      |
+| Java            | 17+ (21+ on Minecraft 1.20.5+)   |
 | Server software | Spigot, Paper, or Folia          |
-| Minecraft       | 1.18 – 1.21.x (including 26.1.x) |
+| Minecraft       | 1.18 – 26.x (tested on 26.3)     |
 
 Disenchantment does not require any additional plugins to function. Vault is optional and only needed for economy cost
 integration.
@@ -53,7 +53,7 @@ Always download the latest release. Do not download from unofficial sources.
    [Disenchantment] NMS module resolved: v1_21_R5
    ```
    If you see `INCOMPATIBLE` or an error at startup, check that your Minecraft version is supported and that you are
-   running Java 21+.
+   running Java 17+ (21+ on Minecraft 1.20.5+).
 
 5. **Configure** the plugin by editing `plugins/Disenchantment/config.yml`, or use the in-game GUI with
    `/disenchantment gui` (requires operator or the `disenchantment.command.gui` permission). See [CONFIG.md](CONFIG.md)

@@ -1,100 +1,125 @@
-# Disenchantment
+<p align="center">
+  <img src="assets/banner.png" alt="Disenchantment — Right Enchant, Wrong Item? Never Again." width="100%">
+</p>
 
-[![GitHub Release](https://img.shields.io/github/v/release/H7KZ/Disenchantment?style=flat-square)](https://github.com/H7KZ/Disenchantment/releases/latest)
-[![License](https://img.shields.io/github/license/H7KZ/Disenchantment?style=flat-square)](LICENSE)
-[![Minecraft](https://img.shields.io/badge/Minecraft-1.18--1.21.+-brightgreen?style=flat-square)](https://www.spigotmc.org/resources/110741)
-[![Java](https://img.shields.io/badge/Java-21%2B-orange?style=flat-square)](https://adoptium.net/)
-[![Modrinth](https://img.shields.io/modrinth/dt/disenchantment?style=flat-square&label=Modrinth)](https://modrinth.com/plugin/disenchantment)
-[![SpigotMC](https://img.shields.io/spiget/downloads/110741)](https://www.spigotmc.org/resources/110741)
-[![Players](https://img.shields.io/bstats/players/19058)](https://bstats.org/plugin/bukkit/Disenchantment/19058)
-[![Servers](https://img.shields.io/bstats/servers/19058)](https://bstats.org/plugin/bukkit/Disenchantment/19058)
+<p align="center">
+  <a href="https://github.com/H7KZ/Disenchantment/releases/latest"><img src="https://img.shields.io/github/v/release/H7KZ/Disenchantment?style=flat-square" alt="GitHub Release"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue?style=flat-square" alt="License: MIT"></a>
+  <a href="https://www.spigotmc.org/resources/110741"><img src="https://img.shields.io/badge/Minecraft-1.18%20--%2026.x-brightgreen?style=flat-square" alt="Minecraft 1.18 - 26.x"></a>
+  <a href="https://modrinth.com/plugin/disenchantment"><img src="https://img.shields.io/modrinth/dt/disenchantment?style=flat-square&label=Modrinth" alt="Modrinth downloads"></a>
+  <a href="https://www.spigotmc.org/resources/110741"><img src="https://img.shields.io/spiget/downloads/110741?style=flat-square&label=SpigotMC" alt="SpigotMC downloads"></a>
+  <a href="https://bstats.org/plugin/bukkit/Disenchantment/19058"><img src="https://img.shields.io/bstats/servers/19058?style=flat-square" alt="Servers"></a>
+  <a href="https://bstats.org/plugin/bukkit/Disenchantment/19058"><img src="https://img.shields.io/bstats/players/19058?style=flat-square" alt="Players"></a>
+</p>
 
-![event.png](assets/event.png)
+**Disenchantment** lets players pull enchantments off items and split enchanted books — using nothing but the vanilla
+anvil. No new blocks, no custom menus for players, no resource pack. Drop it in and it just works on Spigot, Paper and
+Folia from Minecraft 1.18 to 26.x.
 
-A lightweight Spigot/Paper/Folia plugin that enhances the vanilla enchanting system by adding powerful, intuitive
-mechanics to the standard anvil. Give your players the tools to manage their enchantments efficiently, without adding
-any new blocks or complex systems.
+<p align="center">
+  <img src="assets/gifs/before-after.gif" alt="Vanilla anvil refuses a sword and book; with Disenchantment the anvil produces an enchanted book" width="100%">
+</p>
 
 ## Features
 
-### Disenchanting: Reclaim Your Enchantments
+### Disenchant items onto books
 
-Ever found a nearly-broken tool with a rare enchantment you wish you could save? The disenchanting mechanic provides a
-straightforward solution.
+Put an enchanted item in the first anvil slot and a plain book in the second. Take the result and every enchantment
+moves onto the book; the item comes back clean. Works on swords, tools, armor — anything enchantable.
 
-- **Simple Anvil Process** - Place the enchanted item in the first anvil slot and a book in the second.
-- **Controlled Transfer** - For a configurable XP cost, the enchantment is removed from the item and transferred to the
-  book, leaving the original item clean. Players can salvage valuable enchantments from worn-out or obsolete gear.
+<p align="center">
+  <img src="assets/gifs/disenchant.gif" alt="A sword with five enchantments and a book in the anvil produce an enchanted book holding all five" width="70%">
+</p>
 
-### Book Splitting: Divide Your Enchanted Books
+### Split enchanted books
 
-Need just one enchantment from a book with many? Book Splitting allows for precise, strategic use of your enchanted
-books.
+Put a multi-enchantment book in the first slot and a plain book in the second. One enchantment splits off onto the new
+book; the original keeps the rest. Repeat until every enchantment has its own book.
 
-- **Intuitive Splitting** - Combine a multi-enchantment book with a blank book on the anvil to lift a single enchantment
-  off the original.
-- **Strategic Application** - Results in two books: the original with one less enchantment, and a new book with the
-  single enchantment that was split off. This enables targeted application and a more dynamic server economy.
+<p align="center">
+  <img src="assets/gifs/split.gif" alt="An enchanted book with five enchantments is split one enchantment at a time" width="70%">
+</p>
 
-### Economy Integration
+### Decide what each enchantment does
 
-Server owners can optionally require players to pay an in-game currency cost for each disenchant or shatter operation,
-in addition to (or instead of) the XP cost.
+Every enchantment can be set to **enable** (transfer to the book), **keep** (stay on the item), **delete** (destroyed)
+or **disable** (block the operation). Group enchantments together and change a whole group with one command.
 
-- Requires [Vault](https://www.spigotmc.org/resources/34315/) and any compatible economy plugin (EssentialsX, CMI,
-  PlayerPoints, etc.).
-- Configurable flat cost per operation, independently for disenchanting and book splitting.
-- Cost is previewed in the action bar while the player has a result ready in the anvil.
-- Disabled by default — zero impact if Vault is not installed.
+<p align="center">
+  <img src="assets/gifs/keep-enchant.gif" alt="With Mending set to keep, the book receives four enchantments and the sword keeps Mending" width="70%">
+</p>
 
-### Why Choose This Plugin?
+### Configure everything in-game
 
-- **Truly Vanilla-Friendly** - No new machines or confusing UIs. All functions are handled through the standard anvil.
-- **Lightweight & Efficient** - Adds valuable features without causing server lag or performance issues.
-- **Fully Customizable** - Configure XP costs, economy costs, per-world/per-enchantment/per-material restrictions, event
-  priorities, and more.
-- **Economy Ready** - Optional Vault integration lets server owners add a currency cost to every operation.
-- **Folia Support** - Compatible with the Folia server software for regionized multithreading.
+`/disenchantment gui` opens an admin panel for every setting — worlds, enchantments, materials, XP cost, sounds,
+economy, split count and live statistics. Changes save to `config.yml` instantly, no restart.
 
-## Installation
+<p align="center">
+  <img src="assets/gifs/gui-tour.gif" alt="The in-game admin GUI toggling disenchanting and shattering per world" width="60%">
+</p>
 
-### Requirements
+### Everything else
 
-- Java **21** or newer
-- Spigot, Paper, or Folia server running Minecraft **1.18 - 1.21.+**
+- **XP cost formula** — `base + (enchantment level × multiply)`, per-enchantment overrides, a max cost, optional
+  "Too Expensive!" bypass and repair-cost reset.
+- **Economy** — optional currency cost per operation through Vault or VaultUnlocked, previewed in the action bar.
+- **Restrictions** — allowlist or denylist by world and by material, separately for disenchanting and splitting.
+- **Success chances** — give individual enchantments a transfer chance; a failed roll destroys that enchantment.
+- **Cooldowns** — built-in, or delegated to CMI or EssentialsX.
+- **VIP discounts** — XP cost multiplier from LuckPerms meta or `disenchantment.discount.<N>` permissions.
+- **Statistics** — optional SQLite log of every operation, browsable in the GUI and via `/disenchantment stats`.
+- **Developer API** — cancellable `Pre*`/`Post*` events carrying XP and economy cost, plus PlaceholderAPI placeholders.
+- **Custom enchantments** — built-in adapters for seven popular enchantment plugins (see below).
+- **Languages** — English and Czech out of the box.
 
-### Download
+<p align="center">
+  <img src="assets/screenshots/gui-enchantments.png" alt="Enchantments GUI" width="32%">
+  <img src="assets/screenshots/gui-navigation.png" alt="Navigation GUI" width="32%">
+  <img src="assets/screenshots/gui-statistics.png" alt="Statistics GUI" width="32%">
+</p>
 
-Get the latest release from any of these sources:
+## Quick start
 
-- [GitHub Releases](https://github.com/H7KZ/Disenchantment/releases/latest)
-- [SpigotMC](https://www.spigotmc.org/resources/110741)
-- [Modrinth](https://modrinth.com/plugin/disenchantment)
+1. Download the latest `Disenchantment-<version>.jar` from
+   [Modrinth](https://modrinth.com/plugin/disenchantment), [SpigotMC](https://www.spigotmc.org/resources/110741) or
+   [GitHub Releases](https://github.com/H7KZ/Disenchantment/releases/latest).
+2. Drop it into your server's `plugins/` folder and restart.
+3. Done — players can use the anvil right away. Tune it with `/disenchantment gui` or
+   `plugins/Disenchantment/config.yml`.
 
-### Setup
+**Requirements:** Spigot, Paper or Folia · Minecraft 1.18 – 26.x · Java 17+ (Java 21+ on 1.20.5 and newer).
+Vault, PlaceholderAPI, LuckPerms, CMI and EssentialsX are all optional.
 
-1. Download the `Disenchantment-<version>.jar` file.
-2. Place the JAR in your server's `plugins/` directory.
-3. Restart the server.
-4. Edit `plugins/Disenchantment/config.yml` to customize settings or use ingame admin UI with `/disenchantment gui`.
+## Supported custom enchantment plugins
 
-## Supported Custom Enchantment Plugins
-
-| Plugin                                                           | 1.21.8 - 1.21.11+ | 1.21.7 - 1.21.5 | 1.21.4 - 1.21 | 1.20.6 - 1.20.5 | 1.20.4 - 1.18 |
-|------------------------------------------------------------------|:-----------------:|:---------------:|:-------------:|:---------------:|:-------------:|
-| [AdvancedEnchantments](https://www.spigotmc.org/resources/43058) |        ✓         |       ✓        |      ✓       |       ✓        |      ✓       |
-| [EcoEnchants](https://www.spigotmc.org/resources/79573)          |        ✓         |       ✓        |      ✓       |       ✓        |      ✓       |
-| [EnchantsSquared](https://www.spigotmc.org/resources/86747)      |        ✓         |       ✓        |      ✓       |       ✓        |      ✓       |
-| [UberEnchant](https://www.spigotmc.org/resources/19448)          |        ✓         |       ✓        |      ✓       |       ✓        |      ✓       |
-| [ExcellentEnchants](https://www.spigotmc.org/resources/61693)    |        ✓         |       ✓        |      ✓       |        -        |       -       |
-| [Vane](https://modrinth.com/plugin/vane)                         |        ✓         |       ✓        |      ✓       |        -        |       -       |
-| [Zenchantments](https://github.com/moikheck/Zenchantments)       |        ✓         |       ✓        |      ✓       |        -        |       -       |
+| Plugin                                                           | 1.21.8 – 26.x | 1.21.5 – 1.21.7 | 1.21 – 1.21.4 | 1.20.5 – 1.20.6 | 1.18 – 1.20.4 |
+|------------------------------------------------------------------|:-------------:|:---------------:|:-------------:|:---------------:|:-------------:|
+| [AdvancedEnchantments](https://www.spigotmc.org/resources/43058) |       ✓       |        ✓        |       ✓       |        ✓        |       ✓       |
+| [EcoEnchants](https://www.spigotmc.org/resources/79573)          |       ✓       |        ✓        |       ✓       |        ✓        |       ✓       |
+| [EnchantsSquared](https://www.spigotmc.org/resources/86747)      |       ✓       |        ✓        |       ✓       |        ✓        |       ✓       |
+| [UberEnchant](https://www.spigotmc.org/resources/19448)          |       ✓       |        ✓        |       ✓       |        ✓        |       ✓       |
+| [ExcellentEnchants](https://www.spigotmc.org/resources/61693)    |       ✓       |        ✓        |       ✓       |        –        |       –       |
+| [Vane](https://modrinth.com/plugin/vane)                         |       ✓       |        ✓        |       ✓       |        –        |       –       |
+| [Zenchantments](https://github.com/moikheck/Zenchantments)       |       ✓       |        ✓        |       ✓       |        –        |       –       |
 
 > **Note:** EcoEnchants V13.0.0 is supported natively with Disenchantment 6.4.0+. No patched build is required.
 
+## Commands & permissions
+
+| Command                              | What it does                         | Permission (default)                 |
+|--------------------------------------|--------------------------------------|--------------------------------------|
+| `/disenchantment gui`                | Open the admin GUI                   | `disenchantment.command.gui` (op)    |
+| `/disenchantment toggle`             | Turn the whole plugin on or off      | `disenchantment.command.toggle` (op) |
+| `/disenchantment reload`             | Reload `config.yml`                  | `disenchantment.command.reload` (op) |
+| `/disenchantment stats`              | Show operation statistics            | `disenchantment.command.stats` (op)  |
+| `/disenchantment help`               | List every command                   | `disenchantment.command.help` (op)   |
+| *(anvil)* disenchant / split a book  | Use the features at an anvil         | `disenchantment.anvil.all` (everyone)|
+
+Aliases: `/disenchant`. Full lists: [Commands](docs/user/COMMANDS.md) · [Permissions](docs/user/PERMISSIONS.md).
+
 ## Documentation
 
-Full documentation lives in the [`docs/`](docs/README.md) directory.
+Full documentation lives in [`docs/`](docs/README.md).
 
 | Audience                    | Start here                                                                             |
 |-----------------------------|----------------------------------------------------------------------------------------|
@@ -103,34 +128,30 @@ Full documentation lives in the [`docs/`](docs/README.md) directory.
 | Contributors & engineers    | [`docs/engineering/`](docs/engineering/README.md) — architecture, setup, contributing  |
 | Deep internals / LLM agents | [`docs/internals/`](docs/internals/README.md) — NMS, events, GUI, config system        |
 
-**Quick links:**
+**Quick links:** [Configuration](docs/user/CONFIG.md) · [How-To Guide](docs/user/HOW_TO.md) ·
+[FAQ](docs/user/FAQ.md) · [API events](docs/api/EVENTS.md) · [Placeholders](docs/api/PLACEHOLDERS.md)
 
-| Document                                | Description                                       |
-|-----------------------------------------|---------------------------------------------------|
-| [Commands](docs/user/COMMANDS.md)       | Full command reference with usage and permissions |
-| [Permissions](docs/user/PERMISSIONS.md) | All permission nodes and their defaults           |
-| [Configuration](docs/user/CONFIG.md)    | Complete configuration reference                  |
-| [FAQ](docs/user/FAQ.md)                 | Frequently asked questions and troubleshooting    |
-
-## Building from Source
+## Building from source
 
 ```bash
 mvn clean package
 ```
 
-The output JAR is written to `target/Disenchantment-<version>.jar`. See [CONTRIBUTING.md](CONTRIBUTING.md) for
-prerequisites and development setup.
+The output JAR is written to `target/Disenchantment-<version>.jar`. See
+[CONTRIBUTING.md](docs/engineering/CONTRIBUTING.md) for prerequisites (Spigot BuildTools) and development setup.
 
 ## Contributing
 
-Contributions are welcome! Please read the [Contributing Guidelines](CONTRIBUTING.md) before opening a pull request.
+Contributions are welcome! Please read the [Contributing Guidelines](docs/engineering/CONTRIBUTING.md) before opening a
+pull request. Bug reports: run `/disenchantment diagnostic` and paste the result into a
+[GitHub issue](https://github.com/H7KZ/Disenchantment/issues).
 
 ## Links
 
-- [SpigotMC](https://www.spigotmc.org/resources/110741)
-- [Modrinth](https://modrinth.com/plugin/disenchantment)
-- [bStats](https://bstats.org/plugin/bukkit/Disenchantment/19058)
-- [GitHub](https://github.com/H7KZ/Disenchantment)
+[Modrinth](https://modrinth.com/plugin/disenchantment) · [SpigotMC](https://www.spigotmc.org/resources/110741) ·
+[bStats](https://bstats.org/plugin/bukkit/Disenchantment/19058) · [GitHub](https://github.com/H7KZ/Disenchantment)
+
+Store-page descriptions and media live in [`store/`](store/README.md).
 
 ## License
 

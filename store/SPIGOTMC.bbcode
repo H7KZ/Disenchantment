@@ -1,0 +1,107 @@
+[CENTER][IMG]https://raw.githubusercontent.com/H7KZ/Disenchantment/master/assets/banner.png[/IMG]
+
+[SIZE=5][B]Right enchant, wrong item? [COLOR=#b388ff]Never again.[/COLOR][/B][/SIZE]
+
+Pull enchantments off items and split enchanted books, using nothing but the [B]vanilla anvil[/B].
+No new blocks · No player menus · No resource pack
+[B]Spigot · Paper · Folia[/B]  |  [B]Minecraft 1.18 – 26.x[/B]
+
+[URL='https://modrinth.com/plugin/disenchantment']Modrinth[/URL] · [URL='https://github.com/H7KZ/Disenchantment']GitHub[/URL] · [URL='https://github.com/H7KZ/Disenchantment/tree/master/docs/user']Documentation[/URL] · [URL='https://bstats.org/plugin/bukkit/Disenchantment/19058']bStats[/URL]
+
+[IMG]https://raw.githubusercontent.com/H7KZ/Disenchantment/master/assets/gifs/before-after.gif[/IMG][/CENTER]
+
+[SIZE=6][B][COLOR=#b388ff]✦[/COLOR] Disenchant items onto books[/B][/SIZE]
+Put an enchanted item in the first anvil slot and a plain book in the second. Every enchantment moves onto the book and the item comes back clean. Works on swords, tools, armor and anything else enchantable.
+
+[CENTER][IMG]https://raw.githubusercontent.com/H7KZ/Disenchantment/master/assets/gifs/disenchant.gif[/IMG][/CENTER]
+
+[SIZE=6][B][COLOR=#b388ff]✦[/COLOR] Split enchanted books[/B][/SIZE]
+Put a multi-enchantment book in the first slot and a plain book in the second. One enchantment splits off onto the new book and the original keeps the rest, so you can apply exactly the enchantment you want.
+
+[CENTER][IMG]https://raw.githubusercontent.com/H7KZ/Disenchantment/master/assets/gifs/split.gif[/IMG][/CENTER]
+
+[SIZE=6][B][COLOR=#b388ff]✦[/COLOR] Decide what each enchantment does[/B][/SIZE]
+Set any enchantment to one of four states:
+[LIST]
+[*][B][COLOR=#55ff55]enable[/COLOR][/B]: transfers to the book
+[*][B][COLOR=#55ffff]keep[/COLOR][/B]: stays on the item
+[*][B][COLOR=#ffaa00]delete[/COLOR][/B]: destroyed
+[*][B][COLOR=#ff5555]disable[/COLOR][/B]: blocks the operation
+[/LIST]
+Group enchantments and change a whole group with one command.
+
+[CENTER][IMG]https://raw.githubusercontent.com/H7KZ/Disenchantment/master/assets/gifs/keep-enchant.gif[/IMG][/CENTER]
+
+[SIZE=6][B][COLOR=#b388ff]✦[/COLOR] Configure everything in-game[/B][/SIZE]
+[B]/disenchantment gui[/B] opens an admin panel for every setting:
+[LIST]
+[*]Worlds, enchantments and materials
+[*]XP cost and sounds
+[*]Economy and split count
+[*]Live statistics
+[/LIST]
+Changes save instantly, with no restart and no YAML editing.
+
+[CENTER][IMG]https://raw.githubusercontent.com/H7KZ/Disenchantment/master/assets/gifs/gui-tour.gif[/IMG][/CENTER]
+
+[SIZE=6][B][COLOR=#b388ff]✦[/COLOR] Everything else[/B][/SIZE]
+[LIST]
+[*][B]XP cost formula[/B]: base + level × multiply, with per-enchantment overrides, a max cost, an optional "Too Expensive!" bypass and a repair-cost reset
+[*][B]Economy[/B]: an optional currency cost per operation through Vault / VaultUnlocked, previewed in the action bar
+[*][B]Restrictions[/B]: allowlist or denylist per world and per material, set separately for disenchanting and splitting
+[*][B]Success chances[/B]: give enchantments a transfer chance; a failed roll destroys that enchantment
+[*][B]Cooldowns[/B]: built-in, or handled by CMI or EssentialsX
+[*][B]VIP discounts[/B]: XP multiplier from LuckPerms meta or disenchantment.discount.<N> permissions
+[*][B]Statistics[/B]: an optional SQLite log of every operation, viewable in-game
+[*][B]Developer API[/B]: cancellable Pre/Post events with XP and economy cost, plus PlaceholderAPI placeholders
+[*][B]Languages[/B]: English and Czech
+[/LIST]
+
+[SIZE=6][B][COLOR=#b388ff]✦[/COLOR] Custom enchantment plugins[/B][/SIZE]
+These enchantment plugins work out of the box:
+[LIST]
+[*][URL='https://www.spigotmc.org/resources/43058']AdvancedEnchantments[/URL]: all versions
+[*][URL='https://www.spigotmc.org/resources/79573']EcoEnchants[/URL]: all versions (V13 supported natively since 6.4.0)
+[*][URL='https://www.spigotmc.org/resources/86747']EnchantsSquared[/URL]: all versions
+[*][URL='https://www.spigotmc.org/resources/19448']UberEnchant[/URL]: all versions
+[*][URL='https://www.spigotmc.org/resources/61693']ExcellentEnchants[/URL]: 1.21+
+[*][URL='https://modrinth.com/plugin/vane']Vane[/URL]: 1.21+
+[*][URL='https://github.com/moikheck/Zenchantments']Zenchantments[/URL]: 1.21+
+[/LIST]
+
+[SIZE=6][B][COLOR=#b388ff]✦[/COLOR] Installation[/B][/SIZE]
+[LIST=1]
+[*]Download the jar and put it in your [B]plugins/[/B] folder.
+[*]Restart the server.
+[*]That's it. Tune it later with [B]/disenchantment gui[/B] or [B]plugins/Disenchantment/config.yml[/B].
+[/LIST]
+[B]Requirements:[/B]
+[LIST]
+[*]Spigot, Paper or Folia, Minecraft 1.18 – 26.x
+[*]Java 17+ (Java 21+ on 1.20.5 and newer)
+[*]Optional: Vault, PlaceholderAPI, LuckPerms, CMI, EssentialsX
+[/LIST]
+
+[SPOILER="Commands & permissions"]
+[LIST]
+[*][B]/disenchantment gui[/B]: open the admin GUI (disenchantment.command.gui, op)
+[*][B]/disenchantment toggle[/B]: turn the plugin on or off (disenchantment.command.toggle, op)
+[*][B]/disenchantment reload[/B]: reload config.yml (disenchantment.command.reload, op)
+[*][B]/disenchantment stats[/B]: show operation statistics (disenchantment.command.stats, op)
+[*][B]/disenchantment diagnostic[/B]: build a bug-report snippet (disenchantment.command.diagnostic, op)
+[*][B]Anvil use[/B]: disenchantment.anvil.all, or .disenchant / .shatter individually (everyone)
+[/LIST]
+Alias: /disenchant
+Full reference: [URL='https://github.com/H7KZ/Disenchantment/blob/master/docs/user/COMMANDS.md']Commands[/URL] · [URL='https://github.com/H7KZ/Disenchantment/blob/master/docs/user/PERMISSIONS.md']Permissions[/URL] · [URL='https://github.com/H7KZ/Disenchantment/blob/master/docs/user/CONFIG.md']Config[/URL]
+[/SPOILER]
+
+[SIZE=6][B][COLOR=#b388ff]✦[/COLOR] Support[/B][/SIZE]
+Found a bug? Run [B]/disenchantment diagnostic[/B] and paste the result into a [URL='https://github.com/H7KZ/Disenchantment/issues']GitHub issue[/URL]. Please don't report bugs in reviews; I can't reply there.
+[LIST]
+[*][URL='https://github.com/H7KZ/Disenchantment/blob/master/docs/user/FAQ.md']FAQ[/URL]
+[*][URL='https://github.com/H7KZ/Disenchantment/blob/master/docs/user/HOW_TO.md']How-To Guide[/URL]
+[*][URL='https://github.com/H7KZ/Disenchantment/tree/master/docs/api']Developer API[/URL]
+[/LIST]
+
+[CENTER]Open source under the MIT License.
+[URL='https://bstats.org/plugin/bukkit/Disenchantment/19058'][IMG]https://bstats.org/signatures/bukkit/Disenchantment.svg[/IMG][/URL][/CENTER]

@@ -34,7 +34,7 @@ Both features work out of the box with default settings. No configuration is nee
    [Disenchantment] NMS module resolved: v1_21_R5
    ```
    If you see this, the plugin is running. If you see an error, check [INSTALLATION.md](INSTALLATION.md#requirements) —
-   the most common cause is an unsupported Java version (Java 21+ required).
+   the most common cause is an unsupported Java version (Java 17+, or 21+ on Minecraft 1.20.5+).
 
 5. **Try it in-game** — open an anvil, put an enchanted item in slot 1 and a blank book in slot 2. A result should
    appear immediately. See the sections below for the exact steps.
