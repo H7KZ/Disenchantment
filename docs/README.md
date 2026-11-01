@@ -4,7 +4,7 @@
 
 Disenchantment is a Spigot/Paper/Folia plugin that extends the vanilla anvil with two mechanics: **disenchanting**
 (strip enchantments from gear onto books) and **shattering** (split multi-enchantment books into individual ones). It
-supports Minecraft 1.18 through the latest 1.21.x releases and integrates with custom enchantment plugins, Vault, and
+supports Minecraft 1.18 through 26.x and integrates with custom enchantment plugins, Vault, and
 PlaceholderAPI.
 
 Use the sections below to find the documentation relevant to your role.
@@ -67,6 +67,13 @@ Deep-dive documentation for LLM agents and contributors working on specific subs
 | [internals/NMS.md](internals/NMS.md)                         | NMS abstraction layer — `NMS` interface, `NMSMapper`, and `MinecraftVersion` enum  |
 | [internals/PLUGIN_ADAPTERS.md](internals/PLUGIN_ADAPTERS.md) | Custom enchantment plugin adapter system and `ISupportedPlugin` interface          |
 | [internals/UTILS.md](internals/UTILS.md)                     | Utility classes — `AnvilCostUtils`, `EnchantmentUtils`, `SchedulerUtils`, and more |
+
+---
+
+## Store Pages and Media
+
+Ready-to-paste SpigotMC, Modrinth, CurseForge and Hangar descriptions, short summaries, gallery captions and an
+announcement template live in [`../store/`](../store/README.md). Banner, GIFs and screenshots are in [`../assets/`](../assets).
 
 ---
 

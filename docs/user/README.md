@@ -46,7 +46,7 @@ Vault economy integration can charge players an in-game currency cost per operat
 
 ## Supported Minecraft Versions
 
-Minecraft 1.18 through 1.21.x and 26.1.x are supported. Unknown versions 1.21+ fall back to the latest NMS module
+Minecraft 1.18 through 26.x is supported (tested on 26.3). Unknown versions 1.21+ fall back to the latest NMS module
 automatically.
 
 ## Links
