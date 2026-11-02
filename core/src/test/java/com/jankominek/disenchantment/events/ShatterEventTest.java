@@ -1,5 +1,6 @@
 package com.jankominek.disenchantment.events;
 
+import com.jankominek.disenchantment.Disenchantment;
 import com.jankominek.disenchantment.DisenchantmentTestBase;
 import com.jankominek.disenchantment.utils.EnchantmentUtils;
 import org.bukkit.Material;
@@ -298,5 +299,39 @@ class ShatterEventTest extends DisenchantmentTestBase {
         ShatterEvent.onEvent(event);
 
         assertNull(event.getResult());
+    }
+
+    // -> maintenance mode only blocks genuine plugin operations, and never messages from Prepare
+
+    @Test
+    void givenMaintenance_whenPrepareGenuineShatter_thenResultClearedWithoutMessage() {
+        Disenchantment.maintenanceEnabled = true;
+        try {
+            PlayerMock player = server.addPlayer("TestPlayer");
+            PrepareAnvilEvent event = buildEvent(player, enchantedBook("sharpness", "mending"), new ItemStack(Material.BOOK));
+
+            ShatterEvent.onEvent(event);
+
+            Mockito.verify(event).setResult(null);
+            assertNull(player.nextMessage(), "PrepareAnvilEvent fires per keystroke — it must not message the player");
+        } finally {
+            Disenchantment.maintenanceEnabled = false;
+        }
+    }
+
+    @Test
+    void givenMaintenance_whenPrepareVanillaAnvilUse_thenResultUntouched() {
+        Disenchantment.maintenanceEnabled = true;
+        try {
+            PlayerMock player = server.addPlayer("TestPlayer");
+            PrepareAnvilEvent event = buildEvent(player, enchantedBook("sharpness", "mending"), new ItemStack(Material.DIAMOND));
+
+            ShatterEvent.onEvent(event);
+
+            Mockito.verify(event, Mockito.never()).setResult(Mockito.any());
+            assertNull(player.nextMessage());
+        } finally {
+            Disenchantment.maintenanceEnabled = false;
+        }
     }
 }

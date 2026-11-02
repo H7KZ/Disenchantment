@@ -72,15 +72,9 @@ public class ShatterClickEvent {
 
         if (!AnvilEventGuards.isAnvilResultSlotClick(e, p)) return;
 
-        if (AnvilEventGuards.isMaintenanceBlocked(p)) return;
-
         if (AnvilEventGuards.isWorldBlocked(p, Config.Shatterment.isWorldRestricted(p.getWorld()))) return;
 
         AnvilInventory anvilInventory = (AnvilInventory) e.getInventory();
-
-        ItemStack result = anvilInventory.getItem(2);
-
-        if (result == null) return;
 
         ItemStack firstItem = anvilInventory.getItem(0);
         ItemStack secondItem = anvilInventory.getItem(1);
@@ -100,6 +94,17 @@ public class ShatterClickEvent {
             DiagnosticUtils.debug("SHATTER", "Click: no eligible enchantments → exit");
             return;
         }
+
+        // Genuine plugin operation. Maintenance mode nulls the prepared result, so this must run
+        // before the result-slot checks: the player clicks an empty slot and is told why.
+        if (AnvilEventGuards.isMaintenanceBlocked(p)) {
+            e.setCancelled(true);
+            return;
+        }
+
+        ItemStack result = anvilInventory.getItem(2);
+
+        if (result == null) return;
 
         if (result.getType() != Material.ENCHANTED_BOOK) return;
 

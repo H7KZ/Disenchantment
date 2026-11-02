@@ -175,13 +175,22 @@ public final class AnvilEventGuards {
 
     /**
      * Returns {@code true} when maintenance mode is active and the player lacks the bypass
-     * permission. Sends the maintenance message when blocking. Callers are responsible for
-     * exiting the handler (without cancelling — mirrors how the disabled-world/material checks
-     * silently no-op rather than cancel).
+     * permission. Silent: never messages, so it is safe to call from {@code PrepareAnvilEvent}
+     * handlers (which fire on every anvil keystroke). Prepare handlers must only call it
+     * <em>after</em> confirming a genuine plugin operation, then null the result.
+     */
+    public static boolean isMaintenanceActiveFor(Player p) {
+        if (!Disenchantment.maintenanceEnabled) return false;
+        return !PermissionType.MAINTENANCE_BYPASS.hasPermission(p);
+    }
+
+    /**
+     * Same check as {@link #isMaintenanceActiveFor(Player)} but also sends the maintenance
+     * message when blocking. Intended for the click path only, once per click, and only after a
+     * genuine plugin operation was confirmed. Callers are responsible for exiting the handler.
      */
     public static boolean isMaintenanceBlocked(Player p) {
-        if (!Disenchantment.maintenanceEnabled) return false;
-        if (PermissionType.MAINTENANCE_BYPASS.hasPermission(p)) return false;
+        if (!isMaintenanceActiveFor(p)) return false;
 
         p.sendMessage(I18n.getPrefix() + " " + I18n.Messages.maintenanceActive());
         return true;

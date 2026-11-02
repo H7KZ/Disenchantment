@@ -72,20 +72,10 @@ public class DisenchantClickEvent {
 
         if (!AnvilEventGuards.isAnvilResultSlotClick(e, p)) return;
 
-        if (AnvilEventGuards.isMaintenanceBlocked(p)) return;
-
         if (AnvilEventGuards.isWorldBlocked(p, Config.Disenchantment.isWorldRestricted(p.getWorld())))
             return;
 
         AnvilInventory anvilInventory = (AnvilInventory) e.getInventory();
-
-        ItemStack result = anvilInventory.getItem(2);
-
-        if (result == null) return;
-
-        if (result.getType() != Material.ENCHANTED_BOOK) return;
-
-        DiagnosticUtils.debug("DISENCHANT", () -> "Click: player=" + p.getName() + ", result=" + result.getType() + ", gameMode=" + p.getGameMode());
 
         ItemStack firstItem = anvilInventory.getItem(0);
         ItemStack secondItem = anvilInventory.getItem(1);
@@ -105,6 +95,21 @@ public class DisenchantClickEvent {
             DiagnosticUtils.debug("DISENCHANT", "Click: no eligible enchantments → exit");
             return;
         }
+
+        // Genuine plugin operation. Maintenance mode nulls the prepared result, so this must run
+        // before the result-slot checks: the player clicks an empty slot and is told why.
+        if (AnvilEventGuards.isMaintenanceBlocked(p)) {
+            e.setCancelled(true);
+            return;
+        }
+
+        ItemStack result = anvilInventory.getItem(2);
+
+        if (result == null) return;
+
+        if (result.getType() != Material.ENCHANTED_BOOK) return;
+
+        DiagnosticUtils.debug("DISENCHANT", () -> "Click: player=" + p.getName() + ", result=" + result.getType() + ", gameMode=" + p.getGameMode());
 
         // Genuine disenchant operation confirmed. Block non-standard result-slot clicks
         // (shift/number-key/swap/double-click/drop/etc.) that would otherwise let vanilla deliver a

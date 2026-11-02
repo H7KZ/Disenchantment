@@ -73,11 +73,6 @@ public class ShatterEvent {
 
         if (!Config.isPluginEnabled() || !Config.Shatterment.isEnabled()) return;
 
-        if (AnvilEventGuards.isMaintenanceBlocked(p)) {
-            e.setResult(null);
-            return;
-        }
-
         if (AnvilEventGuards.isWorldBlocked(p, Config.Shatterment.isWorldRestricted(p.getWorld()))) return;
 
         DiagnosticUtils.debug("SHATTER", () -> "PrepareAnvil: player=" + p.getName() + ", world=" + p.getWorld().getName());
@@ -96,6 +91,15 @@ public class ShatterEvent {
 
         if (enchantments.isEmpty()) {
             DiagnosticUtils.debug("SHATTER", "PrepareAnvil: no eligible enchantments → exit");
+            return;
+        }
+
+        // Only a genuine plugin operation is blocked by maintenance mode — vanilla anvil use
+        // (repair/rename/combine) must keep working. No message here: PrepareAnvilEvent fires on
+        // every keystroke, the click handler informs the player.
+        if (AnvilEventGuards.isMaintenanceActiveFor(p)) {
+            DiagnosticUtils.debug("SHATTER", "PrepareAnvil: maintenance active → result cleared");
+            e.setResult(null);
             return;
         }
 

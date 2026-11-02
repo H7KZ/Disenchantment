@@ -71,11 +71,6 @@ public class DisenchantEvent {
 
         if (!Config.isPluginEnabled() || !Config.Disenchantment.isEnabled()) return;
 
-        if (AnvilEventGuards.isMaintenanceBlocked(p)) {
-            e.setResult(null);
-            return;
-        }
-
         if (AnvilEventGuards.isWorldBlocked(p, Config.Disenchantment.isWorldRestricted(p.getWorld())))
             return;
 
@@ -101,6 +96,15 @@ public class DisenchantEvent {
         if (DiagnosticUtils.isDebugEnabled()) {
             String names = pluginEnchantments.stream().map(ench -> ench.getKey() + ":" + ench.getLevel()).collect(Collectors.joining(", "));
             DiagnosticUtils.debug("DISENCHANT", "PrepareAnvil: enchantments=[" + names + "] (" + pluginEnchantments.size() + " total)");
+        }
+
+        // Only a genuine plugin operation is blocked by maintenance mode — vanilla anvil use
+        // (repair/rename/combine) must keep working. No message here: PrepareAnvilEvent fires on
+        // every keystroke, the click handler informs the player.
+        if (AnvilEventGuards.isMaintenanceActiveFor(p)) {
+            DiagnosticUtils.debug("DISENCHANT", "PrepareAnvil: maintenance active → result cleared");
+            e.setResult(null);
+            return;
         }
 
         if (AnvilEventGuards.isOnCooldown(p)) {

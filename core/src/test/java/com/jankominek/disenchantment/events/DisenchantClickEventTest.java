@@ -1,5 +1,6 @@
 package com.jankominek.disenchantment.events;
 
+import com.jankominek.disenchantment.Disenchantment;
 import com.jankominek.disenchantment.DisenchantmentTestBase;
 import com.jankominek.disenchantment.events.api.PostDisenchantEvent;
 import com.jankominek.disenchantment.events.api.PreDisenchantEvent;
@@ -337,5 +338,43 @@ class DisenchantClickEventTest extends DisenchantmentTestBase {
         Mockito.verify(lastMockAnvil).setItem(eq(0), captor.capture());
         assertTrue(captor.getValue().containsEnchantment(enchantment("mending")),
                 "Mending must remain on source when removed from PreDisenchantEvent list");
+    }
+
+    // -> maintenance: the click on the (nulled) result slot of a genuine operation tells the player
+
+    @Test
+    void givenMaintenance_whenClickGenuineDisenchantSlot_thenPlayerMessagedAndNothingChanges() {
+        Disenchantment.maintenanceEnabled = true;
+        try {
+            PlayerMock player = server.addPlayer("TestPlayer");
+            player.setLevel(10);
+
+            // Prepare nulled the result, so slot 2 is empty.
+            InventoryClickEvent event = buildClickEvent(player, sword("sharpness", 5), new ItemStack(Material.BOOK), null);
+            DisenchantClickEvent.onEvent(event);
+
+            assertNotNull(player.nextMessage(), "Player must be told maintenance is active");
+            Mockito.verify(event).setCancelled(true);
+            Mockito.verify(lastMockAnvil, Mockito.never()).setItem(eq(0), Mockito.any());
+        } finally {
+            Disenchantment.maintenanceEnabled = false;
+        }
+    }
+
+    @Test
+    void givenMaintenance_whenClickVanillaAnvilResult_thenNoMessageAndNotCancelled() {
+        Disenchantment.maintenanceEnabled = true;
+        try {
+            PlayerMock player = server.addPlayer("TestPlayer");
+            player.setLevel(10);
+
+            InventoryClickEvent event = buildClickEvent(player, new ItemStack(Material.DIAMOND_SWORD), new ItemStack(Material.DIAMOND), new ItemStack(Material.DIAMOND_SWORD));
+            DisenchantClickEvent.onEvent(event);
+
+            assertNull(player.nextMessage(), "Vanilla anvil use must not trigger the maintenance message");
+            Mockito.verify(event, Mockito.never()).setCancelled(true);
+        } finally {
+            Disenchantment.maintenanceEnabled = false;
+        }
     }
 }
