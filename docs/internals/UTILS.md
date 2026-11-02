@@ -58,7 +58,9 @@ Total cost for all enchantments:
     - If an override exists: `totalCost += overrides.get(key)`. **Does not advance multiplier.**
     - Otherwise: `totalCost += level * currentMultiplier`. Then `multiplier += baseMultiplier` (accumulating
       multiplier).
-6. Returns `(int) Math.round(totalCost)`.
+6. Applies `max-cost` and the player cost multiplier, then **clamps the result to `>= 0`** — a negative `base`,
+   `multiply`, override or multiplier can never pay the player levels. `economyCostForEnchantments` clamps likewise.
+7. Returns `(int) Math.round(totalCost)`.
 
 **Example:** base=1, multiplier=1, enchantments=[Sharpness V, Looting III]
 
@@ -160,6 +162,14 @@ public static EconomyResponse withdraw(Player player, double amount)
 Withdraws `amount` from the player's balance. Returns Vault's `EconomyResponse`.
 
 ```java
+public static void setProvider(Economy provider)
+```
+
+Test seam: injects a provider directly (bypassing the Vault service lookup). `null` unhooks. Tests use
+`utils/EconomyTestSupport` (Mockito `Economy` whose `has`/`withdrawPlayer` succeed) and `EconomyUtils.reset()` in a
+`finally`.
+
+```java
 public static String format(double amount)
 ```
 
@@ -192,7 +202,8 @@ Vanilla overload (no plugin). Validates:
 
 - Both items non-null and non-air.
 - First item is NOT an enchanted book (disenchanting a book onto a book is not allowed).
-- Second item IS a plain `BOOK`.
+- Second item IS a plain `BOOK` — `EventUtils.isBlankBook`: a book with a display name, lore, custom model data or any
+  persistent-data key (another plugin's special book) is rejected.
 - First item's material is not in the disabled materials list.
 - Second item has no enchantments (must be blank).
 - No enchantment on the first item has state `DISABLE` (if any do, the entire operation is blocked).
@@ -217,6 +228,25 @@ public static List<IPluginEnchantment> findEnchantmentsToDelete(List<IPluginEnch
 Filters the provided list to only those with state `DELETE` in `Config.Disenchantment.getEnchantmentStates()`. These are
 removed from the source item but not added to the result book.
 
+### Shared helpers
+
+```java
+public static boolean isBlankBook(ItemStack item)
+```
+
+`true` only for a `Material.BOOK` without display name, lore, custom model data or persistent-data keys.
+
+```java
+public static List<IPluginEnchantment> findTransferredEnchantments(
+    List<IPluginEnchantment> collected, ItemStack resultBook,
+    List<ISupportedPlugin> activatedPlugins, World world)
+public static List<IPluginEnchantment> retainByKey(List<IPluginEnchantment> enchantments, List<IPluginEnchantment> reference)
+```
+
+`findTransferredEnchantments` returns the entries of `collected` whose (namespace-normalized, lower-case) key is present
+on the result book — vanilla stored enchants plus every adapter's `getItemEnchantments(resultBook, world)`. It is the set
+the economy charge and the Prepare cost display agree on. `retainByKey` filters a list by another list's keys.
+
 ### `EventUtils.Shatterment`
 
 ```java
@@ -227,7 +257,7 @@ public static List<IPluginEnchantment> getShattermentEnchantments(
 Validates:
 
 - First item IS `ENCHANTED_BOOK`.
-- Second item IS a plain `BOOK` (blank).
+- Second item IS a plain `BOOK` (blank, `EventUtils.isBlankBook`).
 - Book has at least 2 enchantments (shatter requires multi-enchant book).
 - No enchantment has state `DISABLE`.
 

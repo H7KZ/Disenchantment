@@ -9,6 +9,8 @@ Common issues and questions about Disenchantment.
 - [Why can't non-op players use the plugin?](#why-cant-non-op-players-use-the-plugin)
 - [The anvil shows a result but nothing happens when I click](#the-anvil-shows-a-result-but-nothing-happens-when-i-click)
 - [The book I get has no enchantments / is blank](#the-book-i-get-has-no-enchantments--is-blank)
+- [I got a plain book instead of an enchanted book](#i-got-a-plain-book-instead-of-an-enchanted-book)
+- [The blank book is not accepted](#the-blank-book-is-not-accepted)
 - [Disenchanting removes the enchantment but doesn't give a book](#disenchanting-removes-the-enchantment-but-doesnt-give-a-book)
 - [I want to disable only the shattering feature, not disenchanting](#i-want-to-disable-only-the-shattering-feature-not-disenchanting)
 - [Does the plugin work with custom enchantments from other plugins?](#does-the-plugin-work-with-custom-enchantments-from-other-plugins)
@@ -20,6 +22,7 @@ Common issues and questions about Disenchantment.
 - [Why isn't Disenchantment working with EcoEnchants?](#why-isnt-disenchantment-working-with-ecoenchants)
 - [Why aren't UberEnchants working with Disenchantment?](#why-arent-uberenchants-working-with-disenchantment)
 - [I'm using GeyserMC and there are issues.](#im-using-geysermc-and-there-are-issues-is-this-a-known-problem)
+- [How much exactly is charged when `enchantment-costs` economy overrides are set?](#how-much-exactly-is-charged-when-enchantment-costs-economy-overrides-are-set)
 - [Economy is enabled but players aren't being charged.](#economy-is-enabled-but-players-arent-being-charged)
 - [Do I need Vault for the plugin to work?](#do-i-need-vault-for-the-plugin-to-work)
 - [Does Disenchantment support Minecraft 26.1.x?](#does-disenchantment-support-minecraft-261x)
@@ -51,12 +54,21 @@ See [PERMISSIONS.md](PERMISSIONS.md#anvil-usage) for the full list of anvil perm
 The result appeared in the output slot, which means the plugin recognised the operation as valid. If nothing happens
 when the player clicks, the most common causes are:
 
-1. **Not enough XP levels.** The anvil shows a cost — if the player does not have that many levels, the click is
-   silently rejected (same as vanilla anvil behaviour).
+1. **Not enough XP levels.** The click is rejected and the player is told how many levels they need. With
+   `anvil.bypass-too-expensive` enabled this is the *real* cost, not the cheap 1 level shown in the anvil.
 2. **Economy cost not met.** If economy is enabled and the player cannot afford the currency cost, the operation is
-   cancelled and they receive an insufficient-funds message. Check the action bar for the cost display.
+   cancelled and they receive an insufficient-funds message. Check the action bar for the cost display. If the
+   economy plugin refuses the withdrawal (for example a bank limit) the operation is cancelled as well, nothing is
+   consumed, and the player is told the payment could not be processed.
 3. **Permission denied.** The player's permission plugin may have set `disenchantment.anvil.disenchant` or
    `disenchantment.anvil.shatter` to `false`. Check with your permission plugin.
+4. **Cooldown or maintenance mode.** The player is told when they must wait (cooldown) or that the plugin is under
+   maintenance. These messages are sent when the result is *clicked*, not while the anvil is being set up. Maintenance
+   mode only blocks Disenchantment operations; normal anvil repair and renaming keep working.
+5. **Shift-click, number-key or other special clicks.** The result must be taken with a normal left or right click.
+   Other click types are blocked (they could duplicate the book) and the player gets a hint saying so.
+6. **Two clicks in the same instant.** While an operation is still consuming its blank book (about 2 ticks), further
+   clicks on that anvil are ignored.
 
 ---
 
@@ -77,6 +89,23 @@ If you see `keep` or `delete` for the enchantments you expect to receive, change
 The difference between `keep` and `delete` from the player's perspective is identical — neither transfers the
 enchantment to the book. See [CONFIG.md — Enchantment States](CONFIG.md#feature-toggle-and-restrictions) for the full
 explanation.
+
+---
+
+### I got a plain book instead of an enchanted book
+
+Every enchantment on the operation failed its success-chance roll (`enchantment-chances`), so there was nothing to put on
+the book. The player receives a plain book and a message that the enchantments failed to transfer. The enchantments were
+still removed from the source. Raise the chance in config (`disenchantment.enchantment-chances.<enchantment>`) if this is too
+harsh.
+
+---
+
+### The blank book is not accepted
+
+Only a plain, unmodified `BOOK` works as the blank book. A book that another plugin has tagged — a custom display name,
+lore, custom model data, or any persistent-data tag — is rejected so quest items, vouchers and similar books cannot be
+consumed by accident.
 
 ---
 
@@ -203,6 +232,14 @@ Bedrock players connected via Geyser can use the anvil features without errors. 
 level cost shown in the anvil UI) may appear inaccurate for Bedrock clients. This is because Geyser's proxy
 `InventoryView` does not support cost propagation via the `AnvilView` API. This is a known limitation of the Geyser
 proxy layer and cannot be worked around on the server side.
+
+---
+
+### How much exactly is charged when `enchantment-costs` economy overrides are set?
+
+Exactly what the action bar displayed: the enchantments that are really transferred to the result book. For
+disenchanting, enchantments in the `delete` state are destroyed but not charged for. For shattering, only the enchantments
+that were randomly chosen for this split are charged — not every enchantment on the source book.
 
 ---
 

@@ -49,6 +49,10 @@ messages:
   maintenance-is-disabled: "&aMaintenance mode is now &fdisabled&a.&r"
   config-reloaded: "&aConfig reloaded.&r"
   reload-failed: "&cconfig.yml has a syntax error and was not loaded; the running settings are unchanged: &f{error}&r"
+  economy-withdraw-failed: "&cThe payment could not be processed. You have not been charged.&r"
+  not-enough-levels: "&cYou need &f{levels} &clevels to do that.&r"
+  enchantments-failed-to-transfer: "&cThe enchantments failed to transfer. You received a plain book instead.&r"
+  use-normal-click: "&cTake the result with a normal left or right click.&r"
 
 states:
   enabled: "&aEnabled&r"

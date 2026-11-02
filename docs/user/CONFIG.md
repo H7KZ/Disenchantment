@@ -398,6 +398,9 @@ Final XP cost:      12 levels
 | `0`  | `0`      | Free — XP cost is always 0 (same as setting `cost: false`)                       | 0 levels  |
 | `1`  | `1`      | Simple — Sharpness V alone costs 6 levels (1 + 5×1)                              | 6 levels  |
 
+> **Negative values:** the final XP cost is never below 0. A negative `base`, `multiply` or override cannot pay the
+> player levels; it simply results in a free operation (the same applies to economy costs).
+
 > **Per-enchantment overrides** in `enchantment-costs` bypass the formula entirely for that enchantment. The override
 > value is added as a flat amount and the multiplier is not advanced for that enchantment.
 
@@ -428,7 +431,10 @@ disenchantment:
 - **On click** — the player takes the result and the currency is deducted. A **chat confirmation** is sent (e.g.
   `You have been charged $100.0`). This message can be suppressed with `charge-message: false`.
 - **If the player cannot afford it** — the operation is **cancelled**, no items are consumed, and the player receives an
-  insufficient-funds message.
+  insufficient-funds message. The same happens (with a "payment could not be processed" message) if the economy plugin
+  rejects the withdrawal.
+- **What is charged** — exactly the amount shown in the action bar: the flat `economy.cost`, or the sum of the
+  per-enchantment economy overrides, counted only for enchantments that are actually transferred to the result book.
 - **Action bar only (no chat)** — set `show-cost: true` and `charge-message: false` for a cleaner experience.
 
 > **Requires:** [Vault](https://www.spigotmc.org/resources/34315/) and a compatible economy plugin such as EssentialsX,

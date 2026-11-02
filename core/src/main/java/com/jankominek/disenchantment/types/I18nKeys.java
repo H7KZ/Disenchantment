@@ -55,6 +55,10 @@ public enum I18nKeys {
     MESSAGES_CONFIG_RELOADED("messages.config-reloaded"),
     MESSAGES_SPECIFY_ENCHANTMENT_CHANCE("messages.specify-enchantment-chance"),
     MESSAGES_ENCHANTMENT_CHANCE_IS_SET("messages.enchantment-chance-is-set"),
+    MESSAGES_ECONOMY_WITHDRAW_FAILED("messages.economy-withdraw-failed"),
+    MESSAGES_USE_NORMAL_CLICK("messages.use-normal-click"),
+    MESSAGES_ENCHANTMENTS_FAILED_TO_TRANSFER("messages.enchantments-failed-to-transfer"),
+    MESSAGES_NOT_ENOUGH_LEVELS("messages.not-enough-levels"),
 
     COMMANDS_CHANCES_DISENCHANTMENT_TITLE("commands.chances.disenchantment.title"),
     COMMANDS_CHANCES_DISENCHANTMENT_EMPTY("commands.chances.disenchantment.empty"),

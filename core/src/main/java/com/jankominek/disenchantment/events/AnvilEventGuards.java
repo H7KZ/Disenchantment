@@ -17,6 +17,7 @@ import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.AnvilInventory;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.*;
@@ -27,8 +28,9 @@ import java.util.concurrent.ConcurrentHashMap;
  * anvil event handlers: {@link DisenchantEvent}, {@link ShatterEvent},
  * {@link DisenchantClickEvent}, and {@link ShatterClickEvent}.
  * <p>
- * All methods are pure functions with no side-effects on class state — callers
- * supply the data and decide what to do with the result.
+ * Almost all methods are pure functions — callers supply the data and decide what to do with
+ * the result. The only class state is per-anvil / per-player bookkeeping (pending blank-book
+ * removals, cached "Too Expensive!" bypass costs).
  */
 public final class AnvilEventGuards {
 
@@ -175,13 +177,22 @@ public final class AnvilEventGuards {
 
     /**
      * Returns {@code true} when maintenance mode is active and the player lacks the bypass
-     * permission. Sends the maintenance message when blocking. Callers are responsible for
-     * exiting the handler (without cancelling — mirrors how the disabled-world/material checks
-     * silently no-op rather than cancel).
+     * permission. Silent: never messages, so it is safe to call from {@code PrepareAnvilEvent}
+     * handlers (which fire on every anvil keystroke). Prepare handlers must only call it
+     * <em>after</em> confirming a genuine plugin operation, then null the result.
+     */
+    public static boolean isMaintenanceActiveFor(Player p) {
+        if (!Disenchantment.maintenanceEnabled) return false;
+        return !PermissionType.MAINTENANCE_BYPASS.hasPermission(p);
+    }
+
+    /**
+     * Same check as {@link #isMaintenanceActiveFor(Player)} but also sends the maintenance
+     * message when blocking. Intended for the click path only, once per click, and only after a
+     * genuine plugin operation was confirmed. Callers are responsible for exiting the handler.
      */
     public static boolean isMaintenanceBlocked(Player p) {
-        if (!Disenchantment.maintenanceEnabled) return false;
-        if (PermissionType.MAINTENANCE_BYPASS.hasPermission(p)) return false;
+        if (!isMaintenanceActiveFor(p)) return false;
 
         p.sendMessage(I18n.getPrefix() + " " + I18n.Messages.maintenanceActive());
         return true;
@@ -211,11 +222,20 @@ public final class AnvilEventGuards {
      * @return {@code true} if the player must be blocked from proceeding
      */
     public static boolean isOnCooldown(Player p) {
-        if (!CooldownManager.isOnCooldown(p)) return false;
+        if (!isOnCooldownQuiet(p)) return false;
 
         long remaining = CooldownManager.getRemainingSeconds(p);
         p.sendMessage(I18n.getPrefix() + " " + I18n.Messages.cooldownActive(String.valueOf(remaining)));
         return true;
+    }
+
+    /**
+     * Same check as {@link #isOnCooldown(Player)} but never messages. Used by the
+     * {@code PrepareAnvilEvent} handlers, which fire on every anvil keystroke and only need to
+     * clear the result; the click handlers inform the player once per attempt.
+     */
+    public static boolean isOnCooldownQuiet(Player p) {
+        return CooldownManager.isOnCooldown(p);
     }
 
     /**
@@ -269,18 +289,7 @@ public final class AnvilEventGuards {
      * @return result indicating what action (if any) the caller must take
      */
     public static EconomyResult processEconomy(Player p, EconomyConfig config) {
-        if (!config.isEnabled() || p.getGameMode() == GameMode.CREATIVE) return EconomyResult.OK;
-
-        if (!EconomyUtils.isAvailable()) return EconomyResult.NOT_AVAILABLE;
-
-        double cost = config.getCost();
-        if (!EconomyUtils.has(p, cost)) return EconomyResult.INSUFFICIENT_FUNDS;
-
-        EconomyUtils.withdraw(p, cost);
-        if (config.isChargeMessageEnabled()) {
-            p.sendMessage(I18n.getPrefix() + " " + I18n.Messages.economyCharged(EconomyUtils.format(cost)));
-        }
-        return EconomyResult.OK;
+        return processEconomyCost(p, config, config.getCost());
     }
 
     /**
@@ -298,13 +307,22 @@ public final class AnvilEventGuards {
         /**
          * Player does not have enough money to cover the cost.
          */
-        INSUFFICIENT_FUNDS
+        INSUFFICIENT_FUNDS,
+        /**
+         * The economy provider refused or failed the withdrawal even though the balance check
+         * passed (e.g. a bank limit or a provider error). The player was not charged.
+         */
+        WITHDRAW_FAILED
     }
 
     /**
      * Same as {@link #processEconomy(Player, EconomyConfig)} but charges an explicit
      * {@code cost} instead of {@link EconomyConfig#getCost()} — used when the effective
      * cost has been recalculated from per-enchantment economy overrides.
+     * <p>
+     * The provider's {@link net.milkbowl.vault.economy.EconomyResponse} is honoured: an
+     * unsuccessful (or missing) response yields {@link EconomyResult#WITHDRAW_FAILED} so the
+     * caller never completes an operation the player did not pay for.
      */
     public static EconomyResult processEconomyCost(Player p, EconomyConfig config, double cost) {
         if (!config.isEnabled() || p.getGameMode() == GameMode.CREATIVE) return EconomyResult.OK;
@@ -313,7 +331,13 @@ public final class AnvilEventGuards {
 
         if (!EconomyUtils.has(p, cost)) return EconomyResult.INSUFFICIENT_FUNDS;
 
-        EconomyUtils.withdraw(p, cost);
+        net.milkbowl.vault.economy.EconomyResponse response = EconomyUtils.withdraw(p, cost);
+        if (response == null || !response.transactionSuccess()) {
+            DiagnosticUtils.debug("ECONOMY", () -> "processEconomy: withdraw of " + cost + " failed for " + p.getName()
+                    + (response != null ? " (" + response.errorMessage + ")" : " (null response)"));
+            return EconomyResult.WITHDRAW_FAILED;
+        }
+
         if (config.isChargeMessageEnabled()) {
             p.sendMessage(I18n.getPrefix() + " " + I18n.Messages.economyCharged(EconomyUtils.format(cost)));
         }
@@ -421,20 +445,105 @@ public final class AnvilEventGuards {
     // Second-item removal (InventoryClickEvent)
 
     /**
-     * Schedules a 2-tick deferred reduction/removal of the item in anvil slot 1.
-     * The delay is required because EnchantsSquared replaces slot 1 with null after 1 tick.
+     * A blank-book consumption that has been scheduled but not yet applied to an anvil.
+     *
+     * @param book        snapshot of the slot-1 stack at click time (amount = amount before the operation)
+     * @param originClick the click event that started the operation, so the lock listener never cancels it
+     */
+    private record PendingRemoval(ItemStack book, Object originClick) {
+    }
+
+    // Weak keys: an anvil inventory nobody references any more must not be kept alive by this map.
+    // Synchronized rather than concurrent because WeakHashMap permits no concurrent variant; Folia
+    // region threads may touch it.
+    private static final Map<Inventory, PendingRemoval> pendingRemovals = Collections.synchronizedMap(new WeakHashMap<>());
+
+    /**
+     * Returns {@code true} while a blank-book consumption is still pending for {@code inventory}.
+     * A second plugin operation must be refused during that window: the first one has not finished
+     * paying for itself yet (the book is still in slot 1).
+     */
+    public static boolean isOperationPending(Inventory inventory) {
+        return inventory != null && pendingRemovals.containsKey(inventory);
+    }
+
+    /**
+     * Returns {@code true} when {@code inventory} has a pending consumption that was NOT started by
+     * {@code click}. The lock listener cancels such clicks so the player cannot move the books or the
+     * source item out of the anvil between the operation and its deferred book removal.
+     */
+    public static boolean isLockedFor(Inventory inventory, Object click) {
+        if (inventory == null) return false;
+        PendingRemoval pending = pendingRemovals.get(inventory);
+        return pending != null && pending.originClick() != click;
+    }
+
+    /**
+     * Schedules the deferred consumption of one blank book from anvil slot 1.
+     *
+     * @see #scheduleSecondItemRemoval(Player, AnvilInventory, ItemStack, Object)
      */
     public static void scheduleSecondItemRemoval(Player p, AnvilInventory anvilInventory, ItemStack secondItem) {
-        ItemStack finalSecondItem = secondItem.clone();
+        scheduleSecondItemRemoval(p, anvilInventory, secondItem, null);
+    }
+
+    /**
+     * Schedules the deferred consumption of one blank book from anvil slot 1 and marks the anvil as
+     * "operation pending" until it ran.
+     * <p>
+     * <strong>Why deferred.</strong> The click handlers run before vanilla finishes the take, which
+     * itself clears slot 1, and EnchantsSquared additionally nulls slot 1 one tick later (commit
+     * e86f4a2). A synchronous write is therefore overwritten; the stack is re-written 2 ticks later
+     * with one book fewer. It cannot be done synchronously without losing the remaining books.
+     * <p>
+     * <strong>Closing the window.</strong> Until it ran, the anvil is registered as pending: new
+     * operations on it are refused ({@link #isOperationPending}), the lock listener cancels other
+     * clicks/drags on it ({@link #isLockedFor}), and closing the anvil settles the removal
+     * immediately ({@link #settlePendingRemoval}) before the contents are handed back to the player.
+     * At settle time slot 1 is only touched if it is empty or still holds the same book type, so
+     * nothing foreign is overwritten and no stale copy is resurrected.
+     *
+     * @param p           the player (owns the scheduled task on Folia)
+     * @param secondItem  the slot-1 stack at click time
+     * @param originClick the click that started the operation (exempt from the lock), may be null
+     */
+    public static void scheduleSecondItemRemoval(Player p, AnvilInventory anvilInventory, ItemStack secondItem, Object originClick) {
+        pendingRemovals.put(anvilInventory, new PendingRemoval(secondItem.clone(), originClick));
         // Schedule task to run 2 ticks after the event
         // It is because of EnchantsSquared (they replace second slot to null after 1 tick)
-        SchedulerUtils.runForEntityLater(Disenchantment.plugin, p, () -> {
-            if (finalSecondItem.getAmount() > 1) {
-                finalSecondItem.setAmount(finalSecondItem.getAmount() - 1);
-                anvilInventory.setItem(1, finalSecondItem);
-            } else {
-                anvilInventory.setItem(1, null);
-            }
-        }, 2L);
+        SchedulerUtils.runForEntityLater(Disenchantment.plugin, p, () -> settlePendingRemoval(anvilInventory), 2L);
+    }
+
+    /**
+     * Applies the pending blank-book consumption for {@code inventory} right now, if there is one.
+     * Idempotent: the deferred task and the inventory-close listener both call it and only the first
+     * does anything.
+     *
+     * @return {@code true} if a pending removal was applied
+     */
+    public static boolean settlePendingRemoval(Inventory inventory) {
+        if (inventory == null) return false;
+        PendingRemoval pending = pendingRemovals.remove(inventory);
+        if (pending == null) return false;
+
+        int remaining = pending.book().getAmount() - 1;
+        ItemStack current = inventory.getItem(1);
+        boolean empty = current == null || current.getType().isAir();
+
+        if (!empty && !current.isSimilar(pending.book())) {
+            DiagnosticUtils.debug("ANVIL", () -> "Second-item removal: slot 1 now holds " + current.getType() + " → left untouched");
+            return true;
+        }
+
+        // Never write back more than what is there or what remains after consuming one.
+        int target = empty ? remaining : Math.min(current.getAmount(), remaining);
+        if (target > 0) {
+            ItemStack restored = pending.book().clone();
+            restored.setAmount(target);
+            inventory.setItem(1, restored);
+        } else {
+            inventory.setItem(1, null);
+        }
+        return true;
     }
 }

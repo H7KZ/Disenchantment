@@ -489,6 +489,45 @@ public class I18n {
         public static String economyChargeMessageIsDisabled() {
             return I18n.translateColors(localeConfig.getString(I18nKeys.MESSAGES_ECONOMY_CHARGE_MESSAGE_IS_DISABLED.getKey()));
         }
+
+        // ------------------------------------------------------------------------------------------
+        // Anvil event feedback messages (audit fixes)
+
+        /**
+         * Returns the localized message shown when the economy provider rejected the withdrawal.
+         */
+        public static String economyWithdrawFailed() {
+            return I18n.translateColors(localeConfig.getString(I18nKeys.MESSAGES_ECONOMY_WITHDRAW_FAILED.getKey(),
+                    "&cThe payment could not be processed. You have not been charged.&r"));
+        }
+
+        /**
+         * Returns the localized message shown when the player lacks the experience levels for an operation.
+         *
+         * @param levels the value substituted for {levels}
+         */
+        public static String notEnoughLevels(String levels) {
+            return I18n.translateColors(
+                    localeConfig.getString(I18nKeys.MESSAGES_NOT_ENOUGH_LEVELS.getKey(), "&cYou need &f{levels} &clevels to do that.&r")
+                            .replace("{levels}", levels)
+            );
+        }
+
+        /**
+         * Returns the localized message shown when every enchantment failed its chance roll and a plain book was delivered.
+         */
+        public static String enchantmentsFailedToTransfer() {
+            return I18n.translateColors(localeConfig.getString(I18nKeys.MESSAGES_ENCHANTMENTS_FAILED_TO_TRANSFER.getKey(),
+                    "&cThe enchantments failed to transfer. You received a plain book instead.&r"));
+        }
+
+        /**
+         * Returns the localized hint shown when a non-standard click (shift-click, number key, ...) on the result slot was blocked.
+         */
+        public static String useNormalClick() {
+            return I18n.translateColors(localeConfig.getString(I18nKeys.MESSAGES_USE_NORMAL_CLICK.getKey(),
+                    "&cTake the result with a normal left or right click.&r"));
+        }
     }
 
     /**

@@ -71,11 +71,6 @@ public class DisenchantEvent {
 
         if (!Config.isPluginEnabled() || !Config.Disenchantment.isEnabled()) return;
 
-        if (AnvilEventGuards.isMaintenanceBlocked(p)) {
-            e.setResult(null);
-            return;
-        }
-
         if (AnvilEventGuards.isWorldBlocked(p, Config.Disenchantment.isWorldRestricted(p.getWorld())))
             return;
 
@@ -103,8 +98,17 @@ public class DisenchantEvent {
             DiagnosticUtils.debug("DISENCHANT", "PrepareAnvil: enchantments=[" + names + "] (" + pluginEnchantments.size() + " total)");
         }
 
-        if (AnvilEventGuards.isOnCooldown(p)) {
-            DiagnosticUtils.debug("DISENCHANT", "PrepareAnvil: player on cooldown → CANCELLED");
+        // Only a genuine plugin operation is blocked by maintenance mode — vanilla anvil use
+        // (repair/rename/combine) must keep working. No message here: PrepareAnvilEvent fires on
+        // every keystroke, the click handler informs the player.
+        if (AnvilEventGuards.isMaintenanceActiveFor(p)) {
+            DiagnosticUtils.debug("DISENCHANT", "PrepareAnvil: maintenance active → result cleared");
+            e.setResult(null);
+            return;
+        }
+
+        if (AnvilEventGuards.isOnCooldownQuiet(p)) {
+            DiagnosticUtils.debug("DISENCHANT", "PrepareAnvil: player on cooldown → result cleared (no message, the click path informs)");
             e.setResult(null);
             return;
         }

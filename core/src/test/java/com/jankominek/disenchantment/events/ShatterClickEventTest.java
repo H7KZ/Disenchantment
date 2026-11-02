@@ -1,8 +1,18 @@
 package com.jankominek.disenchantment.events;
 
+import com.jankominek.disenchantment.Disenchantment;
 import com.jankominek.disenchantment.DisenchantmentTestBase;
 import com.jankominek.disenchantment.plugins.MockPluginAdapter;
 import com.jankominek.disenchantment.utils.EnchantmentUtils;
+import com.jankominek.disenchantment.utils.EconomyTestSupport;
+import com.jankominek.disenchantment.events.api.PostShatterEvent;
+import com.jankominek.disenchantment.events.api.PreShatterEvent;
+import com.jankominek.disenchantment.plugins.IPluginEnchantment;
+import net.milkbowl.vault.economy.Economy;
+import net.milkbowl.vault.economy.EconomyResponse;
+import org.bukkit.event.Listener;
+import org.bukkit.event.EventHandler;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.Material;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
@@ -18,10 +28,12 @@ import org.mockito.Mockito;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.eq;
 
@@ -127,5 +139,192 @@ class ShatterClickEventTest extends DisenchantmentTestBase {
         assertNotNull(meta, "Result book must have stored-enchant meta");
         assertEquals(4, meta.getStoredEnchantLevel(enchantment("unbreaking")),
                 "Delivered book must carry the raw source level (4), not the clamped result-slot level (3) — issue #76");
+    }
+
+    // -> maintenance: the click on the (nulled) result slot of a genuine operation tells the player
+
+    @Test
+    void givenMaintenance_whenClickGenuineShatterSlot_thenPlayerMessagedAndNothingChanges() {
+        Disenchantment.maintenanceEnabled = true;
+        try {
+            PlayerMock player = server.addPlayer("TestPlayer");
+            player.setLevel(10);
+
+            InventoryClickEvent event = buildClickEvent(player, enchantedBook("sharpness", "5", "unbreaking", "3"), new ItemStack(Material.BOOK), null);
+            ShatterClickEvent.onEvent(event);
+
+            assertNotNull(player.nextMessage(), "Player must be told maintenance is active");
+            Mockito.verify(event).setCancelled(true);
+            Mockito.verify(lastMockAnvil, Mockito.never()).setItem(eq(0), Mockito.any());
+        } finally {
+            Disenchantment.maintenanceEnabled = false;
+        }
+    }
+
+    @Test
+    void givenMaintenance_whenClickVanillaAnvilResult_thenNoMessageAndNotCancelled() {
+        Disenchantment.maintenanceEnabled = true;
+        try {
+            PlayerMock player = server.addPlayer("TestPlayer");
+            player.setLevel(10);
+
+            InventoryClickEvent event = buildClickEvent(player, new ItemStack(Material.DIAMOND_SWORD), new ItemStack(Material.DIAMOND), new ItemStack(Material.DIAMOND_SWORD));
+            ShatterClickEvent.onEvent(event);
+
+            assertNull(player.nextMessage(), "Vanilla anvil use must not trigger the maintenance message");
+            Mockito.verify(event, Mockito.never()).setCancelled(true);
+        } finally {
+            Disenchantment.maintenanceEnabled = false;
+        }
+    }
+
+    // -> economy: the charge and PreShatterEvent must cover only the split-off subset in the result
+    //    book, not every eligible enchantment of the source book
+
+    @Test
+    void givenRandomSubsetInResult_whenShatter_thenEconomyAndPreEventCoverOnlySubset() {
+        setConfig("shatterment.economy.enabled", true);
+        setConfig("shatterment.anvil.repair.enchantment-costs.sharpness.economy", 10.0);
+        setConfig("shatterment.anvil.repair.enchantment-costs.unbreaking.economy", 20.0);
+        setConfig("shatterment.anvil.repair.enchantment-costs.mending.economy", 30.0);
+        Economy economy = EconomyTestSupport.install();
+        try {
+            PlayerMock player = server.addPlayer("TestPlayer");
+            player.setLevel(10);
+
+            AtomicReference<PreShatterEvent> pre = new AtomicReference<>();
+            AtomicReference<PostShatterEvent> post = new AtomicReference<>();
+            server.getPluginManager().registerEvents(new Listener() {
+                @EventHandler
+                public void on(PreShatterEvent e) {
+                    pre.set(e);
+                }
+
+                @EventHandler
+                public void on(PostShatterEvent e) {
+                    post.set(e);
+                }
+            }, plugin);
+
+            ItemStack sourceBook = enchantedBook("sharpness", "5", "unbreaking", "3", "mending", "1");
+            // Prepare randomly picked only unbreaking for this split.
+            InventoryClickEvent event = buildClickEvent(player, sourceBook, new ItemStack(Material.BOOK), enchantedBook("unbreaking", "3"));
+            ShatterClickEvent.onEvent(event);
+
+            assertNotNull(pre.get(), "PreShatterEvent must fire");
+            assertEquals(List.of("unbreaking"), pre.get().getEnchantments().stream().map(IPluginEnchantment::getKey).toList(),
+                    "PreShatterEvent must carry the split subset, not every eligible enchantment");
+            Mockito.verify(economy).withdrawPlayer(Mockito.any(OfflinePlayer.class), eq(20.0));
+            assertNotNull(post.get(), "PostShatterEvent must fire");
+            assertEquals(20.0, post.get().getEconomyCost());
+        } finally {
+            EconomyTestSupport.uninstall();
+        }
+    }
+
+    // -> economy robustness: a failed withdrawal must abort the operation
+
+    @Test
+    void givenWithdrawalFails_whenShatter_thenNothingHappensAndPlayerIsTold() {
+        setConfig("shatterment.economy.enabled", true);
+        Economy economy = EconomyTestSupport.install();
+        Mockito.when(economy.withdrawPlayer(Mockito.any(OfflinePlayer.class), Mockito.anyDouble()))
+                .thenReturn(new EconomyResponse(0, 0, EconomyResponse.ResponseType.FAILURE, "bank limit"));
+        try {
+            PlayerMock player = server.addPlayer("TestPlayer");
+            player.setLevel(10);
+
+            InventoryClickEvent event = buildClickEvent(player, enchantedBook("sharpness", "5", "unbreaking", "3"), new ItemStack(Material.BOOK), enchantedBook("sharpness", "5"));
+            ShatterClickEvent.onEvent(event);
+
+            Mockito.verify(event).setCancelled(true);
+            Mockito.verify(lastMockAnvil, Mockito.never()).setItem(eq(0), Mockito.any());
+            assertTrue(player.getItemOnCursor().getType().isAir(), "No result may be delivered when payment failed");
+            assertEquals(10, player.getLevel(), "XP must not be deducted when payment failed");
+            assertNotNull(player.nextMessage(), "Player must be told the payment failed");
+        } finally {
+            EconomyTestSupport.uninstall();
+        }
+    }
+
+    // -> economy robustness: abortable preconditions run before the player is charged
+
+    @Test
+    void givenResultWithoutItemMeta_whenShatter_thenPlayerIsNotCharged() {
+        setConfig("shatterment.economy.enabled", true);
+        Economy economy = EconomyTestSupport.install();
+        try {
+            PlayerMock player = server.addPlayer("TestPlayer");
+            player.setLevel(10);
+
+            ItemStack metalessResult = Mockito.mock(ItemStack.class);
+            Mockito.when(metalessResult.getType()).thenReturn(Material.ENCHANTED_BOOK);
+            Mockito.when(metalessResult.getItemMeta()).thenReturn(null);
+
+            InventoryClickEvent event = buildClickEvent(player, enchantedBook("sharpness", "5", "unbreaking", "3"), new ItemStack(Material.BOOK), metalessResult);
+            ShatterClickEvent.onEvent(event);
+
+            Mockito.verify(economy, Mockito.never()).withdrawPlayer(Mockito.any(OfflinePlayer.class), Mockito.anyDouble());
+            assertEquals(10, player.getLevel());
+        } finally {
+            EconomyTestSupport.uninstall();
+        }
+    }
+
+    // -> a second operation is refused while the first one's blank-book removal is still pending
+
+    @Test
+    void givenPendingBookRemoval_whenSecondClickOnSameAnvil_thenRefusedUntilRemovalRan() {
+        PlayerMock player = server.addPlayer("TestPlayer");
+        player.setLevel(20);
+
+        InventoryClickEvent first = buildClickEvent(player, enchantedBook("sharpness", "5", "unbreaking", "3"), new ItemStack(Material.BOOK, 2), enchantedBook("sharpness", "5"));
+        ShatterClickEvent.onEvent(first);
+        AnvilInventory anvil = lastMockAnvil;
+        int levelAfterFirst = player.getLevel();
+        assertTrue(AnvilEventGuards.isOperationPending(anvil), "First operation must leave the anvil pending");
+
+        player.setItemOnCursor(null);
+        InventoryClickEvent second = buildClickEvent(player, enchantedBook("sharpness", "5", "unbreaking", "3"), new ItemStack(Material.BOOK, 2), enchantedBook("sharpness", "5"));
+        Mockito.when(second.getInventory()).thenReturn(anvil);
+        ShatterClickEvent.onEvent(second);
+
+        Mockito.verify(second).setCancelled(true);
+        assertEquals(levelAfterFirst, player.getLevel(), "No second charge while pending");
+        assertTrue(player.getItemOnCursor().getType().isAir(), "No second result while pending");
+
+        server.getScheduler().performTicks(2);
+        assertFalse(AnvilEventGuards.isOperationPending(anvil), "Pending clears after the deferred removal");
+    }
+
+    // -> success chance of 0.0 on the split enchantment: plain book + message, never an empty enchanted book
+
+    @Test
+    void givenZeroSuccessChance_whenShatter_thenPlainBookDeliveredWithMessage() {
+        setConfig("shatterment.enchantment-chances.sharpness", 0.0);
+        PlayerMock player = server.addPlayer("TestPlayer");
+        player.setLevel(10);
+
+        InventoryClickEvent event = buildClickEvent(player, enchantedBook("sharpness", "5", "unbreaking", "3"), new ItemStack(Material.BOOK), enchantedBook("sharpness", "5"));
+        ShatterClickEvent.onEvent(event);
+
+        assertEquals(Material.BOOK, player.getItemOnCursor().getType(), "A plain book must replace the empty enchanted book");
+        assertNotNull(player.nextMessage(), "Player must be told the transfer failed");
+    }
+
+    // -> unsafe click types are cancelled WITH feedback
+
+    @Test
+    void givenNumberKeyClickOnGenuineShatter_whenClickResult_thenCancelledAndPlayerTold() {
+        PlayerMock player = server.addPlayer("TestPlayer");
+        player.setLevel(10);
+
+        InventoryClickEvent event = buildClickEvent(player, enchantedBook("sharpness", "5", "unbreaking", "3"), new ItemStack(Material.BOOK), enchantedBook("sharpness", "5"));
+        Mockito.when(event.getClick()).thenReturn(org.bukkit.event.inventory.ClickType.NUMBER_KEY);
+        ShatterClickEvent.onEvent(event);
+
+        Mockito.verify(event).setCancelled(true);
+        Mockito.verify(lastMockAnvil, Mockito.never()).setItem(eq(0), Mockito.any());
+        assertNotNull(player.nextMessage(), "Player must be told to take the result with a normal click");
     }
 }

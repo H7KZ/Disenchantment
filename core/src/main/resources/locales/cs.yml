@@ -49,6 +49,10 @@ messages:
   maintenance-is-disabled: "&aRežim údržby je nyní &fvypnut&a.&r"
   config-reloaded: "&aKonfigurace byla znovu načtena.&r"
   reload-failed: "&cconfig.yml obsahuje chybu a nebyl načten, aktuální nastavení zůstává beze změny: &f{error}&r"
+  economy-withdraw-failed: "&cPlatbu se nepodařilo zpracovat. Nebyl vám strhnut žádný poplatek.&r"
+  not-enough-levels: "&cK tomu potřebujete &f{levels} &cúrovní zkušeností.&r"
+  enchantments-failed-to-transfer: "&cPřenos kouzel se nezdařil. Místo toho jste obdrželi obyčejnou knihu.&r"
+  use-normal-click: "&cVýsledek vezměte běžným kliknutím levým nebo pravým tlačítkem.&r"
 
 states:
   enabled: "&aPovoleno&r"
