@@ -43,6 +43,9 @@ messages:
   economy-charged: "&7Byl vám strhnut poplatek &f{cost}&7.&r"
   economy-not-available: "&cEkonomika je povolena v konfiguraci, ale nebyl nalezen žádný ekonomický plugin. Prosím nainstalujte Vault a ekonomický plugin.&r"
   cooldown-active: "&cMusíte počkat &f{seconds}s &cpřed dalším použitím.&r"
+  maintenance-active: "&cDisenchantment je momentálně v údržbě. Zkuste to prosím později.&r"
+  maintenance-is-enabled: "&aRežim údržby je nyní &fzapnut&a.&r"
+  maintenance-is-disabled: "&aRežim údržby je nyní &fvypnut&a.&r"
   reload-failed: "&cconfig.yml obsahuje chybu a nebyl načten, aktuální nastavení zůstává beze změny: &f{error}&r"
 
 states:
@@ -238,6 +241,17 @@ gui:
       title: "&b&lStats&r"
       lore:
         - "&7View operation statistics"
+    economy:
+      title: "&6&lEkonomika&r"
+      lore:
+        - "&7Upravte nastavení ekonomiky"
+        - "&7LEVÝ KLIK pro úpravu odčarování"
+        - "&7PRAVÝ KLIK pro úpravu roztříštění"
+    split-count:
+      title: "&d&lPočet rozdělení&r"
+      lore:
+        - "&7Nastavte, kolik očarování se"
+        - "&7oddělí při jednom roztříštění"
   worlds:
     inventory: "&7&lSvěty&r"
     lore:
@@ -361,8 +375,12 @@ gui:
   materials:
     inventory: "&7&lMateriály&r"
     lore:
-      enabled: "&7Odčarování: &aPovoleno&r"
-      disabled: "&7Odčarování: &cZakázáno&r"
+      disenchantment:
+        enabled: "&7Odčarování: &aPovoleno&r"
+        disabled: "&7Odčarování: &cZakázáno&r"
+      shatterment:
+        enabled: "&7Roztříštění: &aPovoleno&r"
+        disabled: "&7Roztříštění: &cZakázáno&r"
     help:
       title: "&d&lNápověda&r"
       lore:
@@ -427,3 +445,100 @@ gui:
           - "&7PRAVÝ KLIK pro snížení"
   stats:
     inventory: "&7&lStatistics&r"
+  economy:
+    disenchantment:
+      inventory: "&7&lEkonomika | Odčarování&r"
+      enabled:
+        title: "&7&lEkonomika&r"
+        lore:
+          enabled:
+            - "&aPovoleno&r"
+            - "&7Klikněte pro zakázání&r"
+          disabled:
+            - "&cZakázáno&r"
+            - "&7Klikněte pro povolení&r"
+      cost:
+        title: "&7&lCena&r"
+        lore:
+          - "&7Aktuální hodnota: &f{cost}&r"
+          - "&7LEVÝ KLIK pro zvýšení"
+          - "&7PRAVÝ KLIK pro snížení"
+      show-cost:
+        title: "&7&lZobrazit cenu&r"
+        lore:
+          enabled:
+            - "&aPovoleno&r"
+            - "&7Klikněte pro zakázání&r"
+          disabled:
+            - "&cZakázáno&r"
+            - "&7Klikněte pro povolení&r"
+      charge-message:
+        title: "&7&lZpráva o poplatku&r"
+        lore:
+          enabled:
+            - "&aPovoleno&r"
+            - "&7Klikněte pro zakázání&r"
+          disabled:
+            - "&cZakázáno&r"
+            - "&7Klikněte pro povolení&r"
+    shatterment:
+      inventory: "&7&lEkonomika | Roztříštění&r"
+      enabled:
+        title: "&7&lEkonomika&r"
+        lore:
+          enabled:
+            - "&aPovoleno&r"
+            - "&7Klikněte pro zakázání&r"
+          disabled:
+            - "&cZakázáno&r"
+            - "&7Klikněte pro povolení&r"
+      cost:
+        title: "&7&lCena&r"
+        lore:
+          - "&7Aktuální hodnota: &f{cost}&r"
+          - "&7LEVÝ KLIK pro zvýšení"
+          - "&7PRAVÝ KLIK pro snížení"
+      show-cost:
+        title: "&7&lZobrazit cenu&r"
+        lore:
+          enabled:
+            - "&aPovoleno&r"
+            - "&7Klikněte pro zakázání&r"
+          disabled:
+            - "&cZakázáno&r"
+            - "&7Klikněte pro povolení&r"
+      charge-message:
+        title: "&7&lZpráva o poplatku&r"
+        lore:
+          enabled:
+            - "&aPovoleno&r"
+            - "&7Klikněte pro zakázání&r"
+          disabled:
+            - "&cZakázáno&r"
+            - "&7Klikněte pro povolení&r"
+  split-count:
+    inventory: "&7&lPočet rozdělení&r"
+    count:
+      title: "&7&lPočet rozdělení&r"
+      lore:
+        fixed:
+          - "&7Aktuální hodnota: &f{value}&r"
+          - "&7LEVÝ KLIK pro zvýšení"
+          - "&7PRAVÝ KLIK pro snížení"
+        min:
+          - "&7Minimum: &f{value}&r"
+          - "&7LEVÝ KLIK pro zvýšení"
+          - "&7PRAVÝ KLIK pro snížení"
+        max:
+          - "&7Maximum: &f{value}&r"
+          - "&7LEVÝ KLIK pro zvýšení"
+          - "&7PRAVÝ KLIK pro snížení"
+    mode:
+      title: "&7&lRežim&r"
+      lore:
+        fixed:
+          - "&7Aktuálně: &fPevný&r"
+          - "&7Klikněte pro přepnutí na Rozsah&r"
+        range:
+          - "&7Aktuálně: &fRozsah&r"
+          - "&7Klikněte pro přepnutí na Pevný&r"

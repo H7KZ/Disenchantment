@@ -9,6 +9,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -192,8 +193,10 @@ public class ConfigUtils {
     }
 
     /**
-     * Extracts locale YAML files from the plugin JAR resources into the plugin's data folder.
-     * Overwrites existing locale files with the bundled versions.
+     * Extracts bundled locale YAML files into the plugin's data folder. A locale file that does not
+     * exist yet is copied from the JAR. An existing one is never overwritten (custom translations are
+     * preserved), but any keys it is missing relative to the bundled version, for example keys added by
+     * a plugin update, are merged in via {@link #mergeMissingLocaleKeys(String, File)}.
      */
     public static void setupLocaleConfigs() {
         for (String locale : Config.getLocales()) {
@@ -201,7 +204,8 @@ public class ConfigUtils {
             DiagnosticUtils.debug("CONFIG", "Locale setup: extracting " + locale + ".yml → " + localeFile.getPath());
 
             if (localeFile.exists()) {
-                DiagnosticUtils.debug("CONFIG", "Locale setup: " + locale + ".yml already exists, skipping (preserving custom translations)");
+                DiagnosticUtils.debug("CONFIG", "Locale setup: " + locale + ".yml already exists, merging missing keys (preserving custom translations)");
+                mergeMissingLocaleKeys(locale, localeFile);
                 continue;
             }
 
@@ -212,5 +216,49 @@ public class ConfigUtils {
                 logger.log(Level.SEVERE, "Could not save " + locale + ".yml", e);
             }
         }
+    }
+
+    /**
+     * Adds every key present in the bundled {@code locales/<locale>.yml} but absent from the user's file,
+     * keeping all of the user's existing values untouched. The file is only rewritten if something was added.
+     * An unparseable user file is left as is.
+     *
+     * @param locale     the locale code, e.g. {@code "en"}
+     * @param localeFile the user's locale file in the data folder
+     * @return the number of keys added
+     */
+    public static int mergeMissingLocaleKeys(String locale, File localeFile) {
+        InputStream stream = plugin.getResource("locales/" + locale + ".yml");
+        if (stream == null) return 0;
+
+        YamlConfiguration bundled = YamlConfiguration.loadConfiguration(new InputStreamReader(stream, StandardCharsets.UTF_8));
+        YamlConfiguration user = new YamlConfiguration();
+
+        try {
+            user.load(localeFile);
+        } catch (InvalidConfigurationException | IOException e) {
+            logger.warning("Locale " + locale + ".yml could not be parsed and was left untouched: " + e.getMessage());
+            return 0;
+        }
+
+        int added = 0;
+
+        for (String key : bundled.getKeys(true)) {
+            if (bundled.isConfigurationSection(key) || user.contains(key, true)) continue;
+            user.set(key, bundled.get(key));
+            added++;
+        }
+
+        if (added == 0) return 0;
+
+        try {
+            user.save(localeFile);
+            logger.info("Locale " + locale + ".yml: added " + added + " missing key(s) from the bundled locale");
+        } catch (IOException e) {
+            logger.log(Level.WARNING, "Could not update locale " + locale + ".yml with missing keys", e);
+            return 0;
+        }
+
+        return added;
     }
 }
