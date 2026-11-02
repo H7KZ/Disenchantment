@@ -21,10 +21,11 @@ public class CommandCompleter implements TabCompleter {
     public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
         List<String> result = new ArrayList<>();
 
+        // Only suggest what the sender is allowed to run (no feedback message while merely tab-completing).
         if (args.length == 1) {
-            for (String c : commands.keySet()) {
-                if (c.toLowerCase().startsWith(args[0].toLowerCase())) {
-                    result.add(c);
+            for (CommandBuilder cmd : commands.values()) {
+                if (cmd.name().toLowerCase().startsWith(args[0].toLowerCase()) && cmd.permission().hasPermission(sender, false)) {
+                    result.add(cmd.name());
                 }
             }
 
@@ -32,7 +33,8 @@ public class CommandCompleter implements TabCompleter {
         }
 
         for (CommandBuilder cmd : commands.values()) {
-            if (cmd.name().equalsIgnoreCase(args[0])) result = cmd.onTabComplete(sender, args);
+            if (cmd.name().equalsIgnoreCase(args[0]) && cmd.permission().hasPermission(sender, false))
+                result = cmd.onTabComplete(sender, args);
         }
 
         return result;
