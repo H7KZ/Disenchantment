@@ -78,7 +78,8 @@ Called from `onEnable()`. Runs the following steps **in order**:
    `Listener`.
 10. **Command registration** — Wires `CommandRegister` as executor and `CommandCompleter` as tab completer for the
     `disenchantment` command.
-11. **bStats** — `new BStatsMetrics(plugin, bstatsId)`.
+11. **bStats** — `metrics = new BStatsMetrics(plugin, bstatsId)` (stored in a field so it can be shut down later).
+    If `logging.operations` is enabled, `StatsManager.init(dataFolder, metrics)` follows.
 12. **Update checker** — `new UpdateChecker(spigotmcId).run(plugin, version)` — adds the returned task to the `tasks`
     list. Runs every 8 hours asynchronously.
 13. **PlaceholderAPI** — If `PlaceholderAPI` plugin is present, registers `DisenchantmentPlaceholderExpansion`.
@@ -93,6 +94,10 @@ Called from `onDisable()`. Runs:
 2. Calls `SchedulerUtils.cancelAllTasks(plugin)` for any tasks not in the list.
 3. Calls `SupportedPluginManager.deactivateAllPlugins()` — clears the activated adapters list.
 4. Calls `EconomyUtils.reset()` — nulls the cached `Economy` provider.
+5. Calls `StatsManager.shutdown()` and `metrics.shutdown()` (the bStats submitter would otherwise keep running).
+
+`reload()` does the same for stats/bStats: it shuts down the old `StatsManager` **and** the old `BStatsMetrics`
+before creating new ones, so reloads never leave duplicate bStats submitters behind.
 
 ---
 
@@ -136,3 +141,22 @@ Currently the only task added is the update checker. The list is iterated on dis
 If you need to run something at startup, add it in `enable()` after step 5 (once `enabled` is set) but before listener
 registration if it affects listener behavior, or after listener registration for background tasks. Always add
 long-running async tasks to `tasks` so they are cancelled on shutdown.
+
+---
+
+## Stats System (`stats/`)
+
+`StatsManager` is a nullable singleton (`getInstance()` is `null` when `logging.operations: false`). `StatsCache` is the
+in-memory read path; `StatsDatabase` is the SQLite store, written through a single-thread executor.
+
+- **Boot**: `StatsManager.init` loads aggregates on the DB writer thread, then applies them to the cache and registers
+  `StatsListener` through `SchedulerUtils.runGlobal` (global region thread on Folia, main thread on Spigot). Never use
+  `Bukkit.getScheduler()` here — it throws `UnsupportedOperationException` on Folia. Failures in the callback are logged
+  at SEVERE, not swallowed. The callback is skipped if the manager was shut down/replaced (reload) in the meantime.
+- **Thread safety**: `StatsCache` totals are `LongAdder`/`DoubleAdder`; maps are `ConcurrentHashMap` updated with atomic
+  `merge`. `record()` is safe from any region thread; readers (PAPI, bStats, GUI) may be async. `initialize()` is
+  additive.
+- **Pruning**: `StatsManager.pruneAsync(days)` / `StatsDatabase.pruneOlderThan(days)` delete operation records older than
+  `days` days on the writer executor (no-op for `days <= 0`). Cached totals are not adjusted until the next boot.
+- **Schema**: `operations` table with indexes on `player_uuid`, `operation_type`, `timestamp`. The legacy
+  `idx_enchantment_keys` index is dropped on init.

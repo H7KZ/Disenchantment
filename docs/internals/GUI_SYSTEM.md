@@ -111,6 +111,12 @@ Border items are typically gray stained glass panes with empty click handlers.
 All screens implement `InventoryHolder`. The inventory is created in the constructor and stored; `getInventory()`
 returns it. Bukkit associates the holder with the inventory, which `GUIClickEvent` uses to route clicks.
 
+**Click/drag hardening**: `GUIClickEvent` cancels *every* `InventoryClickEvent` and `InventoryDragEvent` whose view's top
+inventory holder is one of these screens (shift-click from the player inventory, empty slots, double-click
+collect-to-cursor, number-key swaps, outside clicks, drags, permission-denied clicks) **before** dispatching clicks on the
+GUI inventory to `onInventoryClick`. Item handlers therefore don't need to guard against item movement, though they
+still call `event.setCancelled(true)` by convention. A new screen must be added to `GUIClickEvent.isPluginGui()`.
+
 Each screen builds a `GUIItem[]` array (using `ArrayUtils.addAll` to combine border + content items), populates the
 inventory via `InventoryBuilder.fillItems(inventory, items)`, and exposes `onInventoryClick(InventoryClickEvent)` which
 iterates `items` and calls `item.onClick(event)` on the matching slot.
@@ -196,7 +202,8 @@ Takes `AnvilFeature feature`. Shows four items:
    this.inventory = InventoryBuilder.fillItems(inv, items);
    ```
 4. Implement `getInventory()` and `onInventoryClick(InventoryClickEvent)`.
-5. Add a routing branch in `GUIClickEvent.handler()`:
+5. Add the class to `GUIClickEvent.isPluginGui()` (so its clicks/drags are cancelled) and a routing branch in
+   `GUIClickEvent.handler()`:
    ```java
    } else if (clickedHolder instanceof MyGUI myGUI) {
        if (!PermissionGroupType.MY_PERMISSION.hasPermission(p)) return;

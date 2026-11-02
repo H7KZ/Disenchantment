@@ -248,7 +248,9 @@ Same fields and semantics as the disenchant variants but for the shattering oper
 
 `events/GUIClickEvent.java` — registered as a standard `Listener` at `EventPriority.NORMAL`.
 
-Routes `InventoryClickEvent` to the correct GUI screen by checking `e.getClickedInventory().getHolder()` type:
+Handles `InventoryClickEvent` and `InventoryDragEvent`. While the view's top inventory belongs to one of the plugin
+GUIs, every click (top or bottom inventory, any click type) and every drag is cancelled first; clicks on the GUI inventory
+are then routed to the correct screen by checking `e.getClickedInventory().getHolder()` type:
 
 | Holder type       | Routed to                             | Permission check                                                 |
 |-------------------|---------------------------------------|------------------------------------------------------------------|

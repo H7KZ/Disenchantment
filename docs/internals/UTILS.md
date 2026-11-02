@@ -398,8 +398,11 @@ public Object run(Plugin plugin, String version)
 Integrates with the bStats metrics service (https://bstats.org). Initialized in `enable()` with:
 
 ```java
-new BStatsMetrics(plugin, bstatsId);  // bstatsId = 19058
+metrics = new BStatsMetrics(plugin, bstatsId);  // bstatsId = 19058
 ```
+
+The instance is kept in a field on `Disenchantment`; `shutdown()` is called in `disable()` and before it is re-created in
+`reload()` so the old submitter does not keep running.
 
 Sends anonymous usage statistics (server version, plugin version, Java version, OS) to bStats. Players can opt out via
 the global bStats config at `plugins/bStats/config.yml`. No personal data is collected.
