@@ -7,6 +7,7 @@ import com.jankominek.disenchantment.types.EnchantmentStateType;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -52,7 +53,7 @@ public class EventUtils {
             if (firstItem.getType() == Material.AIR || secondItem.getType() == Material.AIR) return List.of();
 
             if (firstItem.getType() == Material.ENCHANTED_BOOK) return List.of();
-            if (secondItem.getType() != Material.BOOK) return List.of();
+            if (!isBlankBook(secondItem)) return List.of();
 
             if (firstItem.getAmount() > 1) {
                 DiagnosticUtils.debug("DISENCHANT", "EventUtils: rejected — source item is a stack (amount " + firstItem.getAmount() + " > 1); disenchantment operates on a single item");
@@ -110,7 +111,7 @@ public class EventUtils {
             if (firstItem.getType() == Material.AIR || secondItem.getType() == Material.AIR) return List.of();
 
             if (firstItem.getType() == Material.ENCHANTED_BOOK) return List.of();
-            if (secondItem.getType() != Material.BOOK) return List.of();
+            if (!isBlankBook(secondItem)) return List.of();
 
             if (firstItem.getAmount() > 1) {
                 DiagnosticUtils.debug("DISENCHANT", "EventUtils [" + activatedPlugin.getName() + "]: rejected — source item is a stack (amount " + firstItem.getAmount() + " > 1); disenchantment operates on a single item");
@@ -222,7 +223,7 @@ public class EventUtils {
             if (firstItem.getType() == Material.AIR || secondItem.getType() == Material.AIR) return List.of();
 
             if (firstItem.getType() != Material.ENCHANTED_BOOK) return List.of();
-            if (secondItem.getType() != Material.BOOK) return List.of();
+            if (!isBlankBook(secondItem)) return List.of();
 
             if (firstItem.getAmount() > 1) {
                 DiagnosticUtils.debug("SHATTER", "EventUtils: rejected — source book is a stack (amount " + firstItem.getAmount() + " > 1); shatterment operates on a single item");
@@ -285,7 +286,7 @@ public class EventUtils {
             if (firstItem.getType() == Material.AIR || secondItem.getType() == Material.AIR) return List.of();
 
             if (firstItem.getType() != Material.ENCHANTED_BOOK) return List.of();
-            if (secondItem.getType() != Material.BOOK) return List.of();
+            if (!isBlankBook(secondItem)) return List.of();
 
             if (firstItem.getAmount() > 1) {
                 DiagnosticUtils.debug("SHATTER", "EventUtils [" + activatedPlugin.getName() + "]: rejected — source book is a stack (amount " + firstItem.getAmount() + " > 1); shatterment operates on a single item");
@@ -365,6 +366,26 @@ public class EventUtils {
             if (materialBypassActive.get()) return false;
             return Config.Shatterment.isMaterialRestricted(item.getType());
         }
+    }
+
+    /**
+     * Returns {@code true} when {@code item} is a plain, unmodified {@link Material#BOOK} that may
+     * serve as the blank book of an operation. A book another plugin has tagged as something special
+     * (custom display name, lore, custom model data, or any persistent-data key) is rejected so a
+     * quest/currency/voucher book cannot be consumed by a disenchant or shatter operation.
+     *
+     * @param item the item in the second anvil slot
+     * @return whether the item is a vanilla-looking blank book
+     */
+    public static boolean isBlankBook(ItemStack item) {
+        if (item == null || item.getType() != Material.BOOK) return false;
+        if (!item.hasItemMeta()) return true;
+
+        ItemMeta meta = item.getItemMeta();
+        if (meta == null) return true;
+
+        if (meta.hasDisplayName() || meta.hasLore() || meta.hasCustomModelData()) return false;
+        return meta.getPersistentDataContainer().getKeys().isEmpty();
     }
 
     /**
