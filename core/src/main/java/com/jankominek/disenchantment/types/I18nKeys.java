@@ -52,6 +52,7 @@ public enum I18nKeys {
     MESSAGES_MAINTENANCE_IS_DISABLED("messages.maintenance-is-disabled"),
     MESSAGES_SPECIFY_ENCHANTMENT_CHANCE("messages.specify-enchantment-chance"),
     MESSAGES_ENCHANTMENT_CHANCE_IS_SET("messages.enchantment-chance-is-set"),
+    MESSAGES_ECONOMY_WITHDRAW_FAILED("messages.economy-withdraw-failed"),
 
     COMMANDS_CHANCES_DISENCHANTMENT_TITLE("commands.chances.disenchantment.title"),
     COMMANDS_CHANCES_DISENCHANTMENT_EMPTY("commands.chances.disenchantment.empty"),

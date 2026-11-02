@@ -9,6 +9,7 @@ import com.jankominek.disenchantment.events.api.PostShatterEvent;
 import com.jankominek.disenchantment.events.api.PreShatterEvent;
 import com.jankominek.disenchantment.plugins.IPluginEnchantment;
 import net.milkbowl.vault.economy.Economy;
+import net.milkbowl.vault.economy.EconomyResponse;
 import org.bukkit.event.Listener;
 import org.bukkit.event.EventHandler;
 import org.bukkit.OfflinePlayer;
@@ -216,6 +217,55 @@ class ShatterClickEventTest extends DisenchantmentTestBase {
             Mockito.verify(economy).withdrawPlayer(Mockito.any(OfflinePlayer.class), eq(20.0));
             assertNotNull(post.get(), "PostShatterEvent must fire");
             assertEquals(20.0, post.get().getEconomyCost());
+        } finally {
+            EconomyTestSupport.uninstall();
+        }
+    }
+
+    // -> economy robustness: a failed withdrawal must abort the operation
+
+    @Test
+    void givenWithdrawalFails_whenShatter_thenNothingHappensAndPlayerIsTold() {
+        setConfig("shatterment.economy.enabled", true);
+        Economy economy = EconomyTestSupport.install();
+        Mockito.when(economy.withdrawPlayer(Mockito.any(OfflinePlayer.class), Mockito.anyDouble()))
+                .thenReturn(new EconomyResponse(0, 0, EconomyResponse.ResponseType.FAILURE, "bank limit"));
+        try {
+            PlayerMock player = server.addPlayer("TestPlayer");
+            player.setLevel(10);
+
+            InventoryClickEvent event = buildClickEvent(player, enchantedBook("sharpness", "5", "unbreaking", "3"), new ItemStack(Material.BOOK), enchantedBook("sharpness", "5"));
+            ShatterClickEvent.onEvent(event);
+
+            Mockito.verify(event).setCancelled(true);
+            Mockito.verify(lastMockAnvil, Mockito.never()).setItem(eq(0), Mockito.any());
+            assertTrue(player.getItemOnCursor().getType().isAir(), "No result may be delivered when payment failed");
+            assertEquals(10, player.getLevel(), "XP must not be deducted when payment failed");
+            assertNotNull(player.nextMessage(), "Player must be told the payment failed");
+        } finally {
+            EconomyTestSupport.uninstall();
+        }
+    }
+
+    // -> economy robustness: abortable preconditions run before the player is charged
+
+    @Test
+    void givenResultWithoutItemMeta_whenShatter_thenPlayerIsNotCharged() {
+        setConfig("shatterment.economy.enabled", true);
+        Economy economy = EconomyTestSupport.install();
+        try {
+            PlayerMock player = server.addPlayer("TestPlayer");
+            player.setLevel(10);
+
+            ItemStack metalessResult = Mockito.mock(ItemStack.class);
+            Mockito.when(metalessResult.getType()).thenReturn(Material.ENCHANTED_BOOK);
+            Mockito.when(metalessResult.getItemMeta()).thenReturn(null);
+
+            InventoryClickEvent event = buildClickEvent(player, enchantedBook("sharpness", "5", "unbreaking", "3"), new ItemStack(Material.BOOK), metalessResult);
+            ShatterClickEvent.onEvent(event);
+
+            Mockito.verify(economy, Mockito.never()).withdrawPlayer(Mockito.any(OfflinePlayer.class), Mockito.anyDouble());
+            assertEquals(10, player.getLevel());
         } finally {
             EconomyTestSupport.uninstall();
         }

@@ -461,6 +461,17 @@ public class I18n {
         public static String economyChargeMessageIsDisabled() {
             return I18n.translateColors(localeConfig.getString(I18nKeys.MESSAGES_ECONOMY_CHARGE_MESSAGE_IS_DISABLED.getKey()));
         }
+
+        // ------------------------------------------------------------------------------------------
+        // Anvil event feedback messages (audit fixes)
+
+        /**
+         * Returns the localized message shown when the economy provider rejected the withdrawal.
+         */
+        public static String economyWithdrawFailed() {
+            return I18n.translateColors(localeConfig.getString(I18nKeys.MESSAGES_ECONOMY_WITHDRAW_FAILED.getKey(),
+                    "&cThe payment could not be processed. You have not been charged.&r"));
+        }
     }
 
     /**

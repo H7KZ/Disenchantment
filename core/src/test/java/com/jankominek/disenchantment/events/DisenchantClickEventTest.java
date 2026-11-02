@@ -9,6 +9,7 @@ import com.jankominek.disenchantment.utils.CooldownManager;
 import com.jankominek.disenchantment.utils.EnchantmentUtils;
 import com.jankominek.disenchantment.utils.EconomyTestSupport;
 import net.milkbowl.vault.economy.Economy;
+import net.milkbowl.vault.economy.EconomyResponse;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
@@ -420,6 +421,55 @@ class DisenchantClickEventTest extends DisenchantmentTestBase {
             Mockito.verify(lastMockAnvil).setItem(eq(0), source.capture());
             assertFalse(source.getValue().containsEnchantment(enchantment("mending")), "DELETE-state enchantment must still be removed");
             assertFalse(source.getValue().containsEnchantment(enchantment("sharpness")));
+        } finally {
+            EconomyTestSupport.uninstall();
+        }
+    }
+
+    // -> economy robustness: a failed withdrawal must abort the operation
+
+    @Test
+    void givenWithdrawalFails_whenDisenchant_thenNothingHappensAndPlayerIsTold() {
+        setConfig("disenchantment.economy.enabled", true);
+        Economy economy = EconomyTestSupport.install();
+        Mockito.when(economy.withdrawPlayer(Mockito.any(OfflinePlayer.class), Mockito.anyDouble()))
+                .thenReturn(new EconomyResponse(0, 0, EconomyResponse.ResponseType.FAILURE, "bank limit"));
+        try {
+            PlayerMock player = server.addPlayer("TestPlayer");
+            player.setLevel(10);
+
+            InventoryClickEvent event = buildClickEvent(player, sword("sharpness", 5), new ItemStack(Material.BOOK), enchantedBook("sharpness", 5));
+            DisenchantClickEvent.onEvent(event);
+
+            Mockito.verify(event).setCancelled(true);
+            Mockito.verify(lastMockAnvil, Mockito.never()).setItem(eq(0), Mockito.any());
+            assertTrue(player.getItemOnCursor().getType().isAir(), "No result may be delivered when payment failed");
+            assertEquals(10, player.getLevel(), "XP must not be deducted when payment failed");
+            assertNotNull(player.nextMessage(), "Player must be told the payment failed");
+        } finally {
+            EconomyTestSupport.uninstall();
+        }
+    }
+
+    // -> economy robustness: abortable preconditions run before the player is charged
+
+    @Test
+    void givenResultWithoutItemMeta_whenDisenchant_thenPlayerIsNotCharged() {
+        setConfig("disenchantment.economy.enabled", true);
+        Economy economy = EconomyTestSupport.install();
+        try {
+            PlayerMock player = server.addPlayer("TestPlayer");
+            player.setLevel(10);
+
+            ItemStack metalessResult = Mockito.mock(ItemStack.class);
+            Mockito.when(metalessResult.getType()).thenReturn(Material.ENCHANTED_BOOK);
+            Mockito.when(metalessResult.getItemMeta()).thenReturn(null);
+
+            InventoryClickEvent event = buildClickEvent(player, sword("sharpness", 5), new ItemStack(Material.BOOK), metalessResult);
+            DisenchantClickEvent.onEvent(event);
+
+            Mockito.verify(economy, Mockito.never()).withdrawPlayer(Mockito.any(OfflinePlayer.class), Mockito.anyDouble());
+            assertEquals(10, player.getLevel());
         } finally {
             EconomyTestSupport.uninstall();
         }

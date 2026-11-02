@@ -278,18 +278,7 @@ public final class AnvilEventGuards {
      * @return result indicating what action (if any) the caller must take
      */
     public static EconomyResult processEconomy(Player p, EconomyConfig config) {
-        if (!config.isEnabled() || p.getGameMode() == GameMode.CREATIVE) return EconomyResult.OK;
-
-        if (!EconomyUtils.isAvailable()) return EconomyResult.NOT_AVAILABLE;
-
-        double cost = config.getCost();
-        if (!EconomyUtils.has(p, cost)) return EconomyResult.INSUFFICIENT_FUNDS;
-
-        EconomyUtils.withdraw(p, cost);
-        if (config.isChargeMessageEnabled()) {
-            p.sendMessage(I18n.getPrefix() + " " + I18n.Messages.economyCharged(EconomyUtils.format(cost)));
-        }
-        return EconomyResult.OK;
+        return processEconomyCost(p, config, config.getCost());
     }
 
     /**
@@ -307,13 +296,22 @@ public final class AnvilEventGuards {
         /**
          * Player does not have enough money to cover the cost.
          */
-        INSUFFICIENT_FUNDS
+        INSUFFICIENT_FUNDS,
+        /**
+         * The economy provider refused or failed the withdrawal even though the balance check
+         * passed (e.g. a bank limit or a provider error). The player was not charged.
+         */
+        WITHDRAW_FAILED
     }
 
     /**
      * Same as {@link #processEconomy(Player, EconomyConfig)} but charges an explicit
      * {@code cost} instead of {@link EconomyConfig#getCost()} — used when the effective
      * cost has been recalculated from per-enchantment economy overrides.
+     * <p>
+     * The provider's {@link net.milkbowl.vault.economy.EconomyResponse} is honoured: an
+     * unsuccessful (or missing) response yields {@link EconomyResult#WITHDRAW_FAILED} so the
+     * caller never completes an operation the player did not pay for.
      */
     public static EconomyResult processEconomyCost(Player p, EconomyConfig config, double cost) {
         if (!config.isEnabled() || p.getGameMode() == GameMode.CREATIVE) return EconomyResult.OK;
@@ -322,7 +320,13 @@ public final class AnvilEventGuards {
 
         if (!EconomyUtils.has(p, cost)) return EconomyResult.INSUFFICIENT_FUNDS;
 
-        EconomyUtils.withdraw(p, cost);
+        net.milkbowl.vault.economy.EconomyResponse response = EconomyUtils.withdraw(p, cost);
+        if (response == null || !response.transactionSuccess()) {
+            DiagnosticUtils.debug("ECONOMY", () -> "processEconomy: withdraw of " + cost + " failed for " + p.getName()
+                    + (response != null ? " (" + response.errorMessage + ")" : " (null response)"));
+            return EconomyResult.WITHDRAW_FAILED;
+        }
+
         if (config.isChargeMessageEnabled()) {
             p.sendMessage(I18n.getPrefix() + " " + I18n.Messages.economyCharged(EconomyUtils.format(cost)));
         }

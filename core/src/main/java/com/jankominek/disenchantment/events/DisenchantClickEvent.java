@@ -146,6 +146,12 @@ public class DisenchantClickEvent {
             return;
         }
 
+        // Every abortable precondition must be checked BEFORE the player is charged — nothing below the
+        // economy step may return without delivering the result.
+        EnchantmentStorageMeta resultItemMeta = (EnchantmentStorageMeta) result.getItemMeta();
+
+        if (resultItemMeta == null) return;
+
         // The enchantments that really end up on the result book. The click-time collection above is
         // wider (it also holds DELETE-state enchantments, and for shatter every split candidate, not
         // just the randomly chosen subset), so the charge — like the Prepare cost display — must be
@@ -184,6 +190,12 @@ public class DisenchantClickEvent {
             e.setCancelled(true);
             return;
         }
+        if (economyResult == AnvilEventGuards.EconomyResult.WITHDRAW_FAILED) {
+            DiagnosticUtils.debug("DISENCHANT", "Click: economy withdrawal failed → CANCELLED");
+            p.sendMessage(I18n.getPrefix() + " " + I18n.Messages.economyWithdrawFailed());
+            e.setCancelled(true);
+            return;
+        }
 
         AnvilEventGuards.clearBypassCost(p);
 
@@ -195,10 +207,6 @@ public class DisenchantClickEvent {
 
         ItemStack finalFirstItem = firstItem.clone();
         List<IPluginEnchantment> enchantmentsToDelete = EventUtils.Disenchantment.findEnchantmentsToDelete(preEvent.getEnchantments());
-
-        EnchantmentStorageMeta resultItemMeta = (EnchantmentStorageMeta) result.getItemMeta();
-
-        if (resultItemMeta == null) return;
 
         // Always remove the vanilla/Bukkit enchantments recorded on the result book from the
         // source item — this must NOT depend on whether a custom enchantment plugin is active.

@@ -46,6 +46,7 @@ messages:
   maintenance-active: "&cDisenchantment is currently under maintenance. Please try again later.&r"
   maintenance-is-enabled: "&aMaintenance mode is now &fenabled&a.&r"
   maintenance-is-disabled: "&aMaintenance mode is now &fdisabled&a.&r"
+  economy-withdraw-failed: "&cThe payment could not be processed. You have not been charged.&r"
 
 states:
   enabled: "&aEnabled&r"
