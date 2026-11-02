@@ -1,5 +1,6 @@
 package com.jankominek.disenchantment.stats;
 
+import com.jankominek.disenchantment.config.Config;
 import com.jankominek.disenchantment.utils.BStatsMetrics;
 import com.jankominek.disenchantment.utils.SchedulerUtils;
 import org.bukkit.Bukkit;
@@ -48,6 +49,11 @@ public class StatsManager {
             // Listener registers after cache init so no boot-window records are overwritten.
             // The callback hops to the global region thread via SchedulerUtils (Bukkit.getScheduler() throws on Folia).
             StatsManager manager = instance;
+
+            // Queued on the writer executor ahead of the boot load, so the cache never counts
+            // records that are about to be pruned. No-op when retention is 0 (keep forever).
+            db.pruneAsync(Config.getOperationsRetentionDays());
+
             db.loadBootDataAsync(
                     bd -> SchedulerUtils.runGlobal(plugin, () -> {
                         try {
