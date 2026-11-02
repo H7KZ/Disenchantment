@@ -73,42 +73,87 @@ public enum MinecraftVersion {
         this.nmsVersion = nmsVersion;
     }
 
+    private static final java.util.regex.Pattern MC_TOKEN = java.util.regex.Pattern.compile("\\(MC: (\\d+)\\.(\\d+)(?:\\.(\\d+))?");
+    private static final java.util.regex.Pattern LEADING_VERSION = java.util.regex.Pattern.compile("^(\\d+)[._](\\d+)(?:[._](\\d+))?");
+
     private static MinecraftVersion init() {
-        String v = Disenchantment.plugin.getServer().getVersion();
+        try {
+            return resolve(Disenchantment.plugin.getServer().getVersion(), Disenchantment.plugin.getServer().getBukkitVersion());
+        } catch (Exception e) {
+            return INCOMPATIBLE;
+        }
+    }
 
-        // Substring match for server version strings like "git-Paper-406 (MC: 1.21.4)" or "git-Leaf-xxx (MC: 1.21.4)".
-        // Enum is ordered most-specific first, so "1.21.4" is checked before "1.21" and "1.20.4" before "1.20".
-        for (MinecraftVersion version : MinecraftVersion.values()) {
+    /**
+     * Resolves the {@link MinecraftVersion} for a server from its version strings.
+     *
+     * <p>The numeric version is read from the {@code (MC: x.y[.z])} token of
+     * {@code Server#getVersion()} (e.g. {@code "git-Paper-406 (MC: 1.21.4)"},
+     * {@code "26.1.2-48-abcdef (MC: 26.1.2)"}), falling back to the leading
+     * {@code x.y[.z]} of {@code Server#getBukkitVersion()} (e.g. {@code "1.21.4-R0.1-SNAPSHOT"}).
+     * Versions are compared numerically — never by substring, so {@code 1.21.12} cannot be
+     * mistaken for {@code 1.21.1}. A version without an exact entry maps to the newest known
+     * version below it; anything newer than every known 1.21+ version maps to {@link #LATEST},
+     * and anything below 1.18 (or unparseable) is {@link #INCOMPATIBLE}.</p>
+     *
+     * @param serverVersion value of {@code Server#getVersion()} (may be {@code null})
+     * @param bukkitVersion value of {@code Server#getBukkitVersion()} (may be {@code null})
+     * @return the matching version, never {@code null}
+     */
+    static MinecraftVersion resolve(String serverVersion, String bukkitVersion) {
+        int[] parsed = parse(serverVersion, MC_TOKEN);
+        if (parsed == null) parsed = parse(bukkitVersion, LEADING_VERSION);
+        if (parsed == null) parsed = parse(serverVersion, LEADING_VERSION);
+        if (parsed == null) return INCOMPATIBLE;
+
+        MinecraftVersion best = null;
+        int[] bestParsed = null;
+        int[] newestKnown = null;
+        for (MinecraftVersion version : values()) {
             if (version.versionDotted == null) continue;
-            if (v.contains(version.versionDotted))
-                return version;
-        }
-
-        // Extract numeric MC version from "git-Paper-xxx (MC: 26.1.1)" or bare "1.21.8" / "1_21_8".
-        // Covers both future major-version schemes (26.x.x) and unknown 1.21+ patch releases.
-        try {
-            java.util.regex.Matcher m = java.util.regex.Pattern.compile("MC: (\\d+)\\.(\\d+)").matcher(v);
-            if (m.find()) {
-                int major = Integer.parseInt(m.group(1));
-                int minor = Integer.parseInt(m.group(2));
-                if (major >= 2 || minor >= 21) return LATEST;
+            int[] known = parse(version.versionDotted, LEADING_VERSION);
+            if (newestKnown == null || compare(known, newestKnown) > 0) newestKnown = known;
+            int cmp = compare(known, parsed);
+            if (cmp == 0) return version;
+            if (cmp < 0 && (bestParsed == null || compare(known, bestParsed) > 0)) {
+                best = version;
+                bestParsed = known;
             }
-        } catch (Exception ignored) {
         }
 
+        // Newer than every known version → newest NMS module.
+        if (newestKnown != null && compare(parsed, newestKnown) > 0) return LATEST;
+
+        if (best == null) return INCOMPATIBLE;
+
+        // A patch release missing from the table (e.g. 1.21.12) shares the newest known version
+        // of its line; an unknown 1.21+ line between known ones also uses the newest module.
+        if (bestParsed[0] != parsed[0] || bestParsed[1] != parsed[1])
+            return (parsed[0] > 1 || parsed[1] >= 21) ? LATEST : best;
+
+        return best;
+    }
+
+    private static int[] parse(String text, java.util.regex.Pattern pattern) {
+        if (text == null) return null;
+        java.util.regex.Matcher m = pattern.matcher(text.trim());
+        if (!m.find()) return null;
         try {
-            int minorVersion = Integer.parseInt(v.split("\\.")[1]);
-            if (minorVersion >= 21) return LATEST;
-        } catch (Exception ignored) {
+            return new int[]{
+                    Integer.parseInt(m.group(1)),
+                    Integer.parseInt(m.group(2)),
+                    m.group(3) != null ? Integer.parseInt(m.group(3)) : 0
+            };
+        } catch (NumberFormatException e) {
+            return null;
         }
+    }
 
-        try {
-            int minorVersion = Integer.parseInt(v.split("_")[1]);
-            if (minorVersion >= 21) return LATEST;
-        } catch (Exception ignored) {
+    private static int compare(int[] a, int[] b) {
+        for (int i = 0; i < 3; i++) {
+            if (a[i] != b[i]) return Integer.compare(a[i], b[i]);
         }
-
-        return INCOMPATIBLE;
+        return 0;
     }
 
     /**
