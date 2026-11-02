@@ -117,6 +117,16 @@ public class StatsManager {
         ));
     }
 
+    /**
+     * Schedules deletion of operation records older than {@code days} days on the DB writer thread.
+     * No-op when {@code days <= 0}. Cached totals are not adjusted; they reflect the DB again on the next boot.
+     *
+     * @param days maximum record age in days
+     */
+    public void pruneAsync(int days) {
+        database.pruneAsync(days);
+    }
+
     private static void registerCharts(BStatsMetrics metrics) {
         metrics.addCustomChart(new BStatsMetrics.DrilldownPie("top_enchantments", () -> {
             StatsManager m = instance;

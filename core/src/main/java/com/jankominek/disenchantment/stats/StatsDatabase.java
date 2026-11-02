@@ -56,7 +56,9 @@ public class StatsDatabase {
                     )""");
             stmt.execute("CREATE INDEX IF NOT EXISTS idx_player_uuid ON operations(player_uuid)");
             stmt.execute("CREATE INDEX IF NOT EXISTS idx_operation_type ON operations(operation_type)");
-            stmt.execute("CREATE INDEX IF NOT EXISTS idx_enchantment_keys ON operations(enchantment_keys)");
+            // enchantment_keys is a comma-joined string, so an index on it is never usable (legacy installs may still have it).
+            stmt.execute("DROP INDEX IF EXISTS idx_enchantment_keys");
+            stmt.execute("CREATE INDEX IF NOT EXISTS idx_timestamp ON operations(timestamp)");
         }
     }
 
@@ -104,8 +106,9 @@ public class StatsDatabase {
         Map<UUID, BootData.PlayerBootStats> playerStats = new HashMap<>();
 
         // Server-wide totals: COUNT + SUM per operation_type
-        try (ResultSet rs = connection.createStatement().executeQuery(
-                "SELECT operation_type, COUNT(*), SUM(xp_cost), SUM(economy_cost) FROM operations GROUP BY operation_type")) {
+        try (Statement st = connection.createStatement();
+             ResultSet rs = st.executeQuery(
+                     "SELECT operation_type, COUNT(*), SUM(xp_cost), SUM(economy_cost) FROM operations GROUP BY operation_type")) {
             while (rs.next()) {
                 String type = rs.getString(1);
                 long count = rs.getLong(2);
@@ -119,13 +122,14 @@ public class StatsDatabase {
         }
 
         // Per-player stats
-        try (ResultSet rs = connection.createStatement().executeQuery(
-                """
-                        SELECT player_uuid, player_name,
-                          SUM(CASE WHEN operation_type='DISENCHANT' THEN 1 ELSE 0 END),
-                          SUM(CASE WHEN operation_type='SHATTER' THEN 1 ELSE 0 END),
-                          SUM(xp_cost), SUM(economy_cost), MAX(timestamp)
-                        FROM operations GROUP BY player_uuid""")) {
+        try (Statement st = connection.createStatement();
+             ResultSet rs = st.executeQuery(
+                     """
+                             SELECT player_uuid, player_name,
+                               SUM(CASE WHEN operation_type='DISENCHANT' THEN 1 ELSE 0 END),
+                               SUM(CASE WHEN operation_type='SHATTER' THEN 1 ELSE 0 END),
+                               SUM(xp_cost), SUM(economy_cost), MAX(timestamp)
+                             FROM operations GROUP BY player_uuid""")) {
             while (rs.next()) {
                 UUID uuid = UUID.fromString(rs.getString(1));
                 playerStats.put(uuid, new BootData.PlayerBootStats(
@@ -137,8 +141,8 @@ public class StatsDatabase {
         }
 
         // Enchantment counts — aggregate comma-separated keys in Java
-        try (ResultSet rs = connection.createStatement().executeQuery(
-                "SELECT enchantment_keys FROM operations")) {
+        try (Statement st = connection.createStatement();
+             ResultSet rs = st.executeQuery("SELECT enchantment_keys FROM operations")) {
             while (rs.next()) {
                 String keys = rs.getString(1);
                 if (keys != null && !keys.isEmpty()) {
@@ -167,6 +171,60 @@ public class StatsDatabase {
                 Logger.getLogger("Disenchantment").log(java.util.logging.Level.SEVERE, "StatsDatabase boot load failed", e);
             }
         });
+    }
+
+    /**
+     * Deletes operation records older than {@code days} days and returns how many were removed.
+     * Runs on the writer executor (same thread as inserts, so the {@link Connection} is never used
+     * concurrently) and blocks the caller until done &mdash; prefer {@link #pruneAsync(int)} from the server thread.
+     * A no-op returning 0 when {@code days <= 0}.
+     *
+     * @param days maximum record age in days
+     * @return number of deleted rows, or 0 on failure / when disabled
+     */
+    public int pruneOlderThan(int days) {
+        if (days <= 0) return 0;
+        try {
+            return writeExecutor.submit(() -> pruneSync(days)).get();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            return 0;
+        } catch (java.util.concurrent.ExecutionException | java.util.concurrent.RejectedExecutionException e) {
+            Logger.getLogger("Disenchantment").warning("StatsDatabase prune failed: " + e.getMessage());
+            return 0;
+        }
+    }
+
+    /**
+     * Schedules {@link #pruneOlderThan(int)} on the writer executor without waiting for the result.
+     * A no-op when {@code days <= 0}.
+     *
+     * @param days maximum record age in days
+     */
+    public void pruneAsync(int days) {
+        if (days <= 0) return;
+        try {
+            writeExecutor.execute(() -> {
+                try {
+                    int removed = pruneSync(days);
+                    if (removed > 0) {
+                        Logger.getLogger("Disenchantment").info("Stats: pruned " + removed + " operation records older than " + days + " days");
+                    }
+                } catch (SQLException e) {
+                    Logger.getLogger("Disenchantment").warning("StatsDatabase prune failed: " + e.getMessage());
+                }
+            });
+        } catch (java.util.concurrent.RejectedExecutionException ignored) {
+            // shut down
+        }
+    }
+
+    private int pruneSync(int days) throws SQLException {
+        long cutoff = java.time.Instant.now().getEpochSecond() - days * 86_400L;
+        try (PreparedStatement ps = connection.prepareStatement("DELETE FROM operations WHERE timestamp < ?")) {
+            ps.setLong(1, cutoff);
+            return ps.executeUpdate();
+        }
     }
 
     /**
