@@ -17,6 +17,7 @@ import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.AnvilInventory;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.*;
@@ -27,8 +28,9 @@ import java.util.concurrent.ConcurrentHashMap;
  * anvil event handlers: {@link DisenchantEvent}, {@link ShatterEvent},
  * {@link DisenchantClickEvent}, and {@link ShatterClickEvent}.
  * <p>
- * All methods are pure functions with no side-effects on class state — callers
- * supply the data and decide what to do with the result.
+ * Almost all methods are pure functions — callers supply the data and decide what to do with
+ * the result. The only class state is per-anvil / per-player bookkeeping (pending blank-book
+ * removals, cached "Too Expensive!" bypass costs).
  */
 public final class AnvilEventGuards {
 
@@ -434,20 +436,105 @@ public final class AnvilEventGuards {
     // Second-item removal (InventoryClickEvent)
 
     /**
-     * Schedules a 2-tick deferred reduction/removal of the item in anvil slot 1.
-     * The delay is required because EnchantsSquared replaces slot 1 with null after 1 tick.
+     * A blank-book consumption that has been scheduled but not yet applied to an anvil.
+     *
+     * @param book        snapshot of the slot-1 stack at click time (amount = amount before the operation)
+     * @param originClick the click event that started the operation, so the lock listener never cancels it
+     */
+    private record PendingRemoval(ItemStack book, Object originClick) {
+    }
+
+    // Weak keys: an anvil inventory nobody references any more must not be kept alive by this map.
+    // Synchronized rather than concurrent because WeakHashMap permits no concurrent variant; Folia
+    // region threads may touch it.
+    private static final Map<Inventory, PendingRemoval> pendingRemovals = Collections.synchronizedMap(new WeakHashMap<>());
+
+    /**
+     * Returns {@code true} while a blank-book consumption is still pending for {@code inventory}.
+     * A second plugin operation must be refused during that window: the first one has not finished
+     * paying for itself yet (the book is still in slot 1).
+     */
+    public static boolean isOperationPending(Inventory inventory) {
+        return inventory != null && pendingRemovals.containsKey(inventory);
+    }
+
+    /**
+     * Returns {@code true} when {@code inventory} has a pending consumption that was NOT started by
+     * {@code click}. The lock listener cancels such clicks so the player cannot move the books or the
+     * source item out of the anvil between the operation and its deferred book removal.
+     */
+    public static boolean isLockedFor(Inventory inventory, Object click) {
+        if (inventory == null) return false;
+        PendingRemoval pending = pendingRemovals.get(inventory);
+        return pending != null && pending.originClick() != click;
+    }
+
+    /**
+     * Schedules the deferred consumption of one blank book from anvil slot 1.
+     *
+     * @see #scheduleSecondItemRemoval(Player, AnvilInventory, ItemStack, Object)
      */
     public static void scheduleSecondItemRemoval(Player p, AnvilInventory anvilInventory, ItemStack secondItem) {
-        ItemStack finalSecondItem = secondItem.clone();
+        scheduleSecondItemRemoval(p, anvilInventory, secondItem, null);
+    }
+
+    /**
+     * Schedules the deferred consumption of one blank book from anvil slot 1 and marks the anvil as
+     * "operation pending" until it ran.
+     * <p>
+     * <strong>Why deferred.</strong> The click handlers run before vanilla finishes the take, which
+     * itself clears slot 1, and EnchantsSquared additionally nulls slot 1 one tick later (commit
+     * e86f4a2). A synchronous write is therefore overwritten; the stack is re-written 2 ticks later
+     * with one book fewer. It cannot be done synchronously without losing the remaining books.
+     * <p>
+     * <strong>Closing the window.</strong> Until it ran, the anvil is registered as pending: new
+     * operations on it are refused ({@link #isOperationPending}), the lock listener cancels other
+     * clicks/drags on it ({@link #isLockedFor}), and closing the anvil settles the removal
+     * immediately ({@link #settlePendingRemoval}) before the contents are handed back to the player.
+     * At settle time slot 1 is only touched if it is empty or still holds the same book type, so
+     * nothing foreign is overwritten and no stale copy is resurrected.
+     *
+     * @param p           the player (owns the scheduled task on Folia)
+     * @param secondItem  the slot-1 stack at click time
+     * @param originClick the click that started the operation (exempt from the lock), may be null
+     */
+    public static void scheduleSecondItemRemoval(Player p, AnvilInventory anvilInventory, ItemStack secondItem, Object originClick) {
+        pendingRemovals.put(anvilInventory, new PendingRemoval(secondItem.clone(), originClick));
         // Schedule task to run 2 ticks after the event
         // It is because of EnchantsSquared (they replace second slot to null after 1 tick)
-        SchedulerUtils.runForEntityLater(Disenchantment.plugin, p, () -> {
-            if (finalSecondItem.getAmount() > 1) {
-                finalSecondItem.setAmount(finalSecondItem.getAmount() - 1);
-                anvilInventory.setItem(1, finalSecondItem);
-            } else {
-                anvilInventory.setItem(1, null);
-            }
-        }, 2L);
+        SchedulerUtils.runForEntityLater(Disenchantment.plugin, p, () -> settlePendingRemoval(anvilInventory), 2L);
+    }
+
+    /**
+     * Applies the pending blank-book consumption for {@code inventory} right now, if there is one.
+     * Idempotent: the deferred task and the inventory-close listener both call it and only the first
+     * does anything.
+     *
+     * @return {@code true} if a pending removal was applied
+     */
+    public static boolean settlePendingRemoval(Inventory inventory) {
+        if (inventory == null) return false;
+        PendingRemoval pending = pendingRemovals.remove(inventory);
+        if (pending == null) return false;
+
+        int remaining = pending.book().getAmount() - 1;
+        ItemStack current = inventory.getItem(1);
+        boolean empty = current == null || current.getType().isAir();
+
+        if (!empty && !current.isSimilar(pending.book())) {
+            DiagnosticUtils.debug("ANVIL", () -> "Second-item removal: slot 1 now holds " + current.getType() + " → left untouched");
+            return true;
+        }
+
+        // Never write back more than what is there or what remains after consuming one.
+        int target = empty ? remaining : Math.min(current.getAmount(), remaining);
+        if (target > 0) {
+            ItemStack restored = pending.book().clone();
+            restored.setAmount(target);
+            inventory.setItem(1, restored);
+        } else {
+            inventory.setItem(1, null);
+        }
+        return true;
     }
 }

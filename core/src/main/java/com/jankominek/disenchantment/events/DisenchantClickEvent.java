@@ -120,6 +120,14 @@ public class DisenchantClickEvent {
             return;
         }
 
+        // A previous operation on this anvil has not consumed its blank book yet — a second one now
+        // would be paid for with the same book.
+        if (AnvilEventGuards.isOperationPending(anvilInventory)) {
+            DiagnosticUtils.debug("DISENCHANT", "Click: operation still pending on this anvil → CANCELLED");
+            e.setCancelled(true);
+            return;
+        }
+
         // Only gate genuine plugin operations — a vanilla repair/rename must not be blocked by
         // a disenchant/shatter cooldown.
         if (AnvilEventGuards.isOnCooldown(p)) {
@@ -235,7 +243,7 @@ public class DisenchantClickEvent {
         if (Config.Disenchantment.Anvil.Repair.isResetEnabled()) AnvilCostUtils.setItemRepairCost(finalFirstItem, 0);
 
         anvilInventory.setItem(0, finalFirstItem);
-        AnvilEventGuards.scheduleSecondItemRemoval(p, anvilInventory, secondItem);
+        AnvilEventGuards.scheduleSecondItemRemoval(p, anvilInventory, secondItem, e);
 
         if (p.getGameMode() != org.bukkit.GameMode.CREATIVE) p.setLevel(exp);
 

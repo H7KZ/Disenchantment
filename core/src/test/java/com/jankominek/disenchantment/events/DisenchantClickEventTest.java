@@ -474,4 +474,31 @@ class DisenchantClickEventTest extends DisenchantmentTestBase {
             EconomyTestSupport.uninstall();
         }
     }
+
+    // -> a second operation is refused while the first one's blank-book removal is still pending
+
+    @Test
+    void givenPendingBookRemoval_whenSecondClickOnSameAnvil_thenRefusedUntilRemovalRan() {
+        PlayerMock player = server.addPlayer("TestPlayer");
+        player.setLevel(20);
+
+        InventoryClickEvent first = buildClickEvent(player, sword("sharpness", 5), new ItemStack(Material.BOOK, 2), enchantedBook("sharpness", 5));
+        DisenchantClickEvent.onEvent(first);
+        AnvilInventory anvil = lastMockAnvil;
+        int levelAfterFirst = player.getLevel();
+        assertTrue(AnvilEventGuards.isOperationPending(anvil), "First operation must leave the anvil pending");
+
+        // Second click in the same tick (cursor emptied, e.g. by a crafted packet sequence).
+        player.setItemOnCursor(null);
+        InventoryClickEvent second = buildClickEvent(player, sword("sharpness", 5), new ItemStack(Material.BOOK, 2), enchantedBook("sharpness", 5));
+        Mockito.when(second.getInventory()).thenReturn(anvil);
+        DisenchantClickEvent.onEvent(second);
+
+        Mockito.verify(second).setCancelled(true);
+        assertEquals(levelAfterFirst, player.getLevel(), "No second charge while pending");
+        assertTrue(player.getItemOnCursor().getType().isAir(), "No second result while pending");
+
+        server.getScheduler().performTicks(2);
+        assertFalse(AnvilEventGuards.isOperationPending(anvil), "Pending clears after the deferred removal");
+    }
 }
