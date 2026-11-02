@@ -1,6 +1,7 @@
 package com.jankominek.disenchantment.listeners;
 
 import com.jankominek.disenchantment.events.AnvilEventGuards;
+import com.jankominek.disenchantment.events.ShatterEvent;
 import com.jankominek.disenchantment.utils.DiagnosticUtils;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -20,7 +21,8 @@ import org.bukkit.event.player.PlayerQuitEvent;
  *   cannot pull the books or the source item out during the 2-tick window.</li>
  *   <li>Closing the anvil settles the pending removal immediately — before the server hands slot
  *   contents back to the player — so the consumed book cannot be duplicated by closing early.</li>
- *   <li>Closing the anvil or quitting drops the cached "Too Expensive!" bypass cost of the player.</li>
+ *   <li>Closing the anvil or quitting drops the player's cached "Too Expensive!" bypass cost and
+ *   cached shatter split selection.</li>
  * </ul>
  * Registered once from {@link DisenchantListener}.
  */
@@ -61,6 +63,7 @@ public class AnvilSessionListener implements Listener {
         // The cached real cost of a "Too Expensive!" bypass belongs to the anvil session that computed it.
         if (e.getInventory().getType() == InventoryType.ANVIL && e.getPlayer() instanceof Player p) {
             AnvilEventGuards.clearBypassCost(p);
+            ShatterEvent.clearSelection(p);
         }
     }
 
@@ -70,5 +73,6 @@ public class AnvilSessionListener implements Listener {
     @EventHandler(priority = EventPriority.MONITOR)
     public void onQuit(PlayerQuitEvent e) {
         AnvilEventGuards.clearBypassCost(e.getPlayer());
+        ShatterEvent.clearSelection(e.getPlayer());
     }
 }

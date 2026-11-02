@@ -286,6 +286,7 @@ public class ShatterClickEvent {
         int xpCost = creative ? 0 : repairCost;
         double finalEconomyCost = (Config.Shatterment.Economy.isEnabled() && !creative) ? economyCost : 0.0;
         AnvilEventGuards.recordCooldownOperation(p);
+        ShatterEvent.clearSelection(p);
         org.bukkit.Bukkit.getPluginManager().callEvent(new PostShatterEvent(p, result.clone(), finalFirstItem.clone(), xpCost, finalEconomyCost));
 
         if (Config.Shatterment.Anvil.Sound.isEnabled())

@@ -334,4 +334,73 @@ class ShatterEventTest extends DisenchantmentTestBase {
             Disenchantment.maintenanceEnabled = false;
         }
     }
+
+    // -> the chosen subset must be stable while the anvil inputs are unchanged (rename keystrokes re-fire Prepare)
+
+    private String selectedKeys(PrepareAnvilEvent event) {
+        EnchantmentStorageMeta meta = (EnchantmentStorageMeta) Objects.requireNonNull(event.getResult()).getItemMeta();
+        return Objects.requireNonNull(meta).getStoredEnchants().keySet().stream()
+                .map(e -> e.getKey().getKey()).sorted().collect(java.util.stream.Collectors.joining(","));
+    }
+
+    @Test
+    void givenUnchangedInputs_whenPrepareFiresRepeatedly_thenSameSubsetEveryTime() {
+        PlayerMock player = server.addPlayer("TestPlayer");
+        ItemStack source = enchantedBook("sharpness", "mending", "efficiency", "unbreaking", "looting", "fortune");
+
+        String first = null;
+        for (int i = 0; i < 25; i++) {
+            PrepareAnvilEvent event = buildEvent(player, source.clone(), new ItemStack(Material.BOOK));
+            ShatterEvent.onEvent(event);
+            String selected = selectedKeys(event);
+            if (first == null) first = selected;
+            assertEquals(first, selected, "Re-firing Prepare with unchanged inputs must not re-roll the subset");
+        }
+    }
+
+    @Test
+    void givenInputsChangeBetweenPrepares_whenPrepareFires_thenSubsetIsRolledAgain() {
+        PlayerMock player = server.addPlayer("TestPlayer");
+        ItemStack source = enchantedBook("sharpness", "mending", "efficiency", "unbreaking", "looting", "fortune");
+
+        java.util.Set<String> seen = new java.util.HashSet<>();
+        for (int i = 0; i < 40; i++) {
+            // Taking the blank book out and putting it back changes the inputs in between.
+            ShatterEvent.onEvent(buildEvent(player, source.clone(), null));
+            PrepareAnvilEvent event = buildEvent(player, source.clone(), new ItemStack(Material.BOOK));
+            ShatterEvent.onEvent(event);
+            seen.add(selectedKeys(event));
+        }
+        assertTrue(seen.size() > 1, "Changed inputs must invalidate the cache and re-roll (6 candidates, 40 rolls)");
+    }
+
+    @Test
+    void givenBlankBookAmountChanges_whenPrepareFires_thenCachedSubsetDropped() {
+        PlayerMock player = server.addPlayer("TestPlayer");
+        ItemStack source = enchantedBook("sharpness", "mending", "efficiency", "unbreaking", "looting", "fortune");
+
+        java.util.Set<String> seen = new java.util.HashSet<>();
+        for (int i = 0; i < 40; i++) {
+            ShatterEvent.onEvent(buildEvent(player, source.clone(), new ItemStack(Material.BOOK, 1)));
+            PrepareAnvilEvent event = buildEvent(player, source.clone(), new ItemStack(Material.BOOK, 2));
+            ShatterEvent.onEvent(event);
+            seen.add(selectedKeys(event));
+        }
+        assertTrue(seen.size() > 1, "A different blank-book amount is a different input");
+    }
+
+    @Test
+    void givenOperationCompleted_whenSelectionCleared_thenNextPrepareRollsAgain() {
+        PlayerMock player = server.addPlayer("TestPlayer");
+        ItemStack source = enchantedBook("sharpness", "mending", "efficiency", "unbreaking", "looting", "fortune");
+
+        java.util.Set<String> seen = new java.util.HashSet<>();
+        for (int i = 0; i < 40; i++) {
+            PrepareAnvilEvent event = buildEvent(player, source.clone(), new ItemStack(Material.BOOK));
+            ShatterEvent.onEvent(event);
+            seen.add(selectedKeys(event));
+            ShatterEvent.clearSelection(player);
+        }
+        assertTrue(seen.size() > 1, "clearSelection (operation completed) must force a fresh roll");
+    }
 }
