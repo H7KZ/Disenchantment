@@ -58,12 +58,14 @@ state and server info) and explicitly disables itself.
 Called from `onEnable()`. Runs the following steps **in order**:
 
 1. **Set static instances** — `plugin = this`, `logger = getLogger()`, `startedAt = Instant.now()`.
-2. **Config setup** — `ConfigUtils.setupConfig()` (saves default, applies migrations, reloads). Then
+2. **Config setup** — `ConfigUtils.setupConfig()` (saves default, strictly parses `config.yml`, applies migrations with a
+   `config.yml.bak` backup, reloads). A YAML syntax error never overwrites the file: the broken file is copied to
+   `config.yml.broken-<timestamp>`, defaults are used in memory and config saves are suppressed. Then
    `config = getConfig()`.
 3. **NMS loading** — `NMSMapper.setup()` reflectively loads the correct `NMS_v*` implementation. If `null` is returned,
    the plugin logs a severe error and calls `disablePlugin(this)` immediately.
 4. **Locale setup** — `ConfigUtils.setupLocaleConfigs()` extracts locale files from the JAR (does not overwrite existing
-   ones). Then the configured locale file is loaded: first from `plugins/Disenchantment/locales/<locale>.yml`, then from
+   ones, but merges in any keys the bundled version has that the existing file lacks). Then the configured locale file is loaded: first from `plugins/Disenchantment/locales/<locale>.yml`, then from
    the JAR resource. If neither exists, the plugin disables.
 5. **Runtime enabled flag** — `Disenchantment.enabled = Config.isPluginEnabled()`.
 6. **Plugin adapter activation** — Iterates all loaded server plugins by name and calls

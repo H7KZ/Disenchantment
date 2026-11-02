@@ -14,12 +14,16 @@ it against your existing file.
 
 ```yaml
 # ↓ DO NOT EDIT THESE VALUES ↓
-migration: 9
+migration: 13
 locales: [ "cs", "en" ]
 # ↑ DO NOT EDIT THESE VALUES ↑
 
 # Enable or disable the entire plugin globally.
 enabled: true
+
+# Periodically (every 8 hours) ask SpigotMC for the latest version and log a message when a newer one exists.
+# Set to false to disable all outgoing update checks.
+update-checker: true
 
 # Language for plugin messages. Available: "en", "cs".
 locale: "en"
@@ -40,6 +44,12 @@ logging:
   level: INFO
   # Write crash/error reports to plugins/Disenchantment/logs/crash-<timestamp>.txt
   save-reports: true
+  # Set to true to record every disenchant/shatter to plugins/Disenchantment/stats.db
+  operations: false
+  # Delete stats.db operation records older than N days on startup. 0 = keep forever.
+  operations-retention-days: 0
+  # Discord webhook URL — if set, crash reports are POSTed asynchronously. Leave empty to disable.
+  discord-webhook: ""
 
 # ─────────────────────────────────────────────────────────────────────────────
 
@@ -160,13 +170,36 @@ shatterment:
 
 ```yaml
 enabled: true
+update-checker: true
 locale: "en"
 ```
 
-| Key       | Type    | Default | Description                                              |
-|-----------|---------|---------|----------------------------------------------------------|
-| `enabled` | Boolean | `true`  | Enable or disable the entire plugin globally.            |
-| `locale`  | String  | `"en"`  | Language for plugin messages. Available: `"en"`, `"cs"`. |
+| Key              | Type    | Default | Description                                                                                                                                   |
+|------------------|---------|---------|-----------------------------------------------------------------------------------------------------------------------------------------------|
+| `enabled`        | Boolean | `true`  | Enable or disable the entire plugin globally.                                                                                                 |
+| `update-checker` | Boolean | `true`  | Every 8 hours, query SpigotMC for the latest version and log a line when a newer release exists. Set to `false` to make no outgoing requests. |
+| `locale`         | String  | `"en"`  | Language for plugin messages. Available: `"en"`, `"cs"`.                                                                                      |
+
+The update checker uses 5 second timeouts, ignores responses that are not a version number, and compares versions
+numerically, so running a build newer than the published release is not reported as "outdated". The setting is read on
+every check, so `/disenchantment reload` applies a change without a restart.
+
+### Config safety and backups
+
+- **Syntax errors never wipe your config.** If `config.yml` cannot be parsed (for example a bad indent or an unclosed
+  bracket), the plugin logs the parser error at `SEVERE`, leaves the file exactly as it is, saves a copy as
+  `config.yml.broken-<timestamp>`, and runs on the built-in defaults. While in that state, changes made with commands or
+  the GUI are **not** saved (so they cannot overwrite your file). Fix the file and run `/disenchantment reload`.
+- **`/disenchantment reload` on a broken file** is refused: the sender sees the parser message and the settings that are
+  currently running stay in effect.
+- **Upgrades are backed up.** When a plugin update migrates your config to a newer format, the previous file is first
+  copied to `config.yml.bak`. A config that is already current is not rewritten.
+
+### Locale files
+
+`plugins/Disenchantment/locales/<locale>.yml` is created on first start and never overwritten, so your edits are kept.
+On every start and `/disenchantment reload`, any keys that exist in the bundled locale but are missing from your file
+(for example after a plugin update) are added automatically with the bundled text. Existing values are not changed.
 
 ---
 
@@ -199,12 +232,18 @@ Controls how much output the plugin sends to the server console and whether erro
 logging:
   level: INFO
   save-reports: true
+  operations: false
+  operations-retention-days: 0
+  discord-webhook: ""
 ```
 
-| Key            | Type    | Default | Description                                                                       |
-|----------------|---------|---------|-----------------------------------------------------------------------------------|
-| `level`        | String  | `INFO`  | Log verbosity. Options: `NONE`, `INFO`, `DEBUG`.                                  |
-| `save-reports` | Boolean | `true`  | Write crash/error reports to `plugins/Disenchantment/logs/crash-<timestamp>.txt`. |
+| Key                         | Type    | Default | Description                                                                                                      |
+|-----------------------------|---------|---------|------------------------------------------------------------------------------------------------------------------|
+| `level`                     | String  | `INFO`  | Log verbosity. Options: `NONE`, `INFO`, `DEBUG`.                                                                 |
+| `save-reports`              | Boolean | `true`  | Write crash/error reports to `plugins/Disenchantment/logs/crash-<timestamp>.txt`.                                |
+| `operations`                | Boolean | `false` | Record every disenchant/shatter to `plugins/Disenchantment/stats.db`.                                            |
+| `operations-retention-days` | Integer | `0`     | Delete `stats.db` operation records older than this many days on startup. `0` keeps records forever.             |
+| `discord-webhook`           | String  | `""`    | Discord webhook URL; if set, crash reports are POSTed asynchronously. Leave empty to disable.                    |
 
 **Log level meanings:**
 

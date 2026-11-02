@@ -376,11 +376,19 @@ public UpdateChecker(int resourceId)
 // Constructor. resourceId = Disenchantment.spigotmcId = 110741.
 
 public void getVersion(Consumer<String> consumer)
-// Opens an HTTP connection to SpigotMC API and passes the latest version string to consumer.
+// Fetches the latest version string over HttpURLConnection (5 s connect + read timeout, HTTP 200 required)
+// and passes it to consumer only if it matches the version pattern (so Cloudflare/HTML pages are ignored).
 // Non-blocking when called from an async context.
 
+public static boolean isVersion(String text)        // "6.5.12", "v6.5", "6.5.12-SNAPSHOT" -> true; HTML/garbage -> false
+public static boolean isNewer(String local, String remote)
+// Numeric, segment-wise comparison; "v" prefix and "-qualifier" ignored; missing segments = 0.
+// true only if remote > local, so a newer local dev build is never reported as outdated.
+
 public Runnable runnableUpdateTask(String version)
-// Returns a Runnable that calls getVersion() and logs a warning if a newer version is available.
+// Returns a Runnable that, if Config.isUpdateCheckerEnabled() (config key `update-checker`, read on EVERY run so
+// /disenchantment reload applies it), calls getVersion() and logs an info line when isNewer(version, latest).
+// When disabled it returns immediately without any network access.
 
 public Object run(Plugin plugin, String version)
 // Schedules runnableUpdateTask() as a repeating async timer:

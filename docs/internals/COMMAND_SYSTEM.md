@@ -76,10 +76,13 @@ Fields:
 
 `execute(CommandSender sender, String[] args)` logic:
 
-1. Checks `permission.hasPermission(sender)` — sends error message and returns if denied.
-2. If `args` is empty or `requireArgs` is false, calls `executor.execute(sender, args)`.
-3. If `requireArgs`, validates that `args[1]` matches one of `this.args`. Sends `invalidArgument()` if not.
-4. Always returns `true`.
+1. Checks `permission.hasPermission(sender, false)` — on denial sends one prefixed `requiresPermission()` message and
+   returns. (The `feedback=false` overload avoids a duplicate unprefixed message.)
+2. If `this.args` is empty or `requireArgs` is false, calls `executor.execute(sender, args)`.
+3. If `requireArgs` and `args.length < 2` (no argument given, e.g. `/disenchantment maintenance`), sends
+   `invalidArgument()` followed by the accepted values (`[on/off]`) and returns — it never reads `args[1]` out of bounds.
+4. Otherwise validates that `args[1]` matches one of `this.args`. Sends `invalidArgument()` if not.
+5. Always returns `true`.
 
 ---
 
@@ -89,7 +92,24 @@ Fields:
 
 Looks up the entered subcommand in `CommandRegister.commands`, then calls `command.onTabComplete(sender, args)` on it.
 Returns subcommand name suggestions when `args.length == 1`, delegating to each `CommandBuilder`'s completer for deeper
-arguments.
+arguments. Suggestions are **permission-filtered**: a subcommand is only offered (and its completer only consulted) if
+`cmd.permission().hasPermission(sender, false)` is true, so senders never see commands they cannot run and no denial
+message is sent while merely completing.
+
+---
+
+### Numeric argument validation (`utils/InputUtils`)
+
+`Double.parseDouble` accepts `"NaN"` and `"Infinity"`, which would be written straight to `config.yml`. Commands that
+take a decimal therefore go through:
+
+- `InputUtils.parseFinite(String)` → `Double` or `null` (unparseable / `NaN` / `±Infinity`).
+- `InputUtils.parseOrReport(sender, raw, nonNegative)` → parses and, on failure, sends `specifyValidDouble()` (not a
+  finite number) or `specifyNonNegativeDouble()` (negative where `nonNegative` is true) and returns `null`.
+
+Used by the `base`/`multiply` (repair), `cost` (economy), `volume`/`pitch` (sound) settings with `nonNegative = true`.
+The `chances` commands use `parseFinite` and then keep their own `0.0 <= chance <= 1.0` range check (the range check
+alone let `NaN` through because every comparison with `NaN` is false).
 
 ---
 
@@ -136,7 +156,7 @@ directly.
 | `ShatterEconomy`         | Gets/sets Vault economy settings for shatterment                                                 |
 | `ShatterSound`           | Gets/sets sound settings for shatterment                                                         |
 | `Diagnostic`             | Generates and prints a `DiagnosticUtils.getReport(extended, sender)`                             |
-| `Reload`                 | Calls `ConfigUtils.setupConfig()` + `ConfigUtils.setupLocaleConfigs()` and reloads locale config |
+| `Reload`                 | Pre-checks `ConfigUtils.validateConfigFile()` (on a YAML error: sends `I18n.Messages.reloadFailed(error)` and aborts, keeping the running config), otherwise `Disenchantment.reload()` and sends the localized `configReloaded()` |
 
 ---
 
