@@ -23,6 +23,10 @@ class MinecraftVersionTest {
             "git-Spigot-abc-def (MC: 1.18)         | NULL                  | MINECRAFT_1_18",
             "26.1.2-48-abcdef (MC: 26.1.2)         | 26.1.2.build.48-alpha | MINECRAFT_26_1_2",
             "26.1-12-abcdef (MC: 26.1)             | NULL                  | MINECRAFT_26_1",
+            // Paper 26.1.2 builds dropped the (MC: x) token from getVersion() (PaperMC/Paper#13862)
+            "26.1.2-60-main@b4682bf (2026-05-04T06:25:04Z) | 26.1.2.build.60-stable | MINECRAFT_26_1_2",
+            "26.4-1-main@abcdef (2026-12-01T00:00:00Z)     | 26.4.build.1-alpha     | LATEST",
+            "git-Paper-19 (MC: 1.20.1)             | 1.20.1-R0.1-SNAPSHOT  | MINECRAFT_1_20_1",
             // Unknown patch releases must not substring-match a shorter known version
             "git-Paper-1 (MC: 1.21.12)             | NULL                  | MINECRAFT_1_21_11",
             "26.1.10-1-abcdef (MC: 26.1.10)        | NULL                  | LATEST",
