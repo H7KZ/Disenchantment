@@ -44,6 +44,7 @@ messages:
   economy-not-available: "&cEkonomika je povolena v konfiguraci, ale nebyl nalezen žádný ekonomický plugin. Prosím nainstalujte Vault a ekonomický plugin.&r"
   cooldown-active: "&cMusíte počkat &f{seconds}s &cpřed dalším použitím.&r"
   economy-withdraw-failed: "&cPlatbu se nepodařilo zpracovat. Nebyl vám strhnut žádný poplatek.&r"
+  not-enough-levels: "&cK tomu potřebujete &f{levels} &cúrovní zkušeností.&r"
 
 states:
   enabled: "&aPovoleno&r"

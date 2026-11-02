@@ -145,6 +145,7 @@ public class DisenchantClickEvent {
         DiagnosticUtils.debug("DISENCHANT", () -> "Click: xp check — repairCost=" + repairCost + ", playerLevel=" + p.getLevel());
         if (!AnvilEventGuards.hasEnoughXp(p, repairCost)) {
             DiagnosticUtils.debug("DISENCHANT", "Click: insufficient XP → CANCELLED");
+            p.sendMessage(I18n.getPrefix() + " " + I18n.Messages.notEnoughLevels(String.valueOf(repairCost)));
             e.setCancelled(true);
             return;
         }

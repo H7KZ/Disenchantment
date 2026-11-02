@@ -144,6 +144,7 @@ public class ShatterClickEvent {
         DiagnosticUtils.debug("SHATTER", () -> "Click: xp check — repairCost=" + repairCost + ", playerLevel=" + p.getLevel());
         if (!AnvilEventGuards.hasEnoughXp(p, repairCost)) {
             DiagnosticUtils.debug("SHATTER", "Click: insufficient XP → CANCELLED");
+            p.sendMessage(I18n.getPrefix() + " " + I18n.Messages.notEnoughLevels(String.valueOf(repairCost)));
             e.setCancelled(true);
             return;
         }

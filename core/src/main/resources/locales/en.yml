@@ -47,6 +47,7 @@ messages:
   maintenance-is-enabled: "&aMaintenance mode is now &fenabled&a.&r"
   maintenance-is-disabled: "&aMaintenance mode is now &fdisabled&a.&r"
   economy-withdraw-failed: "&cThe payment could not be processed. You have not been charged.&r"
+  not-enough-levels: "&cYou need &f{levels} &clevels to do that.&r"
 
 states:
   enabled: "&aEnabled&r"

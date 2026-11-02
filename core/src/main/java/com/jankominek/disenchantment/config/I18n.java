@@ -472,6 +472,18 @@ public class I18n {
             return I18n.translateColors(localeConfig.getString(I18nKeys.MESSAGES_ECONOMY_WITHDRAW_FAILED.getKey(),
                     "&cThe payment could not be processed. You have not been charged.&r"));
         }
+
+        /**
+         * Returns the localized message shown when the player lacks the experience levels for an operation.
+         *
+         * @param levels the value substituted for {levels}
+         */
+        public static String notEnoughLevels(String levels) {
+            return I18n.translateColors(
+                    localeConfig.getString(I18nKeys.MESSAGES_NOT_ENOUGH_LEVELS.getKey(), "&cYou need &f{levels} &clevels to do that.&r")
+                            .replace("{levels}", levels)
+            );
+        }
     }
 
     /**
