@@ -25,6 +25,7 @@ public enum I18nKeys {
     MESSAGES_SPECIFY_REPAIR_VALUE("messages.specify-repair-value"),
     MESSAGES_SPECIFY_VALID_INTEGER("messages.specify-valid-integer"),
     MESSAGES_SPECIFY_VALID_DOUBLE("messages.specify-valid-double"),
+    MESSAGES_SPECIFY_NON_NEGATIVE_DOUBLE("messages.specify-non-negative-double"),
     MESSAGES_REPAIR_COST_IS_ENABLED("messages.repair-cost-is-enabled"),
     MESSAGES_REPAIR_COST_IS_DISABLED("messages.repair-cost-is-disabled"),
     MESSAGES_REPAIR_COST_RESET_IS_ENABLED("messages.repair-cost-reset-is-enabled"),

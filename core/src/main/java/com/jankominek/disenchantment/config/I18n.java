@@ -180,6 +180,13 @@ public class I18n {
         }
 
         /**
+         * Returns the localized "specify a number that is zero or greater" prompt.
+         */
+        public static String specifyNonNegativeDouble() {
+            return I18n.translateColors(localeConfig.getString(I18nKeys.MESSAGES_SPECIFY_NON_NEGATIVE_DOUBLE.getKey(), "&cPlease specify a number that is zero or greater!&r"));
+        }
+
+        /**
          * Returns the localized "repair cost is disabled" message.
          */
         public static String repairCostIsDisabled() {

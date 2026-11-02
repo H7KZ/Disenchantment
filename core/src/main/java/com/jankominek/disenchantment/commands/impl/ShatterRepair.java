@@ -4,6 +4,7 @@ import com.jankominek.disenchantment.commands.CommandBuilder;
 import com.jankominek.disenchantment.config.Config;
 import com.jankominek.disenchantment.config.I18n;
 import com.jankominek.disenchantment.types.PermissionGroupType;
+import com.jankominek.disenchantment.utils.InputUtils;
 import org.bukkit.command.CommandSender;
 
 import java.util.ArrayList;
@@ -111,23 +112,21 @@ public class ShatterRepair {
                 break;
             }
             case "base": {
-                try {
-                    Config.Shatterment.Anvil.Repair.setBaseCost(Double.parseDouble(args[2]));
+                Double value = InputUtils.parseOrReport(s, args[2], true);
+                if (value != null) {
+                    Config.Shatterment.Anvil.Repair.setBaseCost(value);
 
                     s.sendMessage(I18n.Messages.repairBaseCostIsSet(Config.Shatterment.Anvil.Repair.getBaseCost().toString()));
-                } catch (NumberFormatException e) {
-                    s.sendMessage(I18n.Messages.specifyValidDouble());
                 }
 
                 break;
             }
             case "multiply": {
-                try {
-                    Config.Shatterment.Anvil.Repair.setCostMultiplier(Double.parseDouble(args[2]));
+                Double value = InputUtils.parseOrReport(s, args[2], true);
+                if (value != null) {
+                    Config.Shatterment.Anvil.Repair.setCostMultiplier(value);
 
                     s.sendMessage(I18n.Messages.repairMultiplierIsSet(Config.Shatterment.Anvil.Repair.getCostMultiplier().toString()));
-                } catch (NumberFormatException e) {
-                    s.sendMessage(I18n.Messages.specifyValidDouble());
                 }
 
                 break;

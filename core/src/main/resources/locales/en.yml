@@ -17,6 +17,7 @@ messages:
   specify-repair-value: "&cPlease specify a repair value!&r"
   specify-valid-integer: "&cPlease specify a valid whole number!&r"
   specify-valid-double: "&cPlease specify a valid decimal number!&r"
+  specify-non-negative-double: "&cPlease specify a number that is zero or greater!&r"
   repair-cost-is-enabled: "&aRepair cost is enabled!&r"
   repair-cost-is-disabled: "&cRepair cost is disabled!&r"
   repair-cost-reset-is-enabled: "&aRepair cost reset is enabled!&r"

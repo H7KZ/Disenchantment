@@ -17,6 +17,7 @@ messages:
   specify-repair-value: "&cProsím zadejte hodnotu opravy!&r"
   specify-valid-integer: "&cProsím zadejte platné celé číslo!&r"
   specify-valid-double: "&cProsím zadejte platné desetinné číslo!&r"
+  specify-non-negative-double: "&cProsím zadejte číslo, které je nula nebo větší!&r"
   repair-cost-is-enabled: "&aCena opravy je povolena!&r"
   repair-cost-is-disabled: "&cCena opravy je zakázána!&r"
   repair-cost-reset-is-enabled: "&aReset ceny opravy je povolen!&r"
