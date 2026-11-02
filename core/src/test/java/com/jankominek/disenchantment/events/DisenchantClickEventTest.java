@@ -525,4 +525,33 @@ class DisenchantClickEventTest extends DisenchantmentTestBase {
         server.getScheduler().performTicks(2);
         assertFalse(AnvilEventGuards.isOperationPending(anvil), "Pending clears after the deferred removal");
     }
+
+    // -> unsafe click types are cancelled WITH feedback
+
+    @Test
+    void givenShiftClickOnGenuineDisenchant_whenClickResult_thenCancelledAndPlayerTold() {
+        PlayerMock player = server.addPlayer("TestPlayer");
+        player.setLevel(10);
+
+        InventoryClickEvent event = buildClickEvent(player, sword("sharpness", 5), new ItemStack(Material.BOOK), enchantedBook("sharpness", 5));
+        Mockito.when(event.getClick()).thenReturn(org.bukkit.event.inventory.ClickType.SHIFT_LEFT);
+        DisenchantClickEvent.onEvent(event);
+
+        Mockito.verify(event).setCancelled(true);
+        Mockito.verify(lastMockAnvil, Mockito.never()).setItem(eq(0), Mockito.any());
+        assertNotNull(player.nextMessage(), "Player must be told to take the result with a normal click");
+    }
+
+    @Test
+    void givenShiftClickOnVanillaAnvilResult_whenClickResult_thenNeitherCancelledNorMessaged() {
+        PlayerMock player = server.addPlayer("TestPlayer");
+        player.setLevel(10);
+
+        InventoryClickEvent event = buildClickEvent(player, new ItemStack(Material.DIAMOND_SWORD), new ItemStack(Material.DIAMOND), new ItemStack(Material.DIAMOND_SWORD));
+        Mockito.when(event.getClick()).thenReturn(org.bukkit.event.inventory.ClickType.SHIFT_LEFT);
+        DisenchantClickEvent.onEvent(event);
+
+        Mockito.verify(event, Mockito.never()).setCancelled(true);
+        assertNull(player.nextMessage());
+    }
 }

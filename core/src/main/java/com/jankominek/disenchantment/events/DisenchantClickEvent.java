@@ -117,6 +117,7 @@ public class DisenchantClickEvent {
         if (AnvilEventGuards.isUnsafeResultClick(e)) {
             DiagnosticUtils.debug("DISENCHANT", () -> "Click: unsafe click type " + e.getClick() + " → CANCELLED");
             e.setCancelled(true);
+            p.sendMessage(I18n.getPrefix() + " " + I18n.Messages.useNormalClick());
             return;
         }
 

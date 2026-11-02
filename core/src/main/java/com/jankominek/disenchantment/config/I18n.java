@@ -492,6 +492,14 @@ public class I18n {
             return I18n.translateColors(localeConfig.getString(I18nKeys.MESSAGES_ENCHANTMENTS_FAILED_TO_TRANSFER.getKey(),
                     "&cThe enchantments failed to transfer. You received a plain book instead.&r"));
         }
+
+        /**
+         * Returns the localized hint shown when a non-standard click (shift-click, number key, ...) on the result slot was blocked.
+         */
+        public static String useNormalClick() {
+            return I18n.translateColors(localeConfig.getString(I18nKeys.MESSAGES_USE_NORMAL_CLICK.getKey(),
+                    "&cTake the result with a normal left or right click.&r"));
+        }
     }
 
     /**

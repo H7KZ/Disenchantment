@@ -311,4 +311,20 @@ class ShatterClickEventTest extends DisenchantmentTestBase {
         assertEquals(Material.BOOK, player.getItemOnCursor().getType(), "A plain book must replace the empty enchanted book");
         assertNotNull(player.nextMessage(), "Player must be told the transfer failed");
     }
+
+    // -> unsafe click types are cancelled WITH feedback
+
+    @Test
+    void givenNumberKeyClickOnGenuineShatter_whenClickResult_thenCancelledAndPlayerTold() {
+        PlayerMock player = server.addPlayer("TestPlayer");
+        player.setLevel(10);
+
+        InventoryClickEvent event = buildClickEvent(player, enchantedBook("sharpness", "5", "unbreaking", "3"), new ItemStack(Material.BOOK), enchantedBook("sharpness", "5"));
+        Mockito.when(event.getClick()).thenReturn(org.bukkit.event.inventory.ClickType.NUMBER_KEY);
+        ShatterClickEvent.onEvent(event);
+
+        Mockito.verify(event).setCancelled(true);
+        Mockito.verify(lastMockAnvil, Mockito.never()).setItem(eq(0), Mockito.any());
+        assertNotNull(player.nextMessage(), "Player must be told to take the result with a normal click");
+    }
 }

@@ -114,6 +114,7 @@ public class ShatterClickEvent {
         if (AnvilEventGuards.isUnsafeResultClick(e)) {
             DiagnosticUtils.debug("SHATTER", () -> "Click: unsafe click type " + e.getClick() + " → CANCELLED");
             e.setCancelled(true);
+            p.sendMessage(I18n.getPrefix() + " " + I18n.Messages.useNormalClick());
             return;
         }
 
