@@ -17,6 +17,7 @@ messages:
   specify-repair-value: "&cPlease specify a repair value!&r"
   specify-valid-integer: "&cPlease specify a valid whole number!&r"
   specify-valid-double: "&cPlease specify a valid decimal number!&r"
+  specify-non-negative-double: "&cPlease specify a number that is zero or greater!&r"
   repair-cost-is-enabled: "&aRepair cost is enabled!&r"
   repair-cost-is-disabled: "&cRepair cost is disabled!&r"
   repair-cost-reset-is-enabled: "&aRepair cost reset is enabled!&r"
@@ -46,6 +47,8 @@ messages:
   maintenance-active: "&cDisenchantment is currently under maintenance. Please try again later.&r"
   maintenance-is-enabled: "&aMaintenance mode is now &fenabled&a.&r"
   maintenance-is-disabled: "&aMaintenance mode is now &fdisabled&a.&r"
+  config-reloaded: "&aConfig reloaded.&r"
+  reload-failed: "&cconfig.yml has a syntax error and was not loaded; the running settings are unchanged: &f{error}&r"
 
 states:
   enabled: "&aEnabled&r"

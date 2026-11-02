@@ -1,13 +1,16 @@
 package com.jankominek.disenchantment.commands;
 
 import com.jankominek.disenchantment.DisenchantmentTestBase;
+import com.jankominek.disenchantment.commands.impl.Maintenance;
 import com.jankominek.disenchantment.types.PermissionGroupType;
 import org.junit.jupiter.api.Test;
 import org.mockbukkit.mockbukkit.entity.PlayerMock;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class CommandBuilderTest extends DisenchantmentTestBase {
@@ -47,6 +50,31 @@ class CommandBuilderTest extends DisenchantmentTestBase {
         cmd.execute(player, new String[]{"test", "maybe"});
 
         assertFalse(ran.get(), "Command must not execute for an invalid argument");
+    }
+
+    @Test
+    void givenRequiredArgMissing_whenExecute_thenUsageShownAndNoException() {
+        PlayerMock player = server.addPlayer("TestPlayer");
+        player.addAttachment(plugin, "disenchantment.command.help", true);
+        AtomicBoolean ran = new AtomicBoolean(false);
+        CommandBuilder cmd = builder(new String[]{"on", "off"}, true, ran);
+
+        assertDoesNotThrow(() -> cmd.execute(player, new String[]{"test"}));
+
+        assertFalse(ran.get(), "Command must not execute without its required argument");
+        String msg = player.nextMessage();
+        assertNotNull(msg, "Sender must be told what to supply");
+        assertTrue(msg.contains("on/off"), "Usage must list the accepted values, got: " + msg);
+    }
+
+    @Test
+    void givenMaintenanceWithoutArg_whenExecute_thenNoException() {
+        PlayerMock player = server.addPlayer("TestPlayer");
+        player.addAttachment(plugin, "disenchantment.command.maintenance", true);
+
+        assertDoesNotThrow(() -> Maintenance.command.execute(player, new String[]{"maintenance"}));
+
+        assertFalse(com.jankominek.disenchantment.Disenchantment.maintenanceEnabled);
     }
 
     @Test

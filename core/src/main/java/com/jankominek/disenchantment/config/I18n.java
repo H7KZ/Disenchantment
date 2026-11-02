@@ -180,6 +180,13 @@ public class I18n {
         }
 
         /**
+         * Returns the localized "specify a number that is zero or greater" prompt.
+         */
+        public static String specifyNonNegativeDouble() {
+            return I18n.translateColors(localeConfig.getString(I18nKeys.MESSAGES_SPECIFY_NON_NEGATIVE_DOUBLE.getKey(), "&cPlease specify a number that is zero or greater!&r"));
+        }
+
+        /**
          * Returns the localized "repair cost is disabled" message.
          */
         public static String repairCostIsDisabled() {
@@ -377,6 +384,27 @@ public class I18n {
         public static String maintenanceIsDisabled() {
             return I18n.translateColors(
                     localeConfig.getString(I18nKeys.MESSAGES_MAINTENANCE_IS_DISABLED.getKey(), "&aMaintenance mode is now &fdisabled&a.&r")
+            );
+        }
+
+        /**
+         * Returns the localized message confirming the configuration was reloaded.
+         */
+        public static String configReloaded() {
+            return I18n.translateColors(
+                    localeConfig.getString(I18nKeys.MESSAGES_CONFIG_RELOADED.getKey(), "&aConfig reloaded.&r")
+            );
+        }
+
+        /**
+         * Returns the localized message shown when a reload is refused because config.yml has a syntax error.
+         *
+         * @param error the parser error message to substitute
+         */
+        public static String reloadFailed(String error) {
+            return I18n.translateColors(
+                    localeConfig.getString(I18nKeys.MESSAGES_RELOAD_FAILED.getKey(), "&cconfig.yml has a syntax error and was not loaded; the running settings are unchanged: &f{error}&r")
+                            .replace("{error}", error)
             );
         }
 

@@ -25,6 +25,7 @@ public enum I18nKeys {
     MESSAGES_SPECIFY_REPAIR_VALUE("messages.specify-repair-value"),
     MESSAGES_SPECIFY_VALID_INTEGER("messages.specify-valid-integer"),
     MESSAGES_SPECIFY_VALID_DOUBLE("messages.specify-valid-double"),
+    MESSAGES_SPECIFY_NON_NEGATIVE_DOUBLE("messages.specify-non-negative-double"),
     MESSAGES_REPAIR_COST_IS_ENABLED("messages.repair-cost-is-enabled"),
     MESSAGES_REPAIR_COST_IS_DISABLED("messages.repair-cost-is-disabled"),
     MESSAGES_REPAIR_COST_RESET_IS_ENABLED("messages.repair-cost-reset-is-enabled"),
@@ -50,6 +51,8 @@ public enum I18nKeys {
     MESSAGES_MAINTENANCE_ACTIVE("messages.maintenance-active"),
     MESSAGES_MAINTENANCE_IS_ENABLED("messages.maintenance-is-enabled"),
     MESSAGES_MAINTENANCE_IS_DISABLED("messages.maintenance-is-disabled"),
+    MESSAGES_RELOAD_FAILED("messages.reload-failed"),
+    MESSAGES_CONFIG_RELOADED("messages.config-reloaded"),
     MESSAGES_SPECIFY_ENCHANTMENT_CHANCE("messages.specify-enchantment-chance"),
     MESSAGES_ENCHANTMENT_CHANCE_IS_SET("messages.enchantment-chance-is-set"),
 

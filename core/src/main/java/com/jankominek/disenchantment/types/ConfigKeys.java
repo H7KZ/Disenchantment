@@ -11,12 +11,15 @@ public enum ConfigKeys {
 
     ENABLED("enabled"),
 
+    UPDATE_CHECKER("update-checker"),
+
     LOCALE("locale"),
 
     // Logging settings
     LOGGING_LEVEL("logging.level"),
     LOGGING_SAVE_REPORTS("logging.save-reports"),
     LOGGING_OPERATIONS("logging.operations"),
+    LOGGING_OPERATIONS_RETENTION_DAYS("logging.operations-retention-days"),
     LOGGING_DISCORD_WEBHOOK("logging.discord-webhook"),
 
     // Event priority settings

@@ -4,6 +4,7 @@ import com.jankominek.disenchantment.commands.CommandBuilder;
 import com.jankominek.disenchantment.config.Config;
 import com.jankominek.disenchantment.config.I18n;
 import com.jankominek.disenchantment.types.PermissionGroupType;
+import com.jankominek.disenchantment.utils.InputUtils;
 import org.bukkit.command.CommandSender;
 
 import java.util.ArrayList;
@@ -67,23 +68,21 @@ public class ShatterSound {
                 break;
             }
             case "volume": {
-                try {
-                    Config.Shatterment.Anvil.Sound.setVolume(Double.parseDouble(args[2]));
+                Double value = InputUtils.parseOrReport(s, args[2], true);
+                if (value != null) {
+                    Config.Shatterment.Anvil.Sound.setVolume(value);
 
                     s.sendMessage(I18n.Messages.soundVolumeIsSet(args[2]));
-                } catch (NumberFormatException e) {
-                    s.sendMessage(I18n.Messages.specifyValidDouble());
                 }
 
                 break;
             }
             case "pitch": {
-                try {
-                    Config.Shatterment.Anvil.Sound.setPitch(Double.parseDouble(args[2]));
+                Double value = InputUtils.parseOrReport(s, args[2], true);
+                if (value != null) {
+                    Config.Shatterment.Anvil.Sound.setPitch(value);
 
                     s.sendMessage(I18n.Messages.soundPitchIsSet(args[2]));
-                } catch (NumberFormatException e) {
-                    s.sendMessage(I18n.Messages.specifyValidDouble());
                 }
 
                 break;

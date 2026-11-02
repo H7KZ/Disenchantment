@@ -44,6 +44,17 @@ Several commands let you configure per-enchantment behavior. The following state
 | `/disenchantment toggle`      | Toggle the plugin on or off globally.                     | `disenchantment.command.toggle` |
 | `/disenchantment reload`      | Reload the configuration from disk.                       | `disenchantment.command.reload` |
 
+`reload` refuses to run if `config.yml` has a YAML syntax error: it reports the parser message to you and keeps the
+current settings (the file is never overwritten). See [Config safety and backups](CONFIG.md#config-safety-and-backups).
+
+**Argument handling (all commands):**
+
+- Tab completion only suggests subcommands and arguments you have permission to run.
+- A command that needs an argument (for example `/disenchantment maintenance`) shows the accepted values when you omit it.
+- Numeric settings (repair `base`/`multiply`, economy `cost`, sound `volume`/`pitch`) must be finite numbers of zero or
+  greater; `NaN`, `Infinity` and negative values are rejected without changing the config. Enchantment chances must be
+  between `0.0` and `1.0`.
+
 ---
 
 ## Diagnostic Commands
