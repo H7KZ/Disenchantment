@@ -119,7 +119,17 @@ public class ShatterEvent {
         int splitCount = splitCountRange.isFixed()
                 ? splitCountRange.min()
                 : java.util.concurrent.ThreadLocalRandom.current().nextInt(splitCountRange.min(), splitCountRange.max() + 1);
-        int halfSize = Math.min(Math.max(1, splitCount), shuffleEnchantments.size() - 1);
+        // At least one enchantment must stay on the source book. KEEP-state enchantments already
+        // do; otherwise reserve one of the splittable ones.
+        int maxSplit = EventUtils.Shatterment.hasKeptEnchantment(firstItem)
+                ? shuffleEnchantments.size()
+                : shuffleEnchantments.size() - 1;
+        int halfSize = Math.min(Math.max(1, splitCount), maxSplit);
+
+        if (halfSize < 1) {
+            DiagnosticUtils.debug("SHATTER", "PrepareAnvil: nothing can be split off without emptying the source → exit");
+            return;
+        }
 
         for (int i = 0; i < halfSize; i++) {
             IPluginEnchantment enchantment = shuffleEnchantments.get(i);

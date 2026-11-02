@@ -190,6 +190,22 @@ public class EventUtils {
      */
     public static class Shatterment {
         /**
+         * Returns {@code true} when the source book carries at least one enchantment in the KEEP
+         * state. Such enchantments always stay on the source, so every splittable enchantment may
+         * move to the result without leaving the source book empty.
+         *
+         * @param book the enchanted book being shattered
+         * @return whether a KEEP-state enchantment remains on the source after splitting
+         */
+        public static boolean hasKeptEnchantment(ItemStack book) {
+            if (book == null) return false;
+            Map<String, EnchantmentStateType> states = Config.Shatterment.getEnchantmentStates();
+            if (states.isEmpty()) return false;
+            return EnchantmentUtils.getItemEnchantments(book).stream()
+                    .anyMatch(e -> EnchantmentStateType.KEEP.equals(getStateForKey(states, e.getKey())));
+        }
+
+        /**
          * Determines the enchantments eligible for shatterment from an enchanted book.
          * Requires the first item to be an enchanted book with at least 2 enchantments
          * and the second item to be a plain book.

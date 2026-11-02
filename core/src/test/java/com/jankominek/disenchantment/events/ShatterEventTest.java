@@ -255,6 +255,37 @@ class ShatterEventTest extends DisenchantmentTestBase {
         assertFalse(meta.hasStoredEnchant(enchantment("sharpness")), "KEEP enchant must not appear in split-off book");
     }
 
+    // -> KEEP leaves one splittable enchantment: it splits off, KEEP stays on the source
+
+    @Test
+    void givenTwoEnchantmentsWithOneKEEP_whenPrepareAnvil_thenSplittableEnchantInResult() {
+        setShatterEnchantmentStates(List.of("sharpness:keep"));
+        PlayerMock player = server.addPlayer("TestPlayer");
+        PrepareAnvilEvent event = buildEvent(player, enchantedBook("sharpness", "mending"), new ItemStack(Material.BOOK));
+
+        ShatterEvent.onEvent(event);
+
+        ItemStack result = event.getResult();
+        assertNotNull(result, "The non-KEEP enchantment must be splittable");
+        EnchantmentStorageMeta meta = (EnchantmentStorageMeta) result.getItemMeta();
+        assertNotNull(meta);
+        assertTrue(meta.hasStoredEnchant(enchantment("mending")), "Result must carry the splittable enchantment");
+        assertFalse(meta.hasStoredEnchant(enchantment("sharpness")), "KEEP enchantment must stay on the source");
+    }
+
+    // -> DELETE leaves one splittable enchantment and nothing stays on the source: no result
+
+    @Test
+    void givenTwoEnchantmentsWithOneDELETE_whenPrepareAnvil_thenNoResult() {
+        setShatterEnchantmentStates(List.of("sharpness:delete"));
+        PlayerMock player = server.addPlayer("TestPlayer");
+        PrepareAnvilEvent event = buildEvent(player, enchantedBook("sharpness", "mending"), new ItemStack(Material.BOOK));
+
+        ShatterEvent.onEvent(event);
+
+        assertNull(event.getResult(), "Splitting must not produce an empty result book");
+    }
+
     // -> permission check
 
     @Test
