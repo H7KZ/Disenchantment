@@ -134,4 +134,16 @@ class Migration13Test extends DisenchantmentTestBase {
         for (String key : config.getKeys(true)) if (!config.isConfigurationSection(key)) keys.add(key);
         return keys;
     }
+
+    // -> locales follows the template, never a stale list from the old config
+
+    @Test
+    void givenV12ConfigWithStaleLocales_whenMigrated_thenTemplateLocalesKept() {
+        YamlConfiguration old = v12Config();
+        old.set("locales", List.of("en"));
+
+        FileConfiguration result = new Migration13().migrate(old, template13());
+
+        assertEquals(template13().getStringList("locales"), result.getStringList("locales"));
+    }
 }

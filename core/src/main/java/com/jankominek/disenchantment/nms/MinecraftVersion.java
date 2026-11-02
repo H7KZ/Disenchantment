@@ -59,8 +59,6 @@ public enum MinecraftVersion {
     INCOMPATIBLE((byte) -1, null, null, null),
     ;
 
-    private static final MinecraftVersion serverVersion = init();
-
     private final Byte value;
     private final String versionUnderlined;
     private final String versionDotted;
@@ -76,9 +74,19 @@ public enum MinecraftVersion {
     private static final java.util.regex.Pattern MC_TOKEN = java.util.regex.Pattern.compile("\\(MC: (\\d+)\\.(\\d+)(?:\\.(\\d+))?");
     private static final java.util.regex.Pattern LEADING_VERSION = java.util.regex.Pattern.compile("^(\\d+)[._](\\d+)(?:[._](\\d+))?");
 
+    /**
+     * Detects the version of the given server via {@link #resolve(String, String)}.
+     *
+     * @param server the running server
+     * @return the matching version, never {@code null}
+     */
+    static MinecraftVersion detect(org.bukkit.Server server) {
+        return resolve(server.getVersion(), server.getBukkitVersion());
+    }
+
     private static MinecraftVersion init() {
         try {
-            return resolve(Disenchantment.plugin.getServer().getVersion(), Disenchantment.plugin.getServer().getBukkitVersion());
+            return detect(Disenchantment.plugin.getServer());
         } catch (Exception e) {
             return INCOMPATIBLE;
         }
@@ -164,8 +172,8 @@ public enum MinecraftVersion {
      * or {@code false} if the server version is incompatible
      */
     public static boolean currentVersionOlderThan(MinecraftVersion version) {
-        if (serverVersion == MinecraftVersion.INCOMPATIBLE) return false;
-        return serverVersion.value <= version.value;
+        if (Holder.SERVER_VERSION == MinecraftVersion.INCOMPATIBLE) return false;
+        return Holder.SERVER_VERSION.value <= version.value;
     }
 
     /**
@@ -176,8 +184,8 @@ public enum MinecraftVersion {
      * or {@code false} if the server version is incompatible
      */
     public static boolean currentVersionNewerThan(MinecraftVersion version) {
-        if (serverVersion == MinecraftVersion.INCOMPATIBLE) return false;
-        return serverVersion.value >= version.value;
+        if (Holder.SERVER_VERSION == MinecraftVersion.INCOMPATIBLE) return false;
+        return Holder.SERVER_VERSION.value >= version.value;
     }
 
     /**
@@ -186,7 +194,7 @@ public enum MinecraftVersion {
      * @return the server's {@link MinecraftVersion}, or {@link #INCOMPATIBLE} if unrecognised
      */
     public static MinecraftVersion getServerVersion() {
-        return serverVersion;
+        return Holder.SERVER_VERSION;
     }
 
     /**
@@ -206,5 +214,15 @@ public enum MinecraftVersion {
      */
     public String getNmsVersion() {
         return nmsVersion;
+    }
+
+    /**
+     * Lazily detects the server version on first use. A holder class (instead of a static field
+     * on the enum) guarantees detection runs only after the enum — including its regex patterns —
+     * is fully initialised. A static field declared before the patterns ran {@code init()} while
+     * they were still {@code null}, so every detection failed with a swallowed NPE.
+     */
+    private static final class Holder {
+        private static final MinecraftVersion SERVER_VERSION = init();
     }
 }

@@ -183,4 +183,11 @@ class AnvilCostUtilsTest extends DisenchantmentTestBase {
         assertEquals(0.0, AnvilCostUtils.economyCostForEnchantments(List.of(sharpnessV), -100.0, Map.of("mending", 5.0)));
         assertEquals(0.0, AnvilCostUtils.economyCostForEnchantments(List.of(sharpnessV), 100.0, Map.of("sharpness", -500.0)));
     }
+
+    @Test
+    void givenOverridesAndEmptyEnchantmentList_whenEconomyCost_thenFlatCostCharged() {
+        double cost = AnvilCostUtils.economyCostForEnchantments(java.util.List.of(), 100.0, java.util.Map.of("sharpness", 5.0));
+
+        assertEquals(100.0, cost, 0.0001, "An operation with nothing to price must not be free");
+    }
 }

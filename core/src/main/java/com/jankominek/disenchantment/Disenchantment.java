@@ -4,6 +4,7 @@ import com.jankominek.disenchantment.commands.CommandCompleter;
 import com.jankominek.disenchantment.commands.CommandRegister;
 import com.jankominek.disenchantment.config.Config;
 import com.jankominek.disenchantment.events.GUIClickEvent;
+import com.jankominek.disenchantment.events.ShatterEvent;
 import com.jankominek.disenchantment.listeners.DisenchantClickListener;
 import com.jankominek.disenchantment.listeners.DisenchantListener;
 import com.jankominek.disenchantment.listeners.ShatterClickListener;
@@ -267,8 +268,9 @@ public class Disenchantment extends JavaPlugin {
         // 3. Debug flag
         DiagnosticUtils.setDebugEnabled(Config.Logging.getLevel().isAtLeast(LogLevelType.DEBUG));
 
-        // 4. Unregister all our listeners
+        // 4. Unregister all our listeners and drop state derived from the old config
         org.bukkit.event.HandlerList.unregisterAll(plugin);
+        ShatterEvent.clearAllSelections();
 
         // 5. Re-register listeners with fresh priorities
         new DisenchantListener(Config.EventPriorities.getDisenchantEvent());

@@ -28,6 +28,8 @@ public class Migration13 implements IConfigMigration {
         }
 
         keys.remove("migration");
+        // "locales" lists the bundled locale files; it must follow the template, never the old config.
+        keys.remove("locales");
 
         ConfigUtils.copyKeys(keys, oldConfig, configTemplate);
 

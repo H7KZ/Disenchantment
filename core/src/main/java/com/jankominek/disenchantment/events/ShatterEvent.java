@@ -220,6 +220,14 @@ public class ShatterEvent {
     }
 
     /**
+     * Forgets every cached split selection. Called on reload, since states, chances or the split
+     * count may have changed under a cached subset.
+     */
+    public static void clearAllSelections() {
+        selectionCache.clear();
+    }
+
+    /**
      * Returns the enchantments to split off for the current inputs: the cached subset while the
      * inputs, the split-count config and the eligible enchantments are unchanged, otherwise a fresh
      * random roll (which is then cached). Empty when nothing can be split without emptying the source.

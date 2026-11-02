@@ -206,6 +206,10 @@ public class AnvilCostUtils {
     public static double economyCostForEnchantments(List<IPluginEnchantment> enchantments, double flatCost, Map<String, Double> economyOverrides) {
         if (economyOverrides == null || economyOverrides.isEmpty()) return Math.max(0, flatCost);
 
+        // No enchantment to price (e.g. a Pre event listener emptied the list): the operation still
+        // runs, so charge the flat cost rather than letting it through for free.
+        if (enchantments == null || enchantments.isEmpty()) return Math.max(0, flatCost);
+
         double total = 0;
         boolean hasUnoverridden = false;
 
