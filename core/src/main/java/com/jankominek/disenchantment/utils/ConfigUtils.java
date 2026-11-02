@@ -3,12 +3,18 @@ package com.jankominek.disenchantment.utils;
 import com.jankominek.disenchantment.Disenchantment;
 import com.jankominek.disenchantment.config.Config;
 import com.jankominek.disenchantment.config.migration.ConfigMigrations;
+import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 import java.util.Set;
 import java.util.logging.Level;
@@ -50,38 +56,139 @@ public class ConfigUtils {
     }
 
     /**
-     * Initializes the plugin configuration. Saves the default config if not present,
-     * applies migrations from the old config to the new template, saves the result,
-     * and reloads the configuration.
+     * Strictly parses {@code config.yml} on disk without touching it. Unlike
+     * {@link YamlConfiguration#loadConfiguration(File)}, a syntax error is reported instead of being
+     * swallowed into an empty configuration.
+     *
+     * @return {@code null} if the file is missing or parses cleanly, otherwise the parser's error message
      */
-    public static void setupConfig() {
+    public static String validateConfigFile() {
+        File configFile = new File(plugin.getDataFolder(), "config.yml");
+        if (!configFile.exists()) return null;
+
+        try {
+            new YamlConfiguration().load(configFile);
+            return null;
+        } catch (InvalidConfigurationException | IOException e) {
+            return e.getMessage() == null ? e.toString() : e.getMessage();
+        }
+    }
+
+    /**
+     * Initializes the plugin configuration. Saves the default config if not present, strictly parses
+     * the existing file, applies pending migrations (writing a {@code config.yml.bak} backup first),
+     * saves the result and reloads the configuration.
+     *
+     * <p>If {@code config.yml} contains a YAML syntax error the file is never overwritten: it is copied to
+     * {@code config.yml.broken-<timestamp>}, the failure is logged at SEVERE, and the bundled defaults are
+     * used in memory. In that state config writes are suppressed (see {@link Config#isReadOnly()}) until a
+     * later successful load.</p>
+     *
+     * @return {@code true} if the on-disk config was loaded, {@code false} if the bundled defaults are in use
+     */
+    public static boolean setupConfig() {
         plugin.saveDefaultConfig();
 
-        FileConfiguration oldConfig;
+        File configFile = new File(plugin.getDataFolder(), "config.yml");
+
+        YamlConfiguration oldConfig = new YamlConfiguration();
+        boolean loaded = true;
 
         try {
-            oldConfig = YamlConfiguration.loadConfiguration(new File(plugin.getDataFolder(), "config.yml"));
-        } catch (Exception e) {
-            logger.log(Level.SEVERE, "Could not load config.yml", e);
-            throw new RuntimeException("Failed to load config.yml", e);
+            oldConfig.load(configFile);
+        } catch (InvalidConfigurationException | IOException e) {
+            loaded = false;
+            logger.severe("config.yml could not be parsed and will NOT be modified: " + e.getMessage());
+            File broken = backupBrokenConfig(configFile);
+            if (broken != null) logger.severe("A copy of the broken file was saved to " + broken.getName());
+            logger.severe("Using the bundled default configuration until config.yml is fixed. "
+                    + "Config changes made in-game will not be saved. Fix the file and run /disenchantment reload.");
         }
 
-        FileConfiguration newConfig = YamlConfiguration.loadConfiguration(new InputStreamReader(Objects.requireNonNull(plugin.getResource("config.yml")), StandardCharsets.UTF_8));
+        YamlConfiguration newConfig = loadBundledConfig();
 
-        FileConfiguration updatedConfig = ConfigMigrations.apply(plugin, oldConfig, newConfig);
-
-        try {
-            updatedConfig.save(new File(plugin.getDataFolder(), "config.yml"));
-        } catch (Exception e) {
-            logger.log(Level.SEVERE, "Could not save config.yml", e);
-            throw new RuntimeException("Failed to save config.yml", e);
+        if (loaded) {
+            applyAndSave(configFile, oldConfig, newConfig);
         }
 
         plugin.reloadConfig();
+
+        if (!loaded) {
+            // reloadConfig() re-read the broken file (parsed as empty); replace its contents with the bundled defaults.
+            FileConfiguration current = plugin.getConfig();
+            for (String key : Set.copyOf(current.getKeys(false))) current.set(key, null);
+            for (String key : newConfig.getKeys(true)) {
+                if (!newConfig.isConfigurationSection(key)) current.set(key, newConfig.get(key));
+            }
+        }
+
+        Config.setReadOnly(!loaded);
         Disenchantment.config = plugin.getConfig();
         Disenchantment.enabled = Config.isPluginEnabled();
         Config.invalidateCaches();
         Config.validateRestrictions();
+
+        return loaded;
+    }
+
+    private static YamlConfiguration loadBundledConfig() {
+        return YamlConfiguration.loadConfiguration(new InputStreamReader(Objects.requireNonNull(plugin.getResource("config.yml")), StandardCharsets.UTF_8));
+    }
+
+    /**
+     * Runs migrations and persists the result. A {@code config.yml.bak} copy of the previous file is written
+     * before anything is overwritten. If migrating or backing up fails the on-disk file is left untouched.
+     */
+    private static void applyAndSave(File configFile, FileConfiguration oldConfig, FileConfiguration newConfig) {
+        int oldVersion = oldConfig.getInt("migration", 0);
+        int newVersion = newConfig.getInt("migration", 0);
+
+        FileConfiguration updatedConfig;
+
+        try {
+            updatedConfig = ConfigMigrations.apply(plugin, oldConfig, newConfig);
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "Config migration failed; config.yml was left untouched", e);
+            return;
+        }
+
+        // Already current: nothing was migrated, so do not rewrite the user's file.
+        if (oldVersion >= newVersion) return;
+
+        File backup = new File(configFile.getParentFile(), "config.yml.bak");
+
+        try {
+            Files.copy(configFile.toPath(), backup.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            logger.info("Config migration: previous config.yml backed up to " + backup.getName());
+        } catch (IOException e) {
+            logger.log(Level.SEVERE, "Could not back up config.yml; migrated config was NOT saved: " + e.getMessage());
+            return;
+        }
+
+        try {
+            updatedConfig.save(configFile);
+        } catch (IOException e) {
+            logger.log(Level.SEVERE, "Could not save config.yml", e);
+            throw new RuntimeException("Failed to save config.yml", e);
+        }
+    }
+
+    /**
+     * Copies an unparseable config file to {@code config.yml.broken-<timestamp>} next to the original.
+     *
+     * @return the copy, or {@code null} if it could not be written
+     */
+    private static File backupBrokenConfig(File configFile) {
+        String stamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss"));
+        File target = new File(configFile.getParentFile(), "config.yml.broken-" + stamp);
+
+        try {
+            Files.copy(configFile.toPath(), target.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            return target;
+        } catch (IOException e) {
+            logger.warning("Could not back up broken config.yml: " + e.getMessage());
+            return null;
+        }
     }
 
     /**

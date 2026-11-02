@@ -381,6 +381,18 @@ public class I18n {
         }
 
         /**
+         * Returns the localized message shown when a reload is refused because config.yml has a syntax error.
+         *
+         * @param error the parser error message to substitute
+         */
+        public static String reloadFailed(String error) {
+            return I18n.translateColors(
+                    localeConfig.getString(I18nKeys.MESSAGES_RELOAD_FAILED.getKey(), "&cconfig.yml has a syntax error and was not loaded; the running settings are unchanged: &f{error}&r")
+                            .replace("{error}", error)
+            );
+        }
+
+        /**
          * Returns the localized warning that some enchantments may not transfer due to chance settings.
          */
         public static String someEnchantmentsMayNotTransfer() {

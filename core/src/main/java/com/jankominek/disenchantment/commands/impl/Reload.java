@@ -4,6 +4,7 @@ import com.jankominek.disenchantment.Disenchantment;
 import com.jankominek.disenchantment.commands.CommandBuilder;
 import com.jankominek.disenchantment.config.I18n;
 import com.jankominek.disenchantment.types.PermissionGroupType;
+import com.jankominek.disenchantment.utils.ConfigUtils;
 import org.bukkit.command.CommandSender;
 
 import java.util.ArrayList;
@@ -32,6 +33,13 @@ public class Reload {
      * @param args   the command arguments
      */
     public static void execute(CommandSender sender, String[] args) {
+        String error = ConfigUtils.validateConfigFile();
+        if (error != null) {
+            // Refuse to reload: keep the running config instead of swapping in the defaults.
+            sender.sendMessage(I18n.getPrefix() + " " + I18n.Messages.reloadFailed(error));
+            return;
+        }
+
         Disenchantment.plugin.reload();
         sender.sendMessage(I18n.getPrefix() + " Config reloaded.");
     }

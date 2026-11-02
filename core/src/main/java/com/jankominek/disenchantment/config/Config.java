@@ -21,6 +21,26 @@ import static com.jankominek.disenchantment.Disenchantment.*;
  */
 public class Config {
     private static boolean batchMode = false;
+    private static boolean readOnly = false;
+
+    /**
+     * Whether config writes are suppressed. True while the bundled defaults are in use because
+     * {@code config.yml} failed to parse, so that in-game changes can never overwrite the user's broken file.
+     *
+     * @return {@code true} if config saves are currently a no-op
+     */
+    public static boolean isReadOnly() {
+        return readOnly;
+    }
+
+    /**
+     * Enables or disables read-only mode. Set by {@code ConfigUtils.setupConfig()} on every load.
+     *
+     * @param value {@code true} to suppress writes to {@code config.yml}
+     */
+    public static void setReadOnly(boolean value) {
+        readOnly = value;
+    }
 
     /**
      * Starts a batch configuration update. While batch mode is active, calls to
@@ -37,11 +57,11 @@ public class Config {
      */
     public static void commitBatch() {
         batchMode = false;
-        plugin.saveConfig();
+        if (!readOnly) plugin.saveConfig();
     }
 
     private static void save() {
-        if (!batchMode) plugin.saveConfig();
+        if (!batchMode && !readOnly) plugin.saveConfig();
     }
 
     /**
