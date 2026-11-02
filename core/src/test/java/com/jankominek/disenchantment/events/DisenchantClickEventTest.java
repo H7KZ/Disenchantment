@@ -7,6 +7,9 @@ import com.jankominek.disenchantment.events.api.PreDisenchantEvent;
 import com.jankominek.disenchantment.plugins.MockPluginAdapter;
 import com.jankominek.disenchantment.utils.CooldownManager;
 import com.jankominek.disenchantment.utils.EnchantmentUtils;
+import com.jankominek.disenchantment.utils.EconomyTestSupport;
+import net.milkbowl.vault.economy.Economy;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
@@ -375,6 +378,50 @@ class DisenchantClickEventTest extends DisenchantmentTestBase {
             Mockito.verify(event, Mockito.never()).setCancelled(true);
         } finally {
             Disenchantment.maintenanceEnabled = false;
+        }
+    }
+
+    // -> economy: the charge must cover exactly the enchantments transferred to the result book
+    //    (what the Prepare action bar showed), not DELETE-state enchantments that are only destroyed
+
+    @Test
+    void givenDeleteStateEnchantment_whenDisenchant_thenEconomyChargesOnlyTransferredEnchantments() {
+        setDisenchantEnchantmentStates(List.of("mending:delete"));
+        setConfig("disenchantment.economy.enabled", true);
+        setConfig("disenchantment.anvil.repair.enchantment-costs.sharpness.economy", 10.0);
+        setConfig("disenchantment.anvil.repair.enchantment-costs.mending.economy", 50.0);
+        Economy economy = EconomyTestSupport.install();
+        try {
+            PlayerMock player = server.addPlayer("TestPlayer");
+            player.setLevel(10);
+
+            ItemStack sword = sword("sharpness", 5);
+            sword.addUnsafeEnchantment(enchantment("mending"), 1);
+
+            AtomicReference<PostDisenchantEvent> captured = new AtomicReference<>();
+            server.getPluginManager().registerEvents(new Listener() {
+                @EventHandler
+                public void on(PostDisenchantEvent e) {
+                    captured.set(e);
+                }
+            }, plugin);
+
+            // Prepare puts only sharpness on the book (mending is DELETE-state) and displays 10.0.
+            InventoryClickEvent event = buildClickEvent(player, sword, new ItemStack(Material.BOOK), enchantedBook("sharpness", 5));
+            DisenchantClickEvent.onEvent(event);
+
+            Mockito.verify(economy).withdrawPlayer(Mockito.any(OfflinePlayer.class), eq(10.0));
+            Mockito.verify(economy, Mockito.never()).withdrawPlayer(Mockito.any(OfflinePlayer.class), eq(60.0));
+            assertNotNull(captured.get(), "PostDisenchantEvent must fire");
+            assertEquals(10.0, captured.get().getEconomyCost(), "Reported economy cost must match the charge");
+
+            // DELETE behaviour is unchanged: mending is still stripped from the source item.
+            ArgumentCaptor<ItemStack> source = ArgumentCaptor.forClass(ItemStack.class);
+            Mockito.verify(lastMockAnvil).setItem(eq(0), source.capture());
+            assertFalse(source.getValue().containsEnchantment(enchantment("mending")), "DELETE-state enchantment must still be removed");
+            assertFalse(source.getValue().containsEnchantment(enchantment("sharpness")));
+        } finally {
+            EconomyTestSupport.uninstall();
         }
     }
 }

@@ -146,7 +146,21 @@ public class DisenchantClickEvent {
             return;
         }
 
-        PreDisenchantEvent preEvent = new PreDisenchantEvent(p, firstItem.clone(), new ArrayList<>(enchantments));
+        // The enchantments that really end up on the result book. The click-time collection above is
+        // wider (it also holds DELETE-state enchantments, and for shatter every split candidate, not
+        // just the randomly chosen subset), so the charge — like the Prepare cost display — must be
+        // based on this set, not on the full collection.
+        List<IPluginEnchantment> transferred = EventUtils.findTransferredEnchantments(enchantments, result, activatedPlugins, p.getWorld());
+        List<IPluginEnchantment> destroyed = EventUtils.Disenchantment.findEnchantmentsToDelete(enchantments);
+
+        // Listeners see what is transferred plus what a DELETE state destroys on the source; removing
+        // a DELETE entry still vetoes its removal.
+        List<IPluginEnchantment> preEnchantments = new ArrayList<>();
+        for (IPluginEnchantment enchantment : enchantments) {
+            if (transferred.contains(enchantment) || destroyed.contains(enchantment)) preEnchantments.add(enchantment);
+        }
+
+        PreDisenchantEvent preEvent = new PreDisenchantEvent(p, firstItem.clone(), preEnchantments);
         org.bukkit.Bukkit.getPluginManager().callEvent(preEvent);
         if (preEvent.isCancelled()) {
             e.setCancelled(true);
@@ -156,7 +170,7 @@ public class DisenchantClickEvent {
         // Economy check — runs after PreDisenchantEvent so cancellation doesn't charge the player
         DiagnosticUtils.debug("DISENCHANT", () -> "Click: economy check — enabled=" + Config.Disenchantment.Economy.isEnabled() + ", gameMode=" + p.getGameMode());
         double economyCost = AnvilCostUtils.economyCostForEnchantments(
-                preEvent.getEnchantments(), Config.Disenchantment.Economy.getCost(), Config.Disenchantment.Anvil.Repair.getEnchantmentEconomyCosts());
+                EventUtils.retainByKey(preEvent.getEnchantments(), transferred), Config.Disenchantment.Economy.getCost(), Config.Disenchantment.Anvil.Repair.getEnchantmentEconomyCosts());
         AnvilEventGuards.EconomyResult economyResult = AnvilEventGuards.processEconomyCost(p, ECONOMY_CONFIG, economyCost);
         if (economyResult == AnvilEventGuards.EconomyResult.NOT_AVAILABLE) {
             DiagnosticUtils.debug("DISENCHANT", "Click: economy not available → CANCELLED");

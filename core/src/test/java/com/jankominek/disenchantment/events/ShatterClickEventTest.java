@@ -4,6 +4,14 @@ import com.jankominek.disenchantment.Disenchantment;
 import com.jankominek.disenchantment.DisenchantmentTestBase;
 import com.jankominek.disenchantment.plugins.MockPluginAdapter;
 import com.jankominek.disenchantment.utils.EnchantmentUtils;
+import com.jankominek.disenchantment.utils.EconomyTestSupport;
+import com.jankominek.disenchantment.events.api.PostShatterEvent;
+import com.jankominek.disenchantment.events.api.PreShatterEvent;
+import com.jankominek.disenchantment.plugins.IPluginEnchantment;
+import net.milkbowl.vault.economy.Economy;
+import org.bukkit.event.Listener;
+import org.bukkit.event.EventHandler;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.Material;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
@@ -19,6 +27,7 @@ import org.mockito.Mockito;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -165,6 +174,50 @@ class ShatterClickEventTest extends DisenchantmentTestBase {
             Mockito.verify(event, Mockito.never()).setCancelled(true);
         } finally {
             Disenchantment.maintenanceEnabled = false;
+        }
+    }
+
+    // -> economy: the charge and PreShatterEvent must cover only the split-off subset in the result
+    //    book, not every eligible enchantment of the source book
+
+    @Test
+    void givenRandomSubsetInResult_whenShatter_thenEconomyAndPreEventCoverOnlySubset() {
+        setConfig("shatterment.economy.enabled", true);
+        setConfig("shatterment.anvil.repair.enchantment-costs.sharpness.economy", 10.0);
+        setConfig("shatterment.anvil.repair.enchantment-costs.unbreaking.economy", 20.0);
+        setConfig("shatterment.anvil.repair.enchantment-costs.mending.economy", 30.0);
+        Economy economy = EconomyTestSupport.install();
+        try {
+            PlayerMock player = server.addPlayer("TestPlayer");
+            player.setLevel(10);
+
+            AtomicReference<PreShatterEvent> pre = new AtomicReference<>();
+            AtomicReference<PostShatterEvent> post = new AtomicReference<>();
+            server.getPluginManager().registerEvents(new Listener() {
+                @EventHandler
+                public void on(PreShatterEvent e) {
+                    pre.set(e);
+                }
+
+                @EventHandler
+                public void on(PostShatterEvent e) {
+                    post.set(e);
+                }
+            }, plugin);
+
+            ItemStack sourceBook = enchantedBook("sharpness", "5", "unbreaking", "3", "mending", "1");
+            // Prepare randomly picked only unbreaking for this split.
+            InventoryClickEvent event = buildClickEvent(player, sourceBook, new ItemStack(Material.BOOK), enchantedBook("unbreaking", "3"));
+            ShatterClickEvent.onEvent(event);
+
+            assertNotNull(pre.get(), "PreShatterEvent must fire");
+            assertEquals(List.of("unbreaking"), pre.get().getEnchantments().stream().map(IPluginEnchantment::getKey).toList(),
+                    "PreShatterEvent must carry the split subset, not every eligible enchantment");
+            Mockito.verify(economy).withdrawPlayer(Mockito.any(OfflinePlayer.class), eq(20.0));
+            assertNotNull(post.get(), "PostShatterEvent must fire");
+            assertEquals(20.0, post.get().getEconomyCost());
+        } finally {
+            EconomyTestSupport.uninstall();
         }
     }
 }

@@ -9,8 +9,10 @@ import org.bukkit.World;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -363,6 +365,70 @@ public class EventUtils {
             if (materialBypassActive.get()) return false;
             return Config.Shatterment.isMaterialRestricted(item.getType());
         }
+    }
+
+    /**
+     * Normalized (namespace-stripped, lower-case) lookup key for an enchantment key, so vanilla
+     * ({@code sharpness}), namespaced ({@code minecraft:sharpness}) and adapter keys compare equal.
+     */
+    private static String lookupKey(String key) {
+        return normalizeKey(key == null ? "" : key).toLowerCase();
+    }
+
+    /**
+     * Returns the subset of {@code collected} that the anvil result book actually carries — i.e. the
+     * enchantments that are really transferred to the player. This is the one set both the action-bar
+     * cost display (Prepare) and the economy charge (Click) must be based on: the click-time
+     * collection also contains enchantments that never reach the book (DELETE-state ones, or the
+     * shatter candidates not picked for this split).
+     * <p>
+     * The result book is read the same way the click handlers read it to strip the source item:
+     * vanilla stored enchantments plus every activated adapter's view of the book.
+     *
+     * @param collected     the enchantments collected for the operation (order is preserved)
+     * @param resultBook    the item in the anvil result slot
+     * @param activatedPlugins the activated third-party adapters
+     * @param world         the player's world (passed through to adapters)
+     * @return the entries of {@code collected} whose key is present on the result book
+     */
+    public static List<IPluginEnchantment> findTransferredEnchantments(
+            List<IPluginEnchantment> collected,
+            ItemStack resultBook,
+            List<ISupportedPlugin> activatedPlugins,
+            World world) {
+        Set<String> onBook = new HashSet<>();
+        if (resultBook != null && resultBook.getType() != Material.AIR) {
+            for (IPluginEnchantment ench : EnchantmentUtils.getItemEnchantments(resultBook)) {
+                onBook.add(lookupKey(ench.getKey()));
+            }
+            for (ISupportedPlugin plugin : activatedPlugins) {
+                for (IPluginEnchantment ench : plugin.getItemEnchantments(resultBook, world)) {
+                    onBook.add(lookupKey(ench.getKey()));
+                }
+            }
+        }
+
+        List<IPluginEnchantment> transferred = new ArrayList<>();
+        for (IPluginEnchantment ench : collected) {
+            if (onBook.contains(lookupKey(ench.getKey()))) transferred.add(ench);
+        }
+        return transferred;
+    }
+
+    /**
+     * Returns the entries of {@code enchantments} whose key also appears in {@code reference}
+     * (keys compared normalized). Used to keep the economy charge limited to the transferred set
+     * after third-party listeners had a chance to edit the Pre* event's enchantment list.
+     */
+    public static List<IPluginEnchantment> retainByKey(List<IPluginEnchantment> enchantments, List<IPluginEnchantment> reference) {
+        Set<String> keys = new HashSet<>();
+        for (IPluginEnchantment ench : reference) keys.add(lookupKey(ench.getKey()));
+
+        List<IPluginEnchantment> retained = new ArrayList<>();
+        for (IPluginEnchantment ench : enchantments) {
+            if (keys.contains(lookupKey(ench.getKey()))) retained.add(ench);
+        }
+        return retained;
     }
 
     // Strips namespace prefix (e.g. "minecraft:mending" → "mending") so config keys written

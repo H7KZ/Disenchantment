@@ -60,6 +60,16 @@ public class EconomyUtils {
     }
 
     /**
+     * Injects an economy provider directly, bypassing the Vault service lookup. Intended for
+     * tests (and any bootstrap that already holds a provider); pass {@code null} to unhook.
+     *
+     * @param provider the economy provider to use, or {@code null} to clear it
+     */
+    public static void setProvider(Economy provider) {
+        economy = provider;
+    }
+
+    /**
      * Returns whether a Vault economy provider is currently available.
      *
      * @return {@code true} if economy operations can be performed
