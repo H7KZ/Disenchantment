@@ -162,6 +162,9 @@ public class StatsDatabase {
                 onLoaded.accept(loadBootData());
             } catch (SQLException e) {
                 onError.accept(e);
+            } catch (RuntimeException e) {
+                // Executor.submit swallows exceptions silently — always log them.
+                Logger.getLogger("Disenchantment").log(java.util.logging.Level.SEVERE, "StatsDatabase boot load failed", e);
             }
         });
     }

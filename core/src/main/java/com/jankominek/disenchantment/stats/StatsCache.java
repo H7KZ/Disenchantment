@@ -6,11 +6,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.DoubleAdder;
+import java.util.concurrent.atomic.LongAdder;
 
 /**
  * In-memory aggregate of all recorded operations.
- * Writes happen on the Bukkit main thread; reads come from async threads (PAPI, bStats).
- * ConcurrentHashMap avoids ConcurrentModificationException on concurrent iterator/stream use.
+ * Thread-safe: on Folia writes may come from several region threads at once while reads come from
+ * async threads (PAPI, bStats). Totals use {@link LongAdder}/{@link DoubleAdder} and the maps are
+ * {@link ConcurrentHashMap}s updated through atomic {@code merge} calls.
  */
 public class StatsCache {
 
@@ -30,41 +33,48 @@ public class StatsCache {
                     shatters + (type == OperationType.SHATTER ? 1 : 0),
                     xpSpent + xpCost,
                     moneySpent + economyCost,
-                    time
+                    lastOperation == null || time.isAfter(lastOperation) ? time : lastOperation
             );
         }
     }
 
-    private long totalDisenchants;
-    private long totalShatters;
-    private long totalXpSpent;
-    private double totalMoneySpent;
+    private final LongAdder totalDisenchants = new LongAdder();
+    private final LongAdder totalShatters = new LongAdder();
+    private final LongAdder totalXpSpent = new LongAdder();
+    private final DoubleAdder totalMoneySpent = new DoubleAdder();
     private final Map<String, Long> enchantmentCounts = new ConcurrentHashMap<>();
     private final Map<UUID, PlayerStats> playerStats = new ConcurrentHashMap<>();
 
     /**
-     * Populates cache from a DB boot-load snapshot. Call once before any record() calls.
+     * Populates cache from a DB boot-load snapshot. Call once. Values are added to whatever
+     * has already been recorded, so a record that races the boot load is never lost.
      */
     public void initialize(BootData bd) {
-        totalDisenchants = bd.disenchants();
-        totalShatters = bd.shatters();
-        totalXpSpent = bd.xpSpent();
-        totalMoneySpent = bd.moneySpent();
-        enchantmentCounts.putAll(bd.enchantmentCounts());
-        bd.playerStats().forEach((uuid, pbs) -> playerStats.put(uuid,
+        totalDisenchants.add(bd.disenchants());
+        totalShatters.add(bd.shatters());
+        totalXpSpent.add(bd.xpSpent());
+        totalMoneySpent.add(bd.moneySpent());
+        bd.enchantmentCounts().forEach((key, count) -> enchantmentCounts.merge(key, count, Long::sum));
+        bd.playerStats().forEach((uuid, pbs) -> playerStats.merge(uuid,
                 new PlayerStats(pbs.disenchants(), pbs.shatters(), pbs.xpSpent(),
-                        pbs.moneySpent(), Instant.ofEpochSecond(pbs.lastOperationEpoch()))));
+                        pbs.moneySpent(), Instant.ofEpochSecond(pbs.lastOperationEpoch())),
+                (existing, boot) -> new PlayerStats(
+                        existing.disenchants() + boot.disenchants(),
+                        existing.shatters() + boot.shatters(),
+                        existing.xpSpent() + boot.xpSpent(),
+                        existing.moneySpent() + boot.moneySpent(),
+                        existing.lastOperation().isAfter(boot.lastOperation()) ? existing.lastOperation() : boot.lastOperation())));
     }
 
     /**
-     * Records one operation in the cache. Call on main thread.
+     * Records one operation in the cache. Safe to call from any thread.
      */
     public void record(OperationType type, List<String> enchantmentKeys,
                        UUID playerUuid, String playerName, int xpCost, double economyCost, Instant timestamp) {
-        if (type == OperationType.DISENCHANT) totalDisenchants++;
-        else totalShatters++;
-        totalXpSpent += xpCost;
-        totalMoneySpent += economyCost;
+        if (type == OperationType.DISENCHANT) totalDisenchants.increment();
+        else totalShatters.increment();
+        totalXpSpent.add(xpCost);
+        totalMoneySpent.add(economyCost);
         for (String key : enchantmentKeys) {
             enchantmentCounts.merge(key, 1L, Long::sum);
         }
@@ -80,28 +90,28 @@ public class StatsCache {
      * Returns the total number of disenchantment operations recorded.
      */
     public long getTotalDisenchants() {
-        return totalDisenchants;
+        return totalDisenchants.sum();
     }
 
     /**
      * Returns the total number of shatterment operations recorded.
      */
     public long getTotalShatters() {
-        return totalShatters;
+        return totalShatters.sum();
     }
 
     /**
      * Returns the total XP levels spent across all operations.
      */
     public long getTotalXpSpent() {
-        return totalXpSpent;
+        return totalXpSpent.sum();
     }
 
     /**
      * Returns the total economy currency spent across all operations.
      */
     public double getTotalMoneySpent() {
-        return totalMoneySpent;
+        return totalMoneySpent.sum();
     }
 
     /**

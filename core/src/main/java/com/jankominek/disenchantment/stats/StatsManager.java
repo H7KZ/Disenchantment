@@ -1,6 +1,7 @@
 package com.jankominek.disenchantment.stats;
 
 import com.jankominek.disenchantment.utils.BStatsMetrics;
+import com.jankominek.disenchantment.utils.SchedulerUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -11,6 +12,7 @@ import java.sql.SQLException;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static com.jankominek.disenchantment.Disenchantment.plugin;
@@ -44,10 +46,19 @@ public class StatsManager {
 
             // Boot load runs on writeExecutor (same thread as inserts) to avoid concurrent Connection use.
             // Listener registers after cache init so no boot-window records are overwritten.
+            // The callback hops to the global region thread via SchedulerUtils (Bukkit.getScheduler() throws on Folia).
+            StatsManager manager = instance;
             db.loadBootDataAsync(
-                    bd -> Bukkit.getScheduler().runTask(plugin, () -> {
-                        c.initialize(bd);
-                        Bukkit.getPluginManager().registerEvents(new StatsListener(instance), plugin);
+                    bd -> SchedulerUtils.runGlobal(plugin, () -> {
+                        try {
+                            // Skip if shut down / replaced (e.g. reload) while the boot load was in flight.
+                            if (instance != manager) return;
+                            c.initialize(bd);
+                            Bukkit.getPluginManager().registerEvents(new StatsListener(manager), plugin);
+                        } catch (Exception ex) {
+                            Logger.getLogger("Disenchantment").log(Level.SEVERE,
+                                    "StatsManager failed to apply boot data; stats disabled until reload", ex);
+                        }
                     }),
                     e -> Logger.getLogger("Disenchantment").warning("StatsManager boot load failed: " + e.getMessage())
             );

@@ -4,9 +4,15 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -101,5 +107,54 @@ class StatsCacheTest {
         assertNotNull(ps);
         assertEquals(3, ps.disenchants());
         assertEquals(1, ps.shatters());
+    }
+
+    @Test
+    void record_concurrentThreads_noLostUpdates() throws Exception {
+        int threads = 8, perThread = 2000;
+        UUID uuid = UUID.randomUUID();
+        ExecutorService pool = Executors.newFixedThreadPool(threads);
+        CountDownLatch start = new CountDownLatch(1);
+        List<Future<?>> futures = new ArrayList<>();
+        for (int t = 0; t < threads; t++) {
+            OperationType type = t % 2 == 0 ? OperationType.DISENCHANT : OperationType.SHATTER;
+            futures.add(pool.submit(() -> {
+                start.await();
+                for (int i = 0; i < perThread; i++) {
+                    cache.record(type, List.of("minecraft:mending"), uuid, "Steve", 2, 0.5, Instant.now());
+                }
+                return null;
+            }));
+        }
+        start.countDown();
+        for (Future<?> f : futures) f.get(30, TimeUnit.SECONDS);
+        pool.shutdown();
+
+        long half = (long) (threads / 2) * perThread;
+        assertEquals(half, cache.getTotalDisenchants());
+        assertEquals(half, cache.getTotalShatters());
+        assertEquals(2L * threads * perThread, cache.getTotalXpSpent());
+        assertEquals(0.5 * threads * perThread, cache.getTotalMoneySpent(), 1e-6);
+        assertEquals((long) threads * perThread, cache.getEnchantmentCount("minecraft:mending"));
+        StatsCache.PlayerStats ps = cache.getPlayerStats(uuid);
+        assertEquals(half, ps.disenchants());
+        assertEquals(half, ps.shatters());
+        assertEquals(2L * threads * perThread, ps.xpSpent());
+    }
+
+    @Test
+    void initialize_afterRecord_addsInsteadOfOverwriting() {
+        UUID uuid = UUID.randomUUID();
+        cache.record(OperationType.DISENCHANT, List.of("minecraft:mending"), uuid, "Steve", 1, 0.0, Instant.ofEpochSecond(5000));
+        BootData bd = new BootData(2L, 0L, 4L, 0.0, Map.of("minecraft:mending", 2L),
+                Map.of(uuid, new BootData.PlayerBootStats("Steve", 2L, 0L, 4L, 0.0, 1000L)));
+
+        cache.initialize(bd);
+
+        assertEquals(3, cache.getTotalDisenchants());
+        assertEquals(5, cache.getTotalXpSpent());
+        assertEquals(3L, cache.getEnchantmentCount("minecraft:mending"));
+        assertEquals(3, cache.getPlayerStats(uuid).disenchants());
+        assertEquals(Instant.ofEpochSecond(5000), cache.getPlayerStats(uuid).lastOperation());
     }
 }
