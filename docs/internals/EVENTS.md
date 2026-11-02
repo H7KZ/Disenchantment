@@ -32,6 +32,11 @@ other three listeners.
 The priority is read from `Config.EventPriorities.getDisenchantEvent()` etc., which parses from `config.yml` at
 listener-registration time (during `enable()`). **Changing priorities requires a reload.**
 
+`DisenchantListener`'s constructor additionally registers one `AnvilSessionListener` (`listeners/`, plain `@EventHandler`
+methods, not priority-configurable): the pending-blank-book click/drag lock, settle-on-close, and cleanup of the
+bypass-cost and shatter-selection caches on anvil close / `PlayerQuitEvent`. It lives there only so it is (re)registered
+exactly once together with the anvil listeners.
+
 ---
 
 ## `AnvilEventGuards`
@@ -44,8 +49,8 @@ listener-registration time (during `enable()`). **Changing priorities requires a
 public static boolean isAnvilResultSlotClick(InventoryClickEvent e, Player p)
 ```
 
-Returns `true` when the inventory is an ANVIL, the clicked slot is 2 (result slot), and the player's cursor is empty.
-Cursor check prevents deleting held items.
+Returns `true` when the inventory is an ANVIL, the clicked **raw** slot is 2 (result slot), and the player's cursor is
+empty. Cursor check prevents deleting held items.
 
 ### Enchantment collection
 
@@ -70,12 +75,29 @@ public static List<IPluginEnchantment> collectEnchantments(
 public static boolean hasEnoughXp(Player p, int repairCost)
 ```
 
-Returns `true` if the player is in creative mode OR has at least `repairCost` levels.
+Returns `true` if the player is in creative mode OR has at least `repairCost` levels. The click handlers send
+`messages.not-enough-levels` (with the real, possibly bypass-cached cost) when it fails.
+
+### Maintenance, cooldown and quiet variants
+
+`PrepareAnvilEvent` fires on every keystroke, so it must never message the player:
+
+| Method                              | Messages? | Used by                                                        |
+|-------------------------------------|-----------|----------------------------------------------------------------|
+| `isMaintenanceActiveFor(Player)`    | no        | Prepare handlers, **after** a genuine operation was detected   |
+| `isMaintenanceBlocked(Player)`      | yes       | Click handlers, once a genuine operation is confirmed          |
+| `isOnCooldownQuiet(Player)`         | no        | Prepare handlers (just clear the result)                       |
+| `isOnCooldown(Player)`              | yes       | Click handlers                                                 |
+
+Maintenance mode only blocks genuine plugin operations (enchantments collected non-empty); vanilla repair/rename is
+never touched. Because Prepare nulls the result in maintenance, the click handlers run the maintenance check **before**
+the `result == null` check so the player clicking the empty slot is told why.
 
 ### Economy processing
 
 ```java
 public static EconomyResult processEconomy(Player p, EconomyConfig config)
+public static EconomyResult processEconomyCost(Player p, EconomyConfig config, double cost)
 ```
 
 Returns an `EconomyResult` enum:
@@ -83,8 +105,22 @@ Returns an `EconomyResult` enum:
 - `OK` — economy disabled, player in creative, or withdrawal succeeded.
 - `NOT_AVAILABLE` — economy enabled but Vault not hooked.
 - `INSUFFICIENT_FUNDS` — player balance below required cost.
+- `WITHDRAW_FAILED` — the balance check passed but the provider's `EconomyResponse` was unsuccessful (or null). The
+  player is **not** charged.
 
-The caller is responsible for cancelling the event and sending messages for non-OK results.
+The caller is responsible for cancelling the event and sending messages for non-OK results. Both click handlers do all
+abortable precondition checks (result meta, ...) **before** charging, so nothing after the charge can abort without
+delivering the result.
+
+#### What is charged
+
+The charge uses the same set the Prepare action bar displays: the enchantments actually transferred to the result book.
+`EventUtils.findTransferredEnchantments(collected, resultBook, activatedPlugins, world)` derives it at click time from
+the result book (vanilla stored enchants plus each active adapter's view of it) mapped back to the click-time collected
+list. The click-time collection is wider (it keeps `DELETE`-state enchantments, and for shatter every split candidate),
+so charging from it overcharged. `Pre*Event.getEnchantments()` carries the transferred enchantments plus the
+`DELETE`-state ones that will be destroyed on the source (a listener may remove an entry to veto its deletion); the
+economy amount is computed from that list restricted to the transferred keys (`EventUtils.retainByKey`).
 
 ```java
 public static void showEconomyActionBar(Player p, EconomyConfig config)
@@ -112,9 +148,28 @@ anvil cost and ignores server updates without the additional tick.
 public static void scheduleSecondItemRemoval(Player p, AnvilInventory anvilInventory, ItemStack secondItem)
 ```
 
-Schedules a **2-tick** deferred reduction of the blank book in anvil slot 1. The 2-tick delay is intentional:
-EnchantsSquared replaces slot 1 with null after 1 tick, so a 1-tick delay would be overridden. The method decrements
-amount if `> 1`, otherwise sets slot to null.
+Schedules a **2-tick** deferred consumption of one blank book from anvil slot 1. The delay is intentional (commit
+`e86f4a2`): the click handlers run before vanilla finishes the take, which itself clears slot 1, and EnchantsSquared nulls
+slot 1 one tick later, so a synchronous (or 1-tick) write is overwritten. The stack is therefore re-written with one book
+fewer after 2 ticks. It cannot simply be made synchronous without losing the remaining books of a stack.
+
+The window between click and write used to be exploitable (close the anvil / move the books / two clicks in one tick), so
+it is closed with an **operation-pending** mark:
+
+- `scheduleSecondItemRemoval(p, inv, secondItem, originClick)` registers the anvil inventory in a weak, synchronized map.
+- `isOperationPending(inv)` — both click handlers refuse (and cancel) a second operation on a pending anvil.
+- `isLockedFor(inv, click)` — `AnvilSessionListener` cancels every other `InventoryClickEvent` / `InventoryDragEvent` on a
+  pending anvil (the click that started the operation is exempt).
+- `settlePendingRemoval(inv)` — idempotent; run by the deferred task **and** by `AnvilSessionListener` on
+  `InventoryCloseEvent` (which fires before the server returns slot contents), so closing early cannot keep the consumed
+  book. It only writes slot 1 if it is empty or still holds the same book type, and never writes back more books than
+  remain (`min(current, original - 1)`); a foreign item is left alone.
+
+### Bypass-cost cache lifecycle
+
+`bypassCostCache` (UUID → real cost) is set by Prepare when `bypass-too-expensive` is on and the cost is `>= 40`, read by
+`peekBypassCost`, and cleared by `clearBypassCost` on success, on the anvil `InventoryCloseEvent`, and on
+`PlayerQuitEvent` (both in `AnvilSessionListener`).
 
 ---
 
@@ -169,15 +224,20 @@ private static final AnvilEventGuards.EconomyConfig ECONOMY_CONFIG = new AnvilEv
 1. Verify `InventoryClickEvent`, extract player.
 2. Guards: plugin/feature enabled, world not disabled.
 3. `AnvilEventGuards.isAnvilResultSlotClick(e, p)` — must be slot 2, cursor empty.
-4. `result = anvilInventory.getItem(2)` — must be non-null and `ENCHANTED_BOOK`.
-5. Collect enchantments again (same logic as PrepareAnvil but `isPrepare=false`).
-6. Read repair cost: `AnvilCostUtils.getRepairCost(anvilInventory, e.getView())`.
-7. XP check: `AnvilEventGuards.hasEnoughXp(p, repairCost)` — cancel event if insufficient.
-8. Permission check.
-9. Economy check: `AnvilEventGuards.processEconomy(p, ECONOMY_CONFIG)` — cancel and message if non-OK.
-10. **Fire `PreDisenchantEvent`** (cancellable) — cancel Bukkit event if pre-event is cancelled.
-11. Calculate new XP: `exp = p.getLevel() - repairCost`.
-12. Find enchantments to delete: `EventUtils.Disenchantment.findEnchantmentsToDelete(enchantments)`.
+4. Collect enchantments again (same logic as PrepareAnvil but `isPrepare=false`); empty = not ours, return.
+5. Maintenance check (messages + cancels), then `result = anvilInventory.getItem(2)` — must be non-null and
+   `ENCHANTED_BOOK`; result meta must be present (checked **before** any charge).
+6. Unsafe click type (shift/number-key/...) → cancel + `messages.use-normal-click`. Operation still pending on this anvil
+   → cancel. Cooldown → cancel + message.
+7. Read repair cost: `AnvilCostUtils.getRepairCost(anvilInventory, e.getView())`.
+8. XP check: `AnvilEventGuards.hasEnoughXp(p, repairCost)` — cancel + `messages.not-enough-levels` if insufficient.
+9. Permission check.
+10. **Fire `PreDisenchantEvent`** (cancellable) with the transferred + DELETE-state enchantments — cancel Bukkit event
+    if pre-event is cancelled.
+11. Economy: `processEconomyCost(...)` on the transferred set — cancel and message on `NOT_AVAILABLE`,
+    `INSUFFICIENT_FUNDS` or `WITHDRAW_FAILED`.
+12. Calculate new XP: `exp = p.getLevel() - repairCost`. Find enchantments to delete:
+    `EventUtils.Disenchantment.findEnchantmentsToDelete(enchantments)`.
 13. Remove enchantments from `firstItem`:
     - Without plugins: `EnchantmentUtils.removeEnchantments(finalFirstItem, resultItemMeta.getStoredEnchants())`, then
       remove DELETE-state enchantments.
@@ -187,9 +247,11 @@ private static final AnvilEventGuards.EconomyConfig ECONOMY_CONFIG = new AnvilEv
 15. Set `anvilInventory.setItem(0, finalFirstItem)`.
 16. Schedule second-item removal.
 17. Deduct XP: `p.setLevel(exp)` (skipped in creative mode).
-18. Give result book: `p.setItemOnCursor(result)`.
-19. **Fire `PostDisenchantEvent`**.
-20. Play sound if enabled.
+18. Per-enchantment chance rolls. If **every** roll failed (and no adapter enchantment remains) a plain `BOOK` is
+    delivered instead of an empty enchanted book, with `messages.enchantments-failed-to-transfer`.
+19. Give result book: `p.setItemOnCursor(...)`.
+20. **Fire `PostDisenchantEvent`**.
+21. Play sound if enabled.
 
 ---
 
@@ -203,7 +265,12 @@ collectors. Key differences:
   books).
 - Result is a new `ENCHANTED_BOOK` with only the split-off enchantment (s). `Config.Shatterment.getSplitCount()`
   controls how many enchantments split off per operation (default 1).
-- Public API events: `PreShatterEvent` / `PostShatterEvent`.
+- The chosen subset is **cached per player** (`ShatterEvent.selectSplit`) together with snapshots of slot 0 / slot 1
+  (`isSimilar` + amount) and the split-count config, so repeated `PrepareAnvilEvent`s (rename keystrokes) don't re-roll it.
+  Any input change drops it on the next prepare; `ShatterEvent.clearSelection(p)` runs when an operation completes and
+  from `AnvilSessionListener` on anvil close / quit.
+- Public API events: `PreShatterEvent` / `PostShatterEvent`. `PreShatterEvent.getEnchantments()` is the split subset
+  (see "What is charged" above), not every enchantment on the source book.
 
 ---
 

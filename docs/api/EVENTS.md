@@ -22,7 +22,7 @@ prevents the enchantments from being transferred and the XP cost from being appl
 |----------------------------|--------------------------------|-------------------------------------------------------|
 | `Player`                   | `getPlayer()`                  | The player who triggered the disenchant               |
 | `ItemStack`                | `getSourceItem()`              | The enchanted item placed in the anvil's first slot   |
-| `List<IPluginEnchantment>` | `getEnchantments()`            | The enchantments that will be transferred to the book |
+| `List<IPluginEnchantment>` | `getEnchantments()`            | The enchantments that will be transferred to the book (plus any `delete`-state enchantments that will be destroyed on the source; remove one from the list to veto its deletion) |
 | `boolean`                  | `isCancelled()`                | Whether the event has been cancelled                  |
 | `void`                     | `setCancelled(boolean cancel)` | Cancel or un-cancel the event                         |
 
@@ -120,7 +120,7 @@ enchantment off a multi-enchantment book onto a blank book. Cancelling this even
 |----------------------------|--------------------------------|-----------------------------------------------------|
 | `Player`                   | `getPlayer()`                  | The player who triggered the shatter                |
 | `ItemStack`                | `getSourceItem()`              | The enchanted book placed in the anvil's first slot |
-| `List<IPluginEnchantment>` | `getEnchantments()`            | The enchantments present on the source book         |
+| `List<IPluginEnchantment>` | `getEnchantments()`            | The enchantments being split off onto the result book — the randomly chosen subset, **not** every enchantment on the source book (plus any `delete`-state enchantments that will be destroyed on the source; remove one from the list to veto its deletion) |
 | `boolean`                  | `isCancelled()`                | Whether the event has been cancelled                |
 | `void`                     | `setCancelled(boolean cancel)` | Cancel or un-cancel the event                       |
 
