@@ -388,6 +388,15 @@ public class I18n {
         }
 
         /**
+         * Returns the localized message confirming the configuration was reloaded.
+         */
+        public static String configReloaded() {
+            return I18n.translateColors(
+                    localeConfig.getString(I18nKeys.MESSAGES_CONFIG_RELOADED.getKey(), "&aConfig reloaded.&r")
+            );
+        }
+
+        /**
          * Returns the localized message shown when a reload is refused because config.yml has a syntax error.
          *
          * @param error the parser error message to substitute

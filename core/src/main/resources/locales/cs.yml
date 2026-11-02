@@ -47,6 +47,7 @@ messages:
   maintenance-active: "&cDisenchantment je momentálně v údržbě. Zkuste to prosím později.&r"
   maintenance-is-enabled: "&aRežim údržby je nyní &fzapnut&a.&r"
   maintenance-is-disabled: "&aRežim údržby je nyní &fvypnut&a.&r"
+  config-reloaded: "&aKonfigurace byla znovu načtena.&r"
   reload-failed: "&cconfig.yml obsahuje chybu a nebyl načten, aktuální nastavení zůstává beze změny: &f{error}&r"
 
 states:

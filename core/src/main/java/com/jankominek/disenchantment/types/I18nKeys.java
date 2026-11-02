@@ -52,6 +52,7 @@ public enum I18nKeys {
     MESSAGES_MAINTENANCE_IS_ENABLED("messages.maintenance-is-enabled"),
     MESSAGES_MAINTENANCE_IS_DISABLED("messages.maintenance-is-disabled"),
     MESSAGES_RELOAD_FAILED("messages.reload-failed"),
+    MESSAGES_CONFIG_RELOADED("messages.config-reloaded"),
     MESSAGES_SPECIFY_ENCHANTMENT_CHANCE("messages.specify-enchantment-chance"),
     MESSAGES_ENCHANTMENT_CHANCE_IS_SET("messages.enchantment-chance-is-set"),
 

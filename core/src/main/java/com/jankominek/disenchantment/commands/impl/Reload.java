@@ -41,7 +41,7 @@ public class Reload {
         }
 
         Disenchantment.plugin.reload();
-        sender.sendMessage(I18n.getPrefix() + " Config reloaded.");
+        sender.sendMessage(I18n.getPrefix() + " " + I18n.Messages.configReloaded());
     }
 
     /**
