@@ -149,4 +149,38 @@ class AnvilCostUtilsTest extends DisenchantmentTestBase {
         double cost = AnvilCostUtils.economyCostForEnchantments(List.of(mendingI, sharpnessV), 100.0, overrides);
         assertEquals(600.0, cost); // 500 (mending override) + 100 (flat, for sharpness which has no override)
     }
+
+    // ----------------------------------------------------------------------------------------------------
+    // Negative config values must never pay the player
+
+    @Test
+    void givenNegativeBaseAndMultiplier_whenCountCost_thenClampedToZero() {
+        setConfig("disenchantment.anvil.repair.base", -50);
+        setConfig("disenchantment.anvil.repair.multiply", -2.0);
+        IPluginEnchantment sharpnessV = EnchantmentUtils.remapEnchantment(enchantment("sharpness"), 5);
+        assertEquals(0, AnvilCostUtils.countAnvilCost(List.of(sharpnessV), AnvilEventType.DISENCHANTMENT));
+    }
+
+    @Test
+    void givenNegativeBase_shatterment_whenCountCost_thenClampedToZero() {
+        setConfig("shatterment.anvil.repair.base", -100);
+        IPluginEnchantment sharpnessV = EnchantmentUtils.remapEnchantment(enchantment("sharpness"), 5);
+        assertEquals(0, AnvilCostUtils.countAnvilCost(List.of(sharpnessV), AnvilEventType.SHATTERMENT));
+    }
+
+    @Test
+    void givenNegativeOverride_whenCountCost_thenClampedToZero() {
+        setConfig("disenchantment.anvil.repair.base", 0);
+        setConfig("disenchantment.anvil.repair.enchantment-costs.sharpness", -9);
+        IPluginEnchantment sharpnessV = EnchantmentUtils.remapEnchantment(enchantment("sharpness"), 5);
+        assertEquals(0, AnvilCostUtils.countAnvilCost(List.of(sharpnessV), AnvilEventType.DISENCHANTMENT));
+    }
+
+    @Test
+    void givenNegativeFlatEconomyCost_whenEconomyCost_thenClampedToZero() {
+        IPluginEnchantment sharpnessV = EnchantmentUtils.remapEnchantment(enchantment("sharpness"), 5);
+        assertEquals(0.0, AnvilCostUtils.economyCostForEnchantments(List.of(sharpnessV), -100.0, Map.of()));
+        assertEquals(0.0, AnvilCostUtils.economyCostForEnchantments(List.of(sharpnessV), -100.0, Map.of("mending", 5.0)));
+        assertEquals(0.0, AnvilCostUtils.economyCostForEnchantments(List.of(sharpnessV), 100.0, Map.of("sharpness", -500.0)));
+    }
 }

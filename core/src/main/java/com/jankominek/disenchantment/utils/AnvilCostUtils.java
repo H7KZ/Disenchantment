@@ -93,7 +93,7 @@ public class AnvilCostUtils {
      *
      * @param enchantments   the enchantments involved in the operation
      * @param anvilEventType the type of anvil event (DISENCHANTMENT or SHATTERMENT)
-     * @return the calculated cost in experience levels, or 0 if cost is disabled
+     * @return the calculated cost in experience levels (never negative), or 0 if cost is disabled
      */
     public static int countAnvilCost(List<IPluginEnchantment> enchantments, AnvilEventType anvilEventType) {
         return countAnvilCost(enchantments, anvilEventType, null);
@@ -182,6 +182,12 @@ public class AnvilCostUtils {
             }
         }
 
+        // A negative base/multiplier/override (or multiplier) must never pay the player levels.
+        if (result < 0) {
+            DiagnosticUtils.debug(category, "AnvilCost: negative cost " + result + " clamped to 0");
+            result = 0;
+        }
+
         DiagnosticUtils.debug(category, "AnvilCost: calculated=" + result + " XP levels");
         return result;
     }
@@ -195,10 +201,10 @@ public class AnvilCostUtils {
      * @param enchantments     the enchantments involved in the operation
      * @param flatCost         the configured flat economy cost (economy.cost)
      * @param economyOverrides map of enchantment key → per-enchantment economy cost override
-     * @return the total economy cost to charge
+     * @return the total economy cost to charge (never negative)
      */
     public static double economyCostForEnchantments(List<IPluginEnchantment> enchantments, double flatCost, Map<String, Double> economyOverrides) {
-        if (economyOverrides == null || economyOverrides.isEmpty()) return flatCost;
+        if (economyOverrides == null || economyOverrides.isEmpty()) return Math.max(0, flatCost);
 
         double total = 0;
         boolean hasUnoverridden = false;
@@ -218,6 +224,7 @@ public class AnvilCostUtils {
 
         if (hasUnoverridden) total += flatCost;
 
-        return total;
+        // A negative flat cost or override must never pay the player money.
+        return Math.max(0, total);
     }
 }
