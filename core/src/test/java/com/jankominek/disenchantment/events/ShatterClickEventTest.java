@@ -64,6 +64,7 @@ class ShatterClickEventTest extends DisenchantmentTestBase {
         Mockito.when(event.getWhoClicked()).thenReturn(player);
         Mockito.when(event.getInventory()).thenReturn(mockAnvil);
         Mockito.when(event.getSlot()).thenReturn(2);
+        Mockito.when(event.getRawSlot()).thenReturn(2);
         Mockito.when(event.isShiftClick()).thenReturn(false);
         Mockito.when(event.getView()).thenReturn((InventoryView) viewProxy);
         return event;

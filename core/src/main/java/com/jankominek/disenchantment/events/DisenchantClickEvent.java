@@ -77,11 +77,6 @@ public class DisenchantClickEvent {
         if (AnvilEventGuards.isWorldBlocked(p, Config.Disenchantment.isWorldRestricted(p.getWorld())))
             return;
 
-        if (AnvilEventGuards.isOnCooldown(p)) {
-            e.setCancelled(true);
-            return;
-        }
-
         AnvilInventory anvilInventory = (AnvilInventory) e.getInventory();
 
         ItemStack result = anvilInventory.getItem(2);
@@ -116,6 +111,14 @@ public class DisenchantClickEvent {
         // second copy of the result in addition to the one the plugin puts on the cursor — item-dupe.
         if (AnvilEventGuards.isUnsafeResultClick(e)) {
             DiagnosticUtils.debug("DISENCHANT", () -> "Click: unsafe click type " + e.getClick() + " → CANCELLED");
+            e.setCancelled(true);
+            return;
+        }
+
+        // Only gate genuine plugin operations — a vanilla repair/rename must not be blocked by
+        // a disenchant/shatter cooldown.
+        if (AnvilEventGuards.isOnCooldown(p)) {
+            DiagnosticUtils.debug("DISENCHANT", "Click: player on cooldown → CANCELLED");
             e.setCancelled(true);
             return;
         }

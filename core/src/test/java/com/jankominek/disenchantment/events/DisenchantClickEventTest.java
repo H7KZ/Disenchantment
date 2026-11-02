@@ -4,6 +4,7 @@ import com.jankominek.disenchantment.DisenchantmentTestBase;
 import com.jankominek.disenchantment.events.api.PostDisenchantEvent;
 import com.jankominek.disenchantment.events.api.PreDisenchantEvent;
 import com.jankominek.disenchantment.plugins.MockPluginAdapter;
+import com.jankominek.disenchantment.utils.CooldownManager;
 import com.jankominek.disenchantment.utils.EnchantmentUtils;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
@@ -67,6 +68,7 @@ class DisenchantClickEventTest extends DisenchantmentTestBase {
         Mockito.when(event.getWhoClicked()).thenReturn(player);
         Mockito.when(event.getInventory()).thenReturn(mockAnvil);
         Mockito.when(event.getSlot()).thenReturn(2);
+        Mockito.when(event.getRawSlot()).thenReturn(2);
         Mockito.when(event.isShiftClick()).thenReturn(false);
         Mockito.when(event.getView()).thenReturn((InventoryView) viewProxy);
         return event;
@@ -116,6 +118,61 @@ class DisenchantClickEventTest extends DisenchantmentTestBase {
 
         Mockito.verify(lastMockAnvil, Mockito.never()).setItem(eq(0), Mockito.any());
         assertTrue(player.getItemOnCursor().getType().isAir(), "Cursor must stay empty when operation is cancelled");
+    }
+
+    // -> getSlot() == 2 on the player's own inventory (third hotbar slot) is not the result slot
+
+    @Test
+    void givenClickOnPlayerInventorySlotTwo_whenClickResult_thenNoOperation() {
+        PlayerMock player = server.addPlayer("TestPlayer");
+        player.setLevel(10);
+
+        InventoryClickEvent event = buildClickEvent(player, sword("sharpness", 5), new ItemStack(Material.BOOK), enchantedBook("sharpness", 5));
+        Mockito.when(event.getRawSlot()).thenReturn(32);
+        DisenchantClickEvent.onEvent(event);
+
+        Mockito.verify(lastMockAnvil, Mockito.never()).setItem(eq(0), Mockito.any());
+        assertTrue(player.getItemOnCursor().getType().isAir(), "Cursor must stay empty for a non-result-slot click");
+        assertEquals(10, player.getLevel(), "XP must not be charged for a non-result-slot click");
+    }
+
+    // -> cooldown must not block vanilla anvil results (repair/rename)
+
+    @Test
+    void givenPlayerOnCooldown_whenClickVanillaAnvilResult_thenClickNotCancelled() {
+        setConfig("disenchantment.cooldown.seconds", 30);
+        PlayerMock player = server.addPlayer("TestPlayer");
+        player.setLevel(10);
+        CooldownManager.recordOperation(player);
+
+        try {
+            InventoryClickEvent event = buildClickEvent(player, new ItemStack(Material.DIAMOND_SWORD), new ItemStack(Material.DIAMOND), new ItemStack(Material.DIAMOND_SWORD));
+            DisenchantClickEvent.onEvent(event);
+
+            Mockito.verify(event, Mockito.never()).setCancelled(true);
+        } finally {
+            CooldownManager.reset();
+        }
+    }
+
+    // -> cooldown still blocks a genuine disenchant
+
+    @Test
+    void givenPlayerOnCooldown_whenClickDisenchantResult_thenCancelled() {
+        setConfig("disenchantment.cooldown.seconds", 30);
+        PlayerMock player = server.addPlayer("TestPlayer");
+        player.setLevel(10);
+        CooldownManager.recordOperation(player);
+
+        try {
+            InventoryClickEvent event = buildClickEvent(player, sword("sharpness", 5), new ItemStack(Material.BOOK), enchantedBook("sharpness", 5));
+            DisenchantClickEvent.onEvent(event);
+
+            Mockito.verify(event).setCancelled(true);
+            Mockito.verify(lastMockAnvil, Mockito.never()).setItem(eq(0), Mockito.any());
+        } finally {
+            CooldownManager.reset();
+        }
     }
 
     // -> happy path: enchantment removed from source item

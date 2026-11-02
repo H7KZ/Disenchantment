@@ -53,7 +53,9 @@ public final class AnvilEventGuards {
      */
     public static boolean isAnvilResultSlotClick(InventoryClickEvent e, Player p) {
         if (e.getInventory().getType() != InventoryType.ANVIL) return false;
-        if (e.getSlot() != 2) return false;
+        // Raw slot 2 is the anvil's result slot. getSlot() is relative to the clicked inventory,
+        // so it also returns 2 for the third hotbar/inventory slot of the player's own inventory.
+        if (e.getRawSlot() != 2) return false;
         // We do not want to continue if the player has an item in cursor as it would delete it.
         return p.getItemOnCursor().getType().isAir();
     }
