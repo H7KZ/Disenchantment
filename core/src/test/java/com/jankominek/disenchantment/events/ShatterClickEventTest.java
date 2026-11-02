@@ -296,4 +296,19 @@ class ShatterClickEventTest extends DisenchantmentTestBase {
         server.getScheduler().performTicks(2);
         assertFalse(AnvilEventGuards.isOperationPending(anvil), "Pending clears after the deferred removal");
     }
+
+    // -> success chance of 0.0 on the split enchantment: plain book + message, never an empty enchanted book
+
+    @Test
+    void givenZeroSuccessChance_whenShatter_thenPlainBookDeliveredWithMessage() {
+        setConfig("shatterment.enchantment-chances.sharpness", 0.0);
+        PlayerMock player = server.addPlayer("TestPlayer");
+        player.setLevel(10);
+
+        InventoryClickEvent event = buildClickEvent(player, enchantedBook("sharpness", "5", "unbreaking", "3"), new ItemStack(Material.BOOK), enchantedBook("sharpness", "5"));
+        ShatterClickEvent.onEvent(event);
+
+        assertEquals(Material.BOOK, player.getItemOnCursor().getType(), "A plain book must replace the empty enchanted book");
+        assertNotNull(player.nextMessage(), "Player must be told the transfer failed");
+    }
 }

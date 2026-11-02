@@ -256,6 +256,7 @@ public class ShatterClickEvent {
         // PrepareAnvilEvent → result-slot round-trip (e.g. Unbreaking 4 → 3, issue #76). We re-stamp
         // from the freshly collected source levels via addStoredEnchant(..., true) and deliver the
         // book straight to the cursor, so the restored level is not clamped again.
+        boolean allTransfersFailed = false;
         if (resultItemMeta != null) {
             Map<String, Integer> sourceLevels = new HashMap<>();
             for (IPluginEnchantment ench : enchantments) sourceLevels.put(EventUtils.normalizeKey(ench.getKey()).toLowerCase(), ench.getLevel());
@@ -279,15 +280,27 @@ public class ShatterClickEvent {
                 }
             }
             if (metaChanged) result.setItemMeta(resultItemMeta);
+
+            // Every roll failed: an empty enchanted book would be a useless, confusing reward. Hand
+            // back a plain book instead (unless an adapter enchantment still made it onto the book).
+            allTransfersFailed = !stored.isEmpty() && resultItemMeta.getStoredEnchants().isEmpty()
+                    && activatedPlugins.stream().allMatch(plugin -> plugin.getItemEnchantments(result, p.getWorld()).isEmpty());
         }
 
-        p.setItemOnCursor(result);
+        ItemStack delivered = result;
+        if (allTransfersFailed) {
+            delivered = new ItemStack(Material.BOOK);
+            p.sendMessage(I18n.getPrefix() + " " + I18n.Messages.enchantmentsFailedToTransfer());
+            DiagnosticUtils.debug("SHATTER", "Click: every enchantment failed its chance roll → plain book delivered");
+        }
+
+        p.setItemOnCursor(delivered);
         boolean creative = p.getGameMode() == org.bukkit.GameMode.CREATIVE;
         int xpCost = creative ? 0 : repairCost;
         double finalEconomyCost = (Config.Shatterment.Economy.isEnabled() && !creative) ? economyCost : 0.0;
         AnvilEventGuards.recordCooldownOperation(p);
         ShatterEvent.clearSelection(p);
-        org.bukkit.Bukkit.getPluginManager().callEvent(new PostShatterEvent(p, result.clone(), finalFirstItem.clone(), xpCost, finalEconomyCost));
+        org.bukkit.Bukkit.getPluginManager().callEvent(new PostShatterEvent(p, delivered.clone(), finalFirstItem.clone(), xpCost, finalEconomyCost));
 
         if (Config.Shatterment.Anvil.Sound.isEnabled())
             p.playSound(

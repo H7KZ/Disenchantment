@@ -484,6 +484,14 @@ public class I18n {
                             .replace("{levels}", levels)
             );
         }
+
+        /**
+         * Returns the localized message shown when every enchantment failed its chance roll and a plain book was delivered.
+         */
+        public static String enchantmentsFailedToTransfer() {
+            return I18n.translateColors(localeConfig.getString(I18nKeys.MESSAGES_ENCHANTMENTS_FAILED_TO_TRANSFER.getKey(),
+                    "&cThe enchantments failed to transfer. You received a plain book instead.&r"));
+        }
     }
 
     /**

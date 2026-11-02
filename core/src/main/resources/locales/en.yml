@@ -48,6 +48,7 @@ messages:
   maintenance-is-disabled: "&aMaintenance mode is now &fdisabled&a.&r"
   economy-withdraw-failed: "&cThe payment could not be processed. You have not been charged.&r"
   not-enough-levels: "&cYou need &f{levels} &clevels to do that.&r"
+  enchantments-failed-to-transfer: "&cThe enchantments failed to transfer. You received a plain book instead.&r"
 
 states:
   enabled: "&aEnabled&r"

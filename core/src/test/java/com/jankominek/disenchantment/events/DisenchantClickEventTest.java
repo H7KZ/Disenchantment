@@ -267,10 +267,11 @@ class DisenchantClickEventTest extends DisenchantmentTestBase {
         assertEquals(0.0, captured.get().getEconomyCost(), "Creative players must report economyCost=0");
     }
 
-    // -> success chance of 0.0 must strip the enchantment from the result book
+    // -> success chance of 0.0 on every enchantment: the player gets a plain book and a message,
+    //    never an empty enchanted book
 
     @Test
-    void givenZeroSuccessChance_whenDisenchant_thenResultBookHasNoEnchantments() {
+    void givenZeroSuccessChance_whenDisenchant_thenPlainBookDeliveredWithMessage() {
         setConfig("disenchantment.enchantment-chances.sharpness", 0.0);
         PlayerMock player = server.addPlayer("TestPlayer2");
         player.setLevel(10);
@@ -279,14 +280,36 @@ class DisenchantClickEventTest extends DisenchantmentTestBase {
         DisenchantClickEvent.onEvent(event);
 
         ItemStack cursor = player.getItemOnCursor();
-        // Result book placed on cursor — enchantment removed by 0.0 chance roll
-        if (cursor != null && cursor.getType() == Material.ENCHANTED_BOOK) {
-            org.bukkit.inventory.meta.EnchantmentStorageMeta meta =
-                    (org.bukkit.inventory.meta.EnchantmentStorageMeta) cursor.getItemMeta();
-            assertTrue(meta == null || meta.getStoredEnchants().isEmpty(),
-                    "Sharpness must be absent from result book when chance is 0.0");
-        }
-        // If operation was skipped entirely (e.g. pre-event cancelled), that's also acceptable
+        assertEquals(Material.BOOK, cursor.getType(), "A plain book must replace the empty enchanted book");
+        assertNotNull(player.nextMessage(), "Player must be told the transfer failed");
+
+        // The enchantment is still gone from the source (it was destroyed by the failed roll).
+        ArgumentCaptor<ItemStack> captor = ArgumentCaptor.forClass(ItemStack.class);
+        Mockito.verify(lastMockAnvil).setItem(eq(0), captor.capture());
+        assertFalse(captor.getValue().containsEnchantment(enchantment("sharpness")));
+    }
+
+    @Test
+    void givenZeroChanceOnOnlyOneOfTwoEnchantments_whenDisenchant_thenEnchantedBookWithSurvivorDelivered() {
+        setConfig("disenchantment.enchantment-chances.sharpness", 0.0);
+        PlayerMock player = server.addPlayer("TestPlayer2");
+        player.setLevel(10);
+
+        ItemStack sword = sword("sharpness", 5);
+        sword.addUnsafeEnchantment(enchantment("unbreaking"), 3);
+        ItemStack book = enchantedBook("sharpness", 5);
+        EnchantmentUtils.addStoredEnchantment(book, enchantment("unbreaking"), 3);
+
+        InventoryClickEvent event = buildClickEvent(player, sword, new ItemStack(Material.BOOK), book);
+        DisenchantClickEvent.onEvent(event);
+
+        ItemStack cursor = player.getItemOnCursor();
+        assertEquals(Material.ENCHANTED_BOOK, cursor.getType());
+        org.bukkit.inventory.meta.EnchantmentStorageMeta meta = (org.bukkit.inventory.meta.EnchantmentStorageMeta) cursor.getItemMeta();
+        assertNotNull(meta);
+        assertTrue(meta.hasStoredEnchant(enchantment("unbreaking")));
+        assertFalse(meta.hasStoredEnchant(enchantment("sharpness")));
+        assertNull(player.nextMessage(), "No failure message when something transferred");
     }
 
     // -> issue #76: an above-vanilla-max source level must survive to the delivered book, even
