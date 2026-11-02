@@ -64,6 +64,9 @@ public class Disenchantment extends JavaPlugin {
     // Tasks
     private final ArrayList<Object> tasks = new ArrayList<>();
 
+    // bStats submitter — kept so it can be shut down on disable/reload (otherwise each reload leaks a live submitter)
+    private BStatsMetrics metrics;
+
     /**
      * Toggles the plugin's enabled state at runtime without unloading it.
      *
@@ -190,7 +193,7 @@ public class Disenchantment extends JavaPlugin {
         Objects.requireNonNull(getCommand(Disenchantment.commandName)).setTabCompleter(new CommandCompleter());
 
         // BStats
-        BStatsMetrics metrics = new BStatsMetrics(plugin, bstatsId);
+        metrics = new BStatsMetrics(plugin, bstatsId);
 
         if (Config.Logging.isOperationsEnabled()) {
             StatsManager.init(plugin.getDataFolder(), metrics);
@@ -223,6 +226,11 @@ public class Disenchantment extends JavaPlugin {
         LuckPermsUtils.reset();
         CooldownManager.reset();
         StatsManager.shutdown();
+
+        if (metrics != null) {
+            metrics.shutdown();
+            metrics = null;
+        }
 
         logger.info("Disenchantment disabled!");
     }
@@ -286,9 +294,13 @@ public class Disenchantment extends JavaPlugin {
 
         // 9. Stats manager
         StatsManager.shutdown();
+
+        // Shut the old bStats submitter down before replacing it, otherwise it keeps running alongside the new one.
+        if (metrics != null) metrics.shutdown();
+        metrics = new BStatsMetrics(plugin, bstatsId);
+
         if (Config.Logging.isOperationsEnabled()) {
-            BStatsMetrics reloadMetrics = new BStatsMetrics(plugin, bstatsId);
-            StatsManager.init(plugin.getDataFolder(), reloadMetrics);
+            StatsManager.init(plugin.getDataFolder(), metrics);
         }
 
         DiagnosticUtils.debug("RELOAD", "Full reload complete");
