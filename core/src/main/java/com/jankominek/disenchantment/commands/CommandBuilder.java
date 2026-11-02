@@ -41,6 +41,12 @@ public record CommandBuilder(String name, PermissionGroupType permission, String
             return true;
         }
 
+        // No argument supplied (e.g. "/disenchantment maintenance"): show the accepted values instead of failing.
+        if (args.length < 2) {
+            sender.sendMessage(I18n.getPrefix() + " " + I18n.Messages.invalidArgument() + " §7[" + String.join("/", this.args) + "]");
+            return true;
+        }
+
         boolean argFound = false;
 
         for (String arg : this.args)
