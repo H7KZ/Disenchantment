@@ -193,6 +193,26 @@ public class Config {
     }
 
     /**
+     * Checks whether the automatic SpigotMC update check is enabled ({@code update-checker}).
+     * Read on every scheduled check, so a reload takes effect without a restart.
+     *
+     * @return {@code true} if update checking is enabled (default)
+     */
+    public static boolean isUpdateCheckerEnabled() {
+        return config.getBoolean(ConfigKeys.UPDATE_CHECKER.getKey(), true);
+    }
+
+    /**
+     * Gets how many days of operation records are kept in {@code stats.db}
+     * ({@code logging.operations-retention-days}). Records older than this are pruned on startup.
+     *
+     * @return the retention in days; {@code 0} (default) keeps records forever. Negative values read as {@code 0}
+     */
+    public static int getOperationsRetentionDays() {
+        return Math.max(0, config.getInt(ConfigKeys.LOGGING_OPERATIONS_RETENTION_DAYS.getKey(), 0));
+    }
+
+    /**
      * Sets the global plugin enabled state and persists the change.
      *
      * @param enabled {@code true} to enable, {@code false} to disable
@@ -333,6 +353,15 @@ public class Config {
          */
         public static boolean isOperationsEnabled() {
             return config.getBoolean(ConfigKeys.LOGGING_OPERATIONS.getKey(), false);
+        }
+
+        /**
+         * Convenience alias for {@link Config#getOperationsRetentionDays()}.
+         *
+         * @return the operation-record retention in days; {@code 0} keeps records forever
+         */
+        public static int getOperationsRetentionDays() {
+            return Config.getOperationsRetentionDays();
         }
 
         /**
