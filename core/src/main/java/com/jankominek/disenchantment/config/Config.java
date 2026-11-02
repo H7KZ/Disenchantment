@@ -7,6 +7,7 @@ import org.bukkit.World;
 import org.bukkit.event.EventPriority;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -135,12 +136,19 @@ public class Config {
     }
 
     /**
-     * Clears the in-memory enchantment state caches for both disenchantment and shatterment.
-     * Must be called after a config reload so that subsequent reads pick up fresh values.
+     * Clears the in-memory caches (enchantment states, chances, XP costs and economy costs) for both
+     * disenchantment and shatterment. Must be called after a config reload so that subsequent reads
+     * pick up fresh values.
      */
     public static void invalidateCaches() {
         Disenchantment.ENCHANTMENT_STATES_CACHE = null;
         Shatterment.ENCHANTMENT_STATES_CACHE = null;
+        Disenchantment.ENCHANTMENT_CHANCES_CACHE = null;
+        Shatterment.ENCHANTMENT_CHANCES_CACHE = null;
+        Disenchantment.REPAIR_COSTS_CACHE = null;
+        Shatterment.REPAIR_COSTS_CACHE = null;
+        Disenchantment.REPAIR_ECONOMY_COSTS_CACHE = null;
+        Shatterment.REPAIR_ECONOMY_COSTS_CACHE = null;
     }
 
     /**
@@ -393,6 +401,9 @@ public class Config {
      */
     public static class Disenchantment {
         private static HashMap<String, EnchantmentStateType> ENCHANTMENT_STATES_CACHE = null;
+        private static Map<String, Double> ENCHANTMENT_CHANCES_CACHE = null;
+        private static Map<String, Integer> REPAIR_COSTS_CACHE = null;
+        private static Map<String, Double> REPAIR_ECONOMY_COSTS_CACHE = null;
 
         /**
          * Checks whether disenchantment is enabled.
@@ -596,13 +607,18 @@ public class Config {
          * @return map of enchantment key to its success chance (0.0-1.0)
          */
         public static Map<String, Double> getEnchantmentChances() {
-            var section = config.getConfigurationSection(ConfigKeys.DISENCHANTMENT_ENCHANTMENT_CHANCES.getKey());
-            if (section == null) return new HashMap<>();
+            if (ENCHANTMENT_CHANCES_CACHE != null) return ENCHANTMENT_CHANCES_CACHE;
+
             Map<String, Double> chances = new HashMap<>();
-            for (String key : section.getKeys(false)) {
-                chances.put(key.toLowerCase(), section.getDouble(key));
+            var section = config.getConfigurationSection(ConfigKeys.DISENCHANTMENT_ENCHANTMENT_CHANCES.getKey());
+            if (section != null) {
+                for (String key : section.getKeys(false)) {
+                    chances.put(key.toLowerCase(), section.getDouble(key));
+                }
             }
-            return chances;
+
+            ENCHANTMENT_CHANCES_CACHE = Collections.unmodifiableMap(chances);
+            return ENCHANTMENT_CHANCES_CACHE;
         }
 
         /**
@@ -629,6 +645,7 @@ public class Config {
          */
         public static void setEnchantmentChance(String key, double chance) {
             config.set(ConfigKeys.DISENCHANTMENT_ENCHANTMENT_CHANCES.getKey() + "." + key.toLowerCase(), Math.max(0.0, Math.min(1.0, chance)));
+            ENCHANTMENT_CHANCES_CACHE = null;
             save();
         }
 
@@ -907,9 +924,14 @@ public class Config {
                  * @return map of enchantment key to its XP cost override
                  */
                 public static Map<String, Integer> getEnchantmentCosts() {
+                    if (REPAIR_COSTS_CACHE != null) return REPAIR_COSTS_CACHE;
+
                     var section = config.getConfigurationSection(ConfigKeys.DISENCHANTMENT_ANVIL_REPAIR_ENCHANTMENT_COSTS.getKey());
-                    if (section == null) return new HashMap<>();
                     Map<String, Integer> costs = new HashMap<>();
+                    if (section == null) {
+                        REPAIR_COSTS_CACHE = Collections.unmodifiableMap(costs);
+                        return REPAIR_COSTS_CACHE;
+                    }
                     for (String key : section.getKeys(false)) {
                         // Two supported shapes: "sharpness: 5" (XP-only, legacy) or
                         // "mending: { xp: 10, economy: 500 }" (XP + economy override).
@@ -920,7 +942,8 @@ public class Config {
                             costs.put(key, section.getInt(key));
                         }
                     }
-                    return costs;
+                    REPAIR_COSTS_CACHE = Collections.unmodifiableMap(costs);
+                    return REPAIR_COSTS_CACHE;
                 }
 
                 /**
@@ -931,16 +954,21 @@ public class Config {
                  * @return map of enchantment key to its economy cost override
                  */
                 public static Map<String, Double> getEnchantmentEconomyCosts() {
-                    var section = config.getConfigurationSection(ConfigKeys.DISENCHANTMENT_ANVIL_REPAIR_ENCHANTMENT_COSTS.getKey());
-                    if (section == null) return new HashMap<>();
+                    if (REPAIR_ECONOMY_COSTS_CACHE != null) return REPAIR_ECONOMY_COSTS_CACHE;
+
                     Map<String, Double> costs = new HashMap<>();
-                    for (String key : section.getKeys(false)) {
-                        var sub = section.getConfigurationSection(key);
-                        if (sub != null && sub.contains("economy")) {
-                            costs.put(key, sub.getDouble("economy"));
+                    var section = config.getConfigurationSection(ConfigKeys.DISENCHANTMENT_ANVIL_REPAIR_ENCHANTMENT_COSTS.getKey());
+                    if (section != null) {
+                        for (String key : section.getKeys(false)) {
+                            var sub = section.getConfigurationSection(key);
+                            if (sub != null && sub.contains("economy")) {
+                                costs.put(key, sub.getDouble("economy"));
+                            }
                         }
                     }
-                    return costs;
+
+                    REPAIR_ECONOMY_COSTS_CACHE = Collections.unmodifiableMap(costs);
+                    return REPAIR_ECONOMY_COSTS_CACHE;
                 }
 
                 /**
@@ -975,6 +1003,9 @@ public class Config {
      */
     public static class Shatterment {
         private static HashMap<String, EnchantmentStateType> ENCHANTMENT_STATES_CACHE = null;
+        private static Map<String, Double> ENCHANTMENT_CHANCES_CACHE = null;
+        private static Map<String, Integer> REPAIR_COSTS_CACHE = null;
+        private static Map<String, Double> REPAIR_ECONOMY_COSTS_CACHE = null;
 
         /**
          * Checks whether shatterment is enabled.
@@ -1214,13 +1245,18 @@ public class Config {
          * @return map of enchantment key to its success chance (0.0-1.0)
          */
         public static Map<String, Double> getEnchantmentChances() {
-            var section = config.getConfigurationSection(ConfigKeys.SHATTERMENT_ENCHANTMENT_CHANCES.getKey());
-            if (section == null) return new HashMap<>();
+            if (ENCHANTMENT_CHANCES_CACHE != null) return ENCHANTMENT_CHANCES_CACHE;
+
             Map<String, Double> chances = new HashMap<>();
-            for (String key : section.getKeys(false)) {
-                chances.put(key.toLowerCase(), section.getDouble(key));
+            var section = config.getConfigurationSection(ConfigKeys.SHATTERMENT_ENCHANTMENT_CHANCES.getKey());
+            if (section != null) {
+                for (String key : section.getKeys(false)) {
+                    chances.put(key.toLowerCase(), section.getDouble(key));
+                }
             }
-            return chances;
+
+            ENCHANTMENT_CHANCES_CACHE = Collections.unmodifiableMap(chances);
+            return ENCHANTMENT_CHANCES_CACHE;
         }
 
         /**
@@ -1247,6 +1283,7 @@ public class Config {
          */
         public static void setEnchantmentChance(String key, double chance) {
             config.set(ConfigKeys.SHATTERMENT_ENCHANTMENT_CHANCES.getKey() + "." + key.toLowerCase(), Math.max(0.0, Math.min(1.0, chance)));
+            ENCHANTMENT_CHANCES_CACHE = null;
             save();
         }
 
@@ -1525,9 +1562,14 @@ public class Config {
                  * @return map of enchantment key to its XP cost override
                  */
                 public static Map<String, Integer> getEnchantmentCosts() {
+                    if (REPAIR_COSTS_CACHE != null) return REPAIR_COSTS_CACHE;
+
                     var section = config.getConfigurationSection(ConfigKeys.SHATTERMENT_ANVIL_REPAIR_ENCHANTMENT_COSTS.getKey());
-                    if (section == null) return new HashMap<>();
                     Map<String, Integer> costs = new HashMap<>();
+                    if (section == null) {
+                        REPAIR_COSTS_CACHE = Collections.unmodifiableMap(costs);
+                        return REPAIR_COSTS_CACHE;
+                    }
                     for (String key : section.getKeys(false)) {
                         var sub = section.getConfigurationSection(key);
                         if (sub != null) {
@@ -1536,7 +1578,8 @@ public class Config {
                             costs.put(key, section.getInt(key));
                         }
                     }
-                    return costs;
+                    REPAIR_COSTS_CACHE = Collections.unmodifiableMap(costs);
+                    return REPAIR_COSTS_CACHE;
                 }
 
                 /**
@@ -1547,16 +1590,21 @@ public class Config {
                  * @return map of enchantment key to its economy cost override
                  */
                 public static Map<String, Double> getEnchantmentEconomyCosts() {
-                    var section = config.getConfigurationSection(ConfigKeys.SHATTERMENT_ANVIL_REPAIR_ENCHANTMENT_COSTS.getKey());
-                    if (section == null) return new HashMap<>();
+                    if (REPAIR_ECONOMY_COSTS_CACHE != null) return REPAIR_ECONOMY_COSTS_CACHE;
+
                     Map<String, Double> costs = new HashMap<>();
-                    for (String key : section.getKeys(false)) {
-                        var sub = section.getConfigurationSection(key);
-                        if (sub != null && sub.contains("economy")) {
-                            costs.put(key, sub.getDouble("economy"));
+                    var section = config.getConfigurationSection(ConfigKeys.SHATTERMENT_ANVIL_REPAIR_ENCHANTMENT_COSTS.getKey());
+                    if (section != null) {
+                        for (String key : section.getKeys(false)) {
+                            var sub = section.getConfigurationSection(key);
+                            if (sub != null && sub.contains("economy")) {
+                                costs.put(key, sub.getDouble("economy"));
+                            }
                         }
                     }
-                    return costs;
+
+                    REPAIR_ECONOMY_COSTS_CACHE = Collections.unmodifiableMap(costs);
+                    return REPAIR_ECONOMY_COSTS_CACHE;
                 }
 
                 /**
