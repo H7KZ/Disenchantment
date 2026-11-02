@@ -222,11 +222,20 @@ public final class AnvilEventGuards {
      * @return {@code true} if the player must be blocked from proceeding
      */
     public static boolean isOnCooldown(Player p) {
-        if (!CooldownManager.isOnCooldown(p)) return false;
+        if (!isOnCooldownQuiet(p)) return false;
 
         long remaining = CooldownManager.getRemainingSeconds(p);
         p.sendMessage(I18n.getPrefix() + " " + I18n.Messages.cooldownActive(String.valueOf(remaining)));
         return true;
+    }
+
+    /**
+     * Same check as {@link #isOnCooldown(Player)} but never messages. Used by the
+     * {@code PrepareAnvilEvent} handlers, which fire on every anvil keystroke and only need to
+     * clear the result; the click handlers inform the player once per attempt.
+     */
+    public static boolean isOnCooldownQuiet(Player p) {
+        return CooldownManager.isOnCooldown(p);
     }
 
     /**

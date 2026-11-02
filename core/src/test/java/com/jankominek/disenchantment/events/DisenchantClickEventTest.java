@@ -175,6 +175,7 @@ class DisenchantClickEventTest extends DisenchantmentTestBase {
 
             Mockito.verify(event).setCancelled(true);
             Mockito.verify(lastMockAnvil, Mockito.never()).setItem(eq(0), Mockito.any());
+            assertNotNull(player.nextMessage(), "The click path tells the player about the cooldown");
         } finally {
             CooldownManager.reset();
         }

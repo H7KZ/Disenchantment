@@ -109,8 +109,8 @@ public class ShatterEvent {
             return;
         }
 
-        if (AnvilEventGuards.isOnCooldown(p)) {
-            DiagnosticUtils.debug("SHATTER", "PrepareAnvil: player on cooldown → CANCELLED");
+        if (AnvilEventGuards.isOnCooldownQuiet(p)) {
+            DiagnosticUtils.debug("SHATTER", "PrepareAnvil: player on cooldown → result cleared (no message, the click path informs)");
             e.setResult(null);
             return;
         }

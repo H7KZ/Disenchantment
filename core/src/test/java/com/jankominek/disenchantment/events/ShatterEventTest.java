@@ -403,4 +403,23 @@ class ShatterEventTest extends DisenchantmentTestBase {
         }
         assertTrue(seen.size() > 1, "clearSelection (operation completed) must force a fresh roll");
     }
+
+    // -> cooldown: Prepare only clears the result, it must not spam the cooldown message
+
+    @Test
+    void givenPlayerOnCooldown_whenPrepareFiresRepeatedly_thenResultClearedWithoutMessage() {
+        setConfig("disenchantment.cooldown.seconds", 30);
+        PlayerMock player = server.addPlayer("TestPlayer");
+        com.jankominek.disenchantment.utils.CooldownManager.recordOperation(player);
+        try {
+            for (int i = 0; i < 3; i++) {
+                PrepareAnvilEvent event = buildEvent(player, enchantedBook("sharpness", "mending"), new ItemStack(Material.BOOK));
+                ShatterEvent.onEvent(event);
+                Mockito.verify(event).setResult(null);
+            }
+            assertNull(player.nextMessage(), "PrepareAnvilEvent must not message the cooldown");
+        } finally {
+            com.jankominek.disenchantment.utils.CooldownManager.reset();
+        }
+    }
 }

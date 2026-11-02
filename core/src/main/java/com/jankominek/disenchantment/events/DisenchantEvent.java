@@ -107,8 +107,8 @@ public class DisenchantEvent {
             return;
         }
 
-        if (AnvilEventGuards.isOnCooldown(p)) {
-            DiagnosticUtils.debug("DISENCHANT", "PrepareAnvil: player on cooldown → CANCELLED");
+        if (AnvilEventGuards.isOnCooldownQuiet(p)) {
+            DiagnosticUtils.debug("DISENCHANT", "PrepareAnvil: player on cooldown → result cleared (no message, the click path informs)");
             e.setResult(null);
             return;
         }

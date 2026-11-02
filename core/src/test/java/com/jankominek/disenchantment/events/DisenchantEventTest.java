@@ -285,4 +285,23 @@ class DisenchantEventTest extends DisenchantmentTestBase {
             Disenchantment.maintenanceEnabled = false;
         }
     }
+
+    // -> cooldown: Prepare only clears the result, it must not spam the cooldown message
+
+    @Test
+    void givenPlayerOnCooldown_whenPrepareFiresRepeatedly_thenResultClearedWithoutMessage() {
+        setConfig("disenchantment.cooldown.seconds", 30);
+        PlayerMock player = server.addPlayer("TestPlayer");
+        com.jankominek.disenchantment.utils.CooldownManager.recordOperation(player);
+        try {
+            for (int i = 0; i < 3; i++) {
+                PrepareAnvilEvent event = buildEvent(player, sword("sharpness", 5), new ItemStack(Material.BOOK));
+                DisenchantEvent.onEvent(event);
+                Mockito.verify(event).setResult(null);
+            }
+            assertNull(player.nextMessage(), "PrepareAnvilEvent must not message the cooldown");
+        } finally {
+            com.jankominek.disenchantment.utils.CooldownManager.reset();
+        }
+    }
 }
