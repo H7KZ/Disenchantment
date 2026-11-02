@@ -264,7 +264,9 @@ are used.
 public static boolean isFolia()
 ```
 
-Returns `IS_FOLIA` — determined at class load via `Class.forName("io.papermc.paper.threadedregions.RegionizedServer")`.
+Returns `IS_FOLIA` — determined once at class load by `detectFolia()`, which requires both
+`Class.forName("io.papermc.paper.threadedregions.RegionizedServer")` and `Bukkit.getGlobalRegionScheduler()` to exist.
+This is the single shared Folia check for the plugin.
 
 ### Methods
 

@@ -34,41 +34,59 @@ public class SchedulerUtils {
     private static Method asyncCancelTasks;
 
     static {
-        boolean folia;
-        try {
-            Class.forName("io.papermc.paper.threadedregions.RegionizedServer");
-            folia = true;
+        boolean folia = detectFolia();
 
-            // Classes
-            Class<?> globalSchedulerClass = Class.forName("io.papermc.paper.threadedregions.scheduler.GlobalRegionScheduler");
-            Class<?> asyncSchedulerClass = Class.forName("io.papermc.paper.threadedregions.scheduler.AsyncScheduler");
-            Class<?> entitySchedulerClass = Class.forName("io.papermc.paper.threadedregions.scheduler.EntityScheduler");
-            Class<?> scheduledTaskClass = Class.forName("io.papermc.paper.threadedregions.scheduler.ScheduledTask");
+        if (folia) {
+            try {
+                // Classes
+                Class<?> globalSchedulerClass = Class.forName("io.papermc.paper.threadedregions.scheduler.GlobalRegionScheduler");
+                Class<?> asyncSchedulerClass = Class.forName("io.papermc.paper.threadedregions.scheduler.AsyncScheduler");
+                Class<?> entitySchedulerClass = Class.forName("io.papermc.paper.threadedregions.scheduler.EntityScheduler");
+                Class<?> scheduledTaskClass = Class.forName("io.papermc.paper.threadedregions.scheduler.ScheduledTask");
 
-            // Getters
-            getGlobalRegionScheduler = Bukkit.class.getMethod("getGlobalRegionScheduler");
-            getAsyncScheduler = Bukkit.class.getMethod("getAsyncScheduler");
-            entityGetScheduler = Entity.class.getMethod("getScheduler");
+                // Getters
+                getGlobalRegionScheduler = Bukkit.class.getMethod("getGlobalRegionScheduler");
+                getAsyncScheduler = Bukkit.class.getMethod("getAsyncScheduler");
+                entityGetScheduler = Entity.class.getMethod("getScheduler");
 
-            // Runners
-            globalRun = globalSchedulerClass.getMethod("run", Plugin.class, Consumer.class);
-            entityRun = entitySchedulerClass.getMethod("run", Plugin.class, Consumer.class, Runnable.class);
-            entityRunDelayed = entitySchedulerClass.getMethod("runDelayed", Plugin.class, Consumer.class, Runnable.class, long.class);
-            asyncRunAtFixedRate = asyncSchedulerClass.getMethod("runAtFixedRate", Plugin.class, Consumer.class, long.class, long.class, java.util.concurrent.TimeUnit.class);
+                // Runners
+                globalRun = globalSchedulerClass.getMethod("run", Plugin.class, Consumer.class);
+                entityRun = entitySchedulerClass.getMethod("run", Plugin.class, Consumer.class, Runnable.class);
+                entityRunDelayed = entitySchedulerClass.getMethod("runDelayed", Plugin.class, Consumer.class, Runnable.class, long.class);
+                asyncRunAtFixedRate = asyncSchedulerClass.getMethod("runAtFixedRate", Plugin.class, Consumer.class, long.class, long.class, java.util.concurrent.TimeUnit.class);
 
-            // Cancellers
-            taskCancel = scheduledTaskClass.getMethod("cancel");
-            globalCancelTasks = globalSchedulerClass.getMethod("cancelTasks", Plugin.class);
-            asyncCancelTasks = asyncSchedulerClass.getMethod("cancelTasks", Plugin.class);
-        } catch (Exception e) {
-            folia = false;
+                // Cancellers
+                taskCancel = scheduledTaskClass.getMethod("cancel");
+                globalCancelTasks = globalSchedulerClass.getMethod("cancelTasks", Plugin.class);
+                asyncCancelTasks = asyncSchedulerClass.getMethod("cancelTasks", Plugin.class);
+            } catch (Exception e) {
+                folia = false;
+            }
         }
 
         IS_FOLIA = folia;
     }
 
     /**
-     * Returns whether this server is running Folia (detected at class load time via reflection).
+     * Detects Folia by requiring both Folia's {@code RegionizedServer} class and the
+     * {@code Bukkit.getGlobalRegionScheduler()} accessor. Any failure means Folia is not present.
+     *
+     * @return {@code true} if this server runs Folia
+     */
+    private static boolean detectFolia() {
+        try {
+            Class.forName("io.papermc.paper.threadedregions.RegionizedServer");
+            Bukkit.class.getMethod("getGlobalRegionScheduler");
+
+            return true;
+        } catch (Throwable t) {
+            return false;
+        }
+    }
+
+    /**
+     * Returns whether this server is running Folia. The result is detected once at class load time
+     * and cached; this is the single shared Folia check for the plugin.
      *
      * @return {@code true} if Folia's regionized scheduler is available
      */
