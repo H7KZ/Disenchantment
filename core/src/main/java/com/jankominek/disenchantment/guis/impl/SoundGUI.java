@@ -84,6 +84,7 @@ public class SoundGUI implements InventoryHolder {
                             }
 
                             setVolume(volume);
+                            volume = getVolume(); // show the value that was actually stored (clamped)
 
                             event.setCurrentItem(volume(volume, Math.min((int) (volume * 10), 64)));
                         }
@@ -113,6 +114,7 @@ public class SoundGUI implements InventoryHolder {
                             }
 
                             setPitch(pitch);
+                            pitch = getPitch(); // show the value that was actually stored (clamped)
 
                             event.setCurrentItem(pitch(pitch, Math.min((int) (pitch * 10), 64)));
                         }

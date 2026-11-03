@@ -265,6 +265,49 @@ every check, so `/disenchantment reload` applies a change without a restart.
 - **Upgrades are backed up.** When a plugin update migrates your config to a newer format, the previous file is first
   copied to `config.yml.bak`. A config that is already current is not rewritten.
 
+### Config validation
+
+A wrong value never crashes the plugin and never changes your file. Whatever is in `config.yml`, the plugin replaces
+anything unusable with a safe value when it reads it. On every start and `/disenchantment reload` it also checks the
+whole file and logs one `Config: ...` warning per problem, followed by a one-line summary
+(`Config: 3 problems found, see above.`). `/disenchantment reload` tells the sender how many problems were found, and
+`/disenchantment diagnostic` lists them under **Plugin Configuration**.
+
+What is checked, and what the plugin does instead:
+
+| Problem                                                                                                         | What happens                                                                                                    |
+|-----------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|
+| Wrong type (`volume: loud`, `enabled: maybe`, a list where a number is expected, NaN, Infinity)                 | The default is used. Numbers written as text (`"0.5"`, `"0,5"`) and `"true"`/`"false"` are accepted.            |
+| Number out of range                                                                                             | Clamped, see the table below.                                                                                   |
+| Unknown name for `logging.level`, `event-priorities.*`, `mode`                                                  | Default is used (`INFO`, `HIGHEST`, `DENYLIST`). Names are case-insensitive.                                    |
+| Unknown material in a `materials.list`                                                                          | Ignored. Names are case-insensitive and `minecraft:diamond_sword` also works.                                   |
+| World in a `worlds.list` that is not loaded                                                                     | Ignored until a world with that name loads. Only reported once at least one world is loaded.                    |
+| Unknown enchantment in `enchantments-states`, `enchantment-chances`, `enchantment-costs`, `enchantment-groups`  | Reported softly: it may belong to a custom enchantment plugin. Keys in another namespace are not checked.       |
+| Bad `enchantments-states` entry (no state, unknown state, too many `:`)                                         | That entry is ignored (it never turns into a "null" state).                                                     |
+| Non-numeric `enchantment-chances` / `enchantment-costs` value                                                   | That entry is ignored: the enchantment always succeeds / uses the formula (never "always fails" or "free").     |
+| `ALLOWLIST` with an empty `list`                                                                                | Reported: it blocks the feature everywhere.                                                                     |
+| `split-count` that is not a number, `0`, negative, or a reversed range like `"5-2"`                             | Clamped to 1-255; a reversed range is swapped; unusable values become `1`.                                     |
+| Unknown or misspelt option name (`disenchantmnet:`)                                                             | Reported with a "did you mean" hint. The key is ignored. Names are compared with the bundled `config.yml`.      |
+| Invalid `locale` / `locales` entry                                                                              | Only letters, digits, `_` and `-` are accepted; otherwise `"en"` is used.                                       |
+
+Clamping ranges:
+
+| Option                                       | Allowed range                                                 | Default      |
+|----------------------------------------------|---------------------------------------------------------------|--------------|
+| `anvil.sound.volume`                         | `0` to `10`                                                   | `1.0`        |
+| `anvil.sound.pitch`                          | `0.5` to `2.0`                                                | `1.0`        |
+| `anvil.repair.base`, `anvil.repair.multiply` | `-1000000` to `1000000` (the final XP cost is never below 0)  | `10`, `0.25` |
+| `anvil.repair.max-cost`                      | `-1` (no cap) or more                                         | `-1`         |
+| `economy.cost`                               | `0` to `1000000000000`                                        | `100.0`      |
+| `enchantment-chances.<key>`                  | `0.0` to `1.0`                                                | `1.0`        |
+| `enchantment-costs.<key>` (xp / economy)     | `0` or more                                                   | formula      |
+| `cooldown.seconds`                           | `0` to `31536000`                                             | `0`          |
+| `logging.operations-retention-days`          | `0` to `36500`                                                | `0`          |
+| `shatterment.split-count` (min / max)        | `1` to `255`                                                  | `1`          |
+
+Editing a `worlds` or `materials` list with a command or the GUI keeps entries you wrote by hand that cannot be
+resolved yet (a world that loads later, a modded material), so they are not lost.
+
 ### Locale files
 
 `plugins/Disenchantment/locales/<locale>.yml` is created on first start and never overwritten, so your edits are kept.

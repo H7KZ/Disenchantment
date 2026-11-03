@@ -2,6 +2,8 @@ package com.jankominek.disenchantment.utils;
 
 import com.jankominek.disenchantment.Disenchantment;
 import com.jankominek.disenchantment.config.Config;
+import com.jankominek.disenchantment.config.ConfigIssue;
+import com.jankominek.disenchantment.config.ConfigValidator;
 import com.jankominek.disenchantment.nms.NMSMapper;
 import com.jankominek.disenchantment.plugins.ISupportedPlugin;
 import com.jankominek.disenchantment.plugins.SupportedPluginManager;
@@ -359,6 +361,10 @@ public class DiagnosticUtils {
                 report.append(" (").append(Config.SpecialAnvils.getBlockBelow().name()).append(")");
             }
             report.append("\n");
+
+            List<ConfigIssue> configIssues = ConfigValidator.getLastIssues();
+            report.append("Config Problems: ").append(configIssues.isEmpty() ? "None" : configIssues.size()).append("\n");
+            for (ConfigIssue issue : configIssues) report.append(" - ").append(issue.format()).append("\n");
 
             report.append("\n");
 

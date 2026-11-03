@@ -229,8 +229,8 @@ Returns `true` if the on-disk config was loaded, `false` if the bundled defaults
 4. `applyAndSave`: `ConfigMigrations.apply(plugin, oldConfig, newConfig)`. If it throws, the file is left untouched.
    If `oldVersion >= newVersion` nothing is rewritten. Otherwise `config.yml` is copied to `config.yml.bak`
    (`REPLACE_EXISTING`) **before** the migrated config is saved; if the backup fails the save is skipped.
-5. Calls `plugin.reloadConfig()`, `Config.setReadOnly(!loaded)`, `Config.invalidateCaches()`,
-   `Config.validateRestrictions()`.
+5. Calls `plugin.reloadConfig()`, `Config.setReadOnly(!loaded)`, `Config.invalidateCaches()`. Validation runs later, in
+   `Disenchantment.enable()/reload()` (see [ConfigValidator](#configvalidator)).
 
 ### `validateConfigFile()` → `String`
 
@@ -308,18 +308,73 @@ file is only written (after a `config.yml.bak` backup) when `oldVersion < newVer
 
 ---
 
+## Total getters and validation
+
+Every `Config` getter is **total**: it never throws and never returns a value that would break a caller, for any YAML
+input. Two classes make that uniform:
+
+| Class                      | Role                                                                                                                                                                                                                                                                                                       |
+|----------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `config/ConfigSpec.java`   | Table of every scalar option: kind (`BOOLEAN`, `DECIMAL`, `INTEGER`, `ENUM`, `STRING`), default, min/max, pattern. `resolve(raw)` returns the effective value, `problem(raw)` explains what was wrong.                                                                                                      |
+| `config/ConfigValues.java` | Lenient parsers. `bool/decimal/integer/enumeration/string(ConfigKeys)` read a scalar through its spec. `parseEnchantmentStates`, `parseChances`, `parseXpCosts`, `parseEconomyCosts`, `parseGroups`, `parseMaterials`, `parseSplitCount` handle structured options; they take an optional `problems` list (getters pass `null`, the validator passes a list). |
+
+Because the getters and the validator call the same code, a warning always describes what the plugin actually does.
+
+Rules the parsers follow:
+
+- Numbers: any `Number`, or a numeric string (`","` accepted as decimal separator). NaN/Infinity are rejected, results
+  are clamped to the spec range. A non-number yields the default, never `0`.
+- Booleans: real booleans or the strings `true`/`false` (any case); anything else yields the default.
+- Enums: trimmed, `Locale.ROOT` upper-casing, `-`/space read as `_`; unknown yields the default.
+- `enchantments-states`: `key:state`, `ns:key:state` (namespace dropped) or the YAML mistake `- key: state`. Entries with
+  no/unknown state are skipped; keys are lower-cased. `EnchantmentStateType.getStateByName` is null-safe.
+- `enchantment-chances` / `enchantment-costs`: unusable entries are **skipped** (a skipped chance means "always
+  succeeds", a skipped cost means "use the formula"); keys are lower-cased, so `AnvilCostUtils` lower-cases the lookup key.
+- `split-count`: number, `{min, max}` (a missing bound mirrors the other), or a string `"2-5"`/`"2..5"`/`"2 to 5"`;
+  reversed ranges are swapped; clamped to 1-`MAX_SPLIT_COUNT` (255).
+- Material names go through `ConfigValues.matchMaterial` (`Material.matchMaterial` plus a case-insensitive
+  `minecraft:` prefix; legacy materials rejected). `disenchant:materials` uses the same method.
+- `setDisabledWorlds` / `setDisabledMaterials` merge back stored names that do not currently resolve
+  (`ConfigValues.keepUnresolved`), so editing a list never drops hand-written entries.
+- `setVolume` / `setPitch` store the clamped value.
+
+### ConfigValidator
+
+`config/ConfigValidator.java` collects `ConfigIssue(path, message)` records and never modifies the file.
+
+- `validateAndLog()` is called from `Disenchantment.enable()` and `Disenchantment.reload()` right after the plugin
+  adapters are activated (so loaded worlds are visible). It logs one `Config: <path>: <message>` warning per issue plus a
+  `Config: N problems found, see above.` summary, and stores the result for `getLastIssues()`.
+- `validate(FileConfiguration, FileConfiguration template)` is the pure, testable core.
+- Checks: every `ConfigSpec` (`spec.problem`); unknown/misspelt keys against the bundled `config.yml` (empty template
+  sections such as `enchantment-chances: { }` are user-defined maps and are not recursed; "did you mean" uses edit
+  distance); restriction `mode`/`list` shape; `ALLOWLIST` with an empty list (this replaced the
+  `Config.validateRestrictions()` call in `setupConfig`; the old method remains but is no longer invoked); unknown
+  materials; worlds not currently loaded (only when at least one world is loaded); enchantment keys in states / chances /
+  costs / groups; malformed state entries; split-count; locale file availability; webhook shape.
+- Enchantment keys are checked against `Registry.ENCHANTMENT`. Plugin adapters do not expose their key lists, so a bare
+  non-vanilla key gets a soft warning ("ignore if it comes from a custom enchantment plugin") and keys in another
+  namespace are accepted. `foreignNamespaceKeys` remembers `ns:key:state` entries because the state parser drops the namespace.
+- Exposure: `Reload` prints the problem count to the sender, `DiagnosticUtils.buildReport` adds a `Config Problems` block.
+- Tests: `ConfigTotalityTest` (junk input against every getter), `ConfigValidatorTest`, `ConfigValidationWiringTest`.
+
+---
+
 ## How to Add a New Config Key
 
 1. Add a constant to `ConfigKeys` enum with the YAML dot-path:
    ```java
    MY_NEW_KEY("disenchantment.my-new-key"),
    ```
-2. Add a getter (and optional setter) to the appropriate inner class in `Config.java`:
+2. Register it in the `ConfigSpec` static block (`bool(ConfigKeys.MY_NEW_KEY, false);`, or `decimal`/`integer`/
+   `enumeration`/`string` with default and range). Then add a getter (and optional setter) to the appropriate inner
+   class in `Config.java` that reads through `ConfigValues` so the value is always valid:
    ```java
    public static boolean isMyNewKeyEnabled() {
-       return config.getBoolean(ConfigKeys.MY_NEW_KEY.getKey(), false);
+       return ConfigValues.bool(ConfigKeys.MY_NEW_KEY);
    }
    ```
+   Never call `config.getBoolean/getInt/getDouble` directly: they return `0`/`false` for wrong types and let NaN through.
 3. Add the default value to `core/src/main/resources/config.yml`.
 4. Bump the `migration` counter in `config.yml` and create `migrations/<N>.yml` that copies existing keys into the new
    template.

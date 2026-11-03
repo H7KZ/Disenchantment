@@ -2,6 +2,7 @@ package com.jankominek.disenchantment.commands.impl;
 
 import com.jankominek.disenchantment.Disenchantment;
 import com.jankominek.disenchantment.commands.CommandBuilder;
+import com.jankominek.disenchantment.config.ConfigValidator;
 import com.jankominek.disenchantment.config.I18n;
 import com.jankominek.disenchantment.types.PermissionGroupType;
 import com.jankominek.disenchantment.utils.ConfigUtils;
@@ -42,6 +43,11 @@ public class Reload {
 
         Disenchantment.plugin.reload();
         sender.sendMessage(I18n.getPrefix() + " " + I18n.Messages.configReloaded());
+
+        int problems = ConfigValidator.getLastIssues().size();
+        if (problems > 0) {
+            sender.sendMessage("§e" + problems + (problems == 1 ? " config problem" : " config problems") + " found, see the server console or /disenchantment diagnostic.");
+        }
     }
 
     /**

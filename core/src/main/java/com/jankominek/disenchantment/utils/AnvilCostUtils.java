@@ -191,7 +191,7 @@ public class AnvilCostUtils {
                 .toArray(IPluginEnchantment[]::new);
 
         for (IPluginEnchantment enchantment : sortedEnchantments) {
-            String key = enchantment.getKey() != null ? enchantment.getKey() : "";
+            String key = enchantment.getKey() != null ? enchantment.getKey().toLowerCase(java.util.Locale.ROOT) : "";
             String shortKey = key.contains(":") ? key.substring(key.indexOf(':') + 1) : key;
             if (overrides.containsKey(key) || overrides.containsKey(shortKey)) {
                 // fixed override cost — does not interact with the level*multiplier formula
@@ -252,7 +252,7 @@ public class AnvilCostUtils {
         boolean hasUnoverridden = false;
 
         for (IPluginEnchantment enchantment : enchantments) {
-            String key = enchantment.getKey() != null ? enchantment.getKey() : "";
+            String key = enchantment.getKey() != null ? enchantment.getKey().toLowerCase(java.util.Locale.ROOT) : "";
             String shortKey = key.contains(":") ? key.substring(key.indexOf(':') + 1) : key;
 
             if (economyOverrides.containsKey(key)) {
