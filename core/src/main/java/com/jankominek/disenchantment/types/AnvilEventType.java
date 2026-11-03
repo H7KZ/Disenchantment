@@ -14,4 +14,12 @@ public enum AnvilEventType {
      * Splitting enchantments from one book onto another.
      */
     SHATTERMENT,
+    /**
+     * Extracting enchantments from an item onto a plain book on the grindstone.
+     */
+    GRINDSTONE_EXTRACT,
+    /**
+     * Transferring enchantments from one item to another on the grindstone.
+     */
+    GRINDSTONE_TRANSFER,
 }

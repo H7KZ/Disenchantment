@@ -114,7 +114,11 @@ public class AnvilCostUtils {
         double baseMultiplier;
         Map<String, Integer> overrides;
         int maxCost;
-        String category = anvilEventType == AnvilEventType.DISENCHANTMENT ? "DISENCHANT" : "SHATTER";
+        String category = switch (anvilEventType) {
+            case DISENCHANTMENT -> "DISENCHANT";
+            case SHATTERMENT -> "SHATTER";
+            default -> "GRINDSTONE";
+        };
 
         switch (anvilEventType) {
             case DISENCHANTMENT:
@@ -138,6 +142,28 @@ public class AnvilCostUtils {
                 baseMultiplier = Config.Shatterment.Anvil.Repair.getCostMultiplier();
                 overrides = Config.Shatterment.Anvil.Repair.getEnchantmentCosts();
                 maxCost = Config.Shatterment.Anvil.Repair.getMaxCost();
+                break;
+            case GRINDSTONE_EXTRACT:
+                if (!Config.Grindstone.Repair.isCostEnabled()) {
+                    DiagnosticUtils.debug(category, "AnvilCost: XP cost disabled by config → 0");
+                    return 0;
+                }
+
+                totalCost = Config.Grindstone.Repair.getBaseCost();
+                baseMultiplier = Config.Grindstone.Repair.getCostMultiplier();
+                overrides = Config.Grindstone.Repair.getEnchantmentCosts();
+                maxCost = Config.Grindstone.Repair.getMaxCost();
+                break;
+            case GRINDSTONE_TRANSFER:
+                if (!Config.Grindstone.Transfer.Repair.isCostEnabled()) {
+                    DiagnosticUtils.debug(category, "AnvilCost: XP cost disabled by config → 0");
+                    return 0;
+                }
+
+                totalCost = Config.Grindstone.Transfer.Repair.getBaseCost();
+                baseMultiplier = Config.Grindstone.Transfer.Repair.getCostMultiplier();
+                overrides = Config.Grindstone.Transfer.Repair.getEnchantmentCosts();
+                maxCost = Config.Grindstone.Transfer.Repair.getMaxCost();
                 break;
             default:
                 return 0;

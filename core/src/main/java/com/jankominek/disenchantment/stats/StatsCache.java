@@ -72,7 +72,7 @@ public class StatsCache {
     public void record(OperationType type, List<String> enchantmentKeys,
                        UUID playerUuid, String playerName, int xpCost, double economyCost, Instant timestamp) {
         if (type == OperationType.DISENCHANT) totalDisenchants.increment();
-        else totalShatters.increment();
+        else if (type == OperationType.SHATTER) totalShatters.increment();
         totalXpSpent.add(xpCost);
         totalMoneySpent.add(economyCost);
         for (String key : enchantmentKeys) {
