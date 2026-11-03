@@ -35,6 +35,15 @@ public class EventUtils {
     }
 
     /**
+     * Returns whether the material-bypass flag is active on the current thread.
+     *
+     * @return {@code true} if disabled-material checks must be skipped
+     */
+    public static boolean isMaterialBypassActive() {
+        return materialBypassActive.get();
+    }
+
+    /**
      * Event utilities for disenchantment operations (extracting enchantments from items to books).
      */
     public static class Disenchantment {

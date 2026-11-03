@@ -203,3 +203,6 @@ permissions:
   disenchantment.discount.95:
     description: Grants a 95% XP cost discount on anvil operations.
     default: false
+  disenchantment.anvil.erase:
+    description: Allows the player to erase enchantments from items with a catalyst.
+    default: true

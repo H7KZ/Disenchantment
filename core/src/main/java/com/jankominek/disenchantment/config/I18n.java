@@ -528,6 +528,56 @@ public class I18n {
             return I18n.translateColors(localeConfig.getString(I18nKeys.MESSAGES_USE_NORMAL_CLICK.getKey(),
                     "&cTake the result with a normal left or right click.&r"));
         }
+
+        /**
+         * Returns the localized preview-lore line listing the enchantments a result book transfers.
+         *
+         * @param enchantments the value substituted for {enchantments}
+         */
+        public static String previewTransfers(String enchantments) {
+            return I18n.translateColors(
+                    localeConfig.getString(I18nKeys.MESSAGES_PREVIEW_TRANSFERS.getKey(), "&7Transfers: &f{enchantments}&r")
+                            .replace("{enchantments}", enchantments)
+            );
+        }
+
+        /**
+         * Returns the localized preview-lore line showing an experience-level cost.
+         *
+         * @param levels the value substituted for {levels}
+         */
+        public static String previewCostLevels(String levels) {
+            return I18n.translateColors(
+                    localeConfig.getString(I18nKeys.MESSAGES_PREVIEW_COST_LEVELS.getKey(), "&7Cost: &f{levels} levels&r")
+                            .replace("{levels}", levels)
+            );
+        }
+
+        /**
+         * Returns the localized preview-lore line showing an experience-level and a money cost.
+         *
+         * @param levels the value substituted for {levels}
+         * @param money  the formatted amount substituted for {money}
+         */
+        public static String previewCostLevelsMoney(String levels, String money) {
+            return I18n.translateColors(
+                    localeConfig.getString(I18nKeys.MESSAGES_PREVIEW_COST_LEVELS_MONEY.getKey(), "&7Cost: &f{levels} levels &7+ &f{money}&r")
+                            .replace("{levels}", levels)
+                            .replace("{money}", money)
+            );
+        }
+
+        /**
+         * Returns the localized preview-lore line showing a money-only cost.
+         *
+         * @param money the formatted amount substituted for {money}
+         */
+        public static String previewCostMoney(String money) {
+            return I18n.translateColors(
+                    localeConfig.getString(I18nKeys.MESSAGES_PREVIEW_COST_MONEY.getKey(), "&7Cost: &f{money}&r")
+                            .replace("{money}", money)
+            );
+        }
     }
 
     /**

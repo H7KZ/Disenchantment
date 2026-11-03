@@ -3,6 +3,7 @@ package com.jankominek.disenchantment.listeners;
 import com.jankominek.disenchantment.events.AnvilEventGuards;
 import com.jankominek.disenchantment.events.ShatterEvent;
 import com.jankominek.disenchantment.utils.DiagnosticUtils;
+import com.jankominek.disenchantment.utils.FeedbackUtils;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -73,6 +74,7 @@ public class AnvilSessionListener implements Listener {
     @EventHandler(priority = EventPriority.MONITOR)
     public void onQuit(PlayerQuitEvent e) {
         AnvilEventGuards.clearBypassCost(e.getPlayer());
+        FeedbackUtils.forget(e.getPlayer());
         ShatterEvent.clearSelection(e.getPlayer());
     }
 }

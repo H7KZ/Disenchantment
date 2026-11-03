@@ -94,6 +94,46 @@ public enum ConfigKeys {
 
     // Shared settings
     ENCHANTMENT_GROUPS("enchantment-groups"),
+
+    // Feedback settings (particles, failure sound, refusal messages, preview lore)
+    FEEDBACK_PARTICLES_ENABLED("feedback.particles.enabled"),
+    FEEDBACK_PARTICLES_TYPES("feedback.particles.types"),
+    FEEDBACK_PARTICLES_ERASE_TYPES("feedback.particles.erase-types"),
+    FEEDBACK_PARTICLES_COUNT("feedback.particles.count"),
+    FEEDBACK_PARTICLES_SPREAD("feedback.particles.spread"),
+    FEEDBACK_PARTICLES_SCOPE("feedback.particles.scope"),
+    FEEDBACK_FAILURE_SOUND_ENABLED("feedback.failure-sound.enabled"),
+    FEEDBACK_FAILURE_SOUND_SOUND("feedback.failure-sound.sound"),
+    FEEDBACK_FAILURE_SOUND_VOLUME("feedback.failure-sound.volume"),
+    FEEDBACK_FAILURE_SOUND_PITCH("feedback.failure-sound.pitch"),
+    FEEDBACK_NOT_ENOUGH_XP_MESSAGE("feedback.not-enough-xp-message"),
+    FEEDBACK_PREVIEW_LORE("feedback.preview-lore"),
+
+    // Erase mode settings
+    EVENT_PRIORITIES_ERASE_CLICK("event-priorities.erase-click"),
+    EVENT_PRIORITIES_ERASE("event-priorities.erase"),
+
+    ERASE_ENABLED("erase.enabled"),
+    ERASE_CATALYSTS("erase.catalysts"),
+    ERASE_CONSUME_CATALYST("erase.consume-catalyst"),
+    ERASE_ERASE_CURSES("erase.erase-curses"),
+
+    ERASE_ANVIL_SOUND_ENABLED("erase.anvil.sound.enabled"),
+    ERASE_ANVIL_VOLUME("erase.anvil.sound.volume"),
+    ERASE_ANVIL_PITCH("erase.anvil.sound.pitch"),
+
+    ERASE_REPAIR_RESET_ENABLED("erase.anvil.repair.reset"),
+    ERASE_REPAIR_COST_ENABLED("erase.anvil.repair.cost"),
+    ERASE_REPAIR_COST_BASE("erase.anvil.repair.base"),
+    ERASE_REPAIR_COST_MULTIPLIER("erase.anvil.repair.multiply"),
+    ERASE_ANVIL_REPAIR_ENCHANTMENT_COSTS("erase.anvil.repair.enchantment-costs"),
+    ERASE_REPAIR_MAX_COST("erase.anvil.repair.max-cost"),
+    ERASE_ANVIL_BYPASS_TOO_EXPENSIVE("erase.anvil.bypass-too-expensive"),
+
+    ERASE_ECONOMY_ENABLED("erase.economy.enabled"),
+    ERASE_ECONOMY_COST("erase.economy.cost"),
+    ERASE_ECONOMY_SHOW_COST("erase.economy.show-cost"),
+    ERASE_ECONOMY_CHARGE_MESSAGE("erase.economy.charge-message"),
     ;
 
     private final String key;

@@ -198,6 +198,55 @@ public class MyListener implements Listener {
 
 ---
 
+## PreEraseEvent
+
+**Package:** `com.jankominek.disenchantment.events.api`
+**Cancellable:** Yes **When it fires:** When a player takes the result of an erase operation (item + catalyst in the
+anvil, see [CONFIG.md - Erase Mode](../user/CONFIG.md#erase-mode)), after the permission and XP checks pass but before
+money is charged and before anything is removed from the anvil. Cancelling leaves the anvil, the player's XP and money
+untouched.
+
+### Methods
+
+| Return type                | Method              | Description                                                                                       |
+|----------------------------|---------------------|---------------------------------------------------------------------------------------------------|
+| `Player`                   | `getPlayer()`       | The player performing the erase                                                                   |
+| `ItemStack`                | `getSourceItem()`   | Snapshot of the enchanted item in anvil slot 0                                                    |
+| `List<IPluginEnchantment>` | `getEnchantments()` | The enchantments about to be erased. Removing entries keeps them on the item and lowers the cost. |
+| `ItemStack`                | `getCatalyst()`     | Snapshot of the catalyst stack in anvil slot 1                                                    |
+| `boolean`                  | `isCancelled()`     | Whether the erase has been cancelled                                                              |
+
+### Code Example
+
+```java
+@EventHandler
+public void onPreErase(PreEraseEvent event) {
+    // Example: protect items with a custom "soulbound" tag from being erased
+    if (SoulboundAPI.isSoulbound(event.getSourceItem())) {
+        event.setCancelled(true);
+    }
+}
+```
+
+---
+
+## PostEraseEvent
+
+**Package:** `com.jankominek.disenchantment.events.api`
+**Cancellable:** No **When it fires:** After an erase has completed: the item (without the erased enchantments) is on
+the player's cursor, the catalyst is consumed and the cost charged.
+
+### Methods
+
+| Return type                | Method              | Description                                         |
+|----------------------------|---------------------|-----------------------------------------------------|
+| `Player`                   | `getPlayer()`       | The player who performed the erase                  |
+| `ItemStack`                | `getResultItem()`   | Snapshot of the item the player received            |
+| `List<IPluginEnchantment>` | `getErased()`       | The enchantments that were erased                   |
+| `int`                      | `getXpCost()`       | XP levels deducted (`0` in creative mode)           |
+| `double`                   | `getEconomyCost()`  | Money charged (`0.0` if economy is off or creative) |
+
+---
 ## IPluginEnchantment
 
 **Package:** `com.jankominek.disenchantment.plugins`

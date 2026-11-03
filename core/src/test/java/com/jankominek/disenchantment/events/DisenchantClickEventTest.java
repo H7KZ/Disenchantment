@@ -554,4 +554,70 @@ class DisenchantClickEventTest extends DisenchantmentTestBase {
         Mockito.verify(event, Mockito.never()).setCancelled(true);
         assertNull(player.nextMessage());
     }
+
+    // -> feedback: refused clicks play the failure sound, the message is debounced
+
+    @Test
+    void givenNotEnoughLevels_whenClickResult_thenCancelledWithFailureSoundAndOneDebouncedMessage() {
+        com.jankominek.disenchantment.utils.FeedbackUtils.reset();
+        PlayerMock player = server.addPlayer("TestPlayer");
+        player.setLevel(5);
+
+        InventoryClickEvent first = buildClickEvent(player, sword("sharpness", 5), new ItemStack(Material.BOOK), enchantedBook("sharpness", 5));
+        Mockito.when(lastMockAnvil.getRepairCost()).thenReturn(30);
+        DisenchantClickEvent.onEvent(first);
+        InventoryClickEvent second = buildClickEvent(player, sword("sharpness", 5), new ItemStack(Material.BOOK), enchantedBook("sharpness", 5));
+        Mockito.when(lastMockAnvil.getRepairCost()).thenReturn(30);
+        DisenchantClickEvent.onEvent(second);
+
+        Mockito.verify(first).setCancelled(true);
+        Mockito.verify(second).setCancelled(true);
+        assertEquals(2, player.getHeardSounds().size(), "Every refused click plays the failure sound");
+        assertNotNull(player.nextMessage(), "The first refusal is explained");
+        assertNull(player.nextMessage(), "The immediate repeat is debounced");
+        assertEquals(5, player.getLevel());
+    }
+
+    @Test
+    void givenNotEnoughLevelsAndMessageDisabled_whenClickResult_thenSilentExceptSound() {
+        com.jankominek.disenchantment.utils.FeedbackUtils.reset();
+        setConfig("feedback.not-enough-xp-message", false);
+        PlayerMock player = server.addPlayer("TestPlayer");
+        player.setLevel(5);
+
+        InventoryClickEvent event = buildClickEvent(player, sword("sharpness", 5), new ItemStack(Material.BOOK), enchantedBook("sharpness", 5));
+        Mockito.when(lastMockAnvil.getRepairCost()).thenReturn(30);
+        DisenchantClickEvent.onEvent(event);
+
+        Mockito.verify(event).setCancelled(true);
+        assertNull(player.nextMessage());
+        assertEquals(1, player.getHeardSounds().size());
+    }
+
+    @Test
+    void givenShiftClickOnGenuineDisenchant_whenClickResult_thenFailureSoundPlayed() {
+        com.jankominek.disenchantment.utils.FeedbackUtils.reset();
+        PlayerMock player = server.addPlayer("TestPlayer");
+        player.setLevel(10);
+
+        InventoryClickEvent event = buildClickEvent(player, sword("sharpness", 5), new ItemStack(Material.BOOK), enchantedBook("sharpness", 5));
+        Mockito.when(event.getClick()).thenReturn(org.bukkit.event.inventory.ClickType.SHIFT_LEFT);
+        DisenchantClickEvent.onEvent(event);
+
+        assertEquals(1, player.getHeardSounds().size());
+    }
+
+    @Test
+    void givenFailureSoundDisabled_whenRefusedClick_thenNoSound() {
+        com.jankominek.disenchantment.utils.FeedbackUtils.reset();
+        setConfig("feedback.failure-sound.enabled", false);
+        PlayerMock player = server.addPlayer("TestPlayer");
+        player.setLevel(5);
+
+        InventoryClickEvent event = buildClickEvent(player, sword("sharpness", 5), new ItemStack(Material.BOOK), enchantedBook("sharpness", 5));
+        Mockito.when(lastMockAnvil.getRepairCost()).thenReturn(30);
+        DisenchantClickEvent.onEvent(event);
+
+        assertTrue(player.getHeardSounds().isEmpty());
+    }
 }

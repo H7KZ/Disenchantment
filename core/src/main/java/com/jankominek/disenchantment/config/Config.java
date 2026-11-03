@@ -1660,4 +1660,384 @@ public class Config {
             }
         }
     }
+
+    /**
+     * Player feedback settings: success particles, the failure sound, the debounced
+     * "not enough levels" message and the result-book preview lore. Read-only: edit
+     * {@code config.yml} and reload.
+     */
+    public static class Feedback {
+        /**
+         * Checks whether the debounced "not enough levels" message is sent when a click is refused.
+         *
+         * @return {@code true} (default) if the message is enabled
+         */
+        public static boolean isNotEnoughXpMessageEnabled() {
+            return config.getBoolean(ConfigKeys.FEEDBACK_NOT_ENOUGH_XP_MESSAGE.getKey(), true);
+        }
+
+        /**
+         * Checks whether the result book of a prepared disenchant/shatter lists what transfers and the cost.
+         *
+         * @return {@code true} (default) if the preview lore is enabled
+         */
+        public static boolean isPreviewLoreEnabled() {
+            return config.getBoolean(ConfigKeys.FEEDBACK_PREVIEW_LORE.getKey(), true);
+        }
+
+        /**
+         * Success particle settings, spawned at the anvil when an operation completes.
+         */
+        public static class Particles {
+            /**
+             * Checks whether success particles are enabled.
+             *
+             * @return {@code true} (default) if particles are spawned
+             */
+            public static boolean isEnabled() {
+                return config.getBoolean(ConfigKeys.FEEDBACK_PARTICLES_ENABLED.getKey(), true);
+            }
+
+            /**
+             * Gets the particle names spawned by a successful disenchant or shatter. Names that do not
+             * exist on the running server are skipped, so legacy and current names can be listed together.
+             *
+             * @return the configured particle names (default {@code ENCHANT, ENCHANTMENT_TABLE})
+             */
+            public static List<String> getTypes() {
+                return getNames(ConfigKeys.FEEDBACK_PARTICLES_TYPES, List.of("ENCHANT", "ENCHANTMENT_TABLE"));
+            }
+
+            /**
+             * Gets the particle names spawned by a successful erase.
+             *
+             * @return the configured particle names (default {@code SMOKE, SMOKE_NORMAL})
+             */
+            public static List<String> getEraseTypes() {
+                return getNames(ConfigKeys.FEEDBACK_PARTICLES_ERASE_TYPES, List.of("SMOKE", "SMOKE_NORMAL"));
+            }
+
+            /**
+             * Gets how many particles of each type are spawned.
+             *
+             * @return the count, clamped to [1, 500]
+             */
+            public static int getCount() {
+                return Math.max(1, Math.min(500, config.getInt(ConfigKeys.FEEDBACK_PARTICLES_COUNT.getKey(), 30)));
+            }
+
+            /**
+             * Gets the random spread of the particles around the spawn point, in blocks.
+             *
+             * @return the spread, never negative
+             */
+            public static double getSpread() {
+                return Math.max(0.0, config.getDouble(ConfigKeys.FEEDBACK_PARTICLES_SPREAD.getKey(), 0.4));
+            }
+
+            /**
+             * Gets who sees the particles.
+             *
+             * @return the {@link ParticleScopeType} (defaults to {@link ParticleScopeType#PLAYER})
+             */
+            public static ParticleScopeType getScope() {
+                return ParticleScopeType.fromConfig(config.getString(ConfigKeys.FEEDBACK_PARTICLES_SCOPE.getKey(), "PLAYER"));
+            }
+
+            private static List<String> getNames(ConfigKeys key, List<String> fallback) {
+                if (!config.contains(key.getKey())) return fallback;
+                return config.getStringList(key.getKey());
+            }
+        }
+
+        /**
+         * Sound played to a player whose anvil click was refused.
+         */
+        public static class FailureSound {
+            /**
+             * Checks whether the failure sound is enabled.
+             *
+             * @return {@code true} (default) if the sound is played
+             */
+            public static boolean isEnabled() {
+                return config.getBoolean(ConfigKeys.FEEDBACK_FAILURE_SOUND_ENABLED.getKey(), true);
+            }
+
+            /**
+             * Gets the vanilla sound key played on a refused click (a string, never a {@code Sound}
+             * constant, so it works on every server version).
+             *
+             * @return the sound key (default {@code entity.villager.no})
+             */
+            public static String getSound() {
+                String sound = config.getString(ConfigKeys.FEEDBACK_FAILURE_SOUND_SOUND.getKey(), "entity.villager.no");
+                return sound == null || sound.isBlank() ? "entity.villager.no" : sound.trim();
+            }
+
+            /**
+             * Gets the failure sound volume.
+             *
+             * @return the configured volume
+             */
+            public static float getVolume() {
+                return (float) config.getDouble(ConfigKeys.FEEDBACK_FAILURE_SOUND_VOLUME.getKey(), 1.0);
+            }
+
+            /**
+             * Gets the failure sound pitch.
+             *
+             * @return the configured pitch
+             */
+            public static float getPitch() {
+                return (float) config.getDouble(ConfigKeys.FEEDBACK_FAILURE_SOUND_PITCH.getKey(), 1.0);
+            }
+        }
+    }
+
+    /**
+     * Configuration section for erase mode: an enchanted item plus a catalyst in the anvil yields the same
+     * item without its erasable enchantments, and no book. Worlds, materials and enchantment states are
+     * shared with disenchantment. Read-only: edit {@code config.yml} and reload.
+     */
+    public static class Erase {
+        /**
+         * Checks whether erase mode is enabled.
+         *
+         * @return {@code true} if erase mode is enabled (default {@code false})
+         */
+        public static boolean isEnabled() {
+            return config.getBoolean(ConfigKeys.ERASE_ENABLED.getKey(), false);
+        }
+
+        /**
+         * Gets the configured catalyst materials, unparsed.
+         *
+         * @return the material names (default {@code ECHO_SHARD})
+         */
+        public static List<String> getCatalysts() {
+            if (!config.contains(ConfigKeys.ERASE_CATALYSTS.getKey())) return List.of("ECHO_SHARD");
+            return config.getStringList(ConfigKeys.ERASE_CATALYSTS.getKey());
+        }
+
+        /**
+         * Checks whether one catalyst is consumed per erase.
+         *
+         * @return {@code true} (default) if the catalyst is used up
+         */
+        public static boolean isConsumeCatalyst() {
+            return config.getBoolean(ConfigKeys.ERASE_CONSUME_CATALYST.getKey(), true);
+        }
+
+        /**
+         * Checks whether curses are erased too.
+         *
+         * @return {@code true} if curses are erased (default {@code false}: they stay on the item)
+         */
+        public static boolean isEraseCurses() {
+            return config.getBoolean(ConfigKeys.ERASE_ERASE_CURSES.getKey(), false);
+        }
+
+        /**
+         * Gets the event priority of the erase prepare-anvil handler.
+         *
+         * @return the configured {@link EventPriority}, defaulting to HIGHEST
+         */
+        public static EventPriority getPrepareEventPriority() {
+            try {
+                return EventPriority.valueOf(config.getString(ConfigKeys.EVENT_PRIORITIES_ERASE.getKey(), "HIGHEST").toUpperCase());
+            } catch (IllegalArgumentException e) {
+                return EventPriority.HIGHEST;
+            }
+        }
+
+        /**
+         * Gets the event priority of the erase inventory-click handler.
+         *
+         * @return the configured {@link EventPriority}, defaulting to HIGHEST
+         */
+        public static EventPriority getClickEventPriority() {
+            try {
+                return EventPriority.valueOf(config.getString(ConfigKeys.EVENT_PRIORITIES_ERASE_CLICK.getKey(), "HIGHEST").toUpperCase());
+            } catch (IllegalArgumentException e) {
+                return EventPriority.HIGHEST;
+            }
+        }
+
+        /**
+         * Economy settings for erase operations.
+         */
+        public static class Economy {
+            /**
+             * Checks whether economy integration is enabled for erasing.
+             *
+             * @return {@code true} if economy cost is active
+             */
+            public static boolean isEnabled() {
+                return config.getBoolean(ConfigKeys.ERASE_ECONOMY_ENABLED.getKey(), false);
+            }
+
+            /**
+             * Gets the economy cost per erase operation.
+             *
+             * @return the configured cost
+             */
+            public static double getCost() {
+                return config.getDouble(ConfigKeys.ERASE_ECONOMY_COST.getKey(), 100.0);
+            }
+
+            /**
+             * Checks whether the cost is shown to the player in the action bar before the operation.
+             *
+             * @return {@code true} if the cost display is enabled
+             */
+            public static boolean isShowCostEnabled() {
+                return config.getBoolean(ConfigKeys.ERASE_ECONOMY_SHOW_COST.getKey(), true);
+            }
+
+            /**
+             * Checks whether a charge confirmation message is sent after the operation.
+             *
+             * @return {@code true} if the charge message is enabled
+             */
+            public static boolean isChargeMessageEnabled() {
+                return config.getBoolean(ConfigKeys.ERASE_ECONOMY_CHARGE_MESSAGE.getKey(), true);
+            }
+        }
+
+        /**
+         * Anvil-related settings for erase operations.
+         */
+        public static class Anvil {
+            /**
+             * Checks whether the "Too Expensive!" anvil screen bypass is enabled for erasing.
+             *
+             * @return {@code true} if the bypass is enabled
+             */
+            public static boolean isBypassTooExpensiveEnabled() {
+                return config.getBoolean(ConfigKeys.ERASE_ANVIL_BYPASS_TOO_EXPENSIVE.getKey(), false);
+            }
+
+            /**
+             * Sound settings for the erase anvil interaction.
+             */
+            public static class Sound {
+                /**
+                 * Checks whether the erase anvil sound is enabled.
+                 *
+                 * @return {@code true} if the sound is enabled
+                 */
+                public static boolean isEnabled() {
+                    return config.getBoolean(ConfigKeys.ERASE_ANVIL_SOUND_ENABLED.getKey(), true);
+                }
+
+                /**
+                 * Gets the erase anvil sound volume.
+                 *
+                 * @return the configured volume
+                 */
+                public static Double getVolume() {
+                    return config.getDouble(ConfigKeys.ERASE_ANVIL_VOLUME.getKey(), 1.0);
+                }
+
+                /**
+                 * Gets the erase anvil sound pitch.
+                 *
+                 * @return the configured pitch
+                 */
+                public static Double getPitch() {
+                    return config.getDouble(ConfigKeys.ERASE_ANVIL_PITCH.getKey(), 1.0);
+                }
+            }
+
+            /**
+             * Repair cost settings for erase anvil operations.
+             */
+            public static class Repair {
+                /**
+                 * Checks whether the repair cost of the erased item is reset.
+                 *
+                 * @return {@code true} if repair cost reset is enabled
+                 */
+                public static boolean isResetEnabled() {
+                    return config.getBoolean(ConfigKeys.ERASE_REPAIR_RESET_ENABLED.getKey(), false);
+                }
+
+                /**
+                 * Checks whether erasing costs experience levels.
+                 *
+                 * @return {@code true} if repair cost is enabled
+                 */
+                public static boolean isCostEnabled() {
+                    return config.getBoolean(ConfigKeys.ERASE_REPAIR_COST_ENABLED.getKey(), true);
+                }
+
+                /**
+                 * Gets the base repair cost for erasing.
+                 *
+                 * @return the configured base cost
+                 */
+                public static Double getBaseCost() {
+                    return config.getDouble(ConfigKeys.ERASE_REPAIR_COST_BASE.getKey(), 10.0);
+                }
+
+                /**
+                 * Gets the per-level cost multiplier for erasing.
+                 *
+                 * @return the configured cost multiplier
+                 */
+                public static Double getCostMultiplier() {
+                    return config.getDouble(ConfigKeys.ERASE_REPAIR_COST_MULTIPLIER.getKey(), 0.25);
+                }
+
+                /**
+                 * Gets the per-enchantment XP cost overrides for erasing (not cached: it is read once per anvil update).
+                 *
+                 * @return map of enchantment key to its XP cost override
+                 */
+                public static Map<String, Integer> getEnchantmentCosts() {
+                    var section = config.getConfigurationSection(ConfigKeys.ERASE_ANVIL_REPAIR_ENCHANTMENT_COSTS.getKey());
+                    Map<String, Integer> costs = new HashMap<>();
+                    if (section == null) return costs;
+
+                    for (String key : section.getKeys(false)) {
+                        // Two supported shapes: "sharpness: 5" (XP-only) or "mending: { xp: 10, economy: 500 }".
+                        var sub = section.getConfigurationSection(key);
+                        if (sub != null) {
+                            if (sub.contains("xp")) costs.put(key, sub.getInt("xp"));
+                        } else {
+                            costs.put(key, section.getInt(key));
+                        }
+                    }
+                    return costs;
+                }
+
+                /**
+                 * Gets the per-enchantment economy cost overrides for erasing, parsed from the map-shaped
+                 * entries of {@code enchantment-costs}.
+                 *
+                 * @return map of enchantment key to its economy cost override
+                 */
+                public static Map<String, Double> getEnchantmentEconomyCosts() {
+                    Map<String, Double> costs = new HashMap<>();
+                    var section = config.getConfigurationSection(ConfigKeys.ERASE_ANVIL_REPAIR_ENCHANTMENT_COSTS.getKey());
+                    if (section == null) return costs;
+
+                    for (String key : section.getKeys(false)) {
+                        var sub = section.getConfigurationSection(key);
+                        if (sub != null && sub.contains("economy")) costs.put(key, sub.getDouble("economy"));
+                    }
+                    return costs;
+                }
+
+                /**
+                 * Gets the maximum XP cost cap for erasing. {@code -1} means no cap (default).
+                 *
+                 * @return the configured max cost, or -1 if uncapped
+                 */
+                public static int getMaxCost() {
+                    return config.getInt(ConfigKeys.ERASE_REPAIR_MAX_COST.getKey(), -1);
+                }
+            }
+        }
+    }
 }

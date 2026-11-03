@@ -20,6 +20,8 @@ event-priorities:
   disenchant: HIGHEST
   shatter-click: HIGHEST
   shatter: HIGHEST
+  erase-click: HIGHEST
+  erase: HIGHEST
 
 # ----------------------------------------------------------------------------------------
 
@@ -85,6 +87,45 @@ shatterment:
   enchantments-states: [ ]
   enchantment-chances: { }
   split-count: 1
+  anvil:
+    sound:
+      enabled: true
+      volume: 1.0
+      pitch: 1.0
+    repair:
+      reset: false
+      cost: true
+      base: 10
+      multiply: 0.25
+      enchantment-costs: { }
+      max-cost: -1
+    bypass-too-expensive: false
+  economy:
+    enabled: false
+    cost: 100.0
+    show-cost: true
+    charge-message: true
+
+feedback:
+  particles:
+    enabled: true
+    types: [ ENCHANT, ENCHANTMENT_TABLE ]
+    erase-types: [ SMOKE, SMOKE_NORMAL ]
+    count: 30
+    spread: 0.4
+    scope: PLAYER
+  failure-sound:
+    enabled: true
+    sound: "entity.villager.no"
+    volume: 1.0
+    pitch: 1.0
+  not-enough-xp-message: true
+  preview-lore: true
+erase:
+  enabled: false
+  catalysts: [ ECHO_SHARD ]
+  consume-catalyst: true
+  erase-curses: false
   anvil:
     sound:
       enabled: true

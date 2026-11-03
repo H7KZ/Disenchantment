@@ -54,6 +54,96 @@ class Migration13Test extends DisenchantmentTestBase {
         assertEquals(13, result.getInt("migration"));
     }
 
+    @Test
+    void givenV12Config_whenMigrated_thenFeedbackDefaultsPresent() {
+        FileConfiguration result = new Migration13().migrate(v12Config(), template13());
+
+        assertTrue(result.getBoolean("feedback.particles.enabled"));
+        assertEquals(List.of("ENCHANT", "ENCHANTMENT_TABLE"), result.getStringList("feedback.particles.types"));
+        assertEquals(List.of("SMOKE", "SMOKE_NORMAL"), result.getStringList("feedback.particles.erase-types"));
+        assertEquals(30, result.getInt("feedback.particles.count"));
+        assertEquals(0.4, result.getDouble("feedback.particles.spread"));
+        assertEquals("PLAYER", result.getString("feedback.particles.scope"));
+        assertTrue(result.getBoolean("feedback.failure-sound.enabled"));
+        assertEquals("entity.villager.no", result.getString("feedback.failure-sound.sound"));
+        assertEquals(1.0, result.getDouble("feedback.failure-sound.volume"));
+        assertEquals(1.0, result.getDouble("feedback.failure-sound.pitch"));
+        assertTrue(result.getBoolean("feedback.not-enough-xp-message"));
+        assertTrue(result.getBoolean("feedback.preview-lore"));
+    }
+
+    @Test
+    void givenV12Config_whenMigrated_thenEraseDefaultsPresent() {
+        FileConfiguration result = new Migration13().migrate(v12Config(), template13());
+
+        assertFalse(result.getBoolean("erase.enabled"), "Erase mode is opt-in");
+        assertEquals(List.of("ECHO_SHARD"), result.getStringList("erase.catalysts"));
+        assertTrue(result.getBoolean("erase.consume-catalyst"));
+        assertFalse(result.getBoolean("erase.erase-curses"));
+        assertTrue(result.getBoolean("erase.anvil.sound.enabled"));
+        assertEquals(1.0, result.getDouble("erase.anvil.sound.volume"));
+        assertEquals(1.0, result.getDouble("erase.anvil.sound.pitch"));
+        assertFalse(result.getBoolean("erase.anvil.repair.reset"));
+        assertTrue(result.getBoolean("erase.anvil.repair.cost"));
+        assertEquals(10, result.getInt("erase.anvil.repair.base"));
+        assertEquals(0.25, result.getDouble("erase.anvil.repair.multiply"));
+        assertEquals(-1, result.getInt("erase.anvil.repair.max-cost"));
+        assertFalse(result.getBoolean("erase.anvil.bypass-too-expensive"));
+        assertFalse(result.getBoolean("erase.economy.enabled"));
+        assertEquals(100.0, result.getDouble("erase.economy.cost"));
+        assertTrue(result.getBoolean("erase.economy.show-cost"));
+        assertTrue(result.getBoolean("erase.economy.charge-message"));
+        assertEquals("HIGHEST", result.getString("event-priorities.erase"));
+        assertEquals("HIGHEST", result.getString("event-priorities.erase-click"));
+    }
+
+    @Test
+    void givenUserCustomisedErase_whenMigrated_thenTheirValuesWin() {
+        YamlConfiguration old = v12Config();
+        old.set("erase.enabled", true);
+        old.set("erase.catalysts", List.of("AMETHYST_SHARD"));
+        old.set("event-priorities.erase", "LOW");
+
+        FileConfiguration result = new Migration13().migrate(old, template13());
+
+        assertTrue(result.getBoolean("erase.enabled"));
+        assertEquals(List.of("AMETHYST_SHARD"), result.getStringList("erase.catalysts"));
+        assertEquals("LOW", result.getString("event-priorities.erase"));
+        assertEquals("HIGHEST", result.getString("event-priorities.erase-click"));
+    }
+
+    @Test
+    void givenBundledConfig_whenReadThroughEraseAccessors_thenDefaults() {
+        assertFalse(Config.Erase.isEnabled());
+        assertEquals(List.of("ECHO_SHARD"), Config.Erase.getCatalysts());
+        assertTrue(Config.Erase.isConsumeCatalyst());
+        assertFalse(Config.Erase.isEraseCurses());
+        assertEquals(org.bukkit.event.EventPriority.HIGHEST, Config.Erase.getPrepareEventPriority());
+        assertEquals(org.bukkit.event.EventPriority.HIGHEST, Config.Erase.getClickEventPriority());
+        assertEquals(10.0, Config.Erase.Anvil.Repair.getBaseCost());
+        assertEquals(0.25, Config.Erase.Anvil.Repair.getCostMultiplier());
+    }
+
+    @Test
+    void givenInvalidErasePriority_whenRead_thenFallsBackToHighest() {
+        setConfig("event-priorities.erase", "NOPE");
+
+        assertEquals(org.bukkit.event.EventPriority.HIGHEST, Config.Erase.getPrepareEventPriority());
+    }
+
+    @Test
+    void givenUserCustomisedFeedback_whenMigrated_thenTheirValuesWin() {
+        YamlConfiguration old = v12Config();
+        old.set("feedback.particles.enabled", false);
+        old.set("feedback.failure-sound.sound", "block.anvil.land");
+
+        FileConfiguration result = new Migration13().migrate(old, template13());
+
+        assertFalse(result.getBoolean("feedback.particles.enabled"));
+        assertEquals("block.anvil.land", result.getString("feedback.failure-sound.sound"));
+        assertEquals(30, result.getInt("feedback.particles.count"), "Untouched siblings keep the template default");
+    }
+
     // -> existing values preserved
 
     @Test

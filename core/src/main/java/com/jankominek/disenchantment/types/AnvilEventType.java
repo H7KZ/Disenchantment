@@ -14,4 +14,8 @@ public enum AnvilEventType {
      * Splitting enchantments from one book onto another.
      */
     SHATTERMENT,
+    /**
+     * Erasing enchantments from an item with a catalyst, without producing a book.
+     */
+    ERASE,
 }
