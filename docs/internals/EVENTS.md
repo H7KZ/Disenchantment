@@ -274,6 +274,51 @@ collectors. Key differences:
 
 ---
 
+## Erase Flow
+
+`EraseListener` / `EraseClickListener` -> `EraseEvent` / `EraseClickEvent`, collectors
+`EraseUtils::getErasableEnchantments` (both overloads), permission group `PermissionGroupType.ERASE_EVENT`, cost type
+`AnvilEventType.ERASE`. Registered next to the other listeners in `Disenchantment.enable()` / `reload()` with
+`Config.Erase.getPrepareEventPriority()` / `getClickEventPriority()`; it does **not** register `AnvilSessionListener`
+(that is done once by `DisenchantListener`).
+
+**Prepare (`EraseEvent`).** Guards as disenchant (plugin + `EraseUtils.isActive()`, world via the *disenchantment* world
+restriction), collect erasable enchantments, maintenance/cooldown clear the result, permission, then
+`e.setResult(EraseUtils.buildResult(first, enchantments))` and `applyAnvilCostAndSchedule(..., AnvilEventType.ERASE)`.
+
+**Click (`EraseClickEvent`) - manual-result pattern.** Check order matches `DisenchantClickEvent`: result slot -> collect
+(empty = not ours) -> maintenance -> `result.getType() == first.getType()` -> unsafe click -> pending -> cooldown -> XP ->
+permission -> `PreEraseEvent` -> economy. After the last check **nothing returns early**: the handler
+
+1. rebuilds the item from slot 0 (`EraseUtils.buildResult`, not from the result slot),
+2. `e.setCancelled(true)`,
+3. `setItem(0, null)`, `setItem(1, <catalyst - 1>)` (or `null`), `setItem(2, null)` synchronously,
+4. `p.setItemOnCursor(item)`, deducts XP (not in creative), records the cooldown,
+5. fires `PostEraseEvent`, plays sound + `ParticleUtils.playErase`, `p.updateInventory()`.
+
+Why cancel: the book flows only work because an enchanted book cannot stack, so vanilla's own pick-up is a no-op after
+`setItemOnCursor`. An erase result is an ordinary item that may stack (custom-enchant plugins), where vanilla would merge a
+second copy onto the cursor. Cancelling removes the dependence on vanilla `onTake`; the catalyst is decremented
+synchronously, so there is no 2-tick window (`scheduleSecondItemRemoval` is not used). Refusals (unsafe click, cooldown,
+XP, funds, Pre cancel) return before any mutation, so they can neither lose nor duplicate items.
+
+---
+
+## Feedback hooks
+
+- **Refusals.** `FeedbackUtils.refuse(p, message)` = debounced message (one per player per second, shared by all reasons)
+  + `feedback.failure-sound`. `refuseNotEnoughXp(p, levels)` additionally honours `feedback.not-enough-xp-message`.
+  Used by the three click handlers and by `AnvilEventGuards.isOnCooldown` / `isMaintenanceBlocked`. The sound is a vanilla
+  key played with `Player#playSound(Location, String, float, float)` - never a `Sound` constant.
+- **Success.** The click handlers call `ParticleUtils.playSuccess(p, anvilInventory)` (erase: `playErase`). Names are
+  resolved with `Particle.class.getField(name)` (never `valueOf`/`values`), data-less particles only, cached per name list.
+- **Preview lore.** `DisenchantEvent` / `ShatterEvent` call `PreviewLore.append(book, lines)`: the "Transfers" / "Cost"
+  lines (when `feedback.preview-lore`) plus the "some enchantments may not transfer" warning (always, when a chance is
+  below 1). The line count is stored in the book's PDC (`disenchantment:preview_lines`). Both click handlers call
+  `PreviewLore.strip(result)` **in place** after the last abort point and before `setItemOnCursor` / the Post event, so the
+  result slot cannot hand vanilla an annotated second copy. `strip` is idempotent and leaves foreign lore alone.
+
+---
 ## Public API Events
 
 All in `events/api/`.
@@ -311,6 +356,14 @@ Same fields and semantics as the disenchant variants but for the shattering oper
 
 ---
 
+### `PreEraseEvent` / `PostEraseEvent`
+
+`PreEraseEvent(player, sourceItem, enchantments, catalyst)` is cancellable and fires after the XP check, before the
+economy charge and before any mutation; removing entries from `getEnchantments()` keeps them on the item.
+`PostEraseEvent(player, resultItem, erased, xpCost, economyCost)` is informational. `StatsListener` does not record
+erase operations (the stats schema only knows `DISENCHANT` and `SHATTER`).
+
+---
 ## `GUIClickEvent`
 
 `events/GUIClickEvent.java` — registered as a standard `Listener` at `EventPriority.NORMAL`.

@@ -36,6 +36,8 @@ event-priorities:
   disenchant: HIGHEST
   shatter-click: HIGHEST
   shatter: HIGHEST
+  erase-click: HIGHEST
+  erase: HIGHEST
 
 # ─────────────────────────────────────────────────────────────────────────────
 
@@ -162,6 +164,8 @@ shatterment:
     - [Anvil Sound (Shatter)](#anvil-sound-shatter)
     - [Repair Cost (Shatter)](#repair-cost-shatter)
     - [Economy Cost (Shatterment)](#economy-cost-shatterment)
+- [Erase Mode](#erase-mode)
+- [Feedback](#feedback)
 - [Economy Integration](#economy-integration)
 
 ---
@@ -214,6 +218,8 @@ event-priorities:
   disenchant: HIGHEST
   shatter-click: HIGHEST
   shatter: HIGHEST
+  erase-click: HIGHEST
+  erase: HIGHEST
 ```
 
 Available values (lowest to highest): `LOWEST`, `LOW`, `NORMAL`, `HIGH`, `HIGHEST`, `MONITOR`.
@@ -542,6 +548,90 @@ The same Vault requirements and Creative-mode exemption apply as for disenchantm
 
 ---
 
+## Erase Mode
+
+Erase mode removes enchantments from an item **without producing a book**. The player puts the enchanted item in the
+first anvil slot and a *catalyst* in the second slot; the result is the same item (name, lore, durability and custom
+data kept) without its erasable enchantments. Taking the result costs levels (and optionally money), uses up one
+catalyst and empties the first slot. It is disabled by default. See [HOW_TO.md](HOW_TO.md#erase-enchantments-from-an-item).
+
+```yaml
+erase:
+  enabled: false
+  catalysts: [ ECHO_SHARD ]
+  consume-catalyst: true
+  erase-curses: false
+  anvil:
+    sound: { enabled: true, volume: 1.0, pitch: 1.0 }
+    repair: { reset: false, cost: true, base: 10, multiply: 0.25, enchantment-costs: { }, max-cost: -1 }
+    bypass-too-expensive: false
+  economy: { enabled: false, cost: 100.0, show-cost: true, charge-message: true }
+```
+
+| Key                         | Default        | Description                                                                                                      |
+|-----------------------------|----------------|------------------------------------------------------------------------------------------------------------------|
+| `erase.enabled`             | `false`        | Turns erase mode on.                                                                                             |
+| `erase.catalysts`           | `[ECHO_SHARD]` | Materials accepted in the second slot (any one of them). Matched by material only, so renamed items work.       |
+| `erase.consume-catalyst`    | `true`         | Use up one catalyst per erase. Creative players consume it too.                                                  |
+| `erase.erase-curses`        | `false`        | Also erase Curse of Binding / Vanishing (and any enchantment whose key ends in `_curse`).                        |
+| `erase.anvil.sound.*`       |                | Same as [Anvil Sound](#anvil-sound), but for erase.                                                              |
+| `erase.anvil.repair.*`      |                | Same as [Repair Cost](#repair-cost): `base + level * multiply`, per-enchantment `enchantment-costs`, `max-cost`. |
+| `erase.anvil.repair.reset`  | `false`        | Reset the item's anvil repair penalty to 0 on erase.                                                             |
+| `erase.anvil.bypass-too-expensive` | `false` | Same as the disenchantment option.                                                                               |
+| `erase.economy.*`           |                | Same as [Economy Cost](#economy-cost-disenchantment), with its own cost.                                         |
+| `event-priorities.erase`, `event-priorities.erase-click` | `HIGHEST` | See [Event Priorities](#event-priorities).                                          |
+
+**Catalyst rules.** Entries are parsed like `/give` material ids (`ECHO_SHARD`, `minecraft:echo_shard`). Unknown names
+are skipped with a console warning. `BOOK`, `ENCHANTED_BOOK` and `AIR` are always rejected (disenchantment and
+shatterment own books). If no valid catalyst remains, erase mode stays off and a warning is logged. `ECHO_SHARD` needs
+Minecraft 1.19+; on 1.18 use e.g. `AMETHYST_SHARD`. Avoid vanilla repair materials of the items you want to erase
+(e.g. `DIAMOND` for diamond tools): they would be taken for a repair whenever the item is damaged.
+
+**Shared restrictions.** Erase reuses the `disenchantment` section for `worlds`, `materials` and `enchantments-states`:
+`KEEP` enchantments stay on the item, a `DISABLE` enchantment makes the whole item un-erasable, and `DELETE` (like
+`ENABLE`) enchantments are erased. `enchantment-chances` do not apply. An item with nothing erasable (only curses, only
+`KEEP` enchantments) gives no result. Stacks of more than one item are rejected. Text typed into the anvil's rename
+field is ignored by erase.
+
+Permission: `disenchantment.anvil.erase` (see [PERMISSIONS.md](PERMISSIONS.md)).
+
+---
+
+## Feedback
+
+Feedback for anvil operations. All values below are the defaults.
+
+```yaml
+feedback:
+  particles:
+    enabled: true
+    types: [ ENCHANT, ENCHANTMENT_TABLE ]
+    erase-types: [ SMOKE, SMOKE_NORMAL ]
+    count: 30
+    spread: 0.4
+    scope: PLAYER
+  failure-sound:
+    enabled: true
+    sound: "entity.villager.no"
+    volume: 1.0
+    pitch: 1.0
+  not-enough-xp-message: true
+  preview-lore: true
+```
+
+| Key                                | Description                                                                                                                                                                                                           |
+|------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `feedback.particles.enabled`       | Spawn particles at the anvil when a disenchant, shatter or erase succeeds.                                                                                                                                            |
+| `feedback.particles.types`         | Particle names for disenchant/shatter. Names the server does not know are skipped, so a current and a legacy name can be listed together (`ENCHANT` is `ENCHANTMENT_TABLE` before 1.20.5). Only particles without extra data work (no `DUST`, `BLOCK`, `ITEM`, ...). If none of the names exist, one warning is logged. |
+| `feedback.particles.erase-types`   | Particle names for erase.                                                                                                                                                                                             |
+| `feedback.particles.count`         | Particles per name (1-500).                                                                                                                                                                                           |
+| `feedback.particles.spread`        | Random spread in blocks.                                                                                                                                                                                              |
+| `feedback.particles.scope`         | `PLAYER` (only the player sees them) or `WORLD` (everyone nearby).                                                                                                                                                    |
+| `feedback.failure-sound.*`         | Played to the player when taking the result is refused (not enough levels or money, cooldown, maintenance, withdrawal failure, shift/number-key click). `sound` is a vanilla sound **key** such as `entity.villager.no` or `block.note_block.bass`. |
+| `feedback.not-enough-xp-message`   | Tell the player how many levels they need. Refusal messages are sent at most once per second per player.                                                                                                              |
+| `feedback.preview-lore`            | While the result book sits in the anvil, list what transfers and what it costs in its lore. The lines are removed again when the player takes the book.                                                               |
+
+---
 ## Economy Integration
 
 Economy support is disabled by default and entirely optional.

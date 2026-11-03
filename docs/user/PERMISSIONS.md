@@ -27,6 +27,7 @@ default to `true` so all players can use the core features out of the box.
 | `disenchantment.anvil.all`        | Allows disenchanting items and splitting books.        | `true`  |
 | `disenchantment.anvil.disenchant` | Allows disenchanting items at the anvil.               | `true`  |
 | `disenchantment.anvil.shatter`    | Allows splitting enchantments from books at the anvil. | `true`  |
+| `disenchantment.anvil.erase`      | Allows erasing enchantments with a catalyst (erase mode, off by default). | `true`  |
 
 > **Note:** If non-op players cannot use the anvil features, check whether a permission plugin (e.g. LuckPerms) has
 > explicitly denied these nodes.

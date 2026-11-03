@@ -17,6 +17,8 @@ the result you want.
 - [Make disenchanting free (XP-wise)](#make-disenchanting-free-xp-wise)
 - [Adjust costs per enchantment](#adjust-costs-per-enchantment)
 - [Disable only shattering, keep disenchanting](#disable-only-shattering-keep-disenchanting)
+- [Erase enchantments from an item](#erase-enchantments-from-an-item)
+- [Tune the feedback (particles, sounds, preview)](#tune-the-feedback-particles-sounds-preview)
 - [Fix event priority conflicts with other plugins](#fix-event-priority-conflicts-with-other-plugins)
 - [Grant or revoke permissions with LuckPerms](#grant-or-revoke-permissions-with-luckperms)
 - [Open and use the in-game GUI](#open-and-use-the-in-game-gui)
@@ -342,6 +344,52 @@ Or via command:
 
 ---
 
+## Erase enchantments from an item
+
+Erase mode throws enchantments away without making a book - useful for resetting an item before re-enchanting it. It is
+off by default.
+
+1. Enable it in `config.yml` and reload:
+
+   ```yaml
+   erase:
+     enabled: true
+     catalysts: [ ECHO_SHARD ]   # on 1.18 use AMETHYST_SHARD
+   ```
+
+   ```
+   /disenchantment reload
+   ```
+
+2. In an anvil, put the **enchanted item** in the first slot (one item, not a stack) and **one catalyst** (an echo shard
+   by default) in the second slot.
+3. The result is the same item without its enchantments. Take it with a normal left or right click. It costs levels
+   (`erase.anvil.repair`), uses up one catalyst and empties the first slot.
+
+Good to know:
+
+- Curses (Binding, Vanishing) stay on the item unless `erase.erase-curses: true`.
+- `KEEP` enchantments stay, a `DISABLE` enchantment stops the erase entirely, `DELETE` enchantments are erased - the
+  states, disabled worlds and materials are the same as for disenchanting
+  (see [Block a specific enchantment](#block-a-specific-enchantment-from-being-disenchanted)).
+- Books are never catalysts. To pull enchantments *onto* a book use disenchanting instead.
+- The new name typed into the anvil's rename field is ignored by erase.
+- Permission: `disenchantment.anvil.erase` (default for everyone).
+
+---
+
+## Tune the feedback (particles, sounds, preview)
+
+Everything is under `feedback:` in `config.yml` (see [CONFIG.md - Feedback](CONFIG.md#feedback)).
+
+- **Different particle:** `feedback.particles.types: [ HAPPY_VILLAGER, VILLAGER_HAPPY ]` - list the current name first and
+  the legacy name second; the one your server knows is used.
+- **Everyone sees the particles:** `feedback.particles.scope: WORLD`.
+- **Quieter refusals:** `feedback.failure-sound.enabled: false`, and `feedback.not-enough-xp-message: false` to hide the
+  "you need N levels" message.
+- **Hide the lore preview** on the result book: `feedback.preview-lore: false`.
+
+---
 ## Fix event priority conflicts with other plugins
 
 If another plugin (such as UberEnchants, CMI, or other anvil-modifying plugins) conflicts with Disenchantment, you may

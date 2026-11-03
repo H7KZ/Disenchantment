@@ -109,6 +109,8 @@ Config
     └── Anvil (static inner class)    [same shape as Disenchantment.Anvil]
 ```
 
+Two further read-only sections sit at the end of `Config`: `Config.Feedback` (`Particles`, `FailureSound`, `isNotEnoughXpMessageEnabled()`, `isPreviewLoreEnabled()`) and `Config.Erase` (`isEnabled()`, `getCatalysts()`, `isConsumeCatalyst()`, `isEraseCurses()`, the two event priorities, and `Economy` / `Anvil.Sound` / `Anvil.Repair` shaped like the disenchantment ones). They have no setters and no caches - every accessor reads the live config with a default, so a config without the section (and a migrated one) behaves like the template.
+
 All setters return `boolean` — `true` if the persisted value equals the requested value (a sanity check). Most callers
 ignore the return value.
 
@@ -127,6 +129,8 @@ Key groups:
 | `EVENT_PRIORITIES_*` | `EVENT_PRIORITIES_DISENCHANT`                               | `event-priorities.` |
 | `DISENCHANTMENT_*`   | `DISENCHANTMENT_ENABLED`, `DISENCHANTMENT_REPAIR_COST_BASE` | `disenchantment.`   |
 | `SHATTERMENT_*`      | `SHATTERMENT_ENABLED`, `SHATTERMENT_SPLIT_COUNT`            | `shatterment.`      |
+| `FEEDBACK_*`        | `FEEDBACK_PARTICLES_TYPES`, `FEEDBACK_PREVIEW_LORE`           | `feedback.`         |
+| `ERASE_*`           | `ERASE_ENABLED`, `ERASE_CATALYSTS`                           | `erase.`            |
 
 Each constant has `getKey()` returning the dot-path string.
 
@@ -283,7 +287,7 @@ Each migration step returns the updated `FileConfiguration`. Typically it copies
 | 10   | `Migration10` | Adds `enchantment-chances` and `anvil.repair.max-cost`                 |
 | 11   | `Migration11` | Adds `cost-multiplier.luckperms` and `cooldown.*`                      |
 | 12   | `Migration12` | Moves flat `disabled-worlds`/`disabled-materials` into `worlds`/`materials` `{mode, list}` |
-| 13   | `Migration13` | Adds `update-checker: true` and `logging.operations-retention-days: 0`. Copies **leaf** keys only, so the template's new defaults inside existing sections (`logging`) survive |
+| 13   | `Migration13` | Adds `update-checker: true`, `logging.operations-retention-days: 0`, the `feedback` section (defaults on) and the `erase` section (`enabled: false`) plus `event-priorities.erase` / `erase-click`. Copies **leaf** keys only, so the template's new defaults inside existing sections (`logging`) survive |
 
 Each step needs both a `MigrationN` class and a full-default `migrations/N.yml` template; `ConfigMigrations.apply`
 saves the template of the *last* step, so every `migrations/N.yml` must contain every key of that version. The migrated

@@ -279,6 +279,49 @@ Same as disenchantment variant but reads from `Config.Shatterment.getEnchantment
 
 ---
 
+## `EraseUtils`
+
+`utils/EraseUtils.java` - pure logic of erase mode.
+
+| Method                                                             | Description                                                                                                                                         |
+|--------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------|
+| `parseCatalysts(List<String>)`                                     | `Material.matchMaterial` each entry; unknown names and `BOOK` / `ENCHANTED_BOOK` / air are skipped with a warning.                                  |
+| `getCatalysts()`                                                   | Parsed `erase.catalysts`, cached per raw list (warnings are logged once). `clearCache()` resets it.                                                 |
+| `isActive()`                                                       | `erase.enabled` and at least one usable catalyst.                                                                                                   |
+| `isCatalyst(ItemStack)`                                            | Material match only.                                                                                                                                |
+| `getErasableEnchantments(first, second[, isPrepare[, plugin, world]])` | Empty unless the second item is a catalyst, the first is not a book or a stack and its material is not restricted (disenchantment materials, `bypass.material` honoured). A `DISABLE` state refuses everything; `KEEP` and (unless `erase.erase-curses`) curses are filtered out; `DELETE` is erased. |
+| `isCurse(IPluginEnchantment)`                                      | Key ends in `_curse`, or (vanilla keys) `Enchantment#isCursed()` in a try/catch.                                                                    |
+| `buildResult(first, toErase)`                                      | Clone of `first` with `removeFromItem` applied for each enchantment (works for adapter enchantments too).                                           |
+
+---
+
+## `FeedbackUtils`
+
+`utils/FeedbackUtils.java` - refusal feedback. `tryAcquireMessageSlot` / `sendRefusalMessage` implement the 1 s per-player
+debounce (a `ConcurrentHashMap<UUID, Long>`, injectable clock via `setClock` for tests, cleared on quit by
+`AnvilSessionListener`). `refuse`, `refuseNotEnoughXp` and `playFailureSound` are described in
+[EVENTS.md - Feedback hooks](EVENTS.md#feedback-hooks).
+
+---
+
+## `ParticleUtils`
+
+`utils/ParticleUtils.java` - `resolve(List<String>)` maps configured names to `Particle` constants through
+`Particle.class.getField(name)` (so a future enum -> interface change cannot throw `IncompatibleClassChangeError`),
+keeps only particles with `getDataType() == Void.class`, de-duplicates, caches per list and logs one warning when nothing
+resolves. `spawn(...)` sends them to the player (`PLAYER`) or the world (`WORLD`); `anvilEffectLocation` is the
+anvil block's centre top (`+0.5, +1, +0.5`) or one block above the player for a virtual anvil. `playSuccess` /
+`playErase` read the `feedback.particles.*` config.
+
+---
+
+## `PreviewLore`
+
+`utils/PreviewLore.java` - `append(item, lines)` adds lines to the lore and records the count in the item's PDC
+(`disenchantment:preview_lines`, `INTEGER`); `strip(item)` removes exactly that many trailing lines and the key (lore
+becomes `null` when empty), idempotent; `previewLines(...)` builds the "Transfers" and "Cost" lines.
+
+---
 ## `SchedulerUtils`
 
 `utils/SchedulerUtils.java`
