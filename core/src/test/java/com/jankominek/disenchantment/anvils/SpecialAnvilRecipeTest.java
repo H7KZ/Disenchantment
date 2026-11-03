@@ -112,4 +112,39 @@ class SpecialAnvilRecipeTest extends DisenchantmentTestBase {
 
         assertNotNull(SpecialAnvilRecipe.build());
     }
+
+    // -> reload may run on a region thread (Folia): the recipe manager belongs to the global region
+
+    @Test
+    void givenFolia_whenReregistered_thenWorkIsHandedToTheGlobalScheduler() {
+        setConfig("special-anvils.recipe.enabled", true);
+        java.util.List<Runnable> scheduled = new java.util.ArrayList<>();
+
+        SpecialAnvilRecipe.reregister(true, scheduled::add);
+
+        assertEquals(1, scheduled.size());
+        assertNull(Bukkit.getRecipe(SpecialAnvilRecipe.key()), "Nothing runs on the calling thread");
+
+        scheduled.get(0).run();
+
+        assertNotNull(Bukkit.getRecipe(SpecialAnvilRecipe.key()));
+    }
+
+    @Test
+    void givenNotFolia_whenReregistered_thenRegisteredImmediately() {
+        setConfig("special-anvils.recipe.enabled", true);
+
+        SpecialAnvilRecipe.reregister(false, task -> fail("no scheduler off Folia"));
+
+        assertNotNull(Bukkit.getRecipe(SpecialAnvilRecipe.key()));
+    }
+
+    @Test
+    void whenReregisteredWithDefaults_thenServerDefaultsToImmediateRegistration() {
+        setConfig("special-anvils.recipe.enabled", true);
+
+        SpecialAnvilRecipe.reregister();
+
+        assertNotNull(Bukkit.getRecipe(SpecialAnvilRecipe.key()));
+    }
 }

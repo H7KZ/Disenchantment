@@ -306,7 +306,8 @@ public class Disenchantment extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new GUIClickEvent(), plugin);
         getServer().getPluginManager().registerEvents(new SpecialAnvilListener(), plugin);
         getServer().getPluginManager().registerEvents(new BedrockListener(), plugin);
-        SpecialAnvilRecipe.register();
+        // The reload command may run on a region thread (Folia), which does not own the recipe manager.
+        SpecialAnvilRecipe.reregister();
 
         // 6. Re-detect plugin adapters
         SupportedPluginManager.deactivateAllPlugins();

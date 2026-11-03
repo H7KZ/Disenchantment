@@ -2,6 +2,7 @@ package com.jankominek.disenchantment.anvils;
 
 import com.jankominek.disenchantment.config.Config;
 import com.jankominek.disenchantment.config.ConfigValues;
+import com.jankominek.disenchantment.utils.SchedulerUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -13,6 +14,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 
 import static com.jankominek.disenchantment.Disenchantment.logger;
 import static com.jankominek.disenchantment.Disenchantment.plugin;
@@ -59,6 +61,24 @@ public class SpecialAnvilRecipe {
         } catch (Exception e) {
             logger.warning("Config: the special anvil recipe could not be registered: " + e.getMessage());
             return false;
+        }
+    }
+
+    /**
+     * Re-registers the recipe from a thread that may not own the server's recipe manager (the {@code reload}
+     * command). On Folia the recipe manager belongs to the global region, so the work is handed to the global
+     * scheduler; elsewhere it runs immediately.
+     */
+    public static void reregister() {
+        reregister(SchedulerUtils.isFolia(), task -> SchedulerUtils.runGlobal(plugin, task));
+    }
+
+    // Injectable for tests: Folia cannot be started in the unit tests.
+    static void reregister(boolean folia, Consumer<Runnable> globalRunner) {
+        if (folia) {
+            globalRunner.accept(SpecialAnvilRecipe::register);
+        } else {
+            register();
         }
     }
 

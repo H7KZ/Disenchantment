@@ -223,7 +223,7 @@ it is closed with an **operation-pending** mark:
 | `SpecialAnvilStore`   | Chunk-PDC marks: key `disenchantment:special_anvils`, `LONG_ARRAY` of packed local positions `(x&15) \| (z&15)<<4 \| (y+2048)<<8` (y -2048..2047). `isMarked` validates the block is an anvil and prunes stale marks; `mark` does not validate. |
 | `SpecialAnvilItem`    | `ANVIL` (any damage state) + item PDC `disenchantment:special_anvil` (BYTE 1) and configured name/lore. Identified by PDC only. |
 | `SpecialAnvilListener`| Plain `@EventHandler` listener, registered in `enable()`/`reload()` regardless of mode (see below).          |
-| `SpecialAnvilRecipe`  | `ShapedRecipe` `disenchantment:special_anvil`; `register()` removes then re-adds; `unregister()` on disable. `ANVIL` ingredient = MaterialChoice of all three states. |
+| `SpecialAnvilRecipe`  | `ShapedRecipe` `disenchantment:special_anvil`; `register()` removes then re-adds; `reregister()` (used by `reload()`) hands `register()` to `SchedulerUtils.runGlobal` on Folia, where the recipe manager belongs to the global region; `unregister()` on disable. `ANVIL` ingredient = MaterialChoice of all three states. |
 
 Listener behaviour (all MONITOR + `ignoreCancelled` unless noted):
 
@@ -452,7 +452,8 @@ each handler: the `EconomyConfig`, enabled/world checks, permission group, cost 
 looked up by name (`org.bukkit.event...` first, Paper's legacy one second; only the first found is registered) and
 handled as a plain `Event`: the inventory comes from `InventoryEvent#getInventory()` (`instanceof GrindstoneInventory`) and
 the result is set through a cached reflective `setResult(ItemStack)`. If neither class exists the listener logs an INFO
-line and uses a **tick-based fallback**: after any click on a grindstone it schedules (`SchedulerUtils.runForEntityLater`,
+line and uses a **tick-based fallback**: after any click on a grindstone (and any `InventoryDragEvent` into it, which
+changes the inputs without a click; registered only in this fallback, `ignoreCancelled`) it schedules (`SchedulerUtils.runForEntityLater`,
 1 tick) `GrindstoneEvent.refresh`, which runs the same `prepare` logic and writes slot 2 directly.
 
 Research notes: Paper's `GrindstoneMenu` patch calls `callPrepareGrindstoneEvent(view, computeResult(...))`
