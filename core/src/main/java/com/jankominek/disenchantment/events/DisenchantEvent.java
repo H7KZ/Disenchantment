@@ -40,28 +40,6 @@ public class DisenchantEvent {
         }
     }
 
-    private static final AnvilEventGuards.EconomyConfig ECONOMY_CONFIG = new AnvilEventGuards.EconomyConfig() {
-        @Override
-        public boolean isEnabled() {
-            return Config.Disenchantment.Economy.isEnabled();
-        }
-
-        @Override
-        public double getCost() {
-            return Config.Disenchantment.Economy.getCost();
-        }
-
-        @Override
-        public boolean isChargeMessageEnabled() {
-            return Config.Disenchantment.Economy.isChargeMessageEnabled();
-        }
-
-        @Override
-        public boolean isShowCostEnabled() {
-            return Config.Disenchantment.Economy.isShowCostEnabled();
-        }
-    };
-
     private static void handler(Event event) {
         if (!(event instanceof PrepareAnvilEvent e)) return;
 
@@ -88,11 +66,7 @@ public class DisenchantEvent {
         DiagnosticUtils.debug("DISENCHANT", () -> "PrepareAnvil: slot0=" + (firstItem != null ? firstItem.getType() : "null")
                 + ", slot1=" + (secondItem != null ? secondItem.getType() : "null"));
 
-        List<IPluginEnchantment> pluginEnchantments = AnvilEventGuards.collectEnchantments(
-                firstItem, secondItem, true,
-                EventUtils.Disenchantment::getDisenchantedEnchantments,
-                EventUtils.Disenchantment::getDisenchantedEnchantments,
-                p.getWorld(), p);
+        List<IPluginEnchantment> pluginEnchantments = AnvilOperations.collect(AnvilOperations.Kind.DISENCHANT, p, firstItem, secondItem, true);
 
         if (pluginEnchantments.isEmpty()) {
             DiagnosticUtils.debug("DISENCHANT", "PrepareAnvil: no eligible enchantments → exit");
@@ -133,17 +107,12 @@ public class DisenchantEvent {
         // ----------------------------------------------------------------------------------------------------
         // Disenchantment plugins
 
-        ItemStack book = new ItemStack(Material.ENCHANTED_BOOK);
-
-        for (IPluginEnchantment pluginEnchantment : pluginEnchantments) {
-            book = pluginEnchantment.addToBook(book);
-        }
+        ItemStack book = AnvilOperations.buildBook(pluginEnchantments);
 
         boolean anyChanceBelowOne = pluginEnchantments.stream()
                 .anyMatch(ench -> Config.Disenchantment.getEnchantmentChance(ench.getKey()) < 1.0);
 
-        double economyCost = AnvilCostUtils.economyCostForEnchantments(
-                pluginEnchantments, Config.Disenchantment.Economy.getCost(), Config.Disenchantment.Anvil.Repair.getEnchantmentEconomyCosts());
+        double economyCost = AnvilOperations.economyCost(AnvilOperations.Kind.DISENCHANT, pluginEnchantments);
 
         // Everything appended here is marked as preview lore and stripped again when the player takes the
         // book (DisenchantClickEvent) — the chance warning must not stay on the book permanently.
@@ -165,6 +134,6 @@ public class DisenchantEvent {
                 + ", show-cost=" + Config.Disenchantment.Economy.isShowCostEnabled()
                 + ", gameMode=" + p.getGameMode());
 
-        AnvilEventGuards.showEconomyActionBarCost(p, ECONOMY_CONFIG, economyCost);
+        AnvilEventGuards.showEconomyActionBarCost(p, AnvilOperations.Kind.DISENCHANT.economy(), economyCost);
     }
 }
