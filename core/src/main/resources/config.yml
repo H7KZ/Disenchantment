@@ -285,7 +285,8 @@ grindstone:
 # books and erasing do not work in the real anvil for them. With this enabled, "/disenchantment anvil" (or
 # "/disenchant anvil") opens a chest menu that does the same: tap an item in your inventory to put it in, tap
 # "Confirm" to do it. Java players are not affected unless allow-java-players is true.
-# With special-anvils.mode other than ALL the command only works within 5 blocks of a special anvil.
+# With special-anvils.mode other than ALL the player must look at a special anvil within 5 blocks that they may use
+# (claim/region plugins are asked). In ALL mode the command works anywhere, like a virtual anvil.
 bedrock:
   fallback-enabled: false
   # false = only players detected as Bedrock players (see detect) may open the menu.

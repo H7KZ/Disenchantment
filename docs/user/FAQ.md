@@ -252,7 +252,8 @@ step-by-step is in the [how-to](HOW_TO.md#let-bedrock-players-use-the-anvil-geys
 
 Common reasons the command says no: the fallback is disabled; the player is not recognised as a Bedrock player (install
 Floodgate, or make sure `detect` includes `UUID`/`PREFIX` matching how your proxy names them, or set
-`allow-java-players: true`); `special-anvils.mode` is not `ALL` and no special anvil is within 5 blocks.
+`allow-java-players: true`); `special-anvils.mode` is not `ALL` and the player is not looking at a special anvil within 5 blocks (or a claim/region plugin
+forbids using it).
 
 ---
 

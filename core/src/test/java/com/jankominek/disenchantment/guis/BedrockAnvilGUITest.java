@@ -57,6 +57,8 @@ class BedrockAnvilGUITest extends DisenchantmentTestBase {
         setConfig("bedrock.fallback-enabled", true);
         player = server.addPlayer(".Steve");
         player.setLevel(30);
+        // Teleport before any block is marked: MockBukkit forgets chunk data when the player's chunk is (re)loaded.
+        player.teleport(new Location(world(), 0.5, 64, 0.5));
 
         // A controllable clock for the confirm debounce; starts far from "zero" so the first confirm passes.
         clock = new AtomicInteger(1_000_000);
@@ -933,69 +935,146 @@ class BedrockAnvilGUITest extends DisenchantmentTestBase {
     }
 
     // ----------------------------------------------------------------------------------------------------
-    // Special anvils (#62 must not be bypassable)
+    // Special anvils (#62 must not be bypassable): the player must look at one, and be allowed to use it
+
+    private org.bukkit.block.Block lookingAt;
+
+    private org.bukkit.block.Block anvilAt(int x, int y, int z, boolean marked) {
+        var block = world().getBlockAt(x, y, z);
+        block.setType(Material.ANVIL);
+        if (marked) com.jankominek.disenchantment.anvils.SpecialAnvilStore.mark(block);
+        return block;
+    }
+
+    private void lookAt(org.bukkit.block.Block block) {
+        lookingAt = block;
+        BedrockAnvilGUI.setTargetResolver(p -> lookingAt);
+    }
+
+    @AfterEach
+    void resetResolver() {
+        BedrockAnvilGUI.setTargetResolver(null);
+    }
 
     @Test
-    void givenMarkedMode_whenNoSpecialAnvilNearby_thenMenuRefusesToOpen() {
-        setConfig("special-anvils.mode", "MARKED");
-        world().getBlockAt(2, 64, 2).setType(Material.ANVIL);
+    void givenAllMode_thenCommandWorksAnywhereWithoutLookingAtAnything() {
+        BedrockAnvilGUI.setTargetResolver(p -> null);
 
-        assertFalse(BedrockAnvilGUI.tryOpen(player, null), "a plain anvil is not a special anvil");
+        assertTrue(BedrockAnvilGUI.tryOpen(player, null));
+    }
+
+    @Test
+    void givenMarkedMode_whenNotLookingAtAnything_thenRefusedEvenNextToAMarkedAnvil() {
+        setConfig("special-anvils.mode", "MARKED");
+        anvilAt(2, 64, 2, true);
+        lookAt(null);
+
+        assertFalse(BedrockAnvilGUI.tryOpen(player, null), "being near a special anvil is not enough");
 
         assertNull(BedrockAnvilGUI.of(player));
         assertEquals(org.bukkit.ChatColor.stripColor(I18n.getPrefix() + " " + I18n.Messages.specialAnvilRequired()), org.bukkit.ChatColor.stripColor(player.nextMessage()));
     }
 
     @Test
-    void givenMarkedMode_whenMarkedAnvilWithinFiveBlocks_thenOpens() {
+    void givenMarkedMode_whenLookingAtANonAnvilBlock_thenRefused() {
         setConfig("special-anvils.mode", "MARKED");
-        player.teleport(new Location(world(), 0.5, 64, 0.5));
-        var block = world().getBlockAt(3, 64, 3);
-        block.setType(Material.ANVIL);
-        com.jankominek.disenchantment.anvils.SpecialAnvilStore.mark(block);
+        anvilAt(2, 64, 2, true);
+        var stone = world().getBlockAt(3, 64, 0);
+        stone.setType(Material.STONE);
+        lookAt(stone);
 
-        assertTrue(BedrockAnvilGUI.tryOpen(player, null));
+        assertFalse(BedrockAnvilGUI.tryOpen(player, null));
+        assertNull(BedrockAnvilGUI.of(player));
     }
 
     @Test
-    void givenMarkedMode_whenMarkedAnvilTooFarAway_thenRefuses() {
+    void givenMarkedMode_whenLookingAtAPlainAnvil_thenRefused() {
         setConfig("special-anvils.mode", "MARKED");
-        player.teleport(new Location(world(), 0.5, 64, 0.5));
-        var block = world().getBlockAt(12, 64, 12);
-        block.setType(Material.ANVIL);
-        com.jankominek.disenchantment.anvils.SpecialAnvilStore.mark(block);
+        lookAt(anvilAt(3, 64, 3, false));
 
         assertFalse(BedrockAnvilGUI.tryOpen(player, null));
     }
 
     @Test
-    void givenBlockBelowMode_whenAnvilStandsOnTheBlock_thenOpens() {
+    void givenMarkedMode_whenLookingAtAMarkedAnvil_thenOpens() {
+        setConfig("special-anvils.mode", "MARKED");
+        lookAt(anvilAt(3, 64, 3, true));
+
+        assertTrue(BedrockAnvilGUI.tryOpen(player, null));
+    }
+
+    @Test
+    void givenBlockBelowMode_thenTheLookedAtAnvilMustStandOnTheBlock() {
         setConfig("special-anvils.mode", "BLOCK_BELOW");
         setConfig("special-anvils.block-below", "LAPIS_BLOCK");
-        player.teleport(new Location(world(), 0.5, 64, 0.5));
         world().getBlockAt(2, 63, 2).setType(Material.LAPIS_BLOCK);
-        world().getBlockAt(2, 64, 2).setType(Material.ANVIL);
+        var good = anvilAt(2, 64, 2, false);
+        world().getBlockAt(-2, 63, 2).setType(Material.STONE);
+        var bad = anvilAt(-2, 64, 2, false);
 
+        lookAt(bad);
+        assertFalse(BedrockAnvilGUI.tryOpen(player, null));
+        lookAt(good);
         assertTrue(BedrockAnvilGUI.tryOpen(player, null));
     }
 
     @Test
-    void givenBlockBelowMode_whenAnvilStandsOnSomethingElse_thenRefuses() {
-        setConfig("special-anvils.mode", "BLOCK_BELOW");
-        player.teleport(new Location(world(), 0.5, 64, 0.5));
-        world().getBlockAt(2, 63, 2).setType(Material.STONE);
-        world().getBlockAt(2, 64, 2).setType(Material.ANVIL);
+    void givenAProtectionPluginCancelsTheInteract_thenRefusedAndNothingOpens() {
+        setConfig("special-anvils.mode", "MARKED");
+        lookAt(anvilAt(3, 64, 3, true));
+        AtomicInteger probes = new AtomicInteger();
+        server.getPluginManager().registerEvents(new Listener() {
+            @EventHandler
+            public void onInteract(org.bukkit.event.player.PlayerInteractEvent e) {
+                probes.incrementAndGet();
+                e.setCancelled(true);
+            }
+        }, plugin);
+
+        assertFalse(BedrockAnvilGUI.tryOpen(player, null));
+
+        assertEquals(1, probes.get(), "the access probe is a right click on that anvil");
+        assertNull(BedrockAnvilGUI.of(player));
+    }
+
+    @Test
+    void givenAProtectionPluginDeniesBlockUse_thenRefused() {
+        setConfig("special-anvils.mode", "MARKED");
+        lookAt(anvilAt(3, 64, 3, true));
+        server.getPluginManager().registerEvents(new Listener() {
+            @EventHandler
+            public void onInteract(org.bukkit.event.player.PlayerInteractEvent e) {
+                e.setUseInteractedBlock(org.bukkit.event.Event.Result.DENY);
+            }
+        }, plugin);
 
         assertFalse(BedrockAnvilGUI.tryOpen(player, null));
     }
 
     @Test
-    void givenSpecialAnvilGoneAfterOpening_thenConfirmIsRefused() {
+    void givenSneakModeAndSneaking_thenTheProbeIsNotMistakenForARealSneakClick() {
         setConfig("special-anvils.mode", "MARKED");
-        player.teleport(new Location(world(), 0.5, 64, 0.5));
-        var block = world().getBlockAt(3, 64, 3);
-        block.setType(Material.ANVIL);
-        com.jankominek.disenchantment.anvils.SpecialAnvilStore.mark(block);
+        setConfig("bedrock.open-on-sneak-click", true);
+        player.setSneaking(true);
+        lookAt(anvilAt(3, 64, 3, true));
+        AtomicInteger menusOpenedDuringProbe = new AtomicInteger();
+        server.getPluginManager().registerEvents(new Listener() {
+            @EventHandler(priority = org.bukkit.event.EventPriority.MONITOR)
+            public void onInteract(org.bukkit.event.player.PlayerInteractEvent e) {
+                if (BedrockAnvilGUI.of(player) != null) menusOpenedDuringProbe.incrementAndGet();
+            }
+        }, plugin);
+
+        assertTrue(BedrockAnvilGUI.tryOpen(player, null));
+
+        assertEquals(0, menusOpenedDuringProbe.get(), "our own listener ignores the synthetic event");
+    }
+
+    @Test
+    void givenSpecialAnvilBrokenAfterOpening_thenNextClickClosesAndReturnsItems() {
+        setConfig("special-anvils.mode", "MARKED");
+        var block = anvilAt(3, 64, 3, true);
+        lookAt(block);
         give(0, sword("sharpness", 5));
         give(1, new ItemStack(Material.BOOK));
         assertTrue(BedrockAnvilGUI.tryOpen(player, null));
@@ -1005,19 +1084,108 @@ class BedrockAnvilGUITest extends DisenchantmentTestBase {
         block.setType(Material.AIR);
         tapMenu(SLOT_CONFIRM);
 
-        assertEquals(0, disenchanted.get(), "the menu cannot be used without a special anvil nearby");
+        assertEquals(0, disenchanted.get());
         assertEquals(30, player.getLevel());
-        assertEquals(5, menu().getItem(SLOT_ITEM).getEnchantmentLevel(enchantment("sharpness")));
+        assertNull(BedrockAnvilGUI.of(player), "the menu was closed");
+        assertEquals(1, count(Material.DIAMOND_SWORD));
+        assertEquals(1, count(Material.BOOK));
+        assertNotNull(firstOf(Material.DIAMOND_SWORD), "returned to the inventory");
+        assertEquals(5, firstOf(Material.DIAMOND_SWORD).getEnchantmentLevel(enchantment("sharpness")));
+    }
+
+    @Test
+    void givenSpecialAnvilUnmarkedAfterOpening_thenConfirmIsRefusedAndItemsReturned() {
+        setConfig("special-anvils.mode", "MARKED");
+        var block = anvilAt(3, 64, 3, true);
+        lookAt(block);
+        give(0, sword("sharpness", 5));
+        give(1, new ItemStack(Material.BOOK));
+        assertTrue(BedrockAnvilGUI.tryOpen(player, null));
+        tapInventory(0);
+        tapInventory(1);
+
+        com.jankominek.disenchantment.anvils.SpecialAnvilStore.unmark(block);
+        tapMenu(SLOT_CONFIRM);
+
+        assertEquals(0, disenchanted.get());
+        assertNull(BedrockAnvilGUI.of(player));
+        assertNotNull(firstOf(Material.DIAMOND_SWORD));
+        assertNotNull(firstOf(Material.BOOK));
+    }
+
+    // MockBukkit closes the open inventory on teleport (the real server does not), so the distance and world
+    // rules are checked on the requirement itself instead of through a click after the teleport.
+    @Test
+    void givenPlayerWalksAwayFromTheAnvil_thenTheRequirementNoLongerHolds() {
+        setConfig("special-anvils.mode", "MARKED");
+        lookAt(anvilAt(3, 64, 3, true));
+        assertTrue(BedrockAnvilGUI.tryOpen(player, null));
+        BedrockAnvilGUI gui = BedrockAnvilGUI.of(player);
+        assertTrue(gui.specialAnvilHolds());
+
+        player.teleport(new Location(world(), 40.5, 64, 40.5));
+
+        assertFalse(gui.specialAnvilHolds());
+    }
+
+    @Test
+    void givenPlayerStaysWithinSixBlocks_thenTheRequirementHolds() {
+        setConfig("special-anvils.mode", "MARKED");
+        lookAt(anvilAt(3, 64, 3, true));
+        assertTrue(BedrockAnvilGUI.tryOpen(player, null));
+        BedrockAnvilGUI gui = BedrockAnvilGUI.of(player);
+
+        player.teleport(new Location(world(), 3.5, 64, 8.5));
+        assertTrue(gui.specialAnvilHolds(), "5 blocks away");
+
+        player.teleport(new Location(world(), 3.5, 64, 11.5));
+        assertFalse(gui.specialAnvilHolds(), "8 blocks away");
+    }
+
+    @Test
+    void givenPlayerChangesWorld_thenTheRequirementNoLongerHolds() {
+        setConfig("special-anvils.mode", "MARKED");
+        lookAt(anvilAt(3, 64, 3, true));
+        assertTrue(BedrockAnvilGUI.tryOpen(player, null));
+        BedrockAnvilGUI gui = BedrockAnvilGUI.of(player);
+
+        player.teleport(new Location(server.addSimpleWorld("other"), 3.5, 65, 3.5));
+
+        assertFalse(gui.specialAnvilHolds());
+    }
+
+    @Test
+    void givenModeSwitchedToAllWhileOpen_thenNothingIsRequiredAnymore() {
+        setConfig("special-anvils.mode", "MARKED");
+        lookAt(anvilAt(3, 64, 3, true));
+        assertTrue(BedrockAnvilGUI.tryOpen(player, null));
+        BedrockAnvilGUI gui = BedrockAnvilGUI.of(player);
+
+        setConfig("special-anvils.mode", "ALL");
+
+        assertTrue(gui.specialAnvilHolds());
+    }
+
+    @Test
+    void givenSpecialAnvilStillThereWithinReach_thenConfirmWorks() {
+        setConfig("special-anvils.mode", "MARKED");
+        lookAt(anvilAt(3, 64, 3, true));
+        give(0, sword("sharpness", 5));
+        give(1, new ItemStack(Material.BOOK));
+        assertTrue(BedrockAnvilGUI.tryOpen(player, null));
+        tapInventory(0);
+        tapInventory(1);
+
+        tapMenu(SLOT_CONFIRM);
+
+        assertEquals(1, disenchanted.get());
     }
 
     @Test
     void givenSneakClickedAnvil_thenThatAnvilMustBeSpecial() {
         setConfig("special-anvils.mode", "MARKED");
-        var plain = world().getBlockAt(3, 64, 3);
-        plain.setType(Material.ANVIL);
-        var special = world().getBlockAt(-3, 64, 3);
-        special.setType(Material.ANVIL);
-        com.jankominek.disenchantment.anvils.SpecialAnvilStore.mark(special);
+        var plain = anvilAt(3, 64, 3, false);
+        var special = anvilAt(-3, 64, 3, true);
 
         assertFalse(BedrockAnvilGUI.tryOpen(player, plain));
         assertTrue(BedrockAnvilGUI.tryOpen(player, special));

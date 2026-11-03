@@ -54,9 +54,12 @@ public class BedrockListener implements Listener {
     /**
      * Opens the menu when a Bedrock player sneak-right-clicks an anvil, if {@code bedrock.open-on-sneak-click} is on.
      */
-    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    // Late, and skipping cancelled events: a claim/region plugin that vetoed the click must be respected.
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onInteract(PlayerInteractEvent e) {
         try {
+            if (BedrockAnvilGUI.isProbing()) return;
+            if (e.useInteractedBlock() == Event.Result.DENY) return;
             if (e.getAction() != Action.RIGHT_CLICK_BLOCK || e.getHand() != EquipmentSlot.HAND) return;
             if (!Config.Bedrock.isFallbackEnabled() || !Config.Bedrock.isOpenOnSneakClick()) return;
 

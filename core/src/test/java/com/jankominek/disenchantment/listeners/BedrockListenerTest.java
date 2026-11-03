@@ -31,6 +31,7 @@ class BedrockListenerTest extends DisenchantmentTestBase {
         setConfig("bedrock.open-on-sneak-click", true);
         bedrock = server.addPlayer(".Steve");
         bedrock.setSneaking(true);
+        bedrock.teleport(new org.bukkit.Location(world(), 2.5, 64, 2.5));
         anvil = world().getBlockAt(4, 64, 4);
         anvil.setType(Material.ANVIL);
     }
@@ -97,6 +98,34 @@ class BedrockListenerTest extends DisenchantmentTestBase {
 
         assertNull(BedrockAnvilGUI.of(java));
         assertFalse(event.isCancelled(), "a Java player's sneak-click keeps its vanilla meaning");
+    }
+
+    @Test
+    void givenProtectionPluginCancelledTheClickEarlier_thenNoMenuOpens() {
+        server.getPluginManager().registerEvents(new org.bukkit.event.Listener() {
+            @org.bukkit.event.EventHandler(priority = org.bukkit.event.EventPriority.HIGH)
+            public void onInteract(PlayerInteractEvent e) {
+                e.setCancelled(true);
+            }
+        }, plugin);
+
+        interact(bedrock, anvil, Action.RIGHT_CLICK_BLOCK, EquipmentSlot.HAND);
+
+        assertNull(BedrockAnvilGUI.of(bedrock), "a vetoed click must not open the menu");
+    }
+
+    @Test
+    void givenProtectionPluginDeniedBlockUseEarlier_thenNoMenuOpens() {
+        server.getPluginManager().registerEvents(new org.bukkit.event.Listener() {
+            @org.bukkit.event.EventHandler(priority = org.bukkit.event.EventPriority.HIGH)
+            public void onInteract(PlayerInteractEvent e) {
+                e.setUseInteractedBlock(org.bukkit.event.Event.Result.DENY);
+            }
+        }, plugin);
+
+        interact(bedrock, anvil, Action.RIGHT_CLICK_BLOCK, EquipmentSlot.HAND);
+
+        assertNull(BedrockAnvilGUI.of(bedrock));
     }
 
     @Test

@@ -270,38 +270,6 @@ public final class AnvilEventGuards {
     }
 
     /**
-     * Returns whether the player stands within {@code radius} blocks of an anvil that may perform plugin
-     * operations. Always {@code true} in {@code special-anvils.mode: ALL}. This is what keeps a menu that is
-     * not tied to an anvil block (the Bedrock chest menu) from bypassing the special anvil restriction.
-     *
-     * @param p      the player
-     * @param radius the search radius in blocks (a cube around the player)
-     * @return {@code true} if a special anvil is close enough or every anvil counts as special
-     */
-    public static boolean isSpecialAnvilNearby(Player p, int radius) {
-        if (Config.SpecialAnvils.getMode() == SpecialAnvilMode.ALL) return true;
-
-        Location origin = p.getLocation();
-        World world = origin.getWorld();
-        if (world == null) return false;
-
-        int ox = origin.getBlockX();
-        int oy = origin.getBlockY();
-        int oz = origin.getBlockZ();
-
-        // The player stands there, so the chunks around them are loaded.
-        for (int x = ox - radius; x <= ox + radius; x++) {
-            for (int z = oz - radius; z <= oz + radius; z++) {
-                for (int y = oy - radius; y <= oy + radius; y++) {
-                    if (isSpecialAnvilBlock(world.getBlockAt(x, y, z))) return true;
-                }
-            }
-        }
-
-        return false;
-    }
-
-    /**
      * Tells the player that the anvil is not a special anvil, at most once every few seconds
      * (Prepare fires on every keystroke). Does nothing unless {@code special-anvils.hint-message} is on.
      *

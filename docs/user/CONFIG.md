@@ -946,9 +946,13 @@ detects the operation, Confirm and Cancel.
 - *Nothing is lost:* closing the menu, Cancel, disconnecting, a kick, `/disenchantment reload` and plugin disable all hand the
   items in the menu back; if your inventory is full they drop at your feet. A server crash while a menu is open loses
   the items in it, as it does for any open container.
-- *Special anvils:* with `special-anvils.mode` other than `ALL` the command only opens within 5 blocks of a special
-  anvil (the sneak-click trigger needs the clicked anvil itself to be special), and Confirm checks again, so the menu
-  cannot be used to get around the restriction.
+- *Special anvils:* with `special-anvils.mode` other than `ALL` the command only opens while the player **looks at** a
+  special anvil within 5 blocks (not merely near one, so not through a wall), and only if a synthetic right-click on
+  that anvil is not cancelled, so WorldGuard, GriefPrevention and similar plugins decide whether the player may use it.
+  The anvil is remembered; every click re-checks that it is still a special anvil in the same world within 6 blocks,
+  otherwise the menu closes and the items come back. The sneak-click trigger uses the real click (and respects a
+  cancellation by an earlier plugin). In `ALL` mode the command works anywhere, acting like a virtual anvil: enabling
+  the fallback is an explicit decision to allow that.
 
 These keys are read every time they are used, so a change applies on the next command or tap; `/disenchantment reload` re-reads the file.
 

@@ -54,8 +54,9 @@ Several commands let you configure per-enchantment behavior. The following state
 cannot see custom anvil results (Geyser/Bedrock). It is the one subcommand every player may run by default, so it is
 exempt from the base `disenchantment.command.use` check; every other subcommand still needs it. It does nothing
 unless `bedrock.fallback-enabled` is `true`, refuses players who are not detected as Bedrock players unless
-`bedrock.allow-java-players` is `true`, and, when `special-anvils.mode` is not `ALL`, only opens within 5 blocks of a
-special anvil. Tap an item in your inventory to put one into the menu, tap Confirm to do it, Cancel (or closing the
+`bedrock.allow-java-players` is `true`, and, when `special-anvils.mode` is not `ALL`, only opens while you **look at** a
+special anvil within 5 blocks that you are allowed to use (claim and region plugins are asked, as for a right-click).
+In `ALL` mode it works anywhere, like a virtual anvil. Tap an item in your inventory to put one into the menu, tap Confirm to do it, Cancel (or closing the
 menu) gives your items back. See [Bedrock Fallback](CONFIG.md#bedrock-fallback) and the
 [setup guide](HOW_TO.md#let-bedrock-players-use-the-anvil-geyser).
 

@@ -531,7 +531,7 @@ Bedrock clients connected through Geyser cannot see the plugin's anvil results, 
    **Confirm**. Tap an item in the menu to take it back, **Cancel** or close the menu to get everything back.
 
 Players need the usual `disenchantment.anvil.disenchant` / `.shatter` / `.erase` permissions. If you use
-[special anvils](#restrict-disenchanting-to-special-anvils) the command only works within 5 blocks of one.
+[special anvils](#restrict-disenchanting-to-special-anvils) the command only works while looking at one within 5 blocks that the player may use.
 See [Bedrock Fallback](CONFIG.md#bedrock-fallback) for every option.
 
 ---

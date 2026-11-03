@@ -18,7 +18,14 @@ import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
+import org.bukkit.Location;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
+import org.bukkit.event.Event;
+import org.bukkit.event.block.Action;
+import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.EquipmentSlot;
+import com.jankominek.disenchantment.types.SpecialAnvilMode;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -34,6 +41,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
 import java.util.function.LongSupplier;
 
 /**
@@ -92,9 +100,14 @@ public class BedrockAnvilGUI implements InventoryHolder {
     private static final int SLOT_LABEL_RESULT = 23;
 
     /**
-     * How far from the player a special anvil must be when {@code special-anvils.mode} is not {@code ALL}.
+     * How far away the player may look at the special anvil to open the menu by command.
      */
-    public static final int SPECIAL_ANVIL_RADIUS = 5;
+    public static final int REACH = 5;
+
+    /**
+     * How far from the remembered special anvil the player may be while the menu is open.
+     */
+    public static final int LEAVE_DISTANCE = 6;
 
     /**
      * Minimum time between two successful confirmations, so a double tap cannot run (and charge) twice.
@@ -106,11 +119,43 @@ public class BedrockAnvilGUI implements InventoryHolder {
 
     private static volatile LongSupplier clock = System::currentTimeMillis;
 
+    private static volatile Function<Player, Block> targetResolver = BedrockAnvilGUI::lookedAtBlock;
+
+    // True while a synthetic interact event is being fired, so our own listener does not react to it.
+    private static final ThreadLocal<Boolean> PROBING = ThreadLocal.withInitial(() -> false);
+
+    private static Block lookedAtBlock(Player p) {
+        try {
+            return p.getTargetBlockExact(REACH);
+        } catch (RuntimeException e) {
+            return null;
+        }
+    }
+
+    /**
+     * Replaces how the block the player looks at is found. Intended for tests.
+     *
+     * @param resolver finds the block within reach, or {@code null} to restore the default ray trace
+     */
+    public static void setTargetResolver(Function<Player, Block> resolver) {
+        targetResolver = resolver == null ? BedrockAnvilGUI::lookedAtBlock : resolver;
+    }
+
+    /**
+     * Returns whether our own synthetic access probe is being dispatched right now.
+     *
+     * @return {@code true} while {@link #tryOpen} fires its probe event
+     */
+    public static boolean isProbing() {
+        return PROBING.get();
+    }
+
     private final Player player;
     private final Inventory inventory;
     private boolean finished;
     private boolean busy;
-    private boolean specialAnvilReady;
+    // The special anvil this menu is tied to; null when special-anvils.mode is ALL (the menu then acts like a virtual anvil).
+    private final Block anvil;
     private long lastConfirmAt = Long.MIN_VALUE / 2;
 
     // ----------------------------------------------------------------------------------------------------
@@ -127,12 +172,17 @@ public class BedrockAnvilGUI implements InventoryHolder {
 
     /**
      * Opens the menu for {@code p} if the fallback may be used: it is enabled, the player is a Bedrock player
-     * (or {@code allow-java-players} is on), and with {@code special-anvils.mode} other than {@code ALL} a
-     * special anvil is close. Tells the player why not otherwise.
+     * (or {@code allow-java-players} is on), and with {@code special-anvils.mode} other than {@code ALL} the player
+     * is tied to one special anvil they can actually use. Tells the player why not otherwise.
+     * <p>
+     * By command ({@code clicked == null}) the player must be <em>looking at</em> a special anvil within
+     * {@value #REACH} blocks, and a synthetic right-click {@link PlayerInteractEvent} on that anvil must not be
+     * vetoed, so claim and region plugins decide whether this player may use that block. A sneak-click already is
+     * a real interact event, so the clicked anvil is used as is. The anvil is remembered and checked again on every
+     * click. In {@code ALL} mode nothing is tied to a block: the command works anywhere, like a virtual anvil.
      *
      * @param p       the player
-     * @param clicked the anvil block the player sneak-clicked, or {@code null} when opened by command (then any
-     *                special anvil within {@value #SPECIAL_ANVIL_RADIUS} blocks counts)
+     * @param clicked the anvil block the player sneak-clicked, or {@code null} when opened by command
      * @return {@code true} if the menu was opened
      */
     public static boolean tryOpen(Player p, Block clicked) {
@@ -146,32 +196,88 @@ public class BedrockAnvilGUI implements InventoryHolder {
             return false;
         }
 
-        boolean special = clicked != null
-                ? AnvilEventGuards.isSpecialAnvilBlock(clicked)
-                : AnvilEventGuards.isSpecialAnvilNearby(p, SPECIAL_ANVIL_RADIUS);
-        if (!special) {
-            p.sendMessage(I18n.getPrefix() + " " + I18n.Messages.specialAnvilRequired());
-            return false;
+        Block anvil = null;
+        if (Config.SpecialAnvils.getMode() != SpecialAnvilMode.ALL) {
+            anvil = clicked != null ? clicked : targetResolver.apply(p);
+
+            if (anvil == null || !AnvilEventGuards.isSpecialAnvilBlock(anvil)
+                    || !isWithinReach(p, anvil, clicked != null ? LEAVE_DISTANCE : REACH + 1)) {
+                p.sendMessage(I18n.getPrefix() + " " + I18n.Messages.specialAnvilRequired());
+                return false;
+            }
+
+            if (clicked == null && !mayUse(p, anvil)) {
+                p.sendMessage(I18n.getPrefix() + " " + I18n.Messages.requiresPermission());
+                return false;
+            }
         }
 
-        open(p);
+        open(p, anvil);
         return true;
+    }
+
+    private static boolean isWithinReach(Player p, Block block, int distance) {
+        if (block.getWorld() == null || !block.getWorld().equals(p.getWorld())) return false;
+
+        Location at = p.getLocation();
+        double dx = at.getX() - (block.getX() + 0.5);
+        double dy = at.getY() - (block.getY() + 0.5);
+        double dz = at.getZ() - (block.getZ() + 0.5);
+        return dx * dx + dy * dy + dz * dz <= (double) distance * distance;
+    }
+
+    /**
+     * Asks whoever protects the block whether this player may right-click it, by firing the event a real
+     * right-click would. A cancelled event, or one whose block use is denied, is a veto.
+     */
+    private static boolean mayUse(Player p, Block block) {
+        PlayerInteractEvent probe = new PlayerInteractEvent(p, Action.RIGHT_CLICK_BLOCK,
+                p.getInventory().getItemInMainHand(), block, BlockFace.UP, EquipmentSlot.HAND);
+
+        PROBING.set(true);
+        try {
+            Bukkit.getPluginManager().callEvent(probe);
+        } finally {
+            PROBING.set(false);
+        }
+
+        return !probe.isCancelled() && probe.useInteractedBlock() != Event.Result.DENY;
+    }
+
+    /**
+     * Whether the special-anvil requirement still holds: nothing is required in {@code ALL} mode; otherwise the
+     * remembered block must still be a special anvil, in the player's world and within {@value #LEAVE_DISTANCE} blocks.
+     */
+    public boolean specialAnvilHolds() {
+        if (Config.SpecialAnvils.getMode() == SpecialAnvilMode.ALL) return true;
+
+        return anvil != null && isWithinReach(player, anvil, LEAVE_DISTANCE) && AnvilEventGuards.isSpecialAnvilBlock(anvil);
+    }
+
+    /**
+     * Opens a fresh menu for {@code p} that is not tied to an anvil (callers gate with {@link #tryOpen}).
+     *
+     * @param p the player
+     * @return the opened menu
+     */
+    public static BedrockAnvilGUI open(Player p) {
+        return open(p, null);
     }
 
     /**
      * Opens a fresh menu for {@code p} without any permission or setting check (callers gate with
      * {@link #tryOpen}). A menu the player already has open is closed first and its items returned.
      *
-     * @param p the player
+     * @param p     the player
+     * @param anvil the special anvil the menu is tied to, or {@code null}
      * @return the opened menu
      */
-    public static BedrockAnvilGUI open(Player p) {
+    public static BedrockAnvilGUI open(Player p, Block anvil) {
         BedrockAnvilGUI existing = OPEN.get(p.getUniqueId());
         if (existing != null) existing.finish();
 
-        BedrockAnvilGUI gui = new BedrockAnvilGUI(p);
+        BedrockAnvilGUI gui = new BedrockAnvilGUI(p, anvil);
         OPEN.put(p.getUniqueId(), gui);
-        gui.specialAnvilReady = AnvilEventGuards.isSpecialAnvilNearby(p, SPECIAL_ANVIL_RADIUS);
         gui.refresh();
 
         p.openInventory(gui.inventory);
@@ -205,8 +311,9 @@ public class BedrockAnvilGUI implements InventoryHolder {
         }
     }
 
-    private BedrockAnvilGUI(Player player) {
+    private BedrockAnvilGUI(Player player, Block anvil) {
         this.player = player;
+        this.anvil = anvil;
         this.inventory = Bukkit.createInventory(this, SIZE,
                 LegacyComponentSerializer.legacySection().deserialize(I18n.Messages.bedrockTitle()));
     }
@@ -305,6 +412,14 @@ public class BedrockAnvilGUI implements InventoryHolder {
 
         if (finished) return;
 
+        // Walked away, or the anvil was broken or unmarked: the menu may no longer be used. Everything comes back.
+        if (!specialAnvilHolds()) {
+            finish();
+            player.closeInventory();
+            player.sendMessage(I18n.getPrefix() + " " + I18n.Messages.specialAnvilRequired());
+            return;
+        }
+
         ClickType click = event.getClick();
         if (click != ClickType.LEFT && click != ClickType.RIGHT
                 && click != ClickType.SHIFT_LEFT && click != ClickType.SHIFT_RIGHT) return;
@@ -385,10 +500,8 @@ public class BedrockAnvilGUI implements InventoryHolder {
 
         busy = true;
         try {
-            specialAnvilReady = AnvilEventGuards.isSpecialAnvilNearby(player, SPECIAL_ANVIL_RADIUS);
-
             AnvilOperations.Outcome outcome = BedrockOperation.confirm(
-                    player, inventory.getItem(SLOT_ITEM), inventory.getItem(SLOT_SECOND), specialAnvilReady,
+                    player, inventory.getItem(SLOT_ITEM), inventory.getItem(SLOT_SECOND), specialAnvilHolds(),
                     (newFirst, newSecond, delivered) -> {
                         inventory.setItem(SLOT_ITEM, newFirst);
                         inventory.setItem(SLOT_SECOND, newSecond);
@@ -411,7 +524,7 @@ public class BedrockAnvilGUI implements InventoryHolder {
      */
     public void refresh() {
         BedrockOperation.Plan plan = BedrockOperation.evaluate(
-                player, inventory.getItem(SLOT_ITEM), inventory.getItem(SLOT_SECOND), specialAnvilReady);
+                player, inventory.getItem(SLOT_ITEM), inventory.getItem(SLOT_SECOND), specialAnvilHolds());
 
         for (int slot = 0; slot < SIZE; slot++) {
             if (isInputOrDisplay(slot)) continue;

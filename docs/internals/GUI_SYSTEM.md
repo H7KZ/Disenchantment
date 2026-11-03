@@ -218,8 +218,11 @@ click-time guards in the anvil handlers' order and delegates to `AnvilOperations
 
 `tryOpen(player, clickedAnvil)` is the one gate for the command and the sneak-click trigger: plugin and
 `bedrock.fallback-enabled` on, `BedrockUtils.isBedrockPlayer` (or `allow-java-players`), and - unless
-`special-anvils.mode` is `ALL` - `AnvilEventGuards.isSpecialAnvilNearby(p, 5)` (command) or `isSpecialAnvilBlock(block)`
-(sneak-click). Text lives under `messages.bedrock-*` in the locale files.
+`special-anvils.mode` is `ALL` - a special anvil block tied to the menu: by command the block from `getTargetBlockExact(5)`
+(`setTargetResolver` is the test seam) that passes `isSpecialAnvilBlock` and whose synthetic `PlayerInteractEvent`
+(`RIGHT_CLICK_BLOCK`, fired with the `PROBING` flag so `BedrockListener` ignores it) is not cancelled / `DENY`; by sneak-click
+the clicked block. The block is remembered and `specialAnvilHolds()` (still special, same world, within 6 blocks) runs at
+the start of every click; when it fails the menu finishes (items returned), closes and says why. Text lives under `messages.bedrock-*` in the locale files.
 
 ---
 

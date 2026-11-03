@@ -379,7 +379,7 @@ each handler: the `EconomyConfig`, enabled/world checks, permission group, cost 
 
 - `evaluate(p, first, second, specialAnvilReady)` -> `Plan(kind, status, enchantments, result, xpCost, economyCost)`:
   `detectKind` (plain book + enchanted book = shatter, plain book + other = disenchant, erase catalyst = erase), then
-  plugin/feature/world, special anvil (`specialAnvilReady`, computed by `AnvilEventGuards.isSpecialAnvilNearby`), maintenance,
+  plugin/feature/world, special anvil (`specialAnvilReady`, = `BedrockAnvilGUI.specialAnvilHolds()`: the remembered anvil block), maintenance,
   cooldown (quiet), permission, `AnvilOperations.collect(..., true)`, the shatter subset through
   `ShatterEvent.selectForInputs` (same per-player cache as the anvil preview, so the previewed subset is the confirmed
   one), result, cost and `AnvilEventGuards.isTooExpensive` (40+ levels without `bypass-too-expensive`; not in creative).
@@ -389,7 +389,7 @@ each handler: the `EconomyConfig`, enabled/world checks, permission group, cost 
 - Stats, API events and PlaceholderAPI need nothing extra: they hang off the `Pre*`/`Post*` events `settle` fires.
 
 `listeners/BedrockListener.java`: close and quit hooks (return the inputs), and the opt-in sneak-click trigger
-(`PlayerInteractEvent` at HIGH: `RIGHT_CLICK_BLOCK`, main hand, sneaking, anvil block, detected Bedrock player,
+(`PlayerInteractEvent` at HIGHEST with `ignoreCancelled`, so an earlier protection veto wins: `RIGHT_CLICK_BLOCK`, main hand, sneaking, anvil block, detected Bedrock player,
 `disenchantment.command.anvil`, the clicked anvil is special; then the event is cancelled and `tryOpen` runs).
 `utils/BedrockUtils.java` is the detector (Floodgate/Geyser by reflection, UUID heuristic, name prefix; never throws).
 
