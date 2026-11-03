@@ -782,7 +782,7 @@ public class Config {
                  * @return {@code true} if the persisted value matches
                  */
                 public static boolean setVolume(double volume) {
-                    config.set(ConfigKeys.DISENCHANTMENT_ANVIL_VOLUME.getKey(), volume);
+                    config.set(ConfigKeys.DISENCHANTMENT_ANVIL_VOLUME.getKey(), ConfigSpec.of(ConfigKeys.DISENCHANTMENT_ANVIL_VOLUME).resolve(volume));
                     save();
 
                     return getVolume().equals(volume);
@@ -804,7 +804,7 @@ public class Config {
                  * @return {@code true} if the persisted value matches
                  */
                 public static boolean setPitch(double pitch) {
-                    config.set(ConfigKeys.DISENCHANTMENT_ANVIL_PITCH.getKey(), pitch);
+                    config.set(ConfigKeys.DISENCHANTMENT_ANVIL_PITCH.getKey(), ConfigSpec.of(ConfigKeys.DISENCHANTMENT_ANVIL_PITCH).resolve(pitch));
                     save();
 
                     return getPitch().equals(pitch);
@@ -1363,7 +1363,7 @@ public class Config {
                  * @return {@code true} if the persisted value matches
                  */
                 public static boolean setVolume(double volume) {
-                    config.set(ConfigKeys.SHATTERMENT_ANVIL_VOLUME.getKey(), volume);
+                    config.set(ConfigKeys.SHATTERMENT_ANVIL_VOLUME.getKey(), ConfigSpec.of(ConfigKeys.SHATTERMENT_ANVIL_VOLUME).resolve(volume));
                     save();
 
                     return getVolume().equals(volume);
@@ -1385,7 +1385,7 @@ public class Config {
                  * @return {@code true} if the persisted value matches
                  */
                 public static boolean setPitch(double pitch) {
-                    config.set(ConfigKeys.SHATTERMENT_ANVIL_PITCH.getKey(), pitch);
+                    config.set(ConfigKeys.SHATTERMENT_ANVIL_PITCH.getKey(), ConfigSpec.of(ConfigKeys.SHATTERMENT_ANVIL_PITCH).resolve(pitch));
                     save();
 
                     return getPitch().equals(pitch);

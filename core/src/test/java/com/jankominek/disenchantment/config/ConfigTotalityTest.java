@@ -188,6 +188,17 @@ class ConfigTotalityTest extends DisenchantmentTestBase {
     }
 
     @Test
+    void givenOutOfRangeSoundSetters_whenSet_thenStoredValueIsClamped() {
+        assertFalse(Config.Disenchantment.Anvil.Sound.setVolume(50.0));
+        assertFalse(Config.Shatterment.Anvil.Sound.setPitch(0.1));
+        assertTrue(Config.Disenchantment.Anvil.Sound.setPitch(1.5));
+
+        assertEquals(10.0, Disenchantment.config.getDouble("disenchantment.anvil.sound.volume"));
+        assertEquals(0.5, Disenchantment.config.getDouble("shatterment.anvil.sound.pitch"));
+        assertEquals(1.5, Disenchantment.config.getDouble("disenchantment.anvil.sound.pitch"));
+    }
+
+    @Test
     void givenNegativeOrBrokenEconomyCost_whenGetCost_thenNeverNegativeAndNeverNaN() {
         setConfig("disenchantment.economy.cost", -50);
         assertEquals(0.0, Config.Disenchantment.Economy.getCost());
