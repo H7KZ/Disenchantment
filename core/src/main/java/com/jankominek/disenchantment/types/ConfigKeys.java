@@ -183,6 +183,12 @@ public enum ConfigKeys {
     GRINDSTONE_TRANSFER_ECONOMY_COST("grindstone.transfer.economy.cost"),
     GRINDSTONE_TRANSFER_ECONOMY_SHOW_COST("grindstone.transfer.economy.show-cost"),
     GRINDSTONE_TRANSFER_ECONOMY_CHARGE_MESSAGE("grindstone.transfer.economy.charge-message"),
+
+    BEDROCK_FALLBACK_ENABLED("bedrock.fallback-enabled"),
+    BEDROCK_ALLOW_JAVA_PLAYERS("bedrock.allow-java-players"),
+    BEDROCK_DETECT("bedrock.detect"),
+    BEDROCK_PREFIXES("bedrock.prefixes"),
+    BEDROCK_OPEN_ON_SNEAK_CLICK("bedrock.open-on-sneak-click"),
     ;
 
     private final String key;

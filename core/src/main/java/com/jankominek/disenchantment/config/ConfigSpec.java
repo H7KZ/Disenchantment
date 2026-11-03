@@ -89,6 +89,10 @@ public record ConfigSpec(ConfigKeys key, Kind kind, Object def, double min, doub
         decimal(ConfigKeys.SHATTERMENT_ECONOMY_COST, 100.0, 0.0, 1e12);
         bool(ConfigKeys.SHATTERMENT_ECONOMY_SHOW_COST, true);
         bool(ConfigKeys.SHATTERMENT_ECONOMY_CHARGE_MESSAGE, true);
+
+        bool(ConfigKeys.BEDROCK_FALLBACK_ENABLED, false);
+        bool(ConfigKeys.BEDROCK_ALLOW_JAVA_PLAYERS, false);
+        bool(ConfigKeys.BEDROCK_OPEN_ON_SNEAK_CLICK, false);
     }
 
     private static void bool(ConfigKeys key, boolean def) {

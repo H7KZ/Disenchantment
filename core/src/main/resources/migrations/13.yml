@@ -219,3 +219,10 @@ grindstone:
       cost: 100.0
       show-cost: true
       charge-message: true
+
+bedrock:
+  fallback-enabled: false
+  allow-java-players: false
+  detect: [ FLOODGATE, GEYSER, UUID, PREFIX ]
+  prefixes: [ ".", "*" ]
+  open-on-sneak-click: false
