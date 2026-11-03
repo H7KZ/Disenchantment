@@ -5,14 +5,17 @@ import com.jankominek.disenchantment.events.GrindstoneClickEvent;
 import com.jankominek.disenchantment.events.GrindstoneEvent;
 import com.jankominek.disenchantment.types.LogLevelType;
 import com.jankominek.disenchantment.utils.DiagnosticUtils;
+import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventException;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.GrindstoneInventory;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.plugin.EventExecutor;
 import org.jetbrains.annotations.NotNull;
 
@@ -46,6 +49,8 @@ public class GrindstoneListener implements EventExecutor {
     private static final Listener clickListener = new Listener() {
     };
     private static final Listener prepareListener = new Listener() {
+    };
+    private static final Listener dragListener = new Listener() {
     };
 
     private final boolean prepareEventAvailable;
@@ -86,9 +91,22 @@ public class GrindstoneListener implements EventExecutor {
                     false
             );
             DiagnosticUtils.debug("STARTUP", () -> "Grindstone: using " + prepareClass.getName());
-        } else if (Config.Logging.getLevel().isAtLeast(LogLevelType.INFO)) {
-            logger.info("Grindstone: this server has no PrepareGrindstoneEvent (added in Spigot 1.19.4); "
-                    + "grindstone results are computed one tick after each click instead.");
+        } else {
+            // Dragging a stack across the input slots changes them without a click event, so the fallback
+            // refresh needs the drag too (a cancelled drag changes nothing).
+            getServer().getPluginManager().registerEvent(
+                    InventoryDragEvent.class,
+                    dragListener,
+                    clickEventPriority,
+                    this,
+                    plugin,
+                    true
+            );
+
+            if (Config.Logging.getLevel().isAtLeast(LogLevelType.INFO)) {
+                logger.info("Grindstone: this server has no PrepareGrindstoneEvent (added in Spigot 1.19.4); "
+                        + "grindstone results are computed one tick after each click or drag instead.");
+            }
         }
     }
 
@@ -118,13 +136,18 @@ public class GrindstoneListener implements EventExecutor {
 
     /**
      * {@inheritDoc}
-     * Routes click events to {@link GrindstoneClickEvent} and everything else to {@link GrindstoneEvent}.
+     * Routes click events to {@link GrindstoneClickEvent}, drag events to the fallback refresh and everything else to {@link GrindstoneEvent}.
      */
     @Override
     public void execute(@NotNull Listener l, @NotNull Event e) throws EventException {
         if (e instanceof InventoryClickEvent click) {
             GrindstoneClickEvent.onEvent(e);
-            if (!prepareEventAvailable) scheduleFallbackRefresh(click);
+            if (!prepareEventAvailable) scheduleFallbackRefresh(click.getInventory(), click.getWhoClicked());
+            return;
+        }
+
+        if (e instanceof InventoryDragEvent drag) {
+            if (!prepareEventAvailable) scheduleFallbackRefresh(drag.getInventory(), drag.getWhoClicked());
             return;
         }
 
@@ -132,13 +155,13 @@ public class GrindstoneListener implements EventExecutor {
     }
 
     /**
-     * Without a prepare event, recompute the result one tick after any click on a grindstone (the tick lets
-     * vanilla finish its own slot change first).
+     * Without a prepare event, recompute the result one tick after any click or drag on a grindstone (the tick
+     * lets vanilla finish its own slot change first).
      */
-    private static void scheduleFallbackRefresh(InventoryClickEvent click) {
-        if (click.getInventory().getType() != InventoryType.GRINDSTONE) return;
-        if (!(click.getInventory() instanceof GrindstoneInventory inventory)) return;
-        if (!(click.getWhoClicked() instanceof Player p)) return;
+    private static void scheduleFallbackRefresh(Inventory top, HumanEntity who) {
+        if (top.getType() != InventoryType.GRINDSTONE) return;
+        if (!(top instanceof GrindstoneInventory inventory)) return;
+        if (!(who instanceof Player p)) return;
         if (!Config.isPluginEnabled()) return;
         if (!Config.Grindstone.isEnabled() && !Config.Grindstone.Transfer.isEnabled()) return;
 

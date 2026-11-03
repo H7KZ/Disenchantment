@@ -9,6 +9,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.GrindstoneInventory;
 import org.bukkit.inventory.Inventory;
@@ -169,5 +170,58 @@ class GrindstoneListenerTest extends DisenchantmentTestBase {
         }, event));
 
         Mockito.verify(event).setResult(Mockito.argThat(item -> item != null && item.getType() == Material.ENCHANTED_BOOK));
+    }
+
+    // -> a drag into the grindstone changes the inputs without a click event
+
+    private InventoryDragEvent dragOn(Player player, Inventory top) {
+        InventoryDragEvent event = Mockito.mock(InventoryDragEvent.class);
+        Mockito.when(event.getWhoClicked()).thenReturn(player);
+        Mockito.when(event.getInventory()).thenReturn(top);
+        return event;
+    }
+
+    @Test
+    void givenNoPrepareEvent_whenDragIntoGrindstone_thenResultAppearsNextTick() throws Exception {
+        setConfig("grindstone.enabled", true);
+        GrindstoneListener listener = new GrindstoneListener(EventPriority.HIGHEST, EventPriority.HIGHEST, NO_CLASSES);
+        PlayerMock player = server.addPlayer();
+        GrindstoneInventory inventory = grindstone(player, enchantedSword(), new ItemStack(Material.BOOK));
+
+        assertDoesNotThrow(() -> listener.execute(new Listener() {
+        }, dragOn(player, inventory)));
+        assertNull(slots[2]);
+
+        server.getScheduler().performOneTick();
+
+        assertNotNull(slots[2]);
+        assertEquals(Material.ENCHANTED_BOOK, slots[2].getType());
+    }
+
+    @Test
+    void givenPrepareEventAvailable_whenDragIntoGrindstone_thenNoFallbackRefresh() throws Exception {
+        setConfig("grindstone.enabled", true);
+        GrindstoneListener listener = new GrindstoneListener(EventPriority.HIGHEST, EventPriority.HIGHEST, name -> FakePrepareEvent.class);
+        PlayerMock player = server.addPlayer();
+        GrindstoneInventory inventory = grindstone(player, enchantedSword(), new ItemStack(Material.BOOK));
+
+        listener.execute(new Listener() {
+        }, dragOn(player, inventory));
+        server.getScheduler().performOneTick();
+
+        assertNull(slots[2]);
+    }
+
+    @Test
+    void givenNoPrepareEvent_whenDragIntoOtherInventory_thenNothingScheduled() throws Exception {
+        setConfig("grindstone.enabled", true);
+        GrindstoneListener listener = new GrindstoneListener(EventPriority.HIGHEST, EventPriority.HIGHEST, NO_CLASSES);
+        PlayerMock player = server.addPlayer();
+        Inventory chest = Mockito.mock(Inventory.class);
+        Mockito.when(chest.getType()).thenReturn(InventoryType.CHEST);
+
+        assertDoesNotThrow(() -> listener.execute(new Listener() {
+        }, dragOn(player, chest)));
+        server.getScheduler().performOneTick();
     }
 }
