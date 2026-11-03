@@ -7,6 +7,7 @@ import com.jankominek.disenchantment.events.GUIClickEvent;
 import com.jankominek.disenchantment.events.ShatterEvent;
 import com.jankominek.disenchantment.listeners.DisenchantClickListener;
 import com.jankominek.disenchantment.listeners.DisenchantListener;
+import com.jankominek.disenchantment.listeners.GrindstoneListener;
 import com.jankominek.disenchantment.listeners.ShatterClickListener;
 import com.jankominek.disenchantment.listeners.ShatterListener;
 import com.jankominek.disenchantment.nms.MinecraftVersion;
@@ -186,6 +187,7 @@ public class Disenchantment extends JavaPlugin {
         new DisenchantClickListener(Config.EventPriorities.getDisenchantClickEvent());
         new ShatterListener(Config.EventPriorities.getShatterEvent());
         new ShatterClickListener(Config.EventPriorities.getShatterClickEvent());
+        new GrindstoneListener(Config.Grindstone.getPrepareEventPriority(), Config.Grindstone.getClickEventPriority());
         getServer().getPluginManager().registerEvents(new GUIClickEvent(), plugin);
         DiagnosticUtils.debug("STARTUP", "All listeners registered");
 
@@ -277,6 +279,7 @@ public class Disenchantment extends JavaPlugin {
         new DisenchantClickListener(Config.EventPriorities.getDisenchantClickEvent());
         new ShatterListener(Config.EventPriorities.getShatterEvent());
         new ShatterClickListener(Config.EventPriorities.getShatterClickEvent());
+        new GrindstoneListener(Config.Grindstone.getPrepareEventPriority(), Config.Grindstone.getClickEventPriority());
         getServer().getPluginManager().registerEvents(new GUIClickEvent(), plugin);
 
         // 6. Re-detect plugin adapters
