@@ -3,6 +3,7 @@ package com.jankominek.disenchantment;
 import com.jankominek.disenchantment.commands.CommandCompleter;
 import com.jankominek.disenchantment.commands.CommandRegister;
 import com.jankominek.disenchantment.config.Config;
+import com.jankominek.disenchantment.config.ConfigValidator;
 import com.jankominek.disenchantment.events.GUIClickEvent;
 import com.jankominek.disenchantment.events.ShatterEvent;
 import com.jankominek.disenchantment.listeners.DisenchantClickListener;
@@ -134,6 +135,7 @@ public class Disenchantment extends JavaPlugin {
         // Find and activate supported plugins
         List<String> activatedPlugins = Arrays.stream(getServer().getPluginManager().getPlugins()).toList().stream().map(Plugin::getName).toList();
         SupportedPluginManager.activatePlugins(activatedPlugins);
+        ConfigValidator.validateAndLog();
 
         // Economy (Vault) — hooked via ServerLoadEvent so VaultUnlocked's vault2→vault1 bridge
         // has already fired. VaultUnlocked registers the Bukkit service bridge post-Done, after
@@ -285,6 +287,7 @@ public class Disenchantment extends JavaPlugin {
                 .map(Plugin::getName)
                 .toList();
         SupportedPluginManager.activatePlugins(activePluginNames);
+        ConfigValidator.validateAndLog();
 
         // 7. Re-hook economy
         EconomyUtils.reset();
