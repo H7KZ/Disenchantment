@@ -75,6 +75,11 @@ public class DisenchantEvent {
         if (AnvilEventGuards.isWorldBlocked(p, Config.Disenchantment.isWorldRestricted(p.getWorld())))
             return;
 
+        // Not a special anvil: leave the event untouched so vanilla behaves as without the plugin.
+        // The collection below only runs when a hint may be due (it needs to know it is a genuine operation).
+        boolean anvilAllowed = AnvilEventGuards.isAnvilAllowed(e.getInventory(), p);
+        if (!anvilAllowed && !Config.SpecialAnvils.isHintMessageEnabled()) return;
+
         DiagnosticUtils.debug("DISENCHANT", () -> "PrepareAnvil: player=" + p.getName() + ", world=" + p.getWorld().getName());
 
         ItemStack firstItem = e.getInventory().getItem(0);
@@ -91,6 +96,12 @@ public class DisenchantEvent {
 
         if (pluginEnchantments.isEmpty()) {
             DiagnosticUtils.debug("DISENCHANT", "PrepareAnvil: no eligible enchantments → exit");
+            return;
+        }
+
+        if (!anvilAllowed) {
+            DiagnosticUtils.debug("DISENCHANT", "PrepareAnvil: not a special anvil → exit");
+            AnvilEventGuards.sendSpecialAnvilHint(p);
             return;
         }
 

@@ -78,6 +78,28 @@ public static boolean hasEnoughXp(Player p, int repairCost)
 Returns `true` if the player is in creative mode OR has at least `repairCost` levels. The click handlers send
 `messages.not-enough-levels` (with the real, possibly bypass-cached cost) when it fails.
 
+### Special anvil gate
+
+```java
+public static boolean isAnvilAllowed(Inventory anvilInventory, Player p)
+public static void sendSpecialAnvilHint(Player p)
+```
+
+`isAnvilAllowed` applies `special-anvils.mode`: `ALL` is always `true` (and costs one config read); `MARKED` asks
+`SpecialAnvilStore.isMarked(block)` for `anvilInventory.getLocation()`; `BLOCK_BELOW` compares the block under the
+anvil with `Config.SpecialAnvils.getBlockBelow()`. A `null` location, or a location whose block is not an anvil
+(plugin-opened anvil menus), is a *virtual* anvil and follows `allow-virtual-anvils`. `Inventory#getLocation()` is
+used, never the `InventoryView`. Erase mode (and any future anvil operation) must call the same gate.
+
+Placement in the handlers, right after the world check:
+
+- **Prepare** (`DisenchantEvent`, `ShatterEvent`): when refused and `hint-message` is off, return immediately, leaving
+  the event untouched (vanilla result stays). With the hint on, the collection runs so the hint is only sent for a
+  genuine operation (`sendSpecialAnvilHint` debounces to once per 5 s per player; cleared on quit).
+- **Click** (`DisenchantClickEvent`, `ShatterClickEvent`): fails **closed**. When refused, collection still runs;
+  if it is a genuine operation and slot 2 holds the plugin's `ENCHANTED_BOOK` (the gate closed between Prepare and the
+  click), the event is cancelled and slot 2 cleared, inputs untouched. Anything else is vanilla and returns silently.
+
 ### Maintenance, cooldown and quiet variants
 
 `PrepareAnvilEvent` fires on every keystroke, so it must never message the player:
@@ -173,6 +195,35 @@ it is closed with an **operation-pending** mark:
 
 ---
 
+## Special anvil lifecycle (`anvils/`)
+
+| Class                 | Role                                                                                                         |
+|-----------------------|--------------------------------------------------------------------------------------------------------------|
+| `SpecialAnvilStore`   | Chunk-PDC marks: key `disenchantment:special_anvils`, `LONG_ARRAY` of packed local positions `(x&15) \| (z&15)<<4 \| (y+2048)<<8` (y -2048..2047). `isMarked` validates the block is an anvil and prunes stale marks; `mark` does not validate. |
+| `SpecialAnvilItem`    | `ANVIL` (any damage state) + item PDC `disenchantment:special_anvil` (BYTE 1) and configured name/lore. Identified by PDC only. |
+| `SpecialAnvilListener`| Plain `@EventHandler` listener, registered in `enable()`/`reload()` regardless of mode (see below).          |
+| `SpecialAnvilRecipe`  | `ShapedRecipe` `disenchantment:special_anvil`; `register()` removes then re-adds; `unregister()` on disable. `ANVIL` ingredient = MaterialChoice of all three states. |
+
+Listener behaviour (all MONITOR + `ignoreCancelled` unless noted):
+
+- `BlockPlaceEvent`: always clears a stale mark at the position, then marks if the item has the PDC **and** the player
+  has `disenchantment.anvil.special`.
+- `BlockBreakEvent`: unmarks. A break by a non-creative player with drops arms a 2 s pending-drop entry (position key)
+  because the mark is already gone when `BlockDropItemEvent` fires.
+- `BlockDropItemEvent` (HIGH): with a pending entry, swaps dropped anvil stacks for the special item of the same damage
+  state (`drop-special-item`).
+- `EntityChangeBlockEvent` with a `FallingBlock`: anvil to non-anvil = fall start, marked: unmark and tag the entity PDC
+  `special_fall`; non-anvil to anvil = landing: clear any stale mark, mark if tagged. `EntityDropItemEvent` (HIGH):
+  a tagged falling anvil that breaks drops the special item.
+- `InventoryCloseEvent` on an anvil with a mark: prune if the block is gone, now and one tick later via
+  `SchedulerUtils.runForLocationLater` (region scheduler on Folia). Using an anvil can destroy it with no event.
+- `PlayerQuitEvent`: clears the hint debounce.
+
+Placed anvils have blast resistance 1200 and `PushReaction.BLOCK`: explosions and pistons never move or break them,
+so no handlers exist for them. Damage-state changes fire no event and need none: marks are position based.
+
+---
+
 ## `EconomyConfig` Interface
 
 Used to abstract disenchantment vs shatterment economy settings:
@@ -208,7 +259,7 @@ private static final AnvilEventGuards.EconomyConfig ECONOMY_CONFIG = new AnvilEv
 1. Verify event is `PrepareAnvilEvent`.
 2. Extract player from `e.getInventory().getViewers().get(0)`. (Uses `getViewers()` not `getView().getPlayer()` to avoid
    `IncompatibleClassChangeError` in environments where `InventoryView` changed from class to interface in 1.21.)
-3. Guard: `Config.isPluginEnabled()`, `Config.Disenchantment.isEnabled()`, world not in disabled list.
+3. Guard: `Config.isPluginEnabled()`, `Config.Disenchantment.isEnabled()`, world not in disabled list, then the [special anvil gate](#special-anvil-gate).
 4. Call `AnvilEventGuards.collectEnchantments(...)` using `EventUtils.Disenchantment.getDisenchantedEnchantments(...)`
    as the collectors. If empty, return.
 5. Permission check: `PermissionGroupType.DISENCHANT_EVENT.hasPermission(p)`.
@@ -222,7 +273,7 @@ private static final AnvilEventGuards.EconomyConfig ECONOMY_CONFIG = new AnvilEv
 `events/DisenchantClickEvent.java` — invoked by `DisenchantClickListener`.
 
 1. Verify `InventoryClickEvent`, extract player.
-2. Guards: plugin/feature enabled, world not disabled.
+2. Guards: plugin/feature enabled, world not disabled, then the [special anvil gate](#special-anvil-gate) (fails closed).
 3. `AnvilEventGuards.isAnvilResultSlotClick(e, p)` — must be slot 2, cursor empty.
 4. Collect enchantments again (same logic as PrepareAnvil but `isPrepare=false`); empty = not ours, return.
 5. Maintenance check (messages + cancels), then `result = anvilInventory.getItem(2)` — must be non-null and

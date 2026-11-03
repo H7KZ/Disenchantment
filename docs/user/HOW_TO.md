@@ -24,6 +24,7 @@ the result you want.
 - [Open and use the in-game GUI](#open-and-use-the-in-game-gui)
 - [Generate a diagnostic report for a bug report](#generate-a-diagnostic-report-for-a-bug-report)
 - [Reload the config without restarting](#reload-the-config-without-restarting)
+- [Restrict disenchanting to special anvils](#restrict-disenchanting-to-special-anvils)
 
 ---
 
@@ -549,3 +550,33 @@ economy Vault hook — if you are enabling economy for the first time on a serve
 restart is required.
 
 > **Permission required:** `disenchantment.command.reload` (default: `op`).
+
+---
+
+## Restrict disenchanting to special anvils
+
+Make only designated anvils disenchant and shatter, e.g. one "enchanter's anvil" in a shop or spawn building. Normal
+anvils keep repairing and renaming as usual.
+
+**Option 1: marked anvils (`MARKED`).** Players place a special anvil item; only anvils placed from it work.
+
+1. In `config.yml` set `special-anvils.mode: MARKED`, then `/disenchantment reload`.
+2. Hand out the item: `/disenchantment give anvil <player> [amount]` (needs `disenchantment.command.give`).
+   Or enable `special-anvils.recipe.enabled: true` so players can craft it (default: 8 emeralds around an anvil).
+3. The player places the anvil. Breaking it drops the special item again (`drop-special-item`).
+
+Anvils that were already in the world are not special; replace them with the special item.
+
+**Option 2: block below (`BLOCK_BELOW`).** No item needed, and it works on anvils that already exist.
+
+1. Set `special-anvils.mode: BLOCK_BELOW` and `special-anvils.block-below: LAPIS_BLOCK`, then reload.
+2. Put an anvil directly on a lapis block. Any anvil standing on a lapis block is special; players who can build can
+   make their own, so use `MARKED` if admins alone should control this.
+
+**Tips**
+
+- `hint-message: true` tells players why nothing happens at a normal anvil.
+- `allow-virtual-anvils` decides whether anvils opened without a world position (commands or menus from other plugins)
+  count as special. Default `false`, so they do not work in `MARKED` / `BLOCK_BELOW` mode.
+- Set `mode: ALL` to return to the default where every anvil works. Marks are kept while the mode is `ALL`.
+- Check the active mode with `/disenchantment status`.

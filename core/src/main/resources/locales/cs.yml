@@ -58,6 +58,12 @@ messages:
   preview-cost-levels: "&7Cena: &f{levels} úrovní&r"
   preview-cost-levels-money: "&7Cena: &f{levels} úrovní &7+ &f{money}&r"
   preview-cost-money: "&7Cena: &f{money}&r"
+  special-anvil-required: "&7Toto funguje pouze na speciální kovadlině.&r"
+  give-anvil-usage: "&cPoužití: /disenchantment give anvil <hráč> [počet]&r"
+  give-player-not-found: "&cHráč {player} není online!&r"
+  give-amount-invalid: "&cPočet musí být celé číslo od 1 do {max}!&r"
+  give-anvil-given: "&aHráči &f{player} &abylo předáno &f{amount}x &aspeciální kovadlina.&r"
+  give-anvil-received: "&7Obdrželi jste &f{amount}x &7speciální kovadlina.&r"
 
 states:
   enabled: "&aPovoleno&r"
@@ -78,6 +84,7 @@ commands:
       2:
         - "&8/disenchant status &7- Zobrazí stav pluginu"
         - "&8/disenchant toggle ['global', 'disenchantment', 'shatterment'] &7- Přepne plugin zapnuto/vypnuto"
+        - "&8/disenchant give anvil [hráč] [počet] &7- Předá hráči speciální kovadliny"
       3:
         - "&8/disenchant disenchant:enchantments &7- Zobrazí seznam stavů očarování"
         - "&8/disenchant disenchant:enchantments [enchantment name] ['enable', 'keep', 'delete', 'disable'] &7- Upraví chování očarování"

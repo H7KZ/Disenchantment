@@ -206,3 +206,9 @@ permissions:
   disenchantment.anvil.erase:
     description: Allows the player to erase enchantments from items with a catalyst.
     default: true
+  disenchantment.anvil.special:
+    description: Allows the player to place special anvils (otherwise the anvil is placed as a normal anvil).
+    default: true
+  disenchantment.command.give:
+    description: Access to the give command (special anvils).
+    default: op

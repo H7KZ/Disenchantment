@@ -308,6 +308,13 @@ public enum I18nKeys {
     GUI_ECONOMY_SHATTERMENT_CHARGE_MESSAGE_TITLE("gui.economy.shatterment.charge-message.title"),
     GUI_ECONOMY_SHATTERMENT_CHARGE_MESSAGE_LORE_ENABLED("gui.economy.shatterment.charge-message.lore.enabled"),
     GUI_ECONOMY_SHATTERMENT_CHARGE_MESSAGE_LORE_DISABLED("gui.economy.shatterment.charge-message.lore.disabled"),
+
+    MESSAGES_SPECIAL_ANVIL_REQUIRED("messages.special-anvil-required"),
+    MESSAGES_GIVE_ANVIL_USAGE("messages.give-anvil-usage"),
+    MESSAGES_GIVE_PLAYER_NOT_FOUND("messages.give-player-not-found"),
+    MESSAGES_GIVE_AMOUNT_INVALID("messages.give-amount-invalid"),
+    MESSAGES_GIVE_ANVIL_GIVEN("messages.give-anvil-given"),
+    MESSAGES_GIVE_ANVIL_RECEIVED("messages.give-anvil-received"),
     ;
 
     private final String key;

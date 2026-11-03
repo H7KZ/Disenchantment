@@ -354,6 +354,11 @@ public class DiagnosticUtils {
             report.append("Locale: ").append(Config.getLocale()).append("\n");
             report.append("Log Level: ").append(Config.Logging.getLevel().name()).append("\n");
             report.append("Save Reports: ").append(Config.Logging.isSaveReportsEnabled() ? "Yes" : "No").append("\n");
+            report.append("Special Anvils Mode: ").append(Config.SpecialAnvils.getMode().name());
+            if (Config.SpecialAnvils.getMode() == com.jankominek.disenchantment.types.SpecialAnvilMode.BLOCK_BELOW) {
+                report.append(" (").append(Config.SpecialAnvils.getBlockBelow().name()).append(")");
+            }
+            report.append("\n");
 
             report.append("\n");
 

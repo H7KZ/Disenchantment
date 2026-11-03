@@ -357,6 +357,13 @@ Runs `task` after `delayTicks` on the entity's owning region thread or main thre
 second-item removal.
 
 ```java
+public static void runForLocationLater(Plugin plugin, Location location, Runnable task, long delayTicks)
+```
+
+Runs `task` after `delayTicks` (minimum 1) on the region thread owning `location` (Folia `RegionScheduler`) or the main
+thread (Bukkit). Use it for block and chunk work (special anvil mark pruning), not the entity scheduler.
+
+```java
 public static void runGlobal(Plugin plugin, Runnable task)
 ```
 

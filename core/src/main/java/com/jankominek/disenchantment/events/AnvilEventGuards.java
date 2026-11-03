@@ -1,6 +1,7 @@
 package com.jankominek.disenchantment.events;
 
 import com.jankominek.disenchantment.Disenchantment;
+import com.jankominek.disenchantment.anvils.SpecialAnvilStore;
 import com.jankominek.disenchantment.config.Config;
 import com.jankominek.disenchantment.config.I18n;
 import com.jankominek.disenchantment.plugins.IPluginEnchantment;
@@ -8,10 +9,14 @@ import com.jankominek.disenchantment.plugins.ISupportedPlugin;
 import com.jankominek.disenchantment.plugins.SupportedPluginManager;
 import com.jankominek.disenchantment.types.AnvilEventType;
 import com.jankominek.disenchantment.types.PermissionType;
+import com.jankominek.disenchantment.types.SpecialAnvilMode;
 import com.jankominek.disenchantment.utils.*;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.GameMode;
+import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -208,6 +213,69 @@ public final class AnvilEventGuards {
     public static boolean isWorldBlocked(Player p, boolean disabledForWorld) {
         if (!disabledForWorld) return false;
         return !PermissionType.BYPASS_WORLD.hasPermission(p);
+    }
+
+    // ----------------------------------------------------------------------------------------------------
+    // Special anvil guard
+
+    private static final long SPECIAL_ANVIL_HINT_INTERVAL_MS = 5000L;
+    private static final Map<UUID, Long> SPECIAL_ANVIL_HINT_LAST = new ConcurrentHashMap<>();
+
+    /**
+     * Returns whether the anvil the player is using may perform plugin operations under the
+     * configured {@code special-anvils.mode}. Vanilla anvil use is never gated by this; callers
+     * only skip the plugin operation.
+     * <ul>
+     *   <li>{@code ALL}: always {@code true}.</li>
+     *   <li>{@code MARKED}: the anvil block must carry a special anvil mark.</li>
+     *   <li>{@code BLOCK_BELOW}: the anvil block must stand on the configured block.</li>
+     *   <li>An anvil without a world anvil block (virtual anvil) is allowed only with
+     *   {@code allow-virtual-anvils}.</li>
+     * </ul>
+     *
+     * @param anvilInventory the anvil inventory being used
+     * @param p              the viewing player
+     * @return {@code true} if the plugin operation may proceed at this anvil
+     */
+    public static boolean isAnvilAllowed(Inventory anvilInventory, Player p) {
+        SpecialAnvilMode mode = Config.SpecialAnvils.getMode();
+        if (mode == SpecialAnvilMode.ALL) return true;
+
+        Location location = anvilInventory == null ? null : anvilInventory.getLocation();
+        if (location == null || location.getWorld() == null || !SpecialAnvilStore.isAnvilMaterial(location.getBlock().getType()))
+            return Config.SpecialAnvils.isAllowVirtualAnvils();
+
+        Block block = location.getBlock();
+
+        if (mode == SpecialAnvilMode.MARKED) return SpecialAnvilStore.isMarked(block);
+
+        return block.getRelative(BlockFace.DOWN).getType() == Config.SpecialAnvils.getBlockBelow();
+    }
+
+    /**
+     * Tells the player that the anvil is not a special anvil, at most once every few seconds
+     * (Prepare fires on every keystroke). Does nothing unless {@code special-anvils.hint-message} is on.
+     *
+     * @param p the player to inform
+     */
+    public static void sendSpecialAnvilHint(Player p) {
+        if (!Config.SpecialAnvils.isHintMessageEnabled()) return;
+
+        long now = System.currentTimeMillis();
+        Long last = SPECIAL_ANVIL_HINT_LAST.get(p.getUniqueId());
+        if (last != null && now - last < SPECIAL_ANVIL_HINT_INTERVAL_MS) return;
+
+        SPECIAL_ANVIL_HINT_LAST.put(p.getUniqueId(), now);
+        p.sendMessage(I18n.getPrefix() + " " + I18n.Messages.specialAnvilRequired());
+    }
+
+    /**
+     * Forgets the player's hint debounce entry (called when they leave).
+     *
+     * @param p the player who left
+     */
+    public static void clearSpecialAnvilHint(Player p) {
+        SPECIAL_ANVIL_HINT_LAST.remove(p.getUniqueId());
     }
 
     // ----------------------------------------------------------------------------------------------------

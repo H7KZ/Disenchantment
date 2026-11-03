@@ -578,6 +578,64 @@ public class I18n {
                             .replace("{money}", money)
             );
         }
+
+        /**
+         * Returns the localized hint shown when an anvil operation was refused because the anvil is not a special anvil.
+         */
+        public static String specialAnvilRequired() {
+            return I18n.translateColors(localeConfig.getString(I18nKeys.MESSAGES_SPECIAL_ANVIL_REQUIRED.getKey(),
+                    "&7This only works at a special anvil.&r"));
+        }
+
+        /**
+         * Returns the localized usage line of the give anvil command.
+         */
+        public static String giveAnvilUsage() {
+            return I18n.translateColors(localeConfig.getString(I18nKeys.MESSAGES_GIVE_ANVIL_USAGE.getKey(),
+                    "&cUsage: /disenchantment give anvil <player> [amount]&r"));
+        }
+
+        /**
+         * Returns the localized message shown when the give command target is not online.
+         *
+         * @param player the value substituted for {player}
+         */
+        public static String givePlayerNotFound(String player) {
+            return I18n.translateColors(localeConfig.getString(I18nKeys.MESSAGES_GIVE_PLAYER_NOT_FOUND.getKey(),
+                    "&cPlayer {player} is not online!&r").replace("{player}", player));
+        }
+
+        /**
+         * Returns the localized message shown when the give command amount is out of range.
+         *
+         * @param max the value substituted for {max}
+         */
+        public static String giveAmountInvalid(String max) {
+            return I18n.translateColors(localeConfig.getString(I18nKeys.MESSAGES_GIVE_AMOUNT_INVALID.getKey(),
+                    "&cThe amount must be a whole number between 1 and {max}!&r").replace("{max}", max));
+        }
+
+        /**
+         * Returns the localized confirmation sent to the sender after giving special anvils.
+         *
+         * @param amount the value substituted for {amount}
+         * @param player the value substituted for {player}
+         */
+        public static String giveAnvilGiven(String amount, String player) {
+            return I18n.translateColors(localeConfig.getString(I18nKeys.MESSAGES_GIVE_ANVIL_GIVEN.getKey(),
+                            "&aGave &f{amount}x &aspecial anvil to &f{player}&a.&r")
+                    .replace("{amount}", amount).replace("{player}", player));
+        }
+
+        /**
+         * Returns the localized notice sent to the receiver of special anvils.
+         *
+         * @param amount the value substituted for {amount}
+         */
+        public static String giveAnvilReceived(String amount) {
+            return I18n.translateColors(localeConfig.getString(I18nKeys.MESSAGES_GIVE_ANVIL_RECEIVED.getKey(),
+                    "&7You received &f{amount}x &7special anvil.&r").replace("{amount}", amount));
+        }
     }
 
     /**

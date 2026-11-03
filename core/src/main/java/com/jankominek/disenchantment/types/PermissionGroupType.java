@@ -175,6 +175,11 @@ public enum PermissionGroupType {
             PermissionType.GUI_ALL,
             PermissionType.GUI_SHATTER_ECONOMY
     ),
+
+    COMMAND_GIVE(
+            PermissionType.COMMAND_ALL,
+            PermissionType.COMMAND_GIVE
+    ),
     ;
 
     private final PermissionType[] permissions;

@@ -75,6 +75,8 @@ public class DisenchantClickEvent {
         if (AnvilEventGuards.isWorldBlocked(p, Config.Disenchantment.isWorldRestricted(p.getWorld())))
             return;
 
+        boolean anvilAllowed = AnvilEventGuards.isAnvilAllowed(e.getInventory(), p);
+
         AnvilInventory anvilInventory = (AnvilInventory) e.getInventory();
 
         ItemStack firstItem = anvilInventory.getItem(0);
@@ -93,6 +95,19 @@ public class DisenchantClickEvent {
 
         if (enchantments.isEmpty()) {
             DiagnosticUtils.debug("DISENCHANT", "Click: no eligible enchantments → exit");
+            return;
+        }
+
+        // Not a special anvil. Normally Prepare produced no plugin result and this is plain vanilla use. But the
+        // gate may have changed since Prepare (anvil unmarked or broken, block below removed, mode reloaded), so a
+        // plugin-made book can still sit in the result slot: vanilla must not hand it out uncharged.
+        if (!anvilAllowed) {
+            ItemStack staleResult = anvilInventory.getItem(2);
+            if (staleResult != null && staleResult.getType() == Material.ENCHANTED_BOOK) {
+                DiagnosticUtils.debug("DISENCHANT", "Click: not a special anvil but a plugin result is present → CANCELLED, result cleared");
+                e.setCancelled(true);
+                anvilInventory.setItem(2, null);
+            }
             return;
         }
 

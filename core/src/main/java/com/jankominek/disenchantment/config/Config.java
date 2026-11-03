@@ -2040,4 +2040,148 @@ public class Config {
             }
         }
     }
+
+    /**
+     * Configuration of the special anvils feature: which anvils may perform plugin operations, how
+     * the special anvil item looks, and its optional crafting recipe.
+     */
+    public static class SpecialAnvils {
+        /**
+         * Default material for {@code block-below} when the configured one is unusable.
+         */
+        public static final Material DEFAULT_BLOCK_BELOW = Material.LAPIS_BLOCK;
+
+        /**
+         * Gets the configured anvil restriction mode. An unknown value falls back to
+         * {@link SpecialAnvilMode#ALL}; see {@link #validate()} for the matching startup warning.
+         *
+         * @return the active {@link SpecialAnvilMode}
+         */
+        public static SpecialAnvilMode getMode() {
+            return SpecialAnvilMode.fromConfig(config.getString(ConfigKeys.SPECIAL_ANVILS_MODE.getKey()));
+        }
+
+        /**
+         * Gets the material an anvil must stand on in {@link SpecialAnvilMode#BLOCK_BELOW} mode.
+         * An unknown or non-block value falls back to {@link #DEFAULT_BLOCK_BELOW}.
+         *
+         * @return the required block-below material
+         */
+        public static Material getBlockBelow() {
+            Material material = parseBlockBelow(config.getString(ConfigKeys.SPECIAL_ANVILS_BLOCK_BELOW.getKey()));
+            return material != null ? material : DEFAULT_BLOCK_BELOW;
+        }
+
+        private static Material parseBlockBelow(String name) {
+            if (name == null || name.isBlank()) return null;
+
+            Material material = Material.matchMaterial(name.trim());
+            return material != null && material.isBlock() ? material : null;
+        }
+
+        /**
+         * Returns whether anvils opened without a world location (virtual anvils, e.g. from
+         * {@code Player#openAnvil} or another plugin's menu) count as special.
+         *
+         * @return {@code true} if virtual anvils may perform plugin operations
+         */
+        public static boolean isAllowVirtualAnvils() {
+            return config.getBoolean(ConfigKeys.SPECIAL_ANVILS_ALLOW_VIRTUAL_ANVILS.getKey(), false);
+        }
+
+        /**
+         * Returns whether a broken special anvil drops the special item instead of a plain anvil.
+         *
+         * @return {@code true} if broken special anvils drop the special item (default)
+         */
+        public static boolean isDropSpecialItem() {
+            return config.getBoolean(ConfigKeys.SPECIAL_ANVILS_DROP_SPECIAL_ITEM.getKey(), true);
+        }
+
+        /**
+         * Returns whether a player who tries to disenchant at a non-special anvil is told about it.
+         *
+         * @return {@code true} if the hint message is enabled
+         */
+        public static boolean isHintMessageEnabled() {
+            return config.getBoolean(ConfigKeys.SPECIAL_ANVILS_HINT_MESSAGE.getKey(), false);
+        }
+
+        /**
+         * Gets the raw display name of the special anvil item (with {@code &} colour codes).
+         *
+         * @return the configured item name
+         */
+        public static String getItemName() {
+            return config.getString(ConfigKeys.SPECIAL_ANVILS_ITEM_NAME.getKey(), "&dEnchanter's Anvil");
+        }
+
+        /**
+         * Gets the raw lore lines of the special anvil item (with {@code &} colour codes).
+         *
+         * @return the configured item lore, possibly empty
+         */
+        public static List<String> getItemLore() {
+            return config.getStringList(ConfigKeys.SPECIAL_ANVILS_ITEM_LORE.getKey());
+        }
+
+        /**
+         * Returns whether the special anvil crafting recipe is registered.
+         *
+         * @return {@code true} if the recipe is enabled
+         */
+        public static boolean isRecipeEnabled() {
+            return config.getBoolean(ConfigKeys.SPECIAL_ANVILS_RECIPE_ENABLED.getKey(), false);
+        }
+
+        /**
+         * Gets the raw shaped-recipe rows.
+         *
+         * @return the configured shape rows
+         */
+        public static List<String> getRecipeShape() {
+            return config.getStringList(ConfigKeys.SPECIAL_ANVILS_RECIPE_SHAPE.getKey());
+        }
+
+        /**
+         * Gets the raw recipe ingredients: single-character key mapped to a material name. The
+         * pseudo-ingredient {@code ANVIL} always stands for any of the three anvil damage states.
+         *
+         * @return map of shape character to configured material name, possibly empty
+         */
+        public static Map<Character, String> getRecipeIngredients() {
+            Map<Character, String> ingredients = new java.util.LinkedHashMap<>();
+            var section = config.getConfigurationSection(ConfigKeys.SPECIAL_ANVILS_RECIPE_INGREDIENTS.getKey());
+            if (section == null) return ingredients;
+
+            for (String key : section.getKeys(false)) {
+                String value = section.getString(key);
+                if (key.length() == 1 && value != null) ingredients.put(key.charAt(0), value);
+            }
+
+            return ingredients;
+        }
+
+        /**
+         * Checks the special anvils section for values that silently fall back to a default.
+         * Intended to be logged once after the config is loaded.
+         *
+         * @return human-readable warnings, empty when the section is fine
+         */
+        public static List<String> validate() {
+            List<String> warnings = new ArrayList<>();
+
+            String rawMode = config.getString(ConfigKeys.SPECIAL_ANVILS_MODE.getKey());
+            if (rawMode != null && !rawMode.isBlank() && SpecialAnvilMode.match(rawMode) == null) {
+                warnings.add("Config: unknown mode '" + rawMode + "' for special-anvils.mode — defaulting to ALL (every anvil works)");
+            }
+
+            String rawBlock = config.getString(ConfigKeys.SPECIAL_ANVILS_BLOCK_BELOW.getKey());
+            if (rawBlock != null && !rawBlock.isBlank() && parseBlockBelow(rawBlock) == null) {
+                warnings.add("Config: '" + rawBlock + "' is not a block material for special-anvils.block-below — defaulting to " + DEFAULT_BLOCK_BELOW.name());
+            }
+
+            return warnings;
+        }
+    }
 }

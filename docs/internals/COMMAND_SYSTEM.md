@@ -155,6 +155,7 @@ directly.
 | `ShatterRepair`          | Gets/sets XP cost settings for shatterment                                                       |
 | `ShatterEconomy`         | Gets/sets Vault economy settings for shatterment                                                 |
 | `ShatterSound`           | Gets/sets sound settings for shatterment                                                         |
+| `Give`                   | `give anvil <player> [amount]` (perm group `COMMAND_GIVE`): gives `SpecialAnvilItem` (1-64), overflow dropped at the receiver's feet; completes `anvil`, online players, amounts |
 | `Diagnostic`             | Generates and prints a `DiagnosticUtils.getReport(extended, sender)`                             |
 | `Reload`                 | Pre-checks `ConfigUtils.validateConfigFile()` (on a YAML error: sends `I18n.Messages.reloadFailed(error)` and aborts, keeping the running config), otherwise `Disenchantment.reload()` and sends the localized `configReloaded()` |
 

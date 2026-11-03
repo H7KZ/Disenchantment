@@ -58,6 +58,12 @@ messages:
   preview-cost-levels: "&7Cost: &f{levels} levels&r"
   preview-cost-levels-money: "&7Cost: &f{levels} levels &7+ &f{money}&r"
   preview-cost-money: "&7Cost: &f{money}&r"
+  special-anvil-required: "&7This only works at a special anvil.&r"
+  give-anvil-usage: "&cUsage: /disenchantment give anvil <player> [amount]&r"
+  give-player-not-found: "&cPlayer {player} is not online!&r"
+  give-amount-invalid: "&cThe amount must be a whole number between 1 and {max}!&r"
+  give-anvil-given: "&aGave &f{amount}x &aspecial anvil to &f{player}&a.&r"
+  give-anvil-received: "&7You received &f{amount}x &7special anvil.&r"
 
 states:
   enabled: "&aEnabled&r"
@@ -78,6 +84,7 @@ commands:
       2:
         - "&8/disenchant status &7- Displays the plugin's status"
         - "&8/disenchant toggle ['global', 'disenchantment', 'shatterment'] &7- Toggles the plugin on or off"
+        - "&8/disenchant give anvil [player] [amount] &7- Gives special anvils to a player"
       3:
         - "&8/disenchant disenchant:enchantments &7- View list of enchantment states"
         - "&8/disenchant disenchant:enchantments [enchantment name] ['enable', 'keep', 'delete', 'disable'] &7- Edit enchantment behavior"
