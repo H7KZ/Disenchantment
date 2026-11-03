@@ -76,9 +76,11 @@ public class DisenchantmentPlaceholderExpansion extends PlaceholderExpansion {
             case "version" -> plugin.getDescription().getVersion();
             case "player_disenchants" -> playerStat(player, s -> s.disenchants());
             case "player_shatters" -> playerStat(player, s -> s.shatters());
+            case "player_grindstones" -> playerStat(player, s -> s.grindstones());
             case "player_xp_spent" -> playerStat(player, s -> s.xpSpent());
             case "player_last_operation" -> playerLastOp(player);
             case "total_operations" -> totalOps();
+            case "total_grindstones" -> totalGrindstones();
             case "top_enchantment" -> topEnchantment();
             default -> null;
         };
@@ -109,6 +111,13 @@ public class DisenchantmentPlaceholderExpansion extends PlaceholderExpansion {
         if (manager == null) return "0";
         StatsCache c = manager.getCache();
         return String.valueOf(c.getTotalDisenchants() + c.getTotalShatters());
+    }
+
+    private String totalGrindstones() {
+        StatsManager manager = StatsManager.getInstance();
+        if (manager == null) return "0";
+        StatsCache c = manager.getCache();
+        return String.valueOf(c.getTotalGrindExtracts() + c.getTotalGrindTransfers());
     }
 
     private String topEnchantment() {

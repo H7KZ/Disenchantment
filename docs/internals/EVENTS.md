@@ -493,7 +493,7 @@ A `DISABLE` state on any source enchantment or a restricted source material reje
 
 New `AnvilEventType` values `GRINDSTONE_EXTRACT` / `GRINDSTONE_TRANSFER` select the `grindstone.repair` /
 `grindstone.transfer.repair` blocks in `AnvilCostUtils.countAnvilCost`. `StatsListener` records the Post events as
-`OperationType.GRIND_EXTRACT` / `GRIND_TRANSFER` (not counted in the disenchant/shatter totals).
+`OperationType.GRIND_EXTRACT` / `GRIND_TRANSFER`: they have their own counters in `StatsCache` (`getTotalGrindExtracts/Transfers`, per-player `grindstones`, shown by `/disenchantment stats`, PAPI `%disenchantment_total_grindstones%` and `%disenchantment_player_grindstones%`), count toward the XP and money totals, and are not in the disenchant/shatter totals or `total_operations`.
 
 ---
 

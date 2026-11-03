@@ -100,7 +100,7 @@ public class StatsDatabase {
      * Loads aggregate stats for populating the in-memory cache at boot. Runs on async thread.
      */
     public BootData loadBootData() throws SQLException {
-        long disenchants = 0, shatters = 0, xpSpent = 0;
+        long disenchants = 0, shatters = 0, grindExtracts = 0, grindTransfers = 0, xpSpent = 0;
         double moneySpent = 0.0;
         Map<String, Long> enchCounts = new HashMap<>();
         Map<UUID, BootData.PlayerBootStats> playerStats = new HashMap<>();
@@ -116,6 +116,8 @@ public class StatsDatabase {
                 double money = rs.getDouble(4);
                 if ("DISENCHANT".equals(type)) disenchants = count;
                 else if ("SHATTER".equals(type)) shatters = count;
+                else if ("GRIND_EXTRACT".equals(type)) grindExtracts = count;
+                else if ("GRIND_TRANSFER".equals(type)) grindTransfers = count;
                 xpSpent += xp;
                 moneySpent += money;
             }
@@ -128,7 +130,8 @@ public class StatsDatabase {
                              SELECT player_uuid, player_name,
                                SUM(CASE WHEN operation_type='DISENCHANT' THEN 1 ELSE 0 END),
                                SUM(CASE WHEN operation_type='SHATTER' THEN 1 ELSE 0 END),
-                               SUM(xp_cost), SUM(economy_cost), MAX(timestamp)
+                               SUM(xp_cost), SUM(economy_cost), MAX(timestamp),
+                               SUM(CASE WHEN operation_type IN ('GRIND_EXTRACT','GRIND_TRANSFER') THEN 1 ELSE 0 END)
                              FROM operations GROUP BY player_uuid""")) {
             while (rs.next()) {
                 UUID uuid = UUID.fromString(rs.getString(1));
@@ -136,7 +139,7 @@ public class StatsDatabase {
                         rs.getString(2),
                         rs.getLong(3), rs.getLong(4),
                         rs.getLong(5), rs.getDouble(6),
-                        rs.getLong(7)));
+                        rs.getLong(7), rs.getLong(8)));
             }
         }
 
@@ -154,7 +157,7 @@ public class StatsDatabase {
             }
         }
 
-        return new BootData(disenchants, shatters, xpSpent, moneySpent, enchCounts, playerStats);
+        return new BootData(disenchants, shatters, xpSpent, moneySpent, enchCounts, playerStats, grindExtracts, grindTransfers);
     }
 
     /**

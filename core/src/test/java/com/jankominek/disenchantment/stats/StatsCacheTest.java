@@ -169,4 +169,37 @@ class StatsCacheTest {
         assertEquals(1L, cache.getEnchantmentCounts().get("minecraft:mending"));
         assertEquals(10, cache.getTotalXpSpent());
     }
+
+    @Test
+    void record_grindstoneOps_haveTheirOwnCountersAndStillCountTowardCosts() {
+        UUID uuid = UUID.randomUUID();
+        cache.record(OperationType.GRIND_EXTRACT, List.of("minecraft:sharpness"), uuid, "Steve", 4, 1.5, Instant.now());
+        cache.record(OperationType.GRIND_TRANSFER, List.of("minecraft:unbreaking"), uuid, "Steve", 2, 0.5, Instant.now());
+        cache.record(OperationType.GRIND_TRANSFER, List.of("minecraft:mending"), uuid, "Steve", 1, 0.0, Instant.now());
+
+        assertEquals(1, cache.getTotalGrindExtracts());
+        assertEquals(2, cache.getTotalGrindTransfers());
+        assertEquals(0, cache.getTotalDisenchants(), "Anvil counters are unchanged");
+        assertEquals(0, cache.getTotalShatters());
+        assertEquals(7, cache.getTotalXpSpent());
+        assertEquals(2.0, cache.getTotalMoneySpent());
+
+        StatsCache.PlayerStats ps = cache.getPlayerStats(uuid);
+        assertEquals(3, ps.grindstones());
+        assertEquals(0, ps.disenchants());
+        assertEquals(7, ps.xpSpent());
+    }
+
+    @Test
+    void initialize_withGrindstoneBootData_seedsCountersAndMergesWithLiveRecords() {
+        UUID uuid = UUID.randomUUID();
+        cache.record(OperationType.GRIND_EXTRACT, List.of(), uuid, "Steve", 0, 0.0, Instant.ofEpochSecond(100));
+
+        cache.initialize(new BootData(0L, 0L, 5L, 0.0, Map.of(),
+                Map.of(uuid, new BootData.PlayerBootStats("Steve", 0L, 0L, 5L, 0.0, 50L, 2L)), 2L, 1L));
+
+        assertEquals(3, cache.getTotalGrindExtracts());
+        assertEquals(1, cache.getTotalGrindTransfers());
+        assertEquals(3, cache.getPlayerStats(uuid).grindstones());
+    }
 }

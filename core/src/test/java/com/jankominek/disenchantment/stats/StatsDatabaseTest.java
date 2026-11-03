@@ -169,4 +169,23 @@ class StatsDatabaseTest {
             assertFalse(rs.next(), "legacy index should be dropped");
         }
     }
+
+    @Test
+    void loadBootData_grindstoneOps_countedSeparately() throws Exception {
+        UUID uuid = UUID.randomUUID();
+        db.insertSync(new OperationRecord(1000L, uuid, "Steve", "world",
+                OperationType.GRIND_EXTRACT, "DIAMOND_SWORD", "minecraft:sharpness", 3, 0.0));
+        db.insertSync(new OperationRecord(2000L, uuid, "Steve", "world",
+                OperationType.GRIND_TRANSFER, "DIAMOND_PICKAXE", "minecraft:efficiency", 2, 0.0));
+        db.insertSync(new OperationRecord(3000L, uuid, "Steve", "world",
+                OperationType.DISENCHANT, "DIAMOND_SWORD", "minecraft:sharpness", 1, 0.0));
+
+        BootData data = db.loadBootData();
+
+        assertEquals(1, data.disenchants());
+        assertEquals(1, data.grindExtracts());
+        assertEquals(1, data.grindTransfers());
+        assertEquals(2, data.playerStats().get(uuid).grindstones());
+        assertEquals(6, data.xpSpent());
+    }
 }
