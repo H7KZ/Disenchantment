@@ -189,7 +189,7 @@ public class Config {
      * @return {@code true} if the plugin is enabled
      */
     public static boolean isPluginEnabled() {
-        return config.getBoolean(ConfigKeys.ENABLED.getKey());
+        return ConfigValues.bool(ConfigKeys.ENABLED);
     }
 
     /**
@@ -199,7 +199,7 @@ public class Config {
      * @return {@code true} if update checking is enabled (default)
      */
     public static boolean isUpdateCheckerEnabled() {
-        return config.getBoolean(ConfigKeys.UPDATE_CHECKER.getKey(), true);
+        return ConfigValues.bool(ConfigKeys.UPDATE_CHECKER);
     }
 
     /**
@@ -209,7 +209,7 @@ public class Config {
      * @return the retention in days; {@code 0} (default) keeps records forever. Negative values read as {@code 0}
      */
     public static int getOperationsRetentionDays() {
-        return Math.max(0, config.getInt(ConfigKeys.LOGGING_OPERATIONS_RETENTION_DAYS.getKey(), 0));
+        return ConfigValues.integer(ConfigKeys.LOGGING_OPERATIONS_RETENTION_DAYS);
     }
 
     /**
@@ -231,7 +231,16 @@ public class Config {
      * @return list of locale codes
      */
     public static List<String> getLocales() {
-        return config.getStringList(ConfigKeys.LOCALES.getKey());
+        Object raw = ConfigValues.raw(ConfigKeys.LOCALES);
+        if (!(raw instanceof java.util.Collection) && ConfigValues.scalar(raw) == null) return new ArrayList<>(List.of("cs", "en"));
+
+        // Locale codes become file names, so anything that is not a plain code is dropped.
+        List<String> locales = new ArrayList<>();
+        for (String locale : ConfigValues.toStringList(raw)) {
+            if (locale.matches(ConfigSpec.LOCALE_PATTERN) && !locales.contains(locale)) locales.add(locale);
+        }
+        if (locales.isEmpty() && !(raw instanceof java.util.Collection)) return new ArrayList<>(List.of("cs", "en"));
+        return locales;
     }
 
     /**
@@ -240,7 +249,7 @@ public class Config {
      * @return the active locale code
      */
     public static String getLocale() {
-        return config.getString(ConfigKeys.LOCALE.getKey());
+        return ConfigValues.string(ConfigKeys.LOCALE);
     }
 
     /**
@@ -250,13 +259,7 @@ public class Config {
      * @return map of group name to its member enchantment keys
      */
     public static Map<String, List<String>> getEnchantmentGroups() {
-        var section = config.getConfigurationSection(ConfigKeys.ENCHANTMENT_GROUPS.getKey());
-        if (section == null) return new HashMap<>();
-        Map<String, List<String>> groups = new HashMap<>();
-        for (String key : section.getKeys(false)) {
-            groups.put(key.toLowerCase(), section.getStringList(key).stream().map(String::toLowerCase).toList());
-        }
-        return groups;
+        return ConfigValues.parseGroups(ConfigValues.raw(ConfigKeys.ENCHANTMENT_GROUPS), null);
     }
 
     /**
@@ -271,11 +274,7 @@ public class Config {
          * @return the configured {@link EventPriority}, defaulting to HIGHEST
          */
         public static EventPriority getDisenchantEvent() {
-            try {
-                return EventPriority.valueOf(config.getString(ConfigKeys.EVENT_PRIORITIES_DISENCHANT.getKey(), "HIGHEST").toUpperCase());
-            } catch (IllegalArgumentException e) {
-                return EventPriority.HIGHEST;
-            }
+            return ConfigValues.enumeration(ConfigKeys.EVENT_PRIORITIES_DISENCHANT, EventPriority.class);
         }
 
         /**
@@ -284,11 +283,7 @@ public class Config {
          * @return the configured {@link EventPriority}, defaulting to HIGHEST
          */
         public static EventPriority getDisenchantClickEvent() {
-            try {
-                return EventPriority.valueOf(config.getString(ConfigKeys.EVENT_PRIORITIES_DISENCHANT_CLICK.getKey(), "HIGHEST").toUpperCase());
-            } catch (IllegalArgumentException e) {
-                return EventPriority.HIGHEST;
-            }
+            return ConfigValues.enumeration(ConfigKeys.EVENT_PRIORITIES_DISENCHANT_CLICK, EventPriority.class);
         }
 
         /**
@@ -297,11 +292,7 @@ public class Config {
          * @return the configured {@link EventPriority}, defaulting to HIGHEST
          */
         public static EventPriority getShatterEvent() {
-            try {
-                return EventPriority.valueOf(config.getString(ConfigKeys.EVENT_PRIORITIES_SHATTER.getKey(), "HIGHEST").toUpperCase());
-            } catch (IllegalArgumentException e) {
-                return EventPriority.HIGHEST;
-            }
+            return ConfigValues.enumeration(ConfigKeys.EVENT_PRIORITIES_SHATTER, EventPriority.class);
         }
 
         /**
@@ -310,11 +301,7 @@ public class Config {
          * @return the configured {@link EventPriority}, defaulting to HIGHEST
          */
         public static EventPriority getShatterClickEvent() {
-            try {
-                return EventPriority.valueOf(config.getString(ConfigKeys.EVENT_PRIORITIES_SHATTER_CLICK.getKey(), "HIGHEST").toUpperCase());
-            } catch (IllegalArgumentException e) {
-                return EventPriority.HIGHEST;
-            }
+            return ConfigValues.enumeration(ConfigKeys.EVENT_PRIORITIES_SHATTER_CLICK, EventPriority.class);
         }
     }
 
@@ -330,11 +317,7 @@ public class Config {
          * @return the active {@link LogLevelType}
          */
         public static LogLevelType getLevel() {
-            try {
-                return LogLevelType.valueOf(config.getString(ConfigKeys.LOGGING_LEVEL.getKey(), "INFO").toUpperCase());
-            } catch (IllegalArgumentException e) {
-                return LogLevelType.INFO;
-            }
+            return ConfigValues.enumeration(ConfigKeys.LOGGING_LEVEL, LogLevelType.class);
         }
 
         /**
@@ -343,7 +326,7 @@ public class Config {
          * @return {@code true} if file-based crash reporting is enabled
          */
         public static boolean isSaveReportsEnabled() {
-            return config.getBoolean(ConfigKeys.LOGGING_SAVE_REPORTS.getKey(), true);
+            return ConfigValues.bool(ConfigKeys.LOGGING_SAVE_REPORTS);
         }
 
         /**
@@ -352,7 +335,7 @@ public class Config {
          * @return {@code true} if operation logging is enabled
          */
         public static boolean isOperationsEnabled() {
-            return config.getBoolean(ConfigKeys.LOGGING_OPERATIONS.getKey(), false);
+            return ConfigValues.bool(ConfigKeys.LOGGING_OPERATIONS);
         }
 
         /**
@@ -371,7 +354,7 @@ public class Config {
          * @return the Discord webhook URL, or an empty string if not configured
          */
         public static String getDiscordWebhook() {
-            return config.getString(ConfigKeys.LOGGING_DISCORD_WEBHOOK.getKey(), "");
+            return ConfigValues.string(ConfigKeys.LOGGING_DISCORD_WEBHOOK);
         }
     }
 
@@ -387,7 +370,7 @@ public class Config {
          * @return {@code true} if LuckPerms-based cost multiplier is enabled
          */
         public static boolean isLuckPermsEnabled() {
-            return config.getBoolean(ConfigKeys.COST_MULTIPLIER_LUCKPERMS.getKey(), false);
+            return ConfigValues.bool(ConfigKeys.COST_MULTIPLIER_LUCKPERMS);
         }
     }
 
@@ -401,7 +384,7 @@ public class Config {
          * @return the cooldown duration in seconds
          */
         public static int getSeconds() {
-            return config.getInt(ConfigKeys.COOLDOWN_SECONDS.getKey(), 0);
+            return ConfigValues.integer(ConfigKeys.COOLDOWN_SECONDS);
         }
 
         /**
@@ -410,7 +393,7 @@ public class Config {
          * @return {@code true} if the CMI cooldown delegate is enabled
          */
         public static boolean isUseCmiEnabled() {
-            return config.getBoolean(ConfigKeys.COOLDOWN_USE_CMI.getKey(), false);
+            return ConfigValues.bool(ConfigKeys.COOLDOWN_USE_CMI);
         }
 
         /**
@@ -419,7 +402,7 @@ public class Config {
          * @return {@code true} if the EssentialsX cooldown delegate is enabled
          */
         public static boolean isUseEssentialsEnabled() {
-            return config.getBoolean(ConfigKeys.COOLDOWN_USE_ESSENTIALS.getKey(), false);
+            return ConfigValues.bool(ConfigKeys.COOLDOWN_USE_ESSENTIALS);
         }
     }
 
@@ -440,7 +423,7 @@ public class Config {
          * @return {@code true} if disenchantment is enabled
          */
         public static boolean isEnabled() {
-            return config.getBoolean(ConfigKeys.DISENCHANTMENT_ENABLED.getKey());
+            return ConfigValues.bool(ConfigKeys.DISENCHANTMENT_ENABLED);
         }
 
         /**
@@ -486,7 +469,7 @@ public class Config {
          * @return list of listed {@link World} instances
          */
         public static List<World> getDisabledWorlds() {
-            return new ArrayList<>(config.getStringList(ConfigKeys.DISENCHANTMENT_WORLDS_LIST.getKey()).stream().map(Bukkit::getWorld).filter(java.util.Objects::nonNull).toList());
+            return new ArrayList<>(ConfigValues.toStringList(ConfigValues.raw(ConfigKeys.DISENCHANTMENT_WORLDS_LIST)).stream().map(Bukkit::getWorld).filter(java.util.Objects::nonNull).distinct().toList());
         }
 
         /**
@@ -496,7 +479,7 @@ public class Config {
          * @return {@code true} if the persisted value matches the requested list
          */
         public static boolean setDisabledWorlds(List<World> worlds) {
-            config.set(ConfigKeys.DISENCHANTMENT_WORLDS_LIST.getKey(), worlds.stream().map(World::getName).toList());
+            config.set(ConfigKeys.DISENCHANTMENT_WORLDS_LIST.getKey(), ConfigValues.keepUnresolved(worlds.stream().map(World::getName).toList(), ConfigValues.raw(ConfigKeys.DISENCHANTMENT_WORLDS_LIST), name -> Bukkit.getWorld(name) != null));
             save();
 
             return getDisabledWorlds().equals(worlds);
@@ -544,7 +527,7 @@ public class Config {
          * @return list of listed {@link Material} types
          */
         public static List<Material> getDisabledMaterials() {
-            return new ArrayList<>(config.getStringList(ConfigKeys.DISENCHANTMENT_MATERIALS_LIST.getKey()).stream().map(Material::getMaterial).filter(java.util.Objects::nonNull).toList());
+            return ConfigValues.parseMaterials(ConfigValues.raw(ConfigKeys.DISENCHANTMENT_MATERIALS_LIST), null);
         }
 
         /**
@@ -554,7 +537,7 @@ public class Config {
          * @return {@code true} if the persisted value matches the requested list
          */
         public static boolean setDisabledMaterials(List<Material> materials) {
-            config.set(ConfigKeys.DISENCHANTMENT_MATERIALS_LIST.getKey(), materials.stream().map(Material::name).toList());
+            config.set(ConfigKeys.DISENCHANTMENT_MATERIALS_LIST.getKey(), ConfigValues.keepUnresolved(materials.stream().map(Material::name).toList(), ConfigValues.raw(ConfigKeys.DISENCHANTMENT_MATERIALS_LIST), name -> ConfigValues.matchMaterial(name) != null));
             save();
 
             return getDisabledMaterials().equals(materials);
@@ -580,28 +563,7 @@ public class Config {
         public static HashMap<String, EnchantmentStateType> getEnchantmentStates() {
             if (ENCHANTMENT_STATES_CACHE != null) return ENCHANTMENT_STATES_CACHE;
 
-            List<String> list = config.getStringList(ConfigKeys.DISENCHANTMENT_ENCHANTMENTS_STATES.getKey());
-            HashMap<String, EnchantmentStateType> enchantmentStates = new HashMap<>();
-
-            for (String enchantmentState : list) {
-                String[] split = enchantmentState.split(":");
-
-                String key;
-                EnchantmentStateType state;
-
-                if (split.length == 2) {
-                    key = split[0];
-                    state = EnchantmentStateType.getStateByName(split[1]);
-                } else if (split.length == 3) {
-                    // "minecraft:sharpness:keep" — namespace prefix, drop it
-                    key = split[1];
-                    state = EnchantmentStateType.getStateByName(split[2]);
-                } else {
-                    continue;
-                }
-
-                enchantmentStates.put(key, state);
-            }
+            HashMap<String, EnchantmentStateType> enchantmentStates = ConfigValues.parseEnchantmentStates(ConfigValues.raw(ConfigKeys.DISENCHANTMENT_ENCHANTMENTS_STATES), null);
 
             ENCHANTMENT_STATES_CACHE = enchantmentStates;
 
@@ -638,13 +600,7 @@ public class Config {
         public static Map<String, Double> getEnchantmentChances() {
             if (ENCHANTMENT_CHANCES_CACHE != null) return ENCHANTMENT_CHANCES_CACHE;
 
-            Map<String, Double> chances = new HashMap<>();
-            var section = config.getConfigurationSection(ConfigKeys.DISENCHANTMENT_ENCHANTMENT_CHANCES.getKey());
-            if (section != null) {
-                for (String key : section.getKeys(false)) {
-                    chances.put(key.toLowerCase(), section.getDouble(key));
-                }
-            }
+            Map<String, Double> chances = ConfigValues.parseChances(ConfigValues.raw(ConfigKeys.DISENCHANTMENT_ENCHANTMENT_CHANCES), null);
 
             ENCHANTMENT_CHANCES_CACHE = Collections.unmodifiableMap(chances);
             return ENCHANTMENT_CHANCES_CACHE;
@@ -660,8 +616,8 @@ public class Config {
             if (key == null) return 1.0;
             String shortKey = key.contains(":") ? key.substring(key.indexOf(':') + 1) : key;
             Map<String, Double> chances = getEnchantmentChances();
-            Double chance = chances.get(shortKey.toLowerCase());
-            if (chance == null) chance = chances.get(key.toLowerCase()); // also match full namespaced key
+            Double chance = chances.get(shortKey.toLowerCase(java.util.Locale.ROOT));
+            if (chance == null) chance = chances.get(key.toLowerCase(java.util.Locale.ROOT)); // also match full namespaced key
             if (chance == null) return 1.0;
             return Math.max(0.0, Math.min(1.0, chance));
         }
@@ -688,7 +644,7 @@ public class Config {
              * @return {@code true} if economy cost is active
              */
             public static boolean isEnabled() {
-                return config.getBoolean(ConfigKeys.DISENCHANTMENT_ECONOMY_ENABLED.getKey());
+                return ConfigValues.bool(ConfigKeys.DISENCHANTMENT_ECONOMY_ENABLED);
             }
 
             /**
@@ -710,7 +666,7 @@ public class Config {
              * @return the configured cost
              */
             public static double getCost() {
-                return config.getDouble(ConfigKeys.DISENCHANTMENT_ECONOMY_COST.getKey());
+                return ConfigValues.decimal(ConfigKeys.DISENCHANTMENT_ECONOMY_COST);
             }
 
             /**
@@ -732,7 +688,7 @@ public class Config {
              * @return {@code true} if the cost display is enabled
              */
             public static boolean isShowCostEnabled() {
-                return config.getBoolean(ConfigKeys.DISENCHANTMENT_ECONOMY_SHOW_COST.getKey(), true);
+                return ConfigValues.bool(ConfigKeys.DISENCHANTMENT_ECONOMY_SHOW_COST);
             }
 
             /**
@@ -754,7 +710,7 @@ public class Config {
              * @return {@code true} if the charge message is enabled
              */
             public static boolean isChargeMessageEnabled() {
-                return config.getBoolean(ConfigKeys.DISENCHANTMENT_ECONOMY_CHARGE_MESSAGE.getKey(), true);
+                return ConfigValues.bool(ConfigKeys.DISENCHANTMENT_ECONOMY_CHARGE_MESSAGE);
             }
 
             /**
@@ -781,7 +737,7 @@ public class Config {
              * @return {@code true} if the bypass is enabled
              */
             public static boolean isBypassTooExpensiveEnabled() {
-                return config.getBoolean(ConfigKeys.DISENCHANTMENT_ANVIL_BYPASS_TOO_EXPENSIVE.getKey());
+                return ConfigValues.bool(ConfigKeys.DISENCHANTMENT_ANVIL_BYPASS_TOO_EXPENSIVE);
             }
 
             /**
@@ -794,7 +750,7 @@ public class Config {
                  * @return {@code true} if the sound is enabled
                  */
                 public static boolean isEnabled() {
-                    return config.getBoolean(ConfigKeys.DISENCHANTMENT_ANVIL_SOUND_ENABLED.getKey());
+                    return ConfigValues.bool(ConfigKeys.DISENCHANTMENT_ANVIL_SOUND_ENABLED);
                 }
 
                 /**
@@ -816,7 +772,7 @@ public class Config {
                  * @return the configured volume
                  */
                 public static Double getVolume() {
-                    return config.getDouble(ConfigKeys.DISENCHANTMENT_ANVIL_VOLUME.getKey());
+                    return ConfigValues.decimal(ConfigKeys.DISENCHANTMENT_ANVIL_VOLUME);
                 }
 
                 /**
@@ -838,7 +794,7 @@ public class Config {
                  * @return the configured pitch
                  */
                 public static Double getPitch() {
-                    return config.getDouble(ConfigKeys.DISENCHANTMENT_ANVIL_PITCH.getKey());
+                    return ConfigValues.decimal(ConfigKeys.DISENCHANTMENT_ANVIL_PITCH);
                 }
 
                 /**
@@ -865,7 +821,7 @@ public class Config {
                  * @return {@code true} if repair cost reset is enabled
                  */
                 public static boolean isResetEnabled() {
-                    return config.getBoolean(ConfigKeys.DISENCHANTMENT_REPAIR_RESET_ENABLED.getKey());
+                    return ConfigValues.bool(ConfigKeys.DISENCHANTMENT_REPAIR_RESET_ENABLED);
                 }
 
                 /**
@@ -887,7 +843,7 @@ public class Config {
                  * @return {@code true} if repair cost is enabled
                  */
                 public static boolean isCostEnabled() {
-                    return config.getBoolean(ConfigKeys.DISENCHANTMENT_REPAIR_COST_ENABLED.getKey());
+                    return ConfigValues.bool(ConfigKeys.DISENCHANTMENT_REPAIR_COST_ENABLED);
                 }
 
                 /**
@@ -909,7 +865,7 @@ public class Config {
                  * @return the configured base cost
                  */
                 public static Double getBaseCost() {
-                    return config.getDouble(ConfigKeys.DISENCHANTMENT_REPAIR_COST_BASE.getKey());
+                    return ConfigValues.decimal(ConfigKeys.DISENCHANTMENT_REPAIR_COST_BASE);
                 }
 
                 /**
@@ -931,7 +887,7 @@ public class Config {
                  * @return the configured cost multiplier
                  */
                 public static Double getCostMultiplier() {
-                    return config.getDouble(ConfigKeys.DISENCHANTMENT_REPAIR_COST_MULTIPLIER.getKey());
+                    return ConfigValues.decimal(ConfigKeys.DISENCHANTMENT_REPAIR_COST_MULTIPLIER);
                 }
 
                 /**
@@ -955,22 +911,7 @@ public class Config {
                 public static Map<String, Integer> getEnchantmentCosts() {
                     if (REPAIR_COSTS_CACHE != null) return REPAIR_COSTS_CACHE;
 
-                    var section = config.getConfigurationSection(ConfigKeys.DISENCHANTMENT_ANVIL_REPAIR_ENCHANTMENT_COSTS.getKey());
-                    Map<String, Integer> costs = new HashMap<>();
-                    if (section == null) {
-                        REPAIR_COSTS_CACHE = Collections.unmodifiableMap(costs);
-                        return REPAIR_COSTS_CACHE;
-                    }
-                    for (String key : section.getKeys(false)) {
-                        // Two supported shapes: "sharpness: 5" (XP-only, legacy) or
-                        // "mending: { xp: 10, economy: 500 }" (XP + economy override).
-                        var sub = section.getConfigurationSection(key);
-                        if (sub != null) {
-                            if (sub.contains("xp")) costs.put(key, sub.getInt("xp"));
-                        } else {
-                            costs.put(key, section.getInt(key));
-                        }
-                    }
+                    Map<String, Integer> costs = ConfigValues.parseXpCosts(ConfigValues.raw(ConfigKeys.DISENCHANTMENT_ANVIL_REPAIR_ENCHANTMENT_COSTS), null);
                     REPAIR_COSTS_CACHE = Collections.unmodifiableMap(costs);
                     return REPAIR_COSTS_CACHE;
                 }
@@ -985,16 +926,7 @@ public class Config {
                 public static Map<String, Double> getEnchantmentEconomyCosts() {
                     if (REPAIR_ECONOMY_COSTS_CACHE != null) return REPAIR_ECONOMY_COSTS_CACHE;
 
-                    Map<String, Double> costs = new HashMap<>();
-                    var section = config.getConfigurationSection(ConfigKeys.DISENCHANTMENT_ANVIL_REPAIR_ENCHANTMENT_COSTS.getKey());
-                    if (section != null) {
-                        for (String key : section.getKeys(false)) {
-                            var sub = section.getConfigurationSection(key);
-                            if (sub != null && sub.contains("economy")) {
-                                costs.put(key, sub.getDouble("economy"));
-                            }
-                        }
-                    }
+                    Map<String, Double> costs = ConfigValues.parseEconomyCosts(ConfigValues.raw(ConfigKeys.DISENCHANTMENT_ANVIL_REPAIR_ENCHANTMENT_COSTS), null);
 
                     REPAIR_ECONOMY_COSTS_CACHE = Collections.unmodifiableMap(costs);
                     return REPAIR_ECONOMY_COSTS_CACHE;
@@ -1006,7 +938,7 @@ public class Config {
                  * @return the configured max cost, or -1 if uncapped
                  */
                 public static int getMaxCost() {
-                    return config.getInt(ConfigKeys.DISENCHANTMENT_REPAIR_MAX_COST.getKey(), -1);
+                    return ConfigValues.integer(ConfigKeys.DISENCHANTMENT_REPAIR_MAX_COST);
                 }
 
                 /**
@@ -1042,7 +974,7 @@ public class Config {
          * @return {@code true} if shatterment is enabled
          */
         public static boolean isEnabled() {
-            return config.getBoolean(ConfigKeys.SHATTERMENT_ENABLED.getKey());
+            return ConfigValues.bool(ConfigKeys.SHATTERMENT_ENABLED);
         }
 
         /**
@@ -1088,7 +1020,7 @@ public class Config {
          * @return list of listed {@link World} instances
          */
         public static List<World> getDisabledWorlds() {
-            return new ArrayList<>(config.getStringList(ConfigKeys.SHATTERMENT_WORLDS_LIST.getKey()).stream().map(Bukkit::getWorld).filter(java.util.Objects::nonNull).toList());
+            return new ArrayList<>(ConfigValues.toStringList(ConfigValues.raw(ConfigKeys.SHATTERMENT_WORLDS_LIST)).stream().map(Bukkit::getWorld).filter(java.util.Objects::nonNull).distinct().toList());
         }
 
         /**
@@ -1098,7 +1030,7 @@ public class Config {
          * @return {@code true} if the persisted value matches the requested list
          */
         public static boolean setDisabledWorlds(List<World> worlds) {
-            config.set(ConfigKeys.SHATTERMENT_WORLDS_LIST.getKey(), worlds.stream().map(World::getName).toList());
+            config.set(ConfigKeys.SHATTERMENT_WORLDS_LIST.getKey(), ConfigValues.keepUnresolved(worlds.stream().map(World::getName).toList(), ConfigValues.raw(ConfigKeys.SHATTERMENT_WORLDS_LIST), name -> Bukkit.getWorld(name) != null));
             save();
 
             return getDisabledWorlds().equals(worlds);
@@ -1148,7 +1080,7 @@ public class Config {
          * @return list of listed {@link Material} types
          */
         public static List<Material> getDisabledMaterials() {
-            return new ArrayList<>(config.getStringList(ConfigKeys.SHATTERMENT_MATERIALS_LIST.getKey()).stream().map(Material::getMaterial).filter(java.util.Objects::nonNull).toList());
+            return ConfigValues.parseMaterials(ConfigValues.raw(ConfigKeys.SHATTERMENT_MATERIALS_LIST), null);
         }
 
         /**
@@ -1158,7 +1090,7 @@ public class Config {
          * @return {@code true} if the persisted value matches the requested list
          */
         public static boolean setDisabledMaterials(List<Material> materials) {
-            config.set(ConfigKeys.SHATTERMENT_MATERIALS_LIST.getKey(), materials.stream().map(Material::name).toList());
+            config.set(ConfigKeys.SHATTERMENT_MATERIALS_LIST.getKey(), ConfigValues.keepUnresolved(materials.stream().map(Material::name).toList(), ConfigValues.raw(ConfigKeys.SHATTERMENT_MATERIALS_LIST), name -> ConfigValues.matchMaterial(name) != null));
             save();
 
             return getDisabledMaterials().equals(materials);
@@ -1184,13 +1116,7 @@ public class Config {
          * @return the configured {@link SplitCountRange}, defaulting to a fixed range of 1
          */
         public static SplitCountRange getSplitCount() {
-            var section = config.getConfigurationSection(ConfigKeys.SHATTERMENT_SPLIT_COUNT.getKey());
-            if (section != null && section.contains("min") && section.contains("max")) {
-                return new SplitCountRange(section.getInt("min"), section.getInt("max"));
-            }
-
-            int value = config.getInt(ConfigKeys.SHATTERMENT_SPLIT_COUNT.getKey(), 1);
-            return new SplitCountRange(value, value);
+            return ConfigValues.parseSplitCount(ConfigValues.raw(ConfigKeys.SHATTERMENT_SPLIT_COUNT));
         }
 
         /**
@@ -1218,28 +1144,7 @@ public class Config {
         public static HashMap<String, EnchantmentStateType> getEnchantmentStates() {
             if (ENCHANTMENT_STATES_CACHE != null) return ENCHANTMENT_STATES_CACHE;
 
-            List<String> list = config.getStringList(ConfigKeys.SHATTERMENT_ENCHANTMENTS_STATES.getKey());
-            HashMap<String, EnchantmentStateType> enchantmentStates = new HashMap<>();
-
-            for (String enchantmentState : list) {
-                String[] split = enchantmentState.split(":");
-
-                String key;
-                EnchantmentStateType state;
-
-                if (split.length == 2) {
-                    key = split[0];
-                    state = EnchantmentStateType.getStateByName(split[1]);
-                } else if (split.length == 3) {
-                    // "minecraft:sharpness:keep" — namespace prefix, drop it
-                    key = split[1];
-                    state = EnchantmentStateType.getStateByName(split[2]);
-                } else {
-                    continue;
-                }
-
-                enchantmentStates.put(key, state);
-            }
+            HashMap<String, EnchantmentStateType> enchantmentStates = ConfigValues.parseEnchantmentStates(ConfigValues.raw(ConfigKeys.SHATTERMENT_ENCHANTMENTS_STATES), null);
 
             ENCHANTMENT_STATES_CACHE = enchantmentStates;
 
@@ -1276,13 +1181,7 @@ public class Config {
         public static Map<String, Double> getEnchantmentChances() {
             if (ENCHANTMENT_CHANCES_CACHE != null) return ENCHANTMENT_CHANCES_CACHE;
 
-            Map<String, Double> chances = new HashMap<>();
-            var section = config.getConfigurationSection(ConfigKeys.SHATTERMENT_ENCHANTMENT_CHANCES.getKey());
-            if (section != null) {
-                for (String key : section.getKeys(false)) {
-                    chances.put(key.toLowerCase(), section.getDouble(key));
-                }
-            }
+            Map<String, Double> chances = ConfigValues.parseChances(ConfigValues.raw(ConfigKeys.SHATTERMENT_ENCHANTMENT_CHANCES), null);
 
             ENCHANTMENT_CHANCES_CACHE = Collections.unmodifiableMap(chances);
             return ENCHANTMENT_CHANCES_CACHE;
@@ -1298,8 +1197,8 @@ public class Config {
             if (key == null) return 1.0;
             String shortKey = key.contains(":") ? key.substring(key.indexOf(':') + 1) : key;
             Map<String, Double> chances = getEnchantmentChances();
-            Double chance = chances.get(shortKey.toLowerCase());
-            if (chance == null) chance = chances.get(key.toLowerCase()); // also match full namespaced key
+            Double chance = chances.get(shortKey.toLowerCase(java.util.Locale.ROOT));
+            if (chance == null) chance = chances.get(key.toLowerCase(java.util.Locale.ROOT)); // also match full namespaced key
             if (chance == null) return 1.0;
             return Math.max(0.0, Math.min(1.0, chance));
         }
@@ -1326,7 +1225,7 @@ public class Config {
              * @return {@code true} if economy cost is active
              */
             public static boolean isEnabled() {
-                return config.getBoolean(ConfigKeys.SHATTERMENT_ECONOMY_ENABLED.getKey());
+                return ConfigValues.bool(ConfigKeys.SHATTERMENT_ECONOMY_ENABLED);
             }
 
             /**
@@ -1348,7 +1247,7 @@ public class Config {
              * @return the configured cost
              */
             public static double getCost() {
-                return config.getDouble(ConfigKeys.SHATTERMENT_ECONOMY_COST.getKey());
+                return ConfigValues.decimal(ConfigKeys.SHATTERMENT_ECONOMY_COST);
             }
 
             /**
@@ -1370,7 +1269,7 @@ public class Config {
              * @return {@code true} if the cost display is enabled
              */
             public static boolean isShowCostEnabled() {
-                return config.getBoolean(ConfigKeys.SHATTERMENT_ECONOMY_SHOW_COST.getKey(), true);
+                return ConfigValues.bool(ConfigKeys.SHATTERMENT_ECONOMY_SHOW_COST);
             }
 
             /**
@@ -1392,7 +1291,7 @@ public class Config {
              * @return {@code true} if the charge message is enabled
              */
             public static boolean isChargeMessageEnabled() {
-                return config.getBoolean(ConfigKeys.SHATTERMENT_ECONOMY_CHARGE_MESSAGE.getKey(), true);
+                return ConfigValues.bool(ConfigKeys.SHATTERMENT_ECONOMY_CHARGE_MESSAGE);
             }
 
             /**
@@ -1419,7 +1318,7 @@ public class Config {
              * @return {@code true} if the bypass is enabled
              */
             public static boolean isBypassTooExpensiveEnabled() {
-                return config.getBoolean(ConfigKeys.SHATTERMENT_ANVIL_BYPASS_TOO_EXPENSIVE.getKey());
+                return ConfigValues.bool(ConfigKeys.SHATTERMENT_ANVIL_BYPASS_TOO_EXPENSIVE);
             }
 
             /**
@@ -1432,7 +1331,7 @@ public class Config {
                  * @return {@code true} if the sound is enabled
                  */
                 public static boolean isEnabled() {
-                    return config.getBoolean(ConfigKeys.SHATTERMENT_ANVIL_SOUND_ENABLED.getKey());
+                    return ConfigValues.bool(ConfigKeys.SHATTERMENT_ANVIL_SOUND_ENABLED);
                 }
 
                 /**
@@ -1454,7 +1353,7 @@ public class Config {
                  * @return the configured volume
                  */
                 public static Double getVolume() {
-                    return config.getDouble(ConfigKeys.SHATTERMENT_ANVIL_VOLUME.getKey());
+                    return ConfigValues.decimal(ConfigKeys.SHATTERMENT_ANVIL_VOLUME);
                 }
 
                 /**
@@ -1476,7 +1375,7 @@ public class Config {
                  * @return the configured pitch
                  */
                 public static Double getPitch() {
-                    return config.getDouble(ConfigKeys.SHATTERMENT_ANVIL_PITCH.getKey());
+                    return ConfigValues.decimal(ConfigKeys.SHATTERMENT_ANVIL_PITCH);
                 }
 
                 /**
@@ -1503,7 +1402,7 @@ public class Config {
                  * @return {@code true} if repair cost reset is enabled
                  */
                 public static boolean isResetEnabled() {
-                    return config.getBoolean(ConfigKeys.SHATTERMENT_REPAIR_RESET_ENABLED.getKey());
+                    return ConfigValues.bool(ConfigKeys.SHATTERMENT_REPAIR_RESET_ENABLED);
                 }
 
                 /**
@@ -1525,7 +1424,7 @@ public class Config {
                  * @return {@code true} if repair cost is enabled
                  */
                 public static boolean isCostEnabled() {
-                    return config.getBoolean(ConfigKeys.SHATTERMENT_REPAIR_COST_ENABLED.getKey());
+                    return ConfigValues.bool(ConfigKeys.SHATTERMENT_REPAIR_COST_ENABLED);
                 }
 
                 /**
@@ -1547,7 +1446,7 @@ public class Config {
                  * @return the configured base cost
                  */
                 public static Double getBaseCost() {
-                    return config.getDouble(ConfigKeys.SHATTERMENT_REPAIR_COST_BASE.getKey());
+                    return ConfigValues.decimal(ConfigKeys.SHATTERMENT_REPAIR_COST_BASE);
                 }
 
                 /**
@@ -1569,7 +1468,7 @@ public class Config {
                  * @return the configured cost multiplier
                  */
                 public static Double getCostMultiplier() {
-                    return config.getDouble(ConfigKeys.SHATTERMENT_REPAIR_COST_MULTIPLIER.getKey());
+                    return ConfigValues.decimal(ConfigKeys.SHATTERMENT_REPAIR_COST_MULTIPLIER);
                 }
 
                 /**
@@ -1593,20 +1492,7 @@ public class Config {
                 public static Map<String, Integer> getEnchantmentCosts() {
                     if (REPAIR_COSTS_CACHE != null) return REPAIR_COSTS_CACHE;
 
-                    var section = config.getConfigurationSection(ConfigKeys.SHATTERMENT_ANVIL_REPAIR_ENCHANTMENT_COSTS.getKey());
-                    Map<String, Integer> costs = new HashMap<>();
-                    if (section == null) {
-                        REPAIR_COSTS_CACHE = Collections.unmodifiableMap(costs);
-                        return REPAIR_COSTS_CACHE;
-                    }
-                    for (String key : section.getKeys(false)) {
-                        var sub = section.getConfigurationSection(key);
-                        if (sub != null) {
-                            if (sub.contains("xp")) costs.put(key, sub.getInt("xp"));
-                        } else {
-                            costs.put(key, section.getInt(key));
-                        }
-                    }
+                    Map<String, Integer> costs = ConfigValues.parseXpCosts(ConfigValues.raw(ConfigKeys.SHATTERMENT_ANVIL_REPAIR_ENCHANTMENT_COSTS), null);
                     REPAIR_COSTS_CACHE = Collections.unmodifiableMap(costs);
                     return REPAIR_COSTS_CACHE;
                 }
@@ -1621,16 +1507,7 @@ public class Config {
                 public static Map<String, Double> getEnchantmentEconomyCosts() {
                     if (REPAIR_ECONOMY_COSTS_CACHE != null) return REPAIR_ECONOMY_COSTS_CACHE;
 
-                    Map<String, Double> costs = new HashMap<>();
-                    var section = config.getConfigurationSection(ConfigKeys.SHATTERMENT_ANVIL_REPAIR_ENCHANTMENT_COSTS.getKey());
-                    if (section != null) {
-                        for (String key : section.getKeys(false)) {
-                            var sub = section.getConfigurationSection(key);
-                            if (sub != null && sub.contains("economy")) {
-                                costs.put(key, sub.getDouble("economy"));
-                            }
-                        }
-                    }
+                    Map<String, Double> costs = ConfigValues.parseEconomyCosts(ConfigValues.raw(ConfigKeys.SHATTERMENT_ANVIL_REPAIR_ENCHANTMENT_COSTS), null);
 
                     REPAIR_ECONOMY_COSTS_CACHE = Collections.unmodifiableMap(costs);
                     return REPAIR_ECONOMY_COSTS_CACHE;
@@ -1642,7 +1519,7 @@ public class Config {
                  * @return the configured max cost, or -1 if uncapped
                  */
                 public static int getMaxCost() {
-                    return config.getInt(ConfigKeys.SHATTERMENT_REPAIR_MAX_COST.getKey(), -1);
+                    return ConfigValues.integer(ConfigKeys.SHATTERMENT_REPAIR_MAX_COST);
                 }
 
                 /**
