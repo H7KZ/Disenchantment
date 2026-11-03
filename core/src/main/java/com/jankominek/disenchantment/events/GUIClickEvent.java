@@ -73,7 +73,12 @@ public class GUIClickEvent implements Listener {
     private void handler(InventoryClickEvent e) {
         // Cancel first, for every click (top or bottom inventory, any click type) while our GUI is open.
         // Individual GUI item handlers may only rely on this; none re-enable the event.
+        boolean preCancelled = e.isCancelled();
         if (isPluginGui(e.getInventory().getHolder())) e.setCancelled(true);
+
+        // An earlier veto (a freeze/protection plugin) wins: the GUI actions edit the config or, for the Bedrock
+        // anvil menu, charge the player and move items by hand.
+        if (preCancelled) return;
 
         if (e.getClickedInventory() == null) return;
 

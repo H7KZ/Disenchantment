@@ -100,7 +100,9 @@ public class EraseEvent {
         ItemStack result = EraseUtils.buildResult(firstItem, pluginEnchantments);
         if (Config.Erase.Anvil.Repair.isResetEnabled()) AnvilCostUtils.setItemRepairCost(result, 0);
 
-        e.setResult(result);
+        // Tagged so the click handler never mistakes a vanilla repair result (a catalyst can also be a repair
+        // material) for this one; the tag never reaches the player, the click rebuilds the item from the source.
+        e.setResult(EraseUtils.markPrepared(result));
 
         DiagnosticUtils.debug("ERASE", () -> "PrepareAnvil: anvil cost=" + AnvilCostUtils.countAnvilCost(pluginEnchantments, AnvilEventType.ERASE, p));
         AnvilEventGuards.applyAnvilCostAndSchedule(e, p, pluginEnchantments, AnvilEventType.ERASE);

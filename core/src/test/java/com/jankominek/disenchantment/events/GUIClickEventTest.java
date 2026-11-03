@@ -154,4 +154,45 @@ class GUIClickEventTest extends DisenchantmentTestBase {
         assertFalse(click.isCancelled());
         assertFalse(drag.isCancelled());
     }
+
+    @Test
+    void preCancelledClick_isNotRoutedToTheGui() throws Exception {
+        NavigationGUI gui = new NavigationGUI();
+        boolean[] routed = {false};
+        Field f = gui.getClass().getDeclaredField("items");
+        f.setAccessible(true);
+        GUIItem[] items = (GUIItem[]) f.get(gui);
+        for (int i = 0; i < items.length; i++) {
+            if (items[i].getSlot() == 10) items[i] = new GUIItem(10, items[i].getItem(), e -> routed[0] = true);
+        }
+        PlayerMock player = playerWithOpen(gui, true);
+        server.getPluginManager().registerEvents(new org.bukkit.event.Listener() {
+            @org.bukkit.event.EventHandler(priority = org.bukkit.event.EventPriority.LOWEST)
+            public void on(InventoryClickEvent e) {
+                e.setCancelled(true);
+            }
+        }, plugin);
+
+        InventoryClickEvent event = click(player, 10, ClickType.LEFT, InventoryAction.PICKUP_ALL);
+
+        assertTrue(event.isCancelled());
+        assertFalse(routed[0], "A vetoed click must not reach the GUI handler");
+    }
+
+    @Test
+    void uncancelledClick_isRoutedToTheGui() throws Exception {
+        NavigationGUI gui = new NavigationGUI();
+        boolean[] routed = {false};
+        Field f = gui.getClass().getDeclaredField("items");
+        f.setAccessible(true);
+        GUIItem[] items = (GUIItem[]) f.get(gui);
+        for (int i = 0; i < items.length; i++) {
+            if (items[i].getSlot() == 10) items[i] = new GUIItem(10, items[i].getItem(), e -> routed[0] = true);
+        }
+        PlayerMock player = playerWithOpen(gui, true);
+
+        click(player, 10, ClickType.LEFT, InventoryAction.PICKUP_ALL);
+
+        assertTrue(routed[0]);
+    }
 }

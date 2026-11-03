@@ -67,6 +67,15 @@ public final class AnvilEventGuards {
     }
 
     /**
+     * Returns {@code true} when the click is on the result slot (raw slot 2) of an anvil, whatever the cursor
+     * holds. Handlers that must also act on a click with a full cursor (to cancel it rather than let vanilla
+     * merge a stackable plugin result onto the cursor) use this instead of {@link #isAnvilResultSlotClick}.
+     */
+    public static boolean isAnvilResultSlot(InventoryClickEvent e) {
+        return e.getInventory().getType() == InventoryType.ANVIL && e.getRawSlot() == 2;
+    }
+
+    /**
      * Returns {@code true} when the click on the anvil result slot is a type that could
      * <em>duplicate</em> the result item, and therefore must be blocked.
      * <p>
@@ -496,6 +505,23 @@ public final class AnvilEventGuards {
      */
     public static boolean isTooExpensive(AnvilEventType eventType, int cost) {
         return cost >= VANILLA_TOO_EXPENSIVE_THRESHOLD && !isBypassEnabled(eventType);
+    }
+
+    /**
+     * Click-time enforcement of "Too Expensive!". The click handlers deliver the result themselves, ahead of
+     * vanilla's own pick-up check, so without this a cost of 40+ would be taken although the anvil refuses it.
+     * Tells the player and returns {@code true} when the operation must be refused; the caller cancels the click.
+     *
+     * @param p         the player
+     * @param eventType the operation
+     * @param cost      the real XP cost (the bypass-cached one if a bypass is active)
+     * @return {@code true} if refused (not in creative, cost 40+, bypass off)
+     */
+    public static boolean refuseIfTooExpensive(Player p, AnvilEventType eventType, int cost) {
+        if (p.getGameMode() == GameMode.CREATIVE || !isTooExpensive(eventType, cost)) return false;
+
+        FeedbackUtils.refuse(p, I18n.Messages.bedrockStatusExpensive());
+        return true;
     }
 
     private static boolean isBypassEnabled(AnvilEventType eventType) {

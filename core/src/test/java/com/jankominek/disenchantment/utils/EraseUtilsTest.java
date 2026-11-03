@@ -339,4 +339,29 @@ class EraseUtilsTest extends DisenchantmentTestBase {
         assertEquals(42, ((Damageable) result.getItemMeta()).getDamage());
         assertTrue(sword.containsEnchantment(enchantment("sharpness")), "The source item must not be mutated");
     }
+
+    // -> prepared-result marker
+
+    @Test
+    void givenBuiltResult_whenMarked_thenRecognisedAndSourceIsNot() {
+        ItemStack source = enchantedSword("sharpness", 5);
+        ItemStack result = EraseUtils.buildResult(source, EraseUtils.getErasableEnchantments(source, shard()));
+
+        assertFalse(EraseUtils.isPreparedResult(result));
+        assertSame(result, EraseUtils.markPrepared(result));
+
+        assertTrue(EraseUtils.isPreparedResult(result));
+        assertFalse(EraseUtils.isPreparedResult(source));
+        assertFalse(EraseUtils.isPreparedResult(null));
+        assertFalse(EraseUtils.isPreparedResult(new ItemStack(Material.AIR)));
+    }
+
+    @Test
+    void givenMarkedResult_whenDeliveredItemRebuilt_thenItIsNotMarked() {
+        // The delivered item is rebuilt from the live source (slot 0), which is never marked.
+        ItemStack source = enchantedSword("sharpness", 5);
+        EraseUtils.markPrepared(EraseUtils.buildResult(source, List.of()));
+
+        assertFalse(EraseUtils.isPreparedResult(EraseUtils.buildResult(source, EraseUtils.getErasableEnchantments(source, shard()))));
+    }
 }

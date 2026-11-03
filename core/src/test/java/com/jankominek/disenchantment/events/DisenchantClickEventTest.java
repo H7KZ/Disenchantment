@@ -620,4 +620,63 @@ class DisenchantClickEventTest extends DisenchantmentTestBase {
 
         assertTrue(player.getHeardSounds().isEmpty());
     }
+    // -> Too Expensive!: the handler delivers ahead of vanilla's own pick-up check, so it enforces the 40 cap itself
+
+    @Test
+    void givenCostOver40AndBypassOff_whenClick_thenRefusedAndNothingChanges() {
+        PlayerMock player = server.addPlayer("TestPlayer");
+        player.setLevel(60);
+
+        InventoryClickEvent event = buildClickEvent(player, sword("sharpness", 5), new ItemStack(Material.BOOK), enchantedBook("sharpness", 5));
+        Mockito.when(lastMockAnvil.getRepairCost()).thenReturn(45);
+        DisenchantClickEvent.onEvent(event);
+
+        Mockito.verify(event).setCancelled(true);
+        Mockito.verify(lastMockAnvil, Mockito.never()).setItem(eq(0), Mockito.any());
+        assertEquals(60, player.getLevel());
+        assertTrue(player.getItemOnCursor().getType().isAir());
+        assertNotNull(player.nextMessage());
+    }
+
+    @Test
+    void givenCostOver40AndBypassOn_whenClick_thenDelivered() {
+        setConfig("disenchantment.anvil.bypass-too-expensive", true);
+        PlayerMock player = server.addPlayer("TestPlayer");
+        player.setLevel(60);
+
+        InventoryClickEvent event = buildClickEvent(player, sword("sharpness", 5), new ItemStack(Material.BOOK), enchantedBook("sharpness", 5));
+        Mockito.when(lastMockAnvil.getRepairCost()).thenReturn(45);
+        DisenchantClickEvent.onEvent(event);
+
+        assertEquals(Material.ENCHANTED_BOOK, player.getItemOnCursor().getType());
+    }
+
+    // -> an earlier veto (protection/shop plugin) wins
+
+    @Test
+    void givenClickAlreadyCancelled_whenClick_thenNothingIsChargedOrMoved() {
+        PlayerMock player = server.addPlayer("TestPlayer");
+        player.setLevel(10);
+
+        InventoryClickEvent event = buildClickEvent(player, sword("sharpness", 5), new ItemStack(Material.BOOK), enchantedBook("sharpness", 5));
+        Mockito.when(event.isCancelled()).thenReturn(true);
+        DisenchantClickEvent.onEvent(event);
+
+        Mockito.verify(lastMockAnvil, Mockito.never()).setItem(Mockito.anyInt(), Mockito.any());
+        assertTrue(player.getItemOnCursor().getType().isAir());
+        assertEquals(10, player.getLevel());
+    }
+
+    @Test
+    void givenCursorNotEmpty_whenClick_thenIgnoredBecauseBooksCannotStack() {
+        PlayerMock player = server.addPlayer("TestPlayer");
+        player.setLevel(10);
+        player.setItemOnCursor(new ItemStack(Material.ENCHANTED_BOOK));
+
+        InventoryClickEvent event = buildClickEvent(player, sword("sharpness", 5), new ItemStack(Material.BOOK), enchantedBook("sharpness", 5));
+        DisenchantClickEvent.onEvent(event);
+
+        Mockito.verify(lastMockAnvil, Mockito.never()).setItem(Mockito.anyInt(), Mockito.any());
+        assertEquals(10, player.getLevel());
+    }
 }

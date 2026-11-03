@@ -52,7 +52,9 @@ public static boolean isAnvilResultSlotClick(InventoryClickEvent e, Player p)
 ```
 
 Returns `true` when the inventory is an ANVIL, the clicked **raw** slot is 2 (result slot), and the player's cursor is
-empty. Cursor check prevents deleting held items.
+empty. Cursor check prevents deleting held items. Disenchant/shatter ignore a full cursor (an enchanted book cannot stack, so
+vanilla cannot merge onto it). `isAnvilResultSlot(e)` is the cursor-agnostic variant used by erase, whose result may stack:
+a full cursor on a prepared erase result is **cancelled**, never ignored.
 
 ### Enchantment collection
 
@@ -70,6 +72,23 @@ public static List<IPluginEnchantment> collectEnchantments(
 - If plugins are activated, calls `pluginCollector` for each activated plugin.
 - **Deduplicates by enchantment key** — first occurrence wins. Prevents double costs when multiple adapters claim the
   same enchantment.
+
+### Too Expensive!
+
+```java
+public static boolean refuseIfTooExpensive(Player p, AnvilEventType eventType, int cost)
+```
+
+The click handlers deliver the result themselves, ahead of vanilla's pick-up check (which blocks the take at 40+ levels), so
+they enforce the cap too: not creative, `isTooExpensive(type, cost)` (cost >= 40 and the operation's `bypass-too-expensive`
+off) -> `FeedbackUtils.refuse` with `messages.bedrock-status-expensive`, click cancelled. `cost` is the bypass-cached real
+cost. Disenchant, shatter and erase call it after the XP check; the grindstone has no vanilla cap and does not.
+
+### Pre-cancelled clicks
+
+Every click handler that acts manually (`Disenchant/Shatter/EraseClickEvent`, `GrindstoneClickEvent`, `GUIClickEvent`) starts
+with `if (e.isCancelled()) return;` - listeners are registered with `ignoreCancelled=false`, so an earlier veto
+(protection/shop plugin) is checked explicitly. `GUIClickEvent` still cancels the click first, then returns.
 
 ### XP guard
 
@@ -337,7 +356,10 @@ collectors. Key differences:
 
 **Prepare (`EraseEvent`).** Guards as disenchant (plugin + `EraseUtils.isActive()`, world via the *disenchantment* world
 restriction), collect erasable enchantments, maintenance/cooldown clear the result, permission, then
-`e.setResult(EraseUtils.buildResult(first, enchantments))` and `applyAnvilCostAndSchedule(..., AnvilEventType.ERASE)`.
+`e.setResult(EraseUtils.markPrepared(EraseUtils.buildResult(first, enchantments)))`. `markPrepared` tags the result with the
+PDC byte `disenchantment:erase_result`; the click handler only treats a slot-2 item carrying the tag as its own (both for
+the fail-closed clear and for the delivery), so a vanilla repair result is never cleared or swallowed even when the catalyst
+is also a repair material. The delivered item is rebuilt from slot 0 and never carries the tag and `applyAnvilCostAndSchedule(..., AnvilEventType.ERASE)`.
 
 **Click (`EraseClickEvent`) - manual-result pattern.** Check order matches `DisenchantClickEvent`: result slot -> collect
 (empty = not ours) -> maintenance -> `result.getType() == first.getType()` -> unsafe click -> pending -> cooldown -> XP ->

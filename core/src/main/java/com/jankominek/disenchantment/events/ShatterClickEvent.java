@@ -3,6 +3,7 @@ package com.jankominek.disenchantment.events;
 import com.jankominek.disenchantment.config.Config;
 import com.jankominek.disenchantment.config.I18n;
 import com.jankominek.disenchantment.plugins.IPluginEnchantment;
+import com.jankominek.disenchantment.types.AnvilEventType;
 import com.jankominek.disenchantment.types.PermissionGroupType;
 import com.jankominek.disenchantment.utils.AnvilCostUtils;
 import com.jankominek.disenchantment.utils.DiagnosticUtils;
@@ -47,6 +48,12 @@ public class ShatterClickEvent {
 
         if (!Config.isPluginEnabled() || !Config.Shatterment.isEnabled()) return;
 
+        // Vanilla's own take (which this flow relies on) does not run for a cancelled click, so nothing may be
+        // charged or changed here either: an earlier veto (protection or shop plugin) is honoured.
+        if (e.isCancelled()) return;
+
+        // A non-empty cursor is ignored on purpose: an enchanted book cannot stack, so vanilla cannot merge the
+        // result onto the cursor and nothing is lost or duplicated.
         if (!AnvilEventGuards.isAnvilResultSlotClick(e, p)) return;
 
         if (AnvilEventGuards.isWorldBlocked(p, Config.Shatterment.isWorldRestricted(p.getWorld()))) return;
@@ -132,6 +139,13 @@ public class ShatterClickEvent {
         if (!AnvilEventGuards.hasEnoughXp(p, repairCost)) {
             DiagnosticUtils.debug("SHATTER", "Click: insufficient XP → CANCELLED");
             FeedbackUtils.refuseNotEnoughXp(p, repairCost);
+            e.setCancelled(true);
+            return;
+        }
+
+        // Vanilla would refuse the take at 40+ levels; this handler delivers ahead of that check.
+        if (AnvilEventGuards.refuseIfTooExpensive(p, AnvilEventType.SHATTERMENT, repairCost)) {
+            DiagnosticUtils.debug("SHATTER", "Click: too expensive → CANCELLED");
             e.setCancelled(true);
             return;
         }

@@ -11,6 +11,8 @@ import org.bukkit.Registry;
 import org.bukkit.World;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataType;
 
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
@@ -20,6 +22,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
+import static com.jankominek.disenchantment.Disenchantment.plugin;
 
 /**
  * Pure logic of erase mode: which catalysts are accepted and which enchantments an item loses.
@@ -248,5 +251,42 @@ public final class EraseUtils {
         }
 
         return result;
+    }
+
+    // ----------------------------------------------------------------------------------------------------
+    // Prepared-result marker
+
+    private static NamespacedKey resultKey() {
+        return new NamespacedKey(plugin, "erase_result");
+    }
+
+    /**
+     * Tags a Prepare-time erase result so the click handler can tell it from a vanilla result that merely has
+     * the same material as the source (a catalyst such as a diamond is also a repair material). The tag lives
+     * only in the result slot: the item handed to the player is rebuilt from the source item and never has it.
+     *
+     * @param result the result item built for the anvil result slot
+     * @return the same stack, tagged
+     */
+    public static ItemStack markPrepared(ItemStack result) {
+        ItemMeta meta = result.getItemMeta();
+        if (meta == null) return result;
+
+        meta.getPersistentDataContainer().set(resultKey(), PersistentDataType.BYTE, (byte) 1);
+        result.setItemMeta(meta);
+        return result;
+    }
+
+    /**
+     * Returns whether {@code item} is a result tagged by {@link #markPrepared(ItemStack)}.
+     *
+     * @param item the item in the anvil result slot, may be {@code null}
+     * @return {@code true} if the plugin put it there
+     */
+    public static boolean isPreparedResult(ItemStack item) {
+        if (item == null || item.getType().isAir()) return false;
+
+        ItemMeta meta = item.getItemMeta();
+        return meta != null && meta.getPersistentDataContainer().has(resultKey(), PersistentDataType.BYTE);
     }
 }

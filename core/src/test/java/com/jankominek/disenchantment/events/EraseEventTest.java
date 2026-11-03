@@ -251,4 +251,16 @@ class EraseEventTest extends DisenchantmentTestBase {
 
         assertNull(event.getResult());
     }
+
+    // -> the result is tagged so the click handler can tell it from a vanilla repair result
+
+    @Test
+    void givenEnabled_whenPrepare_thenResultCarriesThePreparedMarker() {
+        setConfig("erase.enabled", true);
+        PlayerMock player = server.addPlayer("TestPlayer");
+
+        PrepareAnvilEvent event = prepare(player, sword("sharpness", 5), shard());
+
+        assertTrue(com.jankominek.disenchantment.utils.EraseUtils.isPreparedResult(event.getResult()));
+    }
 }

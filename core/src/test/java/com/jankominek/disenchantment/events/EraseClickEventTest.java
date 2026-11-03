@@ -6,6 +6,7 @@ import com.jankominek.disenchantment.events.api.PostEraseEvent;
 import com.jankominek.disenchantment.events.api.PreEraseEvent;
 import com.jankominek.disenchantment.utils.CooldownManager;
 import com.jankominek.disenchantment.utils.EconomyTestSupport;
+import com.jankominek.disenchantment.utils.EraseUtils;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.economy.EconomyResponse;
 import org.bukkit.GameMode;
@@ -81,6 +82,7 @@ class EraseClickEventTest extends DisenchantmentTestBase {
     private InventoryClickEvent click(PlayerMock player, ItemStack source, ItemStack catalyst, int repairCost) {
         ItemStack result = source.clone();
         result.getEnchantments().keySet().forEach(result::removeEnchantment);
+        EraseUtils.markPrepared(result);
         return buildClick(player, source, catalyst, result, repairCost);
     }
 
@@ -425,16 +427,32 @@ class EraseClickEventTest extends DisenchantmentTestBase {
     }
 
     @Test
-    void givenCursorNotEmpty_whenClick_thenIgnoredSoNothingIsOverwritten() {
+    void givenCursorNotEmpty_whenClick_thenCancelledSoVanillaCannotMergeTheResult() {
         PlayerMock player = server.addPlayer("TestPlayer");
         player.setLevel(20);
-        player.setItemOnCursor(new ItemStack(Material.DIRT));
+        player.setItemOnCursor(new ItemStack(Material.DIAMOND_SWORD));
 
         InventoryClickEvent event = click(player, sword("sharpness", 5), shard(1), 12);
         EraseClickEvent.onEvent(event);
 
+        Mockito.verify(event).setCancelled(true);
         Mockito.verify(lastAnvil, Mockito.never()).setItem(Mockito.anyInt(), Mockito.any());
-        assertEquals(Material.DIRT, player.getItemOnCursor().getType());
+        assertEquals(Material.DIAMOND_SWORD, player.getItemOnCursor().getType());
+        assertEquals(20, player.getLevel());
+    }
+
+    @Test
+    void givenCursorNotEmptyAndVanillaResult_whenClick_thenNotCancelled() {
+        setConfig("erase.catalysts", List.of("DIAMOND"));
+        PlayerMock player = server.addPlayer("TestPlayer");
+        player.setLevel(20);
+        player.setItemOnCursor(new ItemStack(Material.DIRT));
+
+        // An unmarked result is vanilla's own (a repair): hands off.
+        InventoryClickEvent event = buildClick(player, sword("sharpness", 5), new ItemStack(Material.DIAMOND), sword("sharpness", 5), 3);
+        EraseClickEvent.onEvent(event);
+
+        Mockito.verify(event, Mockito.never()).setCancelled(Mockito.anyBoolean());
     }
 
     @Test
@@ -547,5 +565,95 @@ class EraseClickEventTest extends DisenchantmentTestBase {
         Mockito.verify(lastAnvil, Mockito.never()).setItem(eq(0), Mockito.any());
         Mockito.verify(lastAnvil, Mockito.never()).setItem(eq(1), Mockito.any());
         assertEquals(20, player.getLevel());
+    }
+    @Test
+    void givenMarkedModeAndVanillaRepairWithRepairMaterialCatalyst_whenClick_thenVanillaResultLeftAlone() {
+        setConfig("special-anvils.mode", "MARKED");
+        setConfig("erase.catalysts", List.of("DIAMOND"));
+        PlayerMock player = server.addPlayer("TestPlayer");
+        player.setLevel(20);
+
+        // Diamond is both the catalyst and the repair material; at a normal anvil the unmarked result is vanilla's.
+        InventoryClickEvent event = buildClick(player, sword("sharpness", 5), new ItemStack(Material.DIAMOND), sword("sharpness", 5), 3);
+        EraseClickEvent.onEvent(event);
+
+        Mockito.verify(event, Mockito.never()).setCancelled(Mockito.anyBoolean());
+        Mockito.verify(lastAnvil, Mockito.never()).setItem(Mockito.anyInt(), Mockito.any());
+    }
+
+    @Test
+    void givenAllowedAnvilAndVanillaRepairWithRepairMaterialCatalyst_whenClick_thenVanillaResultLeftAlone() {
+        setConfig("erase.catalysts", List.of("DIAMOND"));
+        PlayerMock player = server.addPlayer("TestPlayer");
+        player.setLevel(20);
+
+        // Prepare did not produce this (e.g. the player lacks the erase permission): no tag, so hands off.
+        InventoryClickEvent event = buildClick(player, sword("sharpness", 5), new ItemStack(Material.DIAMOND), sword("sharpness", 5), 3);
+        EraseClickEvent.onEvent(event);
+
+        Mockito.verify(event, Mockito.never()).setCancelled(Mockito.anyBoolean());
+        assertNothingChanged(player, 20);
+    }
+
+    // -> Too Expensive!
+
+    @Test
+    void givenCostOver40AndBypassOff_whenClick_thenRefusedLikeVanilla() {
+        PlayerMock player = server.addPlayer("TestPlayer");
+        player.setLevel(60);
+
+        InventoryClickEvent event = click(player, sword("sharpness", 5), shard(1), 45);
+        EraseClickEvent.onEvent(event);
+
+        Mockito.verify(event).setCancelled(true);
+        assertNothingChanged(player, 60);
+        assertNotNull(player.nextMessage(), "The player is told why");
+    }
+
+    @Test
+    void givenCostOver40AndBypassOn_whenClick_thenAllowed() {
+        setConfig("erase.anvil.bypass-too-expensive", true);
+        PlayerMock player = server.addPlayer("TestPlayer");
+        player.setLevel(60);
+
+        EraseClickEvent.onEvent(click(player, sword("sharpness", 5), shard(1), 45));
+
+        assertEquals(15, player.getLevel());
+        assertEquals(Material.DIAMOND_SWORD, player.getItemOnCursor().getType());
+    }
+
+    @Test
+    void givenCostOver40AndCreative_whenClick_thenAllowed() {
+        PlayerMock player = server.addPlayer("Creative");
+        player.setGameMode(GameMode.CREATIVE);
+
+        EraseClickEvent.onEvent(click(player, sword("sharpness", 5), shard(1), 45));
+
+        assertEquals(Material.DIAMOND_SWORD, player.getItemOnCursor().getType());
+    }
+
+    @Test
+    void givenCostJustUnder40_whenClick_thenAllowed() {
+        PlayerMock player = server.addPlayer("TestPlayer");
+        player.setLevel(60);
+
+        EraseClickEvent.onEvent(click(player, sword("sharpness", 5), shard(1), 39));
+
+        assertEquals(21, player.getLevel());
+    }
+
+    // -> an earlier veto wins
+
+    @Test
+    void givenClickAlreadyCancelled_whenClick_thenNothingIsChargedOrMoved() {
+        PlayerMock player = server.addPlayer("TestPlayer");
+        player.setLevel(20);
+
+        InventoryClickEvent event = click(player, sword("sharpness", 5), shard(1), 12);
+        Mockito.when(event.isCancelled()).thenReturn(true);
+        EraseClickEvent.onEvent(event);
+
+        assertNothingChanged(player, 20);
+        assertNull(player.nextMessage());
     }
 }

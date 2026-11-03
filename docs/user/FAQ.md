@@ -60,7 +60,9 @@ The result appeared in the output slot, which means the plugin recognised the op
 when the player clicks, the most common causes are:
 
 1. **Not enough XP levels.** The click is rejected and the player is told how many levels they need. With
-   `anvil.bypass-too-expensive` enabled this is the *real* cost, not the cheap 1 level shown in the anvil.
+   `anvil.bypass-too-expensive` enabled this is the *real* cost, not the cheap 1 level shown in the anvil. Without the
+   bypass an operation costing 40 or more levels is refused with "Too expensive!" (except in creative), like vanilla.
+   The grindstone has no such limit; use `max-cost` there.
 2. **Economy cost not met.** If economy is enabled and the player cannot afford the currency cost, the operation is
    cancelled and they receive an insufficient-funds message. Check the action bar for the cost display. If the
    economy plugin refuses the withdrawal (for example a bank limit) the operation is cancelled as well, nothing is

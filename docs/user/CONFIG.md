@@ -714,7 +714,7 @@ erase:
 | `erase.anvil.sound.*`       |                | Same as [Anvil Sound](#anvil-sound), but for erase.                                                              |
 | `erase.anvil.repair.*`      |                | Same as [Repair Cost](#repair-cost): `base + level * multiply`, per-enchantment `enchantment-costs`, `max-cost`. |
 | `erase.anvil.repair.reset`  | `false`        | Reset the item's anvil repair penalty to 0 on erase.                                                             |
-| `erase.anvil.bypass-too-expensive` | `false` | Same as the disenchantment option.                                                                               |
+| `erase.anvil.bypass-too-expensive` | `false` | Same as the disenchantment option. With it off, an erase costing 40+ levels is refused (not creative), exactly like vanilla's "Too Expensive!". |
 | `erase.economy.*`           |                | Same as [Economy Cost](#economy-cost-disenchantment), with its own cost.                                         |
 | `event-priorities.erase`, `event-priorities.erase-click` | `HIGHEST` | See [Event Priorities](#event-priorities).                                          |
 
@@ -722,7 +722,11 @@ erase:
 are skipped with a console warning. `BOOK`, `ENCHANTED_BOOK` and `AIR` are always rejected (disenchantment and
 shatterment own books). If no valid catalyst remains, erase mode stays off and a warning is logged. `ECHO_SHARD` needs
 Minecraft 1.19+; on 1.18 use e.g. `AMETHYST_SHARD`. Avoid vanilla repair materials of the items you want to erase
-(e.g. `DIAMOND` for diamond tools): they would be taken for a repair whenever the item is damaged.
+(e.g. `DIAMOND` for diamond tools): while erase can act on the item (it has erasable enchantments, the anvil is allowed),
+it replaces the vanilla repair result for that combination, so the item can no longer be repaired with that material at
+that anvil. The plugin only ever clears or takes results it prepared itself, so a vanilla repair at an anvil where erase
+does not apply (for example a non-special anvil, or a player without the erase permission) is never touched. The
+config check warns about catalysts that are well-known repair materials.
 
 **Shared restrictions.** Erase reuses the `disenchantment` section for `worlds`, `materials` and `enchantments-states`:
 `KEEP` enchantments stay on the item, a `DISABLE` enchantment makes the whole item un-erasable, and `DELETE` (like

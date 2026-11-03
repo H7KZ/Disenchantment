@@ -797,4 +797,67 @@ class GrindstoneClickEventTest extends DisenchantmentTestBase {
         assertNotCancelled(event);
         assertEquals(20, player.getLevel());
     }
+
+    // ====================================================================================================
+    // An earlier veto (protection or shop plugin) wins
+
+    @Test
+    void givenResultClickAlreadyCancelled_whenClick_thenNothingChargedOrMoved() {
+        setConfig("grindstone.enabled", true);
+        PlayerMock player = playerWithLevels(20);
+        ItemStack sword = enchanted(Material.DIAMOND_SWORD, "sharpness", 5);
+        FakeGrindstone grindstone = new FakeGrindstone(player, sword, books(1), someResult());
+
+        InventoryClickEvent event = GrindstoneTestSupport.click(player, grindstone, RESULT, ClickType.LEFT);
+        Mockito.when(event.isCancelled()).thenReturn(true);
+        GrindstoneClickEvent.onEvent(event);
+
+        assertEquals(20, player.getLevel());
+        assertTrue(player.getItemOnCursor().getType().isAir());
+        assertSame(sword, grindstone.slot(SOURCE));
+        assertNotNull(grindstone.slot(SECOND));
+        assertNotNull(grindstone.slot(RESULT));
+    }
+
+    @Test
+    void givenBookPlacementAlreadyCancelled_whenClickSlotOne_thenNoBookMoved() {
+        setConfig("grindstone.enabled", true);
+        PlayerMock player = playerWithLevels(0);
+        player.setItemOnCursor(books(5));
+        FakeGrindstone grindstone = new FakeGrindstone(player, enchanted(Material.DIAMOND_SWORD, "sharpness", 5), null, null);
+
+        InventoryClickEvent event = GrindstoneTestSupport.click(player, grindstone, SECOND, ClickType.LEFT);
+        Mockito.when(event.isCancelled()).thenReturn(true);
+        GrindstoneClickEvent.onEvent(event);
+
+        assertNull(grindstone.slot(SECOND));
+        assertEquals(5, player.getItemOnCursor().getAmount());
+    }
+
+    // The grindstone has no "Too Expensive!" screen, so the 40 cap never applies: only the player's levels limit it.
+    @Test
+    void givenExtractCostOver40_whenClickResult_thenStillDeliveredWhenAffordable() {
+        setConfig("grindstone.enabled", true);
+        setConfig("grindstone.repair.base", 45);
+        PlayerMock player = playerWithLevels(60);
+        FakeGrindstone grindstone = new FakeGrindstone(player, enchanted(Material.DIAMOND_SWORD, "sharpness", 5), books(1), someResult());
+
+        clickResult(player, grindstone);
+
+        assertEquals(Material.ENCHANTED_BOOK, player.getItemOnCursor().getType());
+        assertTrue(player.getLevel() < 60);
+    }
+
+    @Test
+    void givenMaxCostSet_whenExtract_thenChargeIsCapped() {
+        setConfig("grindstone.enabled", true);
+        setConfig("grindstone.repair.base", 45);
+        setConfig("grindstone.repair.max-cost", 7);
+        PlayerMock player = playerWithLevels(60);
+        FakeGrindstone grindstone = new FakeGrindstone(player, enchanted(Material.DIAMOND_SWORD, "sharpness", 5), books(1), someResult());
+
+        clickResult(player, grindstone);
+
+        assertEquals(53, player.getLevel());
+    }
 }

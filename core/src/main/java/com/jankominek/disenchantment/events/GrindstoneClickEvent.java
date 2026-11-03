@@ -65,6 +65,10 @@ public class GrindstoneClickEvent {
     private static void handler(Event event) {
         if (!(event instanceof InventoryClickEvent e)) return;
 
+        // Every path here moves items or charges manually (book placement, extract, transfer), so an earlier veto
+        // (protection or shop plugin) must be honoured: vanilla will not act on a cancelled click and neither may we.
+        if (e.isCancelled()) return;
+
         Player p = AnvilEventGuards.getPlayer(e);
         if (p == null) return;
 

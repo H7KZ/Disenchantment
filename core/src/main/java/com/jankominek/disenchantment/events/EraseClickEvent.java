@@ -3,6 +3,7 @@ package com.jankominek.disenchantment.events;
 import com.jankominek.disenchantment.config.Config;
 import com.jankominek.disenchantment.config.I18n;
 import com.jankominek.disenchantment.plugins.IPluginEnchantment;
+import com.jankominek.disenchantment.types.AnvilEventType;
 import com.jankominek.disenchantment.types.PermissionGroupType;
 import com.jankominek.disenchantment.utils.AnvilCostUtils;
 import com.jankominek.disenchantment.utils.DiagnosticUtils;
@@ -51,7 +52,13 @@ public class EraseClickEvent {
 
         if (!Config.isPluginEnabled() || !EraseUtils.isActive()) return;
 
-        if (!AnvilEventGuards.isAnvilResultSlotClick(e, p)) return;
+        // Delivered manually, so an earlier veto (protection or shop plugin) must be honoured: vanilla will not
+        // take a cancelled click and neither may we.
+        if (e.isCancelled()) return;
+
+        // The cursor is checked further down, once the result is known to be ours: a full cursor on a plugin
+        // result has to be cancelled, not ignored.
+        if (!AnvilEventGuards.isAnvilResultSlot(e)) return;
 
         if (AnvilEventGuards.isWorldBlocked(p, Config.Disenchantment.isWorldRestricted(p.getWorld())))
             return;
@@ -75,7 +82,9 @@ public class EraseClickEvent {
         // removed, reload). Never let vanilla hand over a result the plugin prepared.
         if (!AnvilEventGuards.isAnvilAllowed(e.getInventory(), p)) {
             ItemStack staleResult = anvilInventory.getItem(2);
-            if (staleResult != null && staleResult.getType() == firstItem.getType()) {
+            // Only a result the plugin itself prepared is cleared. A vanilla repair result has the same material
+            // as the source whenever the catalyst is also a repair material (diamond, iron ingot, ...).
+            if (EraseUtils.isPreparedResult(staleResult)) {
                 DiagnosticUtils.debug("ERASE", "Click: not a special anvil but a plugin result is present → CANCELLED, result cleared");
                 e.setCancelled(true);
                 anvilInventory.setItem(2, null);
@@ -92,12 +101,18 @@ public class EraseClickEvent {
 
         ItemStack result = anvilInventory.getItem(2);
 
-        if (result == null) return;
-
-        // The prepared result is a copy of the source item; anything else in the slot is not ours.
-        if (result.getType() != firstItem.getType()) return;
+        // Anything without the Prepare tag is not ours (e.g. a vanilla repair with a catalyst that is also a repair material).
+        if (!EraseUtils.isPreparedResult(result)) return;
 
         DiagnosticUtils.debug("ERASE", () -> "Click: player=" + p.getName() + ", result=" + result.getType() + ", gameMode=" + p.getGameMode());
+
+        // The result may stack (custom-enchant plugins), and vanilla would merge it onto a same-type cursor with
+        // no charge. Cancel so it can never be taken that way.
+        if (!p.getItemOnCursor().getType().isAir()) {
+            DiagnosticUtils.debug("ERASE", "Click: cursor not empty → CANCELLED");
+            e.setCancelled(true);
+            return;
+        }
 
         // Genuine erase operation confirmed. Block non-standard result-slot clicks
         // (shift/number-key/swap/double-click/drop/etc.); nothing has been touched yet, so cancelling is enough.
@@ -126,6 +141,13 @@ public class EraseClickEvent {
         if (!AnvilEventGuards.hasEnoughXp(p, repairCost)) {
             DiagnosticUtils.debug("ERASE", "Click: insufficient XP → CANCELLED");
             FeedbackUtils.refuseNotEnoughXp(p, repairCost);
+            e.setCancelled(true);
+            return;
+        }
+
+        // Vanilla would refuse the take at 40+ levels; this handler delivers ahead of that check.
+        if (AnvilEventGuards.refuseIfTooExpensive(p, AnvilEventType.ERASE, repairCost)) {
+            DiagnosticUtils.debug("ERASE", "Click: too expensive → CANCELLED");
             e.setCancelled(true);
             return;
         }
