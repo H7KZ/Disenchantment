@@ -20,6 +20,8 @@ event-priorities:
   disenchant: HIGHEST
   shatter-click: HIGHEST
   shatter: HIGHEST
+  erase-click: HIGHEST
+  erase: HIGHEST
 
 # ----------------------------------------------------------------------------------------
 
@@ -156,3 +158,39 @@ feedback:
   not-enough-xp-message: true
   # List what transfers and what it costs in the lore of the result book while it sits in the anvil.
   preview-lore: true
+# ----------------------------------------------------------------------------------------
+
+# Erase mode: an enchanted item in the first anvil slot and a catalyst in the second yield the same item
+# without its erasable enchantments, and no book. Disabled by default.
+# Worlds, materials and enchantment states are shared with disenchantment:
+# KEEP = never erased | DISABLE = the item cannot be erased at all | DELETE (and ENABLE) = erased.
+erase:
+  enabled: false
+  # Materials accepted in the second slot. Entries are parsed with Material.matchMaterial (a "minecraft:"
+  # prefix is accepted); unknown names are skipped with a warning. BOOK, ENCHANTED_BOOK and AIR are rejected
+  # (disenchantment and shatterment own those). An empty or fully invalid list disables erase mode.
+  # ECHO_SHARD needs Minecraft 1.19+; on 1.18 use for example AMETHYST_SHARD.
+  catalysts: [ ECHO_SHARD ]
+  # Use up one catalyst per erase.
+  consume-catalyst: true
+  # Also erase curses (Curse of Binding / Vanishing). By default they stay on the item.
+  erase-curses: false
+  anvil:
+    sound:
+      enabled: true
+      volume: 1.0
+      pitch: 1.0
+    repair:
+      reset: false
+      cost: true
+      base: 10
+      multiply: 0.25
+      enchantment-costs: { }
+      max-cost: -1
+    # When true, an XP cost >= 40 no longer shows the vanilla "Too Expensive!" screen.
+    bypass-too-expensive: false
+  economy:
+    enabled: false
+    cost: 100.0
+    show-cost: true
+    charge-message: true

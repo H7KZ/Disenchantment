@@ -24,6 +24,11 @@ public enum PermissionGroupType {
             PermissionType.DEPRECATED_ANVIL_SHATTER
     ),
 
+    ERASE_EVENT(
+            PermissionType.ANVIL_ALL,
+            PermissionType.ANVIL_ERASE
+    ),
+
     COMMAND_GUI(
             PermissionType.COMMAND_ALL,
             PermissionType.COMMAND_GUI

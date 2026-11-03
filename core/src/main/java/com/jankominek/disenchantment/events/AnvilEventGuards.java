@@ -404,9 +404,11 @@ public final class AnvilEventGuards {
     private static final Map<UUID, Integer> bypassCostCache = new ConcurrentHashMap<>();
 
     private static boolean isBypassEnabled(AnvilEventType eventType) {
-        return eventType == AnvilEventType.DISENCHANTMENT
-                ? Config.Disenchantment.Anvil.isBypassTooExpensiveEnabled()
-                : Config.Shatterment.Anvil.isBypassTooExpensiveEnabled();
+        return switch (eventType) {
+            case DISENCHANTMENT -> Config.Disenchantment.Anvil.isBypassTooExpensiveEnabled();
+            case SHATTERMENT -> Config.Shatterment.Anvil.isBypassTooExpensiveEnabled();
+            case ERASE -> Config.Erase.Anvil.isBypassTooExpensiveEnabled();
+        };
     }
 
     // Vanilla blocks the anvil result slot ("Too Expensive!") at repair cost >= 40.

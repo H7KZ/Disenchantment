@@ -128,6 +128,7 @@ public class ConfigUtils {
         Disenchantment.enabled = Config.isPluginEnabled();
         Config.invalidateCaches();
         Config.validateRestrictions();
+        EraseUtils.validateConfig();
 
         return loaded;
     }

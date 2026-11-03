@@ -18,6 +18,7 @@ public enum PermissionType {
     ANVIL_ALL("disenchantment.anvil.all"),
     ANVIL_DISENCHANT("disenchantment.anvil.disenchant"),
     ANVIL_SHATTER("disenchantment.anvil.shatter"),
+    ANVIL_ERASE("disenchantment.anvil.erase"),
 
     COMMAND_USE("disenchantment.command.use"),
     COMMAND_ALL("disenchantment.command.all"),

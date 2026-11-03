@@ -114,7 +114,11 @@ public class AnvilCostUtils {
         double baseMultiplier;
         Map<String, Integer> overrides;
         int maxCost;
-        String category = anvilEventType == AnvilEventType.DISENCHANTMENT ? "DISENCHANT" : "SHATTER";
+        String category = switch (anvilEventType) {
+            case DISENCHANTMENT -> "DISENCHANT";
+            case SHATTERMENT -> "SHATTER";
+            case ERASE -> "ERASE";
+        };
 
         switch (anvilEventType) {
             case DISENCHANTMENT:
@@ -138,6 +142,17 @@ public class AnvilCostUtils {
                 baseMultiplier = Config.Shatterment.Anvil.Repair.getCostMultiplier();
                 overrides = Config.Shatterment.Anvil.Repair.getEnchantmentCosts();
                 maxCost = Config.Shatterment.Anvil.Repair.getMaxCost();
+                break;
+            case ERASE:
+                if (!Config.Erase.Anvil.Repair.isCostEnabled()) {
+                    DiagnosticUtils.debug(category, "AnvilCost: XP cost disabled by config → 0");
+                    return 0;
+                }
+
+                totalCost = Config.Erase.Anvil.Repair.getBaseCost();
+                baseMultiplier = Config.Erase.Anvil.Repair.getCostMultiplier();
+                overrides = Config.Erase.Anvil.Repair.getEnchantmentCosts();
+                maxCost = Config.Erase.Anvil.Repair.getMaxCost();
                 break;
             default:
                 return 0;
