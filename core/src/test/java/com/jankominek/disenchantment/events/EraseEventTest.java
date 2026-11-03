@@ -238,4 +238,17 @@ class EraseEventTest extends DisenchantmentTestBase {
             CooldownManager.reset();
         }
     }
+
+    // -> special anvils gate erase like disenchant/shatter (mocked inventory has no location = virtual)
+
+    @Test
+    void givenMarkedModeAndVirtualAnvil_whenPrepare_thenNoResult() {
+        setConfig("erase.enabled", true);
+        setConfig("special-anvils.mode", "MARKED");
+        PlayerMock player = server.addPlayer("TestPlayer");
+
+        PrepareAnvilEvent event = prepare(player, sword("sharpness", 5), shard());
+
+        assertNull(event.getResult());
+    }
 }

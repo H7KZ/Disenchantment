@@ -530,4 +530,22 @@ class EraseClickEventTest extends DisenchantmentTestBase {
             EconomyTestSupport.uninstall();
         }
     }
+
+    // -> special anvils: the gate fails closed at click time
+
+    @Test
+    void givenMarkedModeAndVirtualAnvil_whenClick_thenCancelledResultClearedInputsUntouched() {
+        setConfig("special-anvils.mode", "MARKED");
+        PlayerMock player = server.addPlayer("TestPlayer");
+        player.setLevel(20);
+
+        InventoryClickEvent event = click(player, sword("sharpness", 5), shard(3), 12);
+        EraseClickEvent.onEvent(event);
+
+        Mockito.verify(event).setCancelled(true);
+        Mockito.verify(lastAnvil).setItem(2, null);
+        Mockito.verify(lastAnvil, Mockito.never()).setItem(eq(0), Mockito.any());
+        Mockito.verify(lastAnvil, Mockito.never()).setItem(eq(1), Mockito.any());
+        assertEquals(20, player.getLevel());
+    }
 }

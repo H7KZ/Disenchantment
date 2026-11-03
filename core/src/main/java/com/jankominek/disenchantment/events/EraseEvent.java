@@ -91,6 +91,13 @@ public class EraseEvent {
             return;
         }
 
+        // Special anvils gate erase exactly like disenchant/shatter.
+        if (!AnvilEventGuards.isAnvilAllowed(e.getInventory(), p)) {
+            DiagnosticUtils.debug("ERASE", "PrepareAnvil: not a special anvil → exit");
+            AnvilEventGuards.sendSpecialAnvilHint(p);
+            return;
+        }
+
         if (DiagnosticUtils.isDebugEnabled()) {
             String names = pluginEnchantments.stream().map(ench -> ench.getKey() + ":" + ench.getLevel()).collect(Collectors.joining(", "));
             DiagnosticUtils.debug("ERASE", "PrepareAnvil: enchantments=[" + names + "] (" + pluginEnchantments.size() + " total)");

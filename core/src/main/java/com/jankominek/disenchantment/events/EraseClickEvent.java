@@ -95,6 +95,18 @@ public class EraseClickEvent {
             return;
         }
 
+        // Fail closed: the gate may have changed since Prepare (anvil unmarked/broken, block below
+        // removed, reload). Never let vanilla hand over a result the plugin prepared.
+        if (!AnvilEventGuards.isAnvilAllowed(e.getInventory(), p)) {
+            ItemStack staleResult = anvilInventory.getItem(2);
+            if (staleResult != null && staleResult.getType() == firstItem.getType()) {
+                DiagnosticUtils.debug("ERASE", "Click: not a special anvil but a plugin result is present → CANCELLED, result cleared");
+                e.setCancelled(true);
+                anvilInventory.setItem(2, null);
+            }
+            return;
+        }
+
         // Genuine plugin operation. Maintenance mode nulls the prepared result, so this must run
         // before the result-slot checks: the player clicks an empty slot and is told why.
         if (AnvilEventGuards.isMaintenanceBlocked(p)) {
