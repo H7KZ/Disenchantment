@@ -1,6 +1,7 @@
 package com.jankominek.disenchantment.utils;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.plugin.Plugin;
 
@@ -21,6 +22,8 @@ public class SchedulerUtils {
     private static Method getGlobalRegionScheduler;
     private static Method getAsyncScheduler;
     private static Method entityGetScheduler;
+    private static Method getRegionScheduler;
+    private static Method regionRunDelayed;
 
     // Execution Methods
     private static Method globalRun;
@@ -48,6 +51,9 @@ public class SchedulerUtils {
                 getGlobalRegionScheduler = Bukkit.class.getMethod("getGlobalRegionScheduler");
                 getAsyncScheduler = Bukkit.class.getMethod("getAsyncScheduler");
                 entityGetScheduler = Entity.class.getMethod("getScheduler");
+                getRegionScheduler = Bukkit.class.getMethod("getRegionScheduler");
+                Class<?> regionSchedulerClass = Class.forName("io.papermc.paper.threadedregions.scheduler.RegionScheduler");
+                regionRunDelayed = regionSchedulerClass.getMethod("runDelayed", Plugin.class, Location.class, Consumer.class, long.class);
 
                 // Runners
                 globalRun = globalSchedulerClass.getMethod("run", Plugin.class, Consumer.class);
@@ -158,6 +164,30 @@ public class SchedulerUtils {
             }
         } else {
             Bukkit.getScheduler().runTaskLater(plugin, task, delayTicks);
+        }
+    }
+
+    /**
+     * Runs a delayed task on the region thread owning the location (Folia) or the main server thread
+     * (Spigot). Use this, not the entity scheduler, for block and chunk work.
+     *
+     * @param plugin     the owning plugin
+     * @param location   the location whose region thread to run on
+     * @param task       the task to execute
+     * @param delayTicks the delay in ticks before execution (at least 1)
+     */
+    public static void runForLocationLater(Plugin plugin, Location location, Runnable task, long delayTicks) {
+        long delay = Math.max(1L, delayTicks);
+
+        if (IS_FOLIA) {
+            try {
+                Object scheduler = getRegionScheduler.invoke(Bukkit.getServer());
+                regionRunDelayed.invoke(scheduler, plugin, location, (Consumer<Object>) (t) -> task.run(), delay);
+            } catch (Exception e) {
+                logger.warning("[SCHEDULER] runForLocationLater (Folia) failed: " + e.getMessage());
+            }
+        } else {
+            Bukkit.getScheduler().runTaskLater(plugin, task, delay);
         }
     }
 

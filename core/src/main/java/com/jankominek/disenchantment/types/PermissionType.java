@@ -60,6 +60,9 @@ public enum PermissionType {
     GUI_SHATTER_SOUND("disenchantment.gui.shatter.sound"),
     GUI_SHATTER_ECONOMY("disenchantment.gui.shatter.economy"),
 
+    ANVIL_SPECIAL("disenchantment.anvil.special"),
+    COMMAND_GIVE("disenchantment.command.give"),
+
 
     /**
      * DEPRECATED PERMISSIONS

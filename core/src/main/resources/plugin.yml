@@ -203,3 +203,9 @@ permissions:
   disenchantment.discount.95:
     description: Grants a 95% XP cost discount on anvil operations.
     default: false
+  disenchantment.anvil.special:
+    description: Allows the player to place special anvils (otherwise the anvil is placed as a normal anvil).
+    default: true
+  disenchantment.command.give:
+    description: Access to the give command (special anvils).
+    default: op

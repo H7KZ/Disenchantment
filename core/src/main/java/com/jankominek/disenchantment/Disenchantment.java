@@ -1,5 +1,6 @@
 package com.jankominek.disenchantment;
 
+import com.jankominek.disenchantment.anvils.SpecialAnvilListener;
 import com.jankominek.disenchantment.commands.CommandCompleter;
 import com.jankominek.disenchantment.commands.CommandRegister;
 import com.jankominek.disenchantment.config.Config;
@@ -187,7 +188,9 @@ public class Disenchantment extends JavaPlugin {
         new ShatterListener(Config.EventPriorities.getShatterEvent());
         new ShatterClickListener(Config.EventPriorities.getShatterClickEvent());
         getServer().getPluginManager().registerEvents(new GUIClickEvent(), plugin);
+        getServer().getPluginManager().registerEvents(new SpecialAnvilListener(), plugin);
         DiagnosticUtils.debug("STARTUP", "All listeners registered");
+        Config.SpecialAnvils.validate().forEach(logger::warning);
 
         // Commands
         Objects.requireNonNull(getCommand(Disenchantment.commandName)).setExecutor(new CommandRegister());
@@ -226,6 +229,7 @@ public class Disenchantment extends JavaPlugin {
         EconomyUtils.reset();
         LuckPermsUtils.reset();
         CooldownManager.reset();
+        SpecialAnvilListener.reset();
         StatsManager.shutdown();
 
         if (metrics != null) {
@@ -278,6 +282,8 @@ public class Disenchantment extends JavaPlugin {
         new ShatterListener(Config.EventPriorities.getShatterEvent());
         new ShatterClickListener(Config.EventPriorities.getShatterClickEvent());
         getServer().getPluginManager().registerEvents(new GUIClickEvent(), plugin);
+        getServer().getPluginManager().registerEvents(new SpecialAnvilListener(), plugin);
+        Config.SpecialAnvils.validate().forEach(logger::warning);
 
         // 6. Re-detect plugin adapters
         SupportedPluginManager.deactivateAllPlugins();

@@ -317,8 +317,68 @@ class SpecialAnvilGateTest extends DisenchantmentTestBase {
         DisenchantClickEvent.onEvent(event);
 
         Mockito.verify(lastClickAnvil, Mockito.never()).setItem(eq(0), Mockito.any());
+        Mockito.verify(lastClickAnvil, Mockito.never()).setItem(eq(1), Mockito.any());
         assertTrue(player.getItemOnCursor().getType().isAir());
         assertEquals(30, player.getLevel(), "no XP charged");
+    }
+
+    @Test
+    void givenGateOpenAtPrepareButClosedAtClick_whenDisenchantClick_thenCancelledAndResultCleared() {
+        setConfig("special-anvils.mode", "MARKED");
+        SpecialAnvilStore.mark(anvil);
+        PrepareAnvilEvent prepared = prepare(sword(), new ItemStack(Material.BOOK), anvilLocation());
+        DisenchantEvent.onEvent(prepared);
+        ItemStack pluginResult = prepared.getResult();
+        assertNotNull(pluginResult, "Prepare produced the plugin book while the anvil was special");
+
+        SpecialAnvilStore.unmark(anvil);
+        InventoryClickEvent event = click(sword(), new ItemStack(Material.BOOK), pluginResult, anvilLocation());
+        DisenchantClickEvent.onEvent(event);
+
+        Mockito.verify(event).setCancelled(true);
+        Mockito.verify(lastClickAnvil).setItem(2, null);
+        Mockito.verify(lastClickAnvil, Mockito.never()).setItem(eq(0), Mockito.any());
+        Mockito.verify(lastClickAnvil, Mockito.never()).setItem(eq(1), Mockito.any());
+        assertTrue(player.getItemOnCursor().getType().isAir());
+        assertEquals(30, player.getLevel(), "no XP charged");
+    }
+
+    @Test
+    void givenBlockBelowRemovedAfterPrepare_whenDisenchantClick_thenCancelledAndResultCleared() {
+        setConfig("special-anvils.mode", "BLOCK_BELOW");
+        anvil.getRelative(0, -1, 0).setType(Material.LAPIS_BLOCK);
+        PrepareAnvilEvent prepared = prepare(sword(), new ItemStack(Material.BOOK), anvilLocation());
+        DisenchantEvent.onEvent(prepared);
+        ItemStack pluginResult = prepared.getResult();
+        assertNotNull(pluginResult);
+
+        anvil.getRelative(0, -1, 0).setType(Material.STONE);
+        InventoryClickEvent event = click(sword(), new ItemStack(Material.BOOK), pluginResult, anvilLocation());
+        DisenchantClickEvent.onEvent(event);
+
+        Mockito.verify(event).setCancelled(true);
+        Mockito.verify(lastClickAnvil).setItem(2, null);
+    }
+
+    @Test
+    void givenGateOpenAtPrepareButClosedAtClick_whenShatterClick_thenCancelledAndResultCleared() {
+        setConfig("special-anvils.mode", "MARKED");
+        SpecialAnvilStore.mark(anvil);
+        PrepareAnvilEvent prepared = prepare(enchantedBook("sharpness", "mending"), new ItemStack(Material.BOOK), anvilLocation());
+        ShatterEvent.onEvent(prepared);
+        ItemStack pluginResult = prepared.getResult();
+        assertNotNull(pluginResult, "Prepare produced the plugin book while the anvil was special");
+
+        SpecialAnvilStore.unmark(anvil);
+        InventoryClickEvent event = click(enchantedBook("sharpness", "mending"), new ItemStack(Material.BOOK), pluginResult, anvilLocation());
+        ShatterClickEvent.onEvent(event);
+
+        Mockito.verify(event).setCancelled(true);
+        Mockito.verify(lastClickAnvil).setItem(2, null);
+        Mockito.verify(lastClickAnvil, Mockito.never()).setItem(eq(0), Mockito.any());
+        Mockito.verify(lastClickAnvil, Mockito.never()).setItem(eq(1), Mockito.any());
+        assertTrue(player.getItemOnCursor().getType().isAir());
+        assertEquals(30, player.getLevel());
     }
 
     @Test
