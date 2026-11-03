@@ -15,6 +15,12 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class SpecialAnvilsConfigTest extends DisenchantmentTestBase {
 
+    /** What the config validator reports for the special-anvils section (it replaced SpecialAnvils.validate()). */
+    private java.util.List<ConfigIssue> specialAnvilIssues() {
+        return ConfigValidator.validate(com.jankominek.disenchantment.Disenchantment.config, null).stream()
+                .filter(i -> i.path().startsWith("special-anvils")).toList();
+    }
+
     @Test
     void givenBundledDefaults_whenRead_thenBehaviourPreserving() {
         assertEquals(SpecialAnvilMode.ALL, Config.SpecialAnvils.getMode());
@@ -25,7 +31,7 @@ class SpecialAnvilsConfigTest extends DisenchantmentTestBase {
         assertFalse(Config.SpecialAnvils.isRecipeEnabled());
         assertEquals(List.of("EEE", "EAE", "EEE"), Config.SpecialAnvils.getRecipeShape());
         assertEquals(Map.of('E', "EMERALD", 'A', "ANVIL"), Config.SpecialAnvils.getRecipeIngredients());
-        assertTrue(Config.SpecialAnvils.validate().isEmpty());
+        assertTrue(specialAnvilIssues().isEmpty());
     }
 
     @Test
@@ -42,7 +48,7 @@ class SpecialAnvilsConfigTest extends DisenchantmentTestBase {
         setConfig("special-anvils.mode", "MARKD");
 
         assertEquals(SpecialAnvilMode.ALL, Config.SpecialAnvils.getMode());
-        assertEquals(1, Config.SpecialAnvils.validate().size());
+        assertEquals(1, specialAnvilIssues().size());
     }
 
     @Test
@@ -52,11 +58,11 @@ class SpecialAnvilsConfigTest extends DisenchantmentTestBase {
 
         setConfig("special-anvils.block-below", "DIAMOND");
         assertEquals(Material.LAPIS_BLOCK, Config.SpecialAnvils.getBlockBelow(), "an item is not a block");
-        assertEquals(1, Config.SpecialAnvils.validate().size());
+        assertEquals(1, specialAnvilIssues().size());
 
         setConfig("special-anvils.block-below", "NOT_A_MATERIAL");
         assertEquals(Material.LAPIS_BLOCK, Config.SpecialAnvils.getBlockBelow());
-        assertEquals(1, Config.SpecialAnvils.validate().size());
+        assertEquals(1, specialAnvilIssues().size());
     }
 
     @Test

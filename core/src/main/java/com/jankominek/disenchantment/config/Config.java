@@ -1550,7 +1550,7 @@ public class Config {
          * @return {@code true} (default) if the message is enabled
          */
         public static boolean isNotEnoughXpMessageEnabled() {
-            return config.getBoolean(ConfigKeys.FEEDBACK_NOT_ENOUGH_XP_MESSAGE.getKey(), true);
+            return ConfigValues.bool(ConfigKeys.FEEDBACK_NOT_ENOUGH_XP_MESSAGE);
         }
 
         /**
@@ -1559,7 +1559,7 @@ public class Config {
          * @return {@code true} (default) if the preview lore is enabled
          */
         public static boolean isPreviewLoreEnabled() {
-            return config.getBoolean(ConfigKeys.FEEDBACK_PREVIEW_LORE.getKey(), true);
+            return ConfigValues.bool(ConfigKeys.FEEDBACK_PREVIEW_LORE);
         }
 
         /**
@@ -1572,7 +1572,7 @@ public class Config {
              * @return {@code true} (default) if particles are spawned
              */
             public static boolean isEnabled() {
-                return config.getBoolean(ConfigKeys.FEEDBACK_PARTICLES_ENABLED.getKey(), true);
+                return ConfigValues.bool(ConfigKeys.FEEDBACK_PARTICLES_ENABLED);
             }
 
             /**
@@ -1600,7 +1600,7 @@ public class Config {
              * @return the count, clamped to [1, 500]
              */
             public static int getCount() {
-                return Math.max(1, Math.min(500, config.getInt(ConfigKeys.FEEDBACK_PARTICLES_COUNT.getKey(), 30)));
+                return ConfigValues.integer(ConfigKeys.FEEDBACK_PARTICLES_COUNT);
             }
 
             /**
@@ -1609,7 +1609,7 @@ public class Config {
              * @return the spread, never negative
              */
             public static double getSpread() {
-                return Math.max(0.0, config.getDouble(ConfigKeys.FEEDBACK_PARTICLES_SPREAD.getKey(), 0.4));
+                return ConfigValues.decimal(ConfigKeys.FEEDBACK_PARTICLES_SPREAD);
             }
 
             /**
@@ -1618,12 +1618,13 @@ public class Config {
              * @return the {@link ParticleScopeType} (defaults to {@link ParticleScopeType#PLAYER})
              */
             public static ParticleScopeType getScope() {
-                return ParticleScopeType.fromConfig(config.getString(ConfigKeys.FEEDBACK_PARTICLES_SCOPE.getKey(), "PLAYER"));
+                return ConfigValues.enumeration(ConfigKeys.FEEDBACK_PARTICLES_SCOPE, ParticleScopeType.class);
             }
 
             private static List<String> getNames(ConfigKeys key, List<String> fallback) {
-                if (!config.contains(key.getKey())) return fallback;
-                return config.getStringList(key.getKey());
+                Object raw = ConfigValues.raw(key);
+                if (raw == null || !(raw instanceof java.util.Collection || ConfigValues.scalar(raw) != null)) return fallback;
+                return ConfigValues.toStringList(raw);
             }
         }
 
@@ -1637,7 +1638,7 @@ public class Config {
              * @return {@code true} (default) if the sound is played
              */
             public static boolean isEnabled() {
-                return config.getBoolean(ConfigKeys.FEEDBACK_FAILURE_SOUND_ENABLED.getKey(), true);
+                return ConfigValues.bool(ConfigKeys.FEEDBACK_FAILURE_SOUND_ENABLED);
             }
 
             /**
@@ -1647,8 +1648,7 @@ public class Config {
              * @return the sound key (default {@code entity.villager.no})
              */
             public static String getSound() {
-                String sound = config.getString(ConfigKeys.FEEDBACK_FAILURE_SOUND_SOUND.getKey(), "entity.villager.no");
-                return sound == null || sound.isBlank() ? "entity.villager.no" : sound.trim();
+                return ConfigValues.string(ConfigKeys.FEEDBACK_FAILURE_SOUND_SOUND);
             }
 
             /**
@@ -1657,7 +1657,7 @@ public class Config {
              * @return the configured volume
              */
             public static float getVolume() {
-                return (float) config.getDouble(ConfigKeys.FEEDBACK_FAILURE_SOUND_VOLUME.getKey(), 1.0);
+                return (float) ConfigValues.decimal(ConfigKeys.FEEDBACK_FAILURE_SOUND_VOLUME);
             }
 
             /**
@@ -1666,7 +1666,7 @@ public class Config {
              * @return the configured pitch
              */
             public static float getPitch() {
-                return (float) config.getDouble(ConfigKeys.FEEDBACK_FAILURE_SOUND_PITCH.getKey(), 1.0);
+                return (float) ConfigValues.decimal(ConfigKeys.FEEDBACK_FAILURE_SOUND_PITCH);
             }
         }
     }
@@ -1683,7 +1683,7 @@ public class Config {
          * @return {@code true} if erase mode is enabled (default {@code false})
          */
         public static boolean isEnabled() {
-            return config.getBoolean(ConfigKeys.ERASE_ENABLED.getKey(), false);
+            return ConfigValues.bool(ConfigKeys.ERASE_ENABLED);
         }
 
         /**
@@ -1692,8 +1692,9 @@ public class Config {
          * @return the material names (default {@code ECHO_SHARD})
          */
         public static List<String> getCatalysts() {
-            if (!config.contains(ConfigKeys.ERASE_CATALYSTS.getKey())) return List.of("ECHO_SHARD");
-            return config.getStringList(ConfigKeys.ERASE_CATALYSTS.getKey());
+            Object raw = ConfigValues.raw(ConfigKeys.ERASE_CATALYSTS);
+            if (raw == null || !(raw instanceof java.util.Collection || ConfigValues.scalar(raw) != null)) return List.of("ECHO_SHARD");
+            return ConfigValues.toStringList(raw);
         }
 
         /**
@@ -1702,7 +1703,7 @@ public class Config {
          * @return {@code true} (default) if the catalyst is used up
          */
         public static boolean isConsumeCatalyst() {
-            return config.getBoolean(ConfigKeys.ERASE_CONSUME_CATALYST.getKey(), true);
+            return ConfigValues.bool(ConfigKeys.ERASE_CONSUME_CATALYST);
         }
 
         /**
@@ -1711,7 +1712,7 @@ public class Config {
          * @return {@code true} if curses are erased (default {@code false}: they stay on the item)
          */
         public static boolean isEraseCurses() {
-            return config.getBoolean(ConfigKeys.ERASE_ERASE_CURSES.getKey(), false);
+            return ConfigValues.bool(ConfigKeys.ERASE_ERASE_CURSES);
         }
 
         /**
@@ -1720,11 +1721,7 @@ public class Config {
          * @return the configured {@link EventPriority}, defaulting to HIGHEST
          */
         public static EventPriority getPrepareEventPriority() {
-            try {
-                return EventPriority.valueOf(config.getString(ConfigKeys.EVENT_PRIORITIES_ERASE.getKey(), "HIGHEST").toUpperCase());
-            } catch (IllegalArgumentException e) {
-                return EventPriority.HIGHEST;
-            }
+            return ConfigValues.enumeration(ConfigKeys.EVENT_PRIORITIES_ERASE, EventPriority.class);
         }
 
         /**
@@ -1733,11 +1730,7 @@ public class Config {
          * @return the configured {@link EventPriority}, defaulting to HIGHEST
          */
         public static EventPriority getClickEventPriority() {
-            try {
-                return EventPriority.valueOf(config.getString(ConfigKeys.EVENT_PRIORITIES_ERASE_CLICK.getKey(), "HIGHEST").toUpperCase());
-            } catch (IllegalArgumentException e) {
-                return EventPriority.HIGHEST;
-            }
+            return ConfigValues.enumeration(ConfigKeys.EVENT_PRIORITIES_ERASE_CLICK, EventPriority.class);
         }
 
         /**
@@ -1750,7 +1743,7 @@ public class Config {
              * @return {@code true} if economy cost is active
              */
             public static boolean isEnabled() {
-                return config.getBoolean(ConfigKeys.ERASE_ECONOMY_ENABLED.getKey(), false);
+                return ConfigValues.bool(ConfigKeys.ERASE_ECONOMY_ENABLED);
             }
 
             /**
@@ -1759,7 +1752,7 @@ public class Config {
              * @return the configured cost
              */
             public static double getCost() {
-                return config.getDouble(ConfigKeys.ERASE_ECONOMY_COST.getKey(), 100.0);
+                return ConfigValues.decimal(ConfigKeys.ERASE_ECONOMY_COST);
             }
 
             /**
@@ -1768,7 +1761,7 @@ public class Config {
              * @return {@code true} if the cost display is enabled
              */
             public static boolean isShowCostEnabled() {
-                return config.getBoolean(ConfigKeys.ERASE_ECONOMY_SHOW_COST.getKey(), true);
+                return ConfigValues.bool(ConfigKeys.ERASE_ECONOMY_SHOW_COST);
             }
 
             /**
@@ -1777,7 +1770,7 @@ public class Config {
              * @return {@code true} if the charge message is enabled
              */
             public static boolean isChargeMessageEnabled() {
-                return config.getBoolean(ConfigKeys.ERASE_ECONOMY_CHARGE_MESSAGE.getKey(), true);
+                return ConfigValues.bool(ConfigKeys.ERASE_ECONOMY_CHARGE_MESSAGE);
             }
         }
 
@@ -1791,7 +1784,7 @@ public class Config {
              * @return {@code true} if the bypass is enabled
              */
             public static boolean isBypassTooExpensiveEnabled() {
-                return config.getBoolean(ConfigKeys.ERASE_ANVIL_BYPASS_TOO_EXPENSIVE.getKey(), false);
+                return ConfigValues.bool(ConfigKeys.ERASE_ANVIL_BYPASS_TOO_EXPENSIVE);
             }
 
             /**
@@ -1804,7 +1797,7 @@ public class Config {
                  * @return {@code true} if the sound is enabled
                  */
                 public static boolean isEnabled() {
-                    return config.getBoolean(ConfigKeys.ERASE_ANVIL_SOUND_ENABLED.getKey(), true);
+                    return ConfigValues.bool(ConfigKeys.ERASE_ANVIL_SOUND_ENABLED);
                 }
 
                 /**
@@ -1813,7 +1806,7 @@ public class Config {
                  * @return the configured volume
                  */
                 public static Double getVolume() {
-                    return config.getDouble(ConfigKeys.ERASE_ANVIL_VOLUME.getKey(), 1.0);
+                    return ConfigValues.decimal(ConfigKeys.ERASE_ANVIL_VOLUME);
                 }
 
                 /**
@@ -1822,7 +1815,7 @@ public class Config {
                  * @return the configured pitch
                  */
                 public static Double getPitch() {
-                    return config.getDouble(ConfigKeys.ERASE_ANVIL_PITCH.getKey(), 1.0);
+                    return ConfigValues.decimal(ConfigKeys.ERASE_ANVIL_PITCH);
                 }
             }
 
@@ -1836,7 +1829,7 @@ public class Config {
                  * @return {@code true} if repair cost reset is enabled
                  */
                 public static boolean isResetEnabled() {
-                    return config.getBoolean(ConfigKeys.ERASE_REPAIR_RESET_ENABLED.getKey(), false);
+                    return ConfigValues.bool(ConfigKeys.ERASE_REPAIR_RESET_ENABLED);
                 }
 
                 /**
@@ -1845,7 +1838,7 @@ public class Config {
                  * @return {@code true} if repair cost is enabled
                  */
                 public static boolean isCostEnabled() {
-                    return config.getBoolean(ConfigKeys.ERASE_REPAIR_COST_ENABLED.getKey(), true);
+                    return ConfigValues.bool(ConfigKeys.ERASE_REPAIR_COST_ENABLED);
                 }
 
                 /**
@@ -1854,7 +1847,7 @@ public class Config {
                  * @return the configured base cost
                  */
                 public static Double getBaseCost() {
-                    return config.getDouble(ConfigKeys.ERASE_REPAIR_COST_BASE.getKey(), 10.0);
+                    return ConfigValues.decimal(ConfigKeys.ERASE_REPAIR_COST_BASE);
                 }
 
                 /**
@@ -1863,7 +1856,7 @@ public class Config {
                  * @return the configured cost multiplier
                  */
                 public static Double getCostMultiplier() {
-                    return config.getDouble(ConfigKeys.ERASE_REPAIR_COST_MULTIPLIER.getKey(), 0.25);
+                    return ConfigValues.decimal(ConfigKeys.ERASE_REPAIR_COST_MULTIPLIER);
                 }
 
                 /**
@@ -1872,20 +1865,7 @@ public class Config {
                  * @return map of enchantment key to its XP cost override
                  */
                 public static Map<String, Integer> getEnchantmentCosts() {
-                    var section = config.getConfigurationSection(ConfigKeys.ERASE_ANVIL_REPAIR_ENCHANTMENT_COSTS.getKey());
-                    Map<String, Integer> costs = new HashMap<>();
-                    if (section == null) return costs;
-
-                    for (String key : section.getKeys(false)) {
-                        // Two supported shapes: "sharpness: 5" (XP-only) or "mending: { xp: 10, economy: 500 }".
-                        var sub = section.getConfigurationSection(key);
-                        if (sub != null) {
-                            if (sub.contains("xp")) costs.put(key, sub.getInt("xp"));
-                        } else {
-                            costs.put(key, section.getInt(key));
-                        }
-                    }
-                    return costs;
+                    return ConfigValues.parseXpCosts(ConfigValues.raw(ConfigKeys.ERASE_ANVIL_REPAIR_ENCHANTMENT_COSTS), null);
                 }
 
                 /**
@@ -1895,15 +1875,7 @@ public class Config {
                  * @return map of enchantment key to its economy cost override
                  */
                 public static Map<String, Double> getEnchantmentEconomyCosts() {
-                    Map<String, Double> costs = new HashMap<>();
-                    var section = config.getConfigurationSection(ConfigKeys.ERASE_ANVIL_REPAIR_ENCHANTMENT_COSTS.getKey());
-                    if (section == null) return costs;
-
-                    for (String key : section.getKeys(false)) {
-                        var sub = section.getConfigurationSection(key);
-                        if (sub != null && sub.contains("economy")) costs.put(key, sub.getDouble("economy"));
-                    }
-                    return costs;
+                    return ConfigValues.parseEconomyCosts(ConfigValues.raw(ConfigKeys.ERASE_ANVIL_REPAIR_ENCHANTMENT_COSTS), null);
                 }
 
                 /**
@@ -1912,7 +1884,7 @@ public class Config {
                  * @return the configured max cost, or -1 if uncapped
                  */
                 public static int getMaxCost() {
-                    return config.getInt(ConfigKeys.ERASE_REPAIR_MAX_COST.getKey(), -1);
+                    return ConfigValues.integer(ConfigKeys.ERASE_REPAIR_MAX_COST);
                 }
             }
         }
@@ -1949,10 +1921,10 @@ public class Config {
             return material != null ? material : DEFAULT_BLOCK_BELOW;
         }
 
-        private static Material parseBlockBelow(String name) {
+        static Material parseBlockBelow(String name) {
             if (name == null || name.isBlank()) return null;
 
-            Material material = Material.matchMaterial(name.trim());
+            Material material = ConfigValues.matchMaterial(name);
             return material != null && material.isBlock() ? material : null;
         }
 
@@ -1963,7 +1935,7 @@ public class Config {
          * @return {@code true} if virtual anvils may perform plugin operations
          */
         public static boolean isAllowVirtualAnvils() {
-            return config.getBoolean(ConfigKeys.SPECIAL_ANVILS_ALLOW_VIRTUAL_ANVILS.getKey(), false);
+            return ConfigValues.bool(ConfigKeys.SPECIAL_ANVILS_ALLOW_VIRTUAL_ANVILS);
         }
 
         /**
@@ -1972,7 +1944,7 @@ public class Config {
          * @return {@code true} if broken special anvils drop the special item (default)
          */
         public static boolean isDropSpecialItem() {
-            return config.getBoolean(ConfigKeys.SPECIAL_ANVILS_DROP_SPECIAL_ITEM.getKey(), true);
+            return ConfigValues.bool(ConfigKeys.SPECIAL_ANVILS_DROP_SPECIAL_ITEM);
         }
 
         /**
@@ -1981,7 +1953,7 @@ public class Config {
          * @return {@code true} if the hint message is enabled
          */
         public static boolean isHintMessageEnabled() {
-            return config.getBoolean(ConfigKeys.SPECIAL_ANVILS_HINT_MESSAGE.getKey(), false);
+            return ConfigValues.bool(ConfigKeys.SPECIAL_ANVILS_HINT_MESSAGE);
         }
 
         /**
@@ -1990,7 +1962,7 @@ public class Config {
          * @return the configured item name
          */
         public static String getItemName() {
-            return config.getString(ConfigKeys.SPECIAL_ANVILS_ITEM_NAME.getKey(), "&dEnchanter's Anvil");
+            return ConfigValues.string(ConfigKeys.SPECIAL_ANVILS_ITEM_NAME);
         }
 
         /**
@@ -2008,7 +1980,7 @@ public class Config {
          * @return {@code true} if the recipe is enabled
          */
         public static boolean isRecipeEnabled() {
-            return config.getBoolean(ConfigKeys.SPECIAL_ANVILS_RECIPE_ENABLED.getKey(), false);
+            return ConfigValues.bool(ConfigKeys.SPECIAL_ANVILS_RECIPE_ENABLED);
         }
 
         /**
@@ -2032,33 +2004,11 @@ public class Config {
             if (section == null) return ingredients;
 
             for (String key : section.getKeys(false)) {
-                String value = section.getString(key);
+                String value = ConfigValues.scalar(section.get(key));
                 if (key.length() == 1 && value != null) ingredients.put(key.charAt(0), value);
             }
 
             return ingredients;
-        }
-
-        /**
-         * Checks the special anvils section for values that silently fall back to a default.
-         * Intended to be logged once after the config is loaded.
-         *
-         * @return human-readable warnings, empty when the section is fine
-         */
-        public static List<String> validate() {
-            List<String> warnings = new ArrayList<>();
-
-            String rawMode = config.getString(ConfigKeys.SPECIAL_ANVILS_MODE.getKey());
-            if (rawMode != null && !rawMode.isBlank() && SpecialAnvilMode.match(rawMode) == null) {
-                warnings.add("Config: unknown mode '" + rawMode + "' for special-anvils.mode — defaulting to ALL (every anvil works)");
-            }
-
-            String rawBlock = config.getString(ConfigKeys.SPECIAL_ANVILS_BLOCK_BELOW.getKey());
-            if (rawBlock != null && !rawBlock.isBlank() && parseBlockBelow(rawBlock) == null) {
-                warnings.add("Config: '" + rawBlock + "' is not a block material for special-anvils.block-below — defaulting to " + DEFAULT_BLOCK_BELOW.name());
-            }
-
-            return warnings;
         }
     }
 
@@ -2076,7 +2026,7 @@ public class Config {
          * @return {@code true} if the feature is enabled
          */
         public static boolean isEnabled() {
-            return config.getBoolean(ConfigKeys.GRINDSTONE_ENABLED.getKey(), false);
+            return ConfigValues.bool(ConfigKeys.GRINDSTONE_ENABLED);
         }
 
         /**
@@ -2086,7 +2036,7 @@ public class Config {
          * @return {@code true} if curses are transferable
          */
         public static boolean isCursesEnabled() {
-            return config.getBoolean(ConfigKeys.GRINDSTONE_CURSES.getKey(), false);
+            return ConfigValues.bool(ConfigKeys.GRINDSTONE_CURSES);
         }
 
         /**
@@ -2095,11 +2045,7 @@ public class Config {
          * @return the configured {@link EventPriority}, defaulting to HIGHEST
          */
         public static EventPriority getPrepareEventPriority() {
-            try {
-                return EventPriority.valueOf(config.getString(ConfigKeys.EVENT_PRIORITIES_GRINDSTONE.getKey(), "HIGHEST").toUpperCase());
-            } catch (IllegalArgumentException e) {
-                return EventPriority.HIGHEST;
-            }
+            return ConfigValues.enumeration(ConfigKeys.EVENT_PRIORITIES_GRINDSTONE, EventPriority.class);
         }
 
         /**
@@ -2108,11 +2054,7 @@ public class Config {
          * @return the configured {@link EventPriority}, defaulting to HIGHEST
          */
         public static EventPriority getClickEventPriority() {
-            try {
-                return EventPriority.valueOf(config.getString(ConfigKeys.EVENT_PRIORITIES_GRINDSTONE_CLICK.getKey(), "HIGHEST").toUpperCase());
-            } catch (IllegalArgumentException e) {
-                return EventPriority.HIGHEST;
-            }
+            return ConfigValues.enumeration(ConfigKeys.EVENT_PRIORITIES_GRINDSTONE_CLICK, EventPriority.class);
         }
 
         /**
@@ -2125,7 +2067,7 @@ public class Config {
              * @return {@code true} if the sound is enabled
              */
             public static boolean isEnabled() {
-                return config.getBoolean(ConfigKeys.GRINDSTONE_SOUND_ENABLED.getKey(), true);
+                return ConfigValues.bool(ConfigKeys.GRINDSTONE_SOUND_ENABLED);
             }
 
             /**
@@ -2134,7 +2076,7 @@ public class Config {
              * @return the configured volume
              */
             public static Double getVolume() {
-                return config.getDouble(ConfigKeys.GRINDSTONE_SOUND_VOLUME.getKey(), 1.0);
+                return ConfigValues.decimal(ConfigKeys.GRINDSTONE_SOUND_VOLUME);
             }
 
             /**
@@ -2143,7 +2085,7 @@ public class Config {
              * @return the configured pitch
              */
             public static Double getPitch() {
-                return config.getDouble(ConfigKeys.GRINDSTONE_SOUND_PITCH.getKey(), 1.0);
+                return ConfigValues.decimal(ConfigKeys.GRINDSTONE_SOUND_PITCH);
             }
         }
 
@@ -2155,28 +2097,28 @@ public class Config {
              * @return {@code true} if the item's anvil repair cost is reset after the operation
              */
             public static boolean isResetEnabled() {
-                return config.getBoolean(ConfigKeys.GRINDSTONE_REPAIR_RESET_ENABLED.getKey(), false);
+                return ConfigValues.bool(ConfigKeys.GRINDSTONE_REPAIR_RESET_ENABLED);
             }
 
             /**
              * @return {@code true} if the operation costs experience levels
              */
             public static boolean isCostEnabled() {
-                return config.getBoolean(ConfigKeys.GRINDSTONE_REPAIR_COST_ENABLED.getKey(), true);
+                return ConfigValues.bool(ConfigKeys.GRINDSTONE_REPAIR_COST_ENABLED);
             }
 
             /**
              * @return the configured base cost
              */
             public static Double getBaseCost() {
-                return config.getDouble(ConfigKeys.GRINDSTONE_REPAIR_COST_BASE.getKey(), 10);
+                return ConfigValues.decimal(ConfigKeys.GRINDSTONE_REPAIR_COST_BASE);
             }
 
             /**
              * @return the configured per-enchantment multiplier
              */
             public static Double getCostMultiplier() {
-                return config.getDouble(ConfigKeys.GRINDSTONE_REPAIR_COST_MULTIPLIER.getKey(), 0.25);
+                return ConfigValues.decimal(ConfigKeys.GRINDSTONE_REPAIR_COST_MULTIPLIER);
             }
 
             /**
@@ -2197,7 +2139,7 @@ public class Config {
              * @return the XP cost cap, or -1 for no cap
              */
             public static int getMaxCost() {
-                return config.getInt(ConfigKeys.GRINDSTONE_REPAIR_MAX_COST.getKey(), -1);
+                return ConfigValues.integer(ConfigKeys.GRINDSTONE_REPAIR_MAX_COST);
             }
         }
 
@@ -2209,28 +2151,28 @@ public class Config {
              * @return {@code true} if extraction charges money
              */
             public static boolean isEnabled() {
-                return config.getBoolean(ConfigKeys.GRINDSTONE_ECONOMY_ENABLED.getKey(), false);
+                return ConfigValues.bool(ConfigKeys.GRINDSTONE_ECONOMY_ENABLED);
             }
 
             /**
              * @return the economy cost of one extraction
              */
             public static double getCost() {
-                return config.getDouble(ConfigKeys.GRINDSTONE_ECONOMY_COST.getKey(), 100.0);
+                return ConfigValues.decimal(ConfigKeys.GRINDSTONE_ECONOMY_COST);
             }
 
             /**
              * @return {@code true} if the cost is shown in the action bar
              */
             public static boolean isShowCostEnabled() {
-                return config.getBoolean(ConfigKeys.GRINDSTONE_ECONOMY_SHOW_COST.getKey(), true);
+                return ConfigValues.bool(ConfigKeys.GRINDSTONE_ECONOMY_SHOW_COST);
             }
 
             /**
              * @return {@code true} if a charge confirmation message is sent
              */
             public static boolean isChargeMessageEnabled() {
-                return config.getBoolean(ConfigKeys.GRINDSTONE_ECONOMY_CHARGE_MESSAGE.getKey(), true);
+                return ConfigValues.bool(ConfigKeys.GRINDSTONE_ECONOMY_CHARGE_MESSAGE);
             }
         }
 
@@ -2242,21 +2184,21 @@ public class Config {
              * @return {@code true} if item-to-item transfer is enabled
              */
             public static boolean isEnabled() {
-                return config.getBoolean(ConfigKeys.GRINDSTONE_TRANSFER_ENABLED.getKey(), false);
+                return ConfigValues.bool(ConfigKeys.GRINDSTONE_TRANSFER_ENABLED);
             }
 
             /**
              * @return {@code true} if enchantments may keep a level above the enchantment's vanilla maximum
              */
             public static boolean isAllowOverMax() {
-                return config.getBoolean(ConfigKeys.GRINDSTONE_TRANSFER_ALLOW_OVER_MAX.getKey(), false);
+                return ConfigValues.bool(ConfigKeys.GRINDSTONE_TRANSFER_ALLOW_OVER_MAX);
             }
 
             /**
              * @return the maximum number of enchantments one transfer may move (at least 1)
              */
             public static int getMaxEnchantments() {
-                return Math.max(1, config.getInt(ConfigKeys.GRINDSTONE_TRANSFER_MAX_ENCHANTMENTS.getKey(), 16));
+                return ConfigValues.integer(ConfigKeys.GRINDSTONE_TRANSFER_MAX_ENCHANTMENTS);
             }
 
             /**
@@ -2267,28 +2209,28 @@ public class Config {
                  * @return {@code true} if the target's anvil repair cost is reset after the operation
                  */
                 public static boolean isResetEnabled() {
-                    return config.getBoolean(ConfigKeys.GRINDSTONE_TRANSFER_REPAIR_RESET_ENABLED.getKey(), false);
+                    return ConfigValues.bool(ConfigKeys.GRINDSTONE_TRANSFER_REPAIR_RESET_ENABLED);
                 }
 
                 /**
                  * @return {@code true} if the operation costs experience levels
                  */
                 public static boolean isCostEnabled() {
-                    return config.getBoolean(ConfigKeys.GRINDSTONE_TRANSFER_REPAIR_COST_ENABLED.getKey(), true);
+                    return ConfigValues.bool(ConfigKeys.GRINDSTONE_TRANSFER_REPAIR_COST_ENABLED);
                 }
 
                 /**
                  * @return the configured base cost
                  */
                 public static Double getBaseCost() {
-                    return config.getDouble(ConfigKeys.GRINDSTONE_TRANSFER_REPAIR_COST_BASE.getKey(), 15);
+                    return ConfigValues.decimal(ConfigKeys.GRINDSTONE_TRANSFER_REPAIR_COST_BASE);
                 }
 
                 /**
                  * @return the configured per-enchantment multiplier
                  */
                 public static Double getCostMultiplier() {
-                    return config.getDouble(ConfigKeys.GRINDSTONE_TRANSFER_REPAIR_COST_MULTIPLIER.getKey(), 0.25);
+                    return ConfigValues.decimal(ConfigKeys.GRINDSTONE_TRANSFER_REPAIR_COST_MULTIPLIER);
                 }
 
                 /**
@@ -2309,7 +2251,7 @@ public class Config {
                  * @return the XP cost cap, or -1 for no cap
                  */
                 public static int getMaxCost() {
-                    return config.getInt(ConfigKeys.GRINDSTONE_TRANSFER_REPAIR_MAX_COST.getKey(), -1);
+                    return ConfigValues.integer(ConfigKeys.GRINDSTONE_TRANSFER_REPAIR_MAX_COST);
                 }
             }
 
@@ -2321,59 +2263,39 @@ public class Config {
                  * @return {@code true} if transfer charges money
                  */
                 public static boolean isEnabled() {
-                    return config.getBoolean(ConfigKeys.GRINDSTONE_TRANSFER_ECONOMY_ENABLED.getKey(), false);
+                    return ConfigValues.bool(ConfigKeys.GRINDSTONE_TRANSFER_ECONOMY_ENABLED);
                 }
 
                 /**
                  * @return the economy cost of one transfer
                  */
                 public static double getCost() {
-                    return config.getDouble(ConfigKeys.GRINDSTONE_TRANSFER_ECONOMY_COST.getKey(), 100.0);
+                    return ConfigValues.decimal(ConfigKeys.GRINDSTONE_TRANSFER_ECONOMY_COST);
                 }
 
                 /**
                  * @return {@code true} if the cost is shown in the action bar
                  */
                 public static boolean isShowCostEnabled() {
-                    return config.getBoolean(ConfigKeys.GRINDSTONE_TRANSFER_ECONOMY_SHOW_COST.getKey(), true);
+                    return ConfigValues.bool(ConfigKeys.GRINDSTONE_TRANSFER_ECONOMY_SHOW_COST);
                 }
 
                 /**
                  * @return {@code true} if a charge confirmation message is sent
                  */
                 public static boolean isChargeMessageEnabled() {
-                    return config.getBoolean(ConfigKeys.GRINDSTONE_TRANSFER_ECONOMY_CHARGE_MESSAGE.getKey(), true);
+                    return ConfigValues.bool(ConfigKeys.GRINDSTONE_TRANSFER_ECONOMY_CHARGE_MESSAGE);
                 }
             }
         }
 
         // Same two shapes as the anvil sections: "sharpness: 5" (XP only) or "mending: { xp: 10, economy: 500 }".
         private static Map<String, Integer> readEnchantmentCosts(ConfigKeys key) {
-            Map<String, Integer> costs = new HashMap<>();
-            var section = config.getConfigurationSection(key.getKey());
-            if (section == null) return costs;
-
-            for (String entry : section.getKeys(false)) {
-                var sub = section.getConfigurationSection(entry);
-                if (sub != null) {
-                    if (sub.contains("xp")) costs.put(entry, sub.getInt("xp"));
-                } else {
-                    costs.put(entry, section.getInt(entry));
-                }
-            }
-            return costs;
+            return ConfigValues.parseXpCosts(ConfigValues.raw(key), null);
         }
 
         private static Map<String, Double> readEnchantmentEconomyCosts(ConfigKeys key) {
-            Map<String, Double> costs = new HashMap<>();
-            var section = config.getConfigurationSection(key.getKey());
-            if (section == null) return costs;
-
-            for (String entry : section.getKeys(false)) {
-                var sub = section.getConfigurationSection(entry);
-                if (sub != null && sub.contains("economy")) costs.put(entry, sub.getDouble("economy"));
-            }
-            return costs;
+            return ConfigValues.parseEconomyCosts(ConfigValues.raw(key), null);
         }
     }
 }

@@ -14,7 +14,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static com.jankominek.disenchantment.Disenchantment.logger;
 
 /**
  * Resolves configured particle names and spawns the success particles of an anvil operation.
@@ -37,8 +36,8 @@ public final class ParticleUtils {
     /**
      * Resolves particle names to the {@link Particle} constants of the running server. Names that do
      * not exist (a legacy name on a new server and vice versa) and particles that need extra data are
-     * skipped; duplicates collapse. The result is cached per name list, and a single warning is logged
-     * the first time a list resolves to nothing.
+     * skipped; duplicates collapse. The result is cached per name list. A list that resolves to nothing
+     * is reported by the {@code ConfigValidator}.
      *
      * @param names the configured particle names, in priority order
      * @return the distinct usable particles, possibly empty
@@ -57,19 +56,28 @@ public final class ParticleUtils {
         }
 
         List<Particle> result = List.copyOf(new ArrayList<>(particles));
-        if (resolved.putIfAbsent(key, result) == null && result.isEmpty()) {
-            logger.warning("Config: none of the feedback particles " + key + " exist on this server — particles are skipped.");
-        }
+        resolved.putIfAbsent(key, result);
 
         DiagnosticUtils.debug("FEEDBACK", () -> "Particles " + key + " resolved to " + result);
         return resolved.get(key);
+    }
+
+    /**
+     * Whether a configured particle name exists on this server and can be spawned without extra data.
+     * The config validator uses it to report a list in which no name resolves.
+     *
+     * @param name a configured particle name
+     * @return {@code true} if it resolves to a usable particle
+     */
+    public static boolean exists(String name) {
+        return lookup(name) != null;
     }
 
     private static Particle lookup(String name) {
         if (name == null || name.isBlank()) return null;
 
         try {
-            Object value = Particle.class.getField(name.trim().toUpperCase()).get(null);
+            Object value = Particle.class.getField(name.trim().toUpperCase(java.util.Locale.ROOT)).get(null);
             if (!(value instanceof Particle particle)) return null;
             if (particle.getDataType() != Void.class) {
                 DiagnosticUtils.debug("FEEDBACK", () -> "Particle " + name + " needs extra data → skipped");

@@ -199,7 +199,6 @@ public class Disenchantment extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new GUIClickEvent(), plugin);
         getServer().getPluginManager().registerEvents(new SpecialAnvilListener(), plugin);
         DiagnosticUtils.debug("STARTUP", "All listeners registered");
-        Config.SpecialAnvils.validate().forEach(logger::warning);
         SpecialAnvilRecipe.register();
 
         // Commands
@@ -297,7 +296,6 @@ public class Disenchantment extends JavaPlugin {
         new GrindstoneListener(Config.Grindstone.getPrepareEventPriority(), Config.Grindstone.getClickEventPriority());
         getServer().getPluginManager().registerEvents(new GUIClickEvent(), plugin);
         getServer().getPluginManager().registerEvents(new SpecialAnvilListener(), plugin);
-        Config.SpecialAnvils.validate().forEach(logger::warning);
         SpecialAnvilRecipe.register();
 
         // 6. Re-detect plugin adapters

@@ -2,6 +2,8 @@ package com.jankominek.disenchantment.config;
 
 import com.jankominek.disenchantment.types.ConfigKeys;
 import com.jankominek.disenchantment.types.LogLevelType;
+import com.jankominek.disenchantment.types.ParticleScopeType;
+import com.jankominek.disenchantment.types.SpecialAnvilMode;
 import org.bukkit.event.EventPriority;
 
 import java.util.Collection;
@@ -38,6 +40,11 @@ public record ConfigSpec(ConfigKeys key, Kind kind, Object def, double min, doub
      * Characters allowed in a locale code; it is used as a file name, so path separators are never accepted.
      */
     public static final String LOCALE_PATTERN = "[A-Za-z0-9_-]{1,32}";
+
+    /**
+     * A namespaced vanilla sound key such as {@code entity.villager.no} (lower case, as the client expects).
+     */
+    public static final String SOUND_KEY_PATTERN = "[a-z0-9_.:/-]{1,128}";
 
     static {
         bool(ConfigKeys.ENABLED, true);
@@ -89,6 +96,74 @@ public record ConfigSpec(ConfigKeys key, Kind kind, Object def, double min, doub
         decimal(ConfigKeys.SHATTERMENT_ECONOMY_COST, 100.0, 0.0, 1e12);
         bool(ConfigKeys.SHATTERMENT_ECONOMY_SHOW_COST, true);
         bool(ConfigKeys.SHATTERMENT_ECONOMY_CHARGE_MESSAGE, true);
+
+        // erase, special anvils, grindstone, feedback
+        enumeration(ConfigKeys.EVENT_PRIORITIES_ERASE, EventPriority.HIGHEST);
+        enumeration(ConfigKeys.EVENT_PRIORITIES_ERASE_CLICK, EventPriority.HIGHEST);
+        enumeration(ConfigKeys.EVENT_PRIORITIES_GRINDSTONE, EventPriority.HIGHEST);
+        enumeration(ConfigKeys.EVENT_PRIORITIES_GRINDSTONE_CLICK, EventPriority.HIGHEST);
+
+        bool(ConfigKeys.FEEDBACK_PARTICLES_ENABLED, true);
+        integer(ConfigKeys.FEEDBACK_PARTICLES_COUNT, 30, 1, 500);
+        decimal(ConfigKeys.FEEDBACK_PARTICLES_SPREAD, 0.4, 0.0, 16.0);
+        enumeration(ConfigKeys.FEEDBACK_PARTICLES_SCOPE, ParticleScopeType.PLAYER);
+        bool(ConfigKeys.FEEDBACK_FAILURE_SOUND_ENABLED, true);
+        string(ConfigKeys.FEEDBACK_FAILURE_SOUND_SOUND, "entity.villager.no", SOUND_KEY_PATTERN);
+        decimal(ConfigKeys.FEEDBACK_FAILURE_SOUND_VOLUME, 1.0, 0.0, 10.0);
+        decimal(ConfigKeys.FEEDBACK_FAILURE_SOUND_PITCH, 1.0, 0.5, 2.0);
+        bool(ConfigKeys.FEEDBACK_NOT_ENOUGH_XP_MESSAGE, true);
+        bool(ConfigKeys.FEEDBACK_PREVIEW_LORE, true);
+
+        bool(ConfigKeys.ERASE_ENABLED, false);
+        bool(ConfigKeys.ERASE_CONSUME_CATALYST, true);
+        bool(ConfigKeys.ERASE_ERASE_CURSES, false);
+        bool(ConfigKeys.ERASE_ANVIL_SOUND_ENABLED, true);
+        decimal(ConfigKeys.ERASE_ANVIL_VOLUME, 1.0, 0.0, 10.0);
+        decimal(ConfigKeys.ERASE_ANVIL_PITCH, 1.0, 0.5, 2.0);
+        bool(ConfigKeys.ERASE_REPAIR_RESET_ENABLED, false);
+        bool(ConfigKeys.ERASE_REPAIR_COST_ENABLED, true);
+        decimal(ConfigKeys.ERASE_REPAIR_COST_BASE, 10.0, -1_000_000.0, 1_000_000.0);
+        decimal(ConfigKeys.ERASE_REPAIR_COST_MULTIPLIER, 0.25, -1_000_000.0, 1_000_000.0);
+        integer(ConfigKeys.ERASE_REPAIR_MAX_COST, -1, -1, Integer.MAX_VALUE);
+        bool(ConfigKeys.ERASE_ANVIL_BYPASS_TOO_EXPENSIVE, false);
+        bool(ConfigKeys.ERASE_ECONOMY_ENABLED, false);
+        decimal(ConfigKeys.ERASE_ECONOMY_COST, 100.0, 0.0, 1e12);
+        bool(ConfigKeys.ERASE_ECONOMY_SHOW_COST, true);
+        bool(ConfigKeys.ERASE_ECONOMY_CHARGE_MESSAGE, true);
+
+        enumeration(ConfigKeys.SPECIAL_ANVILS_MODE, SpecialAnvilMode.ALL);
+        bool(ConfigKeys.SPECIAL_ANVILS_ALLOW_VIRTUAL_ANVILS, false);
+        bool(ConfigKeys.SPECIAL_ANVILS_DROP_SPECIAL_ITEM, true);
+        bool(ConfigKeys.SPECIAL_ANVILS_HINT_MESSAGE, false);
+        string(ConfigKeys.SPECIAL_ANVILS_ITEM_NAME, "&dEnchanter's Anvil", null);
+        bool(ConfigKeys.SPECIAL_ANVILS_RECIPE_ENABLED, false);
+
+        bool(ConfigKeys.GRINDSTONE_ENABLED, false);
+        bool(ConfigKeys.GRINDSTONE_CURSES, false);
+        bool(ConfigKeys.GRINDSTONE_SOUND_ENABLED, true);
+        decimal(ConfigKeys.GRINDSTONE_SOUND_VOLUME, 1.0, 0.0, 10.0);
+        decimal(ConfigKeys.GRINDSTONE_SOUND_PITCH, 1.0, 0.5, 2.0);
+        bool(ConfigKeys.GRINDSTONE_REPAIR_RESET_ENABLED, false);
+        bool(ConfigKeys.GRINDSTONE_REPAIR_COST_ENABLED, true);
+        decimal(ConfigKeys.GRINDSTONE_REPAIR_COST_BASE, 10.0, -1_000_000.0, 1_000_000.0);
+        decimal(ConfigKeys.GRINDSTONE_REPAIR_COST_MULTIPLIER, 0.25, -1_000_000.0, 1_000_000.0);
+        integer(ConfigKeys.GRINDSTONE_REPAIR_MAX_COST, -1, -1, Integer.MAX_VALUE);
+        bool(ConfigKeys.GRINDSTONE_ECONOMY_ENABLED, false);
+        decimal(ConfigKeys.GRINDSTONE_ECONOMY_COST, 100.0, 0.0, 1e12);
+        bool(ConfigKeys.GRINDSTONE_ECONOMY_SHOW_COST, true);
+        bool(ConfigKeys.GRINDSTONE_ECONOMY_CHARGE_MESSAGE, true);
+        bool(ConfigKeys.GRINDSTONE_TRANSFER_ENABLED, false);
+        bool(ConfigKeys.GRINDSTONE_TRANSFER_ALLOW_OVER_MAX, false);
+        integer(ConfigKeys.GRINDSTONE_TRANSFER_MAX_ENCHANTMENTS, 16, 1, 64);
+        bool(ConfigKeys.GRINDSTONE_TRANSFER_REPAIR_RESET_ENABLED, false);
+        bool(ConfigKeys.GRINDSTONE_TRANSFER_REPAIR_COST_ENABLED, true);
+        decimal(ConfigKeys.GRINDSTONE_TRANSFER_REPAIR_COST_BASE, 15.0, -1_000_000.0, 1_000_000.0);
+        decimal(ConfigKeys.GRINDSTONE_TRANSFER_REPAIR_COST_MULTIPLIER, 0.25, -1_000_000.0, 1_000_000.0);
+        integer(ConfigKeys.GRINDSTONE_TRANSFER_REPAIR_MAX_COST, -1, -1, Integer.MAX_VALUE);
+        bool(ConfigKeys.GRINDSTONE_TRANSFER_ECONOMY_ENABLED, false);
+        decimal(ConfigKeys.GRINDSTONE_TRANSFER_ECONOMY_COST, 100.0, 0.0, 1e12);
+        bool(ConfigKeys.GRINDSTONE_TRANSFER_ECONOMY_SHOW_COST, true);
+        bool(ConfigKeys.GRINDSTONE_TRANSFER_ECONOMY_CHARGE_MESSAGE, true);
     }
 
     private static void bool(ConfigKeys key, boolean def) {
@@ -206,7 +281,7 @@ public record ConfigSpec(ConfigKeys key, Kind kind, Object def, double min, doub
                 if (s == null)
                     return "expected text but found " + ConfigValues.describe(raw) + "; using default " + ConfigValues.describe(def);
                 if (pattern != null && !s.matches(pattern))
-                    return ConfigValues.describe(raw) + " is not valid here (letters, digits, '_' and '-' only); using default " + ConfigValues.describe(def);
+                    return ConfigValues.describe(raw) + " is not a valid value (locale codes use letters, digits, '_' and '-'; sound keys are lower-case like entity.villager.no); using default " + ConfigValues.describe(def);
                 return null;
             }
         }

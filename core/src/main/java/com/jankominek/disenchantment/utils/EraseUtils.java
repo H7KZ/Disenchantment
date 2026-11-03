@@ -1,6 +1,7 @@
 package com.jankominek.disenchantment.utils;
 
 import com.jankominek.disenchantment.config.Config;
+import com.jankominek.disenchantment.config.ConfigValues;
 import com.jankominek.disenchantment.plugins.IPluginEnchantment;
 import com.jankominek.disenchantment.plugins.ISupportedPlugin;
 import com.jankominek.disenchantment.types.EnchantmentStateType;
@@ -19,7 +20,6 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
-import static com.jankominek.disenchantment.Disenchantment.logger;
 
 /**
  * Pure logic of erase mode: which catalysts are accepted and which enchantments an item loses.
@@ -39,13 +39,13 @@ public final class EraseUtils {
     // Catalysts
 
     // Keyed by the raw configured list, so a config change is picked up without a reset and the
-    // parse warnings are logged once per distinct list, not on every anvil keystroke.
+    // names are not re-parsed on every anvil keystroke. Problems are reported by ConfigValidator.
     private static final Map<List<String>, Set<Material>> catalystCache = new ConcurrentHashMap<>();
 
     /**
      * Parses catalyst names with {@link Material#matchMaterial(String)} (a {@code minecraft:} prefix is
-     * accepted). Unknown names, {@code BOOK}, {@code ENCHANTED_BOOK} and air are skipped with a warning —
-     * the books belong to disenchantment and shatterment, so the handlers stay mutually exclusive.
+     * accepted). Unknown names, {@code BOOK}, {@code ENCHANTED_BOOK} and air are skipped (the
+     * {@code ConfigValidator} warns about them) — the books belong to disenchantment and shatterment, so the handlers stay mutually exclusive.
      *
      * @param names the configured material names
      * @return the accepted materials in config order, without duplicates; empty when nothing usable is left
@@ -55,17 +55,9 @@ public final class EraseUtils {
         if (names == null) return materials;
 
         for (String name : names) {
-            Material material = name == null ? null : Material.matchMaterial(name.trim());
+            Material material = ConfigValues.matchMaterial(name);
 
-            if (material == null) {
-                logger.warning("Config: erase.catalysts contains the unknown material '" + name + "' — skipped.");
-                continue;
-            }
-            if (material == Material.BOOK || material == Material.ENCHANTED_BOOK || material.isAir()) {
-                logger.warning("Config: erase.catalysts must not contain " + material.name()
-                        + " (books are used by disenchantment and shatterment, air is not an item) — skipped.");
-                continue;
-            }
+            if (material == null || material == Material.BOOK || material == Material.ENCHANTED_BOOK || material.isAir()) continue;
 
             materials.add(material);
         }
@@ -74,7 +66,7 @@ public final class EraseUtils {
     }
 
     /**
-     * Returns the accepted catalyst materials of the current config. Warns once when none are usable.
+     * Returns the accepted catalyst materials of the current config.
      *
      * @return the accepted catalysts, possibly empty
      */
@@ -85,15 +77,13 @@ public final class EraseUtils {
         if (cached != null) return cached;
 
         Set<Material> parsed = Set.copyOf(parseCatalysts(raw));
-        if (catalystCache.putIfAbsent(raw, parsed) == null && parsed.isEmpty()) {
-            logger.warning("Config: erase.catalysts has no usable material — erase mode is disabled.");
-        }
+        catalystCache.putIfAbsent(raw, parsed);
 
         return catalystCache.get(raw);
     }
 
     /**
-     * Forgets the cached catalyst parse (and with it the "already warned" state). Intended for tests.
+     * Forgets the cached catalyst parse. Intended for tests.
      */
     public static void clearCache() {
         catalystCache.clear();
@@ -106,13 +96,6 @@ public final class EraseUtils {
      */
     public static boolean isActive() {
         return Config.Erase.isEnabled() && !getCatalysts().isEmpty();
-    }
-
-    /**
-     * Logs the catalyst warnings at startup/reload when erase mode is enabled, instead of on the first anvil use.
-     */
-    public static void validateConfig() {
-        if (Config.Erase.isEnabled()) getCatalysts();
     }
 
     /**

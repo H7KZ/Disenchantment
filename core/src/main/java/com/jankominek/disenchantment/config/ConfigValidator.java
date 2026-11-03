@@ -1,8 +1,11 @@
 package com.jankominek.disenchantment.config;
 
+import com.jankominek.disenchantment.anvils.SpecialAnvilRecipe;
 import com.jankominek.disenchantment.types.ConfigKeys;
 import com.jankominek.disenchantment.types.RestrictionMode;
+import com.jankominek.disenchantment.utils.ParticleUtils;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Registry;
 import org.bukkit.configuration.ConfigurationSection;
@@ -106,6 +109,14 @@ public final class ConfigValidator {
         checkFeature(cfg, "disenchantment", issues);
         checkFeature(cfg, "shatterment", issues);
 
+        checkCosts(cfg, "erase.anvil.repair.enchantment-costs", issues);
+        checkCosts(cfg, "grindstone.repair.enchantment-costs", issues);
+        checkCosts(cfg, "grindstone.transfer.repair.enchantment-costs", issues);
+        checkErase(cfg, issues);
+        checkSpecialAnvils(cfg, issues);
+        checkParticles(cfg, ConfigKeys.FEEDBACK_PARTICLES_TYPES.getKey(), issues);
+        checkParticles(cfg, ConfigKeys.FEEDBACK_PARTICLES_ERASE_TYPES.getKey(), issues);
+
         String split = ConfigValues.splitCountProblem(cfg.get(ConfigKeys.SHATTERMENT_SPLIT_COUNT.getKey(), null));
         if (split != null) issues.add(new ConfigIssue(ConfigKeys.SHATTERMENT_SPLIT_COUNT.getKey(), split));
 
@@ -198,8 +209,11 @@ public final class ConfigValidator {
         }
         addAll(chancesPath, problems, issues);
 
-        // per-enchantment costs
-        String costsPath = feature + ".anvil.repair.enchantment-costs";
+        checkCosts(cfg, feature + ".anvil.repair.enchantment-costs", issues);
+    }
+
+    private static void checkCosts(FileConfiguration cfg, String costsPath, List<ConfigIssue> issues) {
+        List<String> problems;
         Object rawCosts = cfg.get(costsPath, null);
         if (rawCosts != null && !ConfigValues.isMap(rawCosts)) {
             issues.add(new ConfigIssue(costsPath, "expected a section of \"enchantment: cost\" pairs but found " + ConfigValues.describe(rawCosts) + "; ignored (the formula applies)"));
@@ -260,6 +274,80 @@ public final class ConfigValidator {
             } else if (!materials && worldsLoaded && Bukkit.getWorld(name) == null) {
                 issues.add(new ConfigIssue(listPath, "world \"" + name + "\" is not currently loaded; it is ignored until a world with that name loads"));
             }
+        }
+    }
+
+    private static void checkErase(FileConfiguration cfg, List<ConfigIssue> issues) {
+        String path = ConfigKeys.ERASE_CATALYSTS.getKey();
+        Object raw = cfg.get(path, null);
+        if (raw == null) return;
+
+        if (!(raw instanceof Collection) && ConfigValues.scalar(raw) == null) {
+            issues.add(new ConfigIssue(path, "expected a list of materials but found " + ConfigValues.describe(raw) + "; using ECHO_SHARD"));
+            return;
+        }
+        if (!(raw instanceof Collection)) {
+            issues.add(new ConfigIssue(path, "expected a list but found " + ConfigValues.describe(raw) + "; treating it as a single entry"));
+        }
+
+        int usable = 0;
+        for (String name : ConfigValues.toStringList(raw)) {
+            Material material = ConfigValues.matchMaterial(name);
+
+            if (material == null) {
+                issues.add(new ConfigIssue(path, "unknown material \"" + name + "\"; skipped"));
+            } else if (material == Material.BOOK || material == Material.ENCHANTED_BOOK || material.isAir()) {
+                issues.add(new ConfigIssue(path, material.name() + " cannot be a catalyst (books belong to disenchantment and shatterment, air is not an item); skipped"));
+            } else {
+                usable++;
+            }
+        }
+
+        boolean enabled = (Boolean) ConfigSpec.of(ConfigKeys.ERASE_ENABLED).resolve(cfg.get(ConfigKeys.ERASE_ENABLED.getKey(), null));
+        if (enabled && usable == 0) {
+            issues.add(new ConfigIssue(path, "no usable catalyst material; erase mode is disabled"));
+        }
+    }
+
+    private static void checkSpecialAnvils(FileConfiguration cfg, List<ConfigIssue> issues) {
+        String blockPath = ConfigKeys.SPECIAL_ANVILS_BLOCK_BELOW.getKey();
+        Object rawBlock = cfg.get(blockPath, null);
+        String fallback = "; using " + Config.SpecialAnvils.DEFAULT_BLOCK_BELOW.name();
+        if (rawBlock != null && !(rawBlock instanceof String blank && blank.isBlank())) {
+            String name = ConfigValues.scalar(rawBlock);
+            if (name == null) {
+                issues.add(new ConfigIssue(blockPath, "expected a block material name but found " + ConfigValues.describe(rawBlock) + fallback));
+            } else if (Config.SpecialAnvils.parseBlockBelow(name) == null) {
+                issues.add(new ConfigIssue(blockPath, "\"" + name + "\" is not a block material" + fallback));
+            }
+        }
+
+        String lorePath = ConfigKeys.SPECIAL_ANVILS_ITEM_LORE.getKey();
+        Object rawLore = cfg.get(lorePath, null);
+        if (rawLore != null && !(rawLore instanceof Collection)) {
+            issues.add(new ConfigIssue(lorePath, "expected a list of lines but found " + ConfigValues.describe(rawLore) + "; no lore"));
+        }
+
+        boolean recipe = (Boolean) ConfigSpec.of(ConfigKeys.SPECIAL_ANVILS_RECIPE_ENABLED).resolve(cfg.get(ConfigKeys.SPECIAL_ANVILS_RECIPE_ENABLED.getKey(), null));
+        if (recipe) {
+            for (String problem : SpecialAnvilRecipe.validate()) {
+                issues.add(new ConfigIssue("special-anvils.recipe", problem));
+            }
+        }
+    }
+
+    private static void checkParticles(FileConfiguration cfg, String path, List<ConfigIssue> issues) {
+        Object raw = cfg.get(path, null);
+        if (raw == null) return;
+
+        if (!(raw instanceof Collection) && ConfigValues.scalar(raw) == null) {
+            issues.add(new ConfigIssue(path, "expected a list of particle names but found " + ConfigValues.describe(raw) + "; using the default"));
+            return;
+        }
+
+        List<String> names = ConfigValues.toStringList(raw);
+        if (!names.isEmpty() && names.stream().noneMatch(ParticleUtils::exists)) {
+            issues.add(new ConfigIssue(path, "none of " + names + " exist on this server; no particles are spawned"));
         }
     }
 
