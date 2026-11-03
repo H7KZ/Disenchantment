@@ -27,6 +27,7 @@ default to `true` so all players can use the core features out of the box.
 | `disenchantment.anvil.all`        | Allows disenchanting items and splitting books.        | `true`  |
 | `disenchantment.anvil.disenchant` | Allows disenchanting items at the anvil.               | `true`  |
 | `disenchantment.anvil.shatter`    | Allows splitting enchantments from books at the anvil. | `true`  |
+| `disenchantment.anvil.special`    | Allows placing a special anvil. Without it the item is placed as a normal anvil (no mark). | `true`  |
 
 > **Note:** If non-op players cannot use the anvil features, check whether a permission plugin (e.g. LuckPerms) has
 > explicitly denied these nodes.
@@ -50,6 +51,7 @@ These permissions control access to `/disenchantment` commands. All default to `
 | `disenchantment.command.toggle`     | Access to the toggle command.                              | `op`    |
 | `disenchantment.command.diagnostic` | Access to the diagnostic command and all its subcommands.  | `op`    |
 | `disenchantment.command.reload`     | Access to the reload command.                              | `op`    |
+| `disenchantment.command.give`       | Access to `/disenchantment give anvil` (special anvils).   | `op`    |
 
 ### Disenchant Configuration
 

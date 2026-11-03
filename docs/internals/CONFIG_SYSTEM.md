@@ -79,6 +79,13 @@ Config
 ├── Logging (static inner class)
 │   ├── getLevel()                → LogLevelType
 │   └── isSaveReportsEnabled()    → boolean
+├── SpecialAnvils (static inner class, read-only accessors, no setters/caches)
+│   ├── getMode()                 → SpecialAnvilMode (unknown → ALL)
+│   ├── getBlockBelow()           → Material (unknown / non-block → LAPIS_BLOCK)
+│   ├── isAllowVirtualAnvils() / isDropSpecialItem() / isHintMessageEnabled()
+│   ├── getItemName() / getItemLore()   → raw strings with '&' codes
+│   ├── isRecipeEnabled() / getRecipeShape() / getRecipeIngredients()
+│   └── validate()                → startup warnings (logged by Disenchantment.enable()/reload())
 ├── Disenchantment (static inner class)
 │   ├── isEnabled() / setEnabled(boolean)
 │   ├── getDisabledWorlds() / setDisabledWorlds(List<World>)

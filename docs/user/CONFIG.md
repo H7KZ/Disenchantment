@@ -143,6 +143,26 @@ shatterment:
     cost: 100.0
     show-cost: true
     charge-message: true
+
+# ─────────────────────────────────────────────────────────────────────────────
+
+# Restrict disenchanting / shattering to designated ("special") anvils.
+special-anvils:
+  mode: ALL                      # ALL | MARKED | BLOCK_BELOW
+  block-below: LAPIS_BLOCK       # used by BLOCK_BELOW
+  allow-virtual-anvils: false    # anvils without a world position (Player#openAnvil, other plugins' menus)
+  drop-special-item: true        # a broken special anvil drops the special item
+  hint-message: false            # tell players the anvil is not special
+  item:
+    name: "&dEnchanter's Anvil"
+    lore:
+      - "&7Place to create a disenchanting anvil"
+  recipe:
+    enabled: false
+    shape: [ "EEE", "EAE", "EEE" ]
+    ingredients:
+      E: EMERALD
+      A: ANVIL                   # ANVIL = any anvil damage state
 ```
 
 ---
@@ -162,6 +182,7 @@ shatterment:
     - [Anvil Sound (Shatter)](#anvil-sound-shatter)
     - [Repair Cost (Shatter)](#repair-cost-shatter)
     - [Economy Cost (Shatterment)](#economy-cost-shatterment)
+- [Special Anvils](#special-anvils)
 - [Economy Integration](#economy-integration)
 
 ---
@@ -539,6 +560,40 @@ shatterment:
 | `economy.charge-message` | Boolean | `true`  | Send a chat confirmation message after the player is charged. |
 
 The same Vault requirements and Creative-mode exemption apply as for disenchantment.
+
+---
+
+## Special Anvils
+
+Limits disenchanting and shattering to designated anvils. **Vanilla anvil use (repair, rename, combine) is never
+affected**, whatever the mode. The default (`ALL`) keeps today's behaviour: every anvil works.
+
+| Key                            | Default                | Description                                                                                                      |
+|--------------------------------|------------------------|------------------------------------------------------------------------------------------------------------------|
+| `special-anvils.mode`          | `ALL`                  | `ALL` every anvil works. `MARKED` only anvils placed from the special anvil item. `BLOCK_BELOW` only anvils standing directly on `block-below`. |
+| `special-anvils.block-below`   | `LAPIS_BLOCK`          | Block an anvil must stand on in `BLOCK_BELOW` mode. Any block material name (`minecraft:` ids accepted).         |
+| `special-anvils.allow-virtual-anvils` | `false`         | Anvils without a world position (`Player#openAnvil`, menus of other plugins) count as special.                    |
+| `special-anvils.drop-special-item` | `true`             | A broken special anvil drops the special item instead of a plain anvil.                                          |
+| `special-anvils.hint-message`  | `false`                | Tell players that the anvil they use is not special (at most once every 5 seconds per player).                    |
+| `special-anvils.item.name`     | `&dEnchanter's Anvil`  | Display name of the special anvil item. `&` colour codes work.                                                    |
+| `special-anvils.item.lore`     | one line               | Lore of the special anvil item.                                                                                  |
+| `special-anvils.recipe.enabled`| `false`                | Register a shaped crafting recipe for the special anvil.                                                          |
+| `special-anvils.recipe.shape`  | `EEE` / `EAE` / `EEE`  | 1 to 3 rows of 1 to 3 characters, all rows the same length. A space is an empty slot.                              |
+| `special-anvils.recipe.ingredients` | `E: EMERALD`, `A: ANVIL` | Material for each shape character. `ANVIL` accepts any anvil damage state.                                  |
+
+An unknown `mode` or a `block-below` that is not a block falls back to the default and logs a warning at startup. A
+recipe that is invalid (unknown material, ragged shape) is skipped with a warning.
+
+**How `MARKED` works.** The special anvil item is a normal anvil carrying a hidden marker. When a player places it, the
+position is stored in the chunk's persistent data (`disenchantment:special_anvils`), so marks survive restarts and
+need no extra files or database. Damage states (chipped, damaged) keep the mark. A mark whose block is no longer an
+anvil is dropped the next time it is looked at. Breaking the anvil gives back the special item. A falling anvil keeps
+its mark when it lands. `/setblock`, WorldEdit and copy/paste do not carry marks.
+
+Changing the mode takes effect after `/disenchantment reload`. Anvils placed from the special item are always
+remembered, even while the mode is `ALL`, so you can switch to `MARKED` later. Players need
+`disenchantment.anvil.special` (default `true`) to place a special anvil; without it the item is placed as a normal
+anvil. See the [setup guide](HOW_TO.md#restrict-disenchanting-to-special-anvils).
 
 ---
 

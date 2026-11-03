@@ -26,6 +26,7 @@ Common issues and questions about Disenchantment.
 - [Economy is enabled but players aren't being charged.](#economy-is-enabled-but-players-arent-being-charged)
 - [Do I need Vault for the plugin to work?](#do-i-need-vault-for-the-plugin-to-work)
 - [Does Disenchantment support Minecraft 26.1.x?](#does-disenchantment-support-minecraft-261x)
+- [Nothing happens at some anvils: special anvils](#nothing-happens-at-some-anvils-special-anvils)
 
 ---
 
@@ -294,3 +295,21 @@ Disenchantment release first, then file a bug report with the output of `/disenc
 No — the operation only runs on a **single** source item (stack size 1). Every enchantable item in vanilla is
 unstackable, so this never affects normal play. It only matters if another plugin makes enchanted items stackable: in
 that case a stacked source produces no anvil result. Split the stack to one item to disenchant or shatter it.
+
+---
+
+### Nothing happens at some anvils: special anvils
+
+If `special-anvils.mode` is `MARKED` or `BLOCK_BELOW`, only designated anvils disenchant and shatter; every other anvil
+still repairs and renames normally. Check `/disenchantment status` for the mode and see
+[Restrict disenchanting to special anvils](HOW_TO.md#restrict-disenchanting-to-special-anvils). Common causes:
+
+- The anvil was placed before the mode was switched on (in `MARKED` mode only anvils placed from the special item
+  count; place a new one with `/disenchantment give anvil <player>`).
+- The player lacks `disenchantment.anvil.special`, so the item was placed as a normal anvil.
+- The anvil was placed with `/setblock`, WorldEdit or a schematic: marks are not copied. Use `BLOCK_BELOW` for
+  built structures.
+- The anvil is opened virtually (a command or another plugin's menu): set `allow-virtual-anvils: true` if that is wanted.
+
+Turn on `special-anvils.hint-message` to tell players when this is the reason. A falling special anvil keeps its mark
+when it lands, best effort: if a different plugin changes the falling block, the mark can be lost.

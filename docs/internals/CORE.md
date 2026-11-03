@@ -77,7 +77,9 @@ Called from `onEnable()`. Runs the following steps **in order**:
    additionally logs event priorities, scheduler type, and economy/feature states.
 9. **Listener registration** — Instantiates `DisenchantListener`, `DisenchantClickListener`, `ShatterListener`,
    `ShatterClickListener` (each with their configured `EventPriority`). Also registers `GUIClickEvent` as a standard
-   `Listener`.
+   `Listener`, and `SpecialAnvilListener` (special anvil lifecycle). Then logs `Config.SpecialAnvils.validate()`
+   warnings and registers the optional crafting recipe (`SpecialAnvilRecipe.register()`; `reload()` repeats both,
+   `disable()` calls `SpecialAnvilRecipe.unregister()`).
 10. **Command registration** — Wires `CommandRegister` as executor and `CommandCompleter` as tab completer for the
     `disenchantment` command.
 11. **bStats** — `metrics = new BStatsMetrics(plugin, bstatsId)` (stored in a field so it can be shut down later).

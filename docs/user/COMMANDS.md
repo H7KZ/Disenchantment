@@ -43,6 +43,11 @@ Several commands let you configure per-enchantment behavior. The following state
 | `/disenchantment status`      | Show whether the plugin is currently enabled or disabled. | `disenchantment.command.status` |
 | `/disenchantment toggle`      | Toggle the plugin on or off globally.                     | `disenchantment.command.toggle` |
 | `/disenchantment reload`      | Reload the configuration from disk.                       | `disenchantment.command.reload` |
+| `/disenchantment give anvil <player> [amount]` | Give special anvils to an online player (1-64, default 1). Items that do not fit are dropped at their feet. | `disenchantment.command.give` |
+
+`give anvil` tab-completes online player names and common amounts. See
+[Special Anvils](CONFIG.md#special-anvils) for what the item does. `status` also shows the current special anvils mode
+(and `special_anvils_mode` in `status --json`); `diagnostic` lists it in the configuration section.
 
 `reload` refuses to run if `config.yml` has a YAML syntax error: it reports the parser message to you and keeps the
 current settings (the file is never overwritten). See [Config safety and backups](CONFIG.md#config-safety-and-backups).
