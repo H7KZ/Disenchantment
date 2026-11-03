@@ -29,6 +29,7 @@ import org.bukkit.inventory.PlayerInventory;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -193,10 +194,12 @@ public class BedrockAnvilGUI implements InventoryHolder {
      */
     public static void closeAll() {
         for (BedrockAnvilGUI gui : new ArrayList<>(OPEN.values())) {
-            gui.finish();
             try {
+                gui.finish();
                 gui.player.closeInventory();
             } catch (RuntimeException e) {
+                // One broken menu (for example a player on another region thread) must not stop the others
+                // or the shutdown.
                 DiagnosticUtils.debug("BEDROCK", () -> "closeAll: could not close the menu of " + gui.player.getName() + ": " + e);
             }
         }
@@ -217,14 +220,28 @@ public class BedrockAnvilGUI implements InventoryHolder {
     private void giveOrDrop(ItemStack stack) {
         if (stack == null || stack.getType().isAir()) return;
 
+        // Whatever goes wrong while adding, the stack must end up somewhere: on the floor at worst.
+        Collection<ItemStack> leftovers;
+        try {
+            leftovers = player.getInventory().addItem(stack).values();
+        } catch (RuntimeException e) {
+            DiagnosticUtils.debug("BEDROCK", () -> "addItem failed, dropping the stack instead: " + e);
+            leftovers = List.of(stack);
+        }
+
         boolean dropped = false;
-        for (ItemStack leftover : player.getInventory().addItem(stack).values()) {
+        for (ItemStack leftover : leftovers) {
             player.getWorld().dropItem(player.getLocation(), leftover);
             dropped = true;
         }
 
         if (dropped) player.sendMessage(I18n.getPrefix() + " " + I18n.Messages.bedrockItemsDropped());
-        player.updateInventory();
+
+        try {
+            player.updateInventory();
+        } catch (RuntimeException e) {
+            DiagnosticUtils.debug("BEDROCK", () -> "updateInventory failed: " + e);
+        }
     }
 
     private ItemStack take(int slot) {

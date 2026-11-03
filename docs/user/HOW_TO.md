@@ -23,6 +23,7 @@ the result you want.
 - [Let players transfer enchantments between items on the grindstone](#let-players-transfer-enchantments-between-items-on-the-grindstone)
 - [Fix event priority conflicts with other plugins](#fix-event-priority-conflicts-with-other-plugins)
 - [Grant or revoke permissions with LuckPerms](#grant-or-revoke-permissions-with-luckperms)
+- [Let Bedrock players use the anvil (Geyser)](#let-bedrock-players-use-the-anvil-geyser)
 - [Open and use the in-game GUI](#open-and-use-the-in-game-gui)
 - [Generate a diagnostic report for a bug report](#generate-a-diagnostic-report-for-a-bug-report)
 - [Reload the config without restarting](#reload-the-config-without-restarting)
@@ -508,6 +509,30 @@ Anvil usage permissions default to `true` for all players. Admin command permiss
 ```
 
 > See [PERMISSIONS.md](PERMISSIONS.md) for the complete list of every permission node and its default.
+
+---
+
+## Let Bedrock players use the anvil (Geyser)
+
+Bedrock clients connected through Geyser cannot see the plugin's anvil results, so give them a chest menu instead.
+
+1. In `config.yml` set:
+
+   ```yaml
+   bedrock:
+     fallback-enabled: true
+   ```
+
+   and run `/disenchantment reload`. Install Floodgate if you can; it is the most reliable way to recognise Bedrock
+   players. Without it the `UUID` and `PREFIX` methods are used.
+2. Tell Bedrock players to run `/disenchant anvil`. Optional: set `bedrock.open-on-sneak-click: true` so that
+   crouch-tapping an anvil opens the menu while a normal tap still opens the vanilla anvil (repair, rename).
+3. In the menu: tap an enchanted item in your inventory, then a blank book (or an erase catalyst), check the preview and tap
+   **Confirm**. Tap an item in the menu to take it back, **Cancel** or close the menu to get everything back.
+
+Players need the usual `disenchantment.anvil.disenchant` / `.shatter` / `.erase` permissions. If you use
+[special anvils](#restrict-disenchanting-to-special-anvils) the command only works within 5 blocks of one.
+See [Bedrock Fallback](CONFIG.md#bedrock-fallback) for every option.
 
 ---
 
