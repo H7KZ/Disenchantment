@@ -11,12 +11,15 @@ public enum ConfigKeys {
 
     ENABLED("enabled"),
 
+    UPDATE_CHECKER("update-checker"),
+
     LOCALE("locale"),
 
     // Logging settings
     LOGGING_LEVEL("logging.level"),
     LOGGING_SAVE_REPORTS("logging.save-reports"),
     LOGGING_OPERATIONS("logging.operations"),
+    LOGGING_OPERATIONS_RETENTION_DAYS("logging.operations-retention-days"),
     LOGGING_DISCORD_WEBHOOK("logging.discord-webhook"),
 
     // Event priority settings
@@ -91,6 +94,101 @@ public enum ConfigKeys {
 
     // Shared settings
     ENCHANTMENT_GROUPS("enchantment-groups"),
+
+    // Feedback settings (particles, failure sound, refusal messages, preview lore)
+    FEEDBACK_PARTICLES_ENABLED("feedback.particles.enabled"),
+    FEEDBACK_PARTICLES_TYPES("feedback.particles.types"),
+    FEEDBACK_PARTICLES_ERASE_TYPES("feedback.particles.erase-types"),
+    FEEDBACK_PARTICLES_COUNT("feedback.particles.count"),
+    FEEDBACK_PARTICLES_SPREAD("feedback.particles.spread"),
+    FEEDBACK_PARTICLES_SCOPE("feedback.particles.scope"),
+    FEEDBACK_FAILURE_SOUND_ENABLED("feedback.failure-sound.enabled"),
+    FEEDBACK_FAILURE_SOUND_SOUND("feedback.failure-sound.sound"),
+    FEEDBACK_FAILURE_SOUND_VOLUME("feedback.failure-sound.volume"),
+    FEEDBACK_FAILURE_SOUND_PITCH("feedback.failure-sound.pitch"),
+    FEEDBACK_NOT_ENOUGH_XP_MESSAGE("feedback.not-enough-xp-message"),
+    FEEDBACK_PREVIEW_LORE("feedback.preview-lore"),
+
+    // Erase mode settings
+    EVENT_PRIORITIES_ERASE_CLICK("event-priorities.erase-click"),
+    EVENT_PRIORITIES_ERASE("event-priorities.erase"),
+
+    ERASE_ENABLED("erase.enabled"),
+    ERASE_CATALYSTS("erase.catalysts"),
+    ERASE_CONSUME_CATALYST("erase.consume-catalyst"),
+    ERASE_ERASE_CURSES("erase.erase-curses"),
+
+    ERASE_ANVIL_SOUND_ENABLED("erase.anvil.sound.enabled"),
+    ERASE_ANVIL_VOLUME("erase.anvil.sound.volume"),
+    ERASE_ANVIL_PITCH("erase.anvil.sound.pitch"),
+
+    ERASE_REPAIR_RESET_ENABLED("erase.anvil.repair.reset"),
+    ERASE_REPAIR_COST_ENABLED("erase.anvil.repair.cost"),
+    ERASE_REPAIR_COST_BASE("erase.anvil.repair.base"),
+    ERASE_REPAIR_COST_MULTIPLIER("erase.anvil.repair.multiply"),
+    ERASE_ANVIL_REPAIR_ENCHANTMENT_COSTS("erase.anvil.repair.enchantment-costs"),
+    ERASE_REPAIR_MAX_COST("erase.anvil.repair.max-cost"),
+    ERASE_ANVIL_BYPASS_TOO_EXPENSIVE("erase.anvil.bypass-too-expensive"),
+
+    ERASE_ECONOMY_ENABLED("erase.economy.enabled"),
+    ERASE_ECONOMY_COST("erase.economy.cost"),
+    ERASE_ECONOMY_SHOW_COST("erase.economy.show-cost"),
+    ERASE_ECONOMY_CHARGE_MESSAGE("erase.economy.charge-message"),
+    // Special anvils
+    SPECIAL_ANVILS_MODE("special-anvils.mode"),
+    SPECIAL_ANVILS_BLOCK_BELOW("special-anvils.block-below"),
+    SPECIAL_ANVILS_ALLOW_VIRTUAL_ANVILS("special-anvils.allow-virtual-anvils"),
+    SPECIAL_ANVILS_DROP_SPECIAL_ITEM("special-anvils.drop-special-item"),
+    SPECIAL_ANVILS_HINT_MESSAGE("special-anvils.hint-message"),
+    SPECIAL_ANVILS_ITEM_NAME("special-anvils.item.name"),
+    SPECIAL_ANVILS_ITEM_LORE("special-anvils.item.lore"),
+    SPECIAL_ANVILS_RECIPE_ENABLED("special-anvils.recipe.enabled"),
+    SPECIAL_ANVILS_RECIPE_SHAPE("special-anvils.recipe.shape"),
+    SPECIAL_ANVILS_RECIPE_INGREDIENTS("special-anvils.recipe.ingredients"),
+    // Grindstone settings (extract + transfer)
+    EVENT_PRIORITIES_GRINDSTONE("event-priorities.grindstone"),
+    EVENT_PRIORITIES_GRINDSTONE_CLICK("event-priorities.grindstone-click"),
+
+    GRINDSTONE_ENABLED("grindstone.enabled"),
+    GRINDSTONE_CURSES("grindstone.curses"),
+
+    GRINDSTONE_SOUND_ENABLED("grindstone.sound.enabled"),
+    GRINDSTONE_SOUND_VOLUME("grindstone.sound.volume"),
+    GRINDSTONE_SOUND_PITCH("grindstone.sound.pitch"),
+
+    GRINDSTONE_REPAIR_RESET_ENABLED("grindstone.repair.reset"),
+    GRINDSTONE_REPAIR_COST_ENABLED("grindstone.repair.cost"),
+    GRINDSTONE_REPAIR_COST_BASE("grindstone.repair.base"),
+    GRINDSTONE_REPAIR_COST_MULTIPLIER("grindstone.repair.multiply"),
+    GRINDSTONE_REPAIR_ENCHANTMENT_COSTS("grindstone.repair.enchantment-costs"),
+    GRINDSTONE_REPAIR_MAX_COST("grindstone.repair.max-cost"),
+
+    GRINDSTONE_ECONOMY_ENABLED("grindstone.economy.enabled"),
+    GRINDSTONE_ECONOMY_COST("grindstone.economy.cost"),
+    GRINDSTONE_ECONOMY_SHOW_COST("grindstone.economy.show-cost"),
+    GRINDSTONE_ECONOMY_CHARGE_MESSAGE("grindstone.economy.charge-message"),
+
+    GRINDSTONE_TRANSFER_ENABLED("grindstone.transfer.enabled"),
+    GRINDSTONE_TRANSFER_ALLOW_OVER_MAX("grindstone.transfer.allow-over-max"),
+    GRINDSTONE_TRANSFER_MAX_ENCHANTMENTS("grindstone.transfer.max-enchantments"),
+
+    GRINDSTONE_TRANSFER_REPAIR_RESET_ENABLED("grindstone.transfer.repair.reset"),
+    GRINDSTONE_TRANSFER_REPAIR_COST_ENABLED("grindstone.transfer.repair.cost"),
+    GRINDSTONE_TRANSFER_REPAIR_COST_BASE("grindstone.transfer.repair.base"),
+    GRINDSTONE_TRANSFER_REPAIR_COST_MULTIPLIER("grindstone.transfer.repair.multiply"),
+    GRINDSTONE_TRANSFER_REPAIR_ENCHANTMENT_COSTS("grindstone.transfer.repair.enchantment-costs"),
+    GRINDSTONE_TRANSFER_REPAIR_MAX_COST("grindstone.transfer.repair.max-cost"),
+
+    GRINDSTONE_TRANSFER_ECONOMY_ENABLED("grindstone.transfer.economy.enabled"),
+    GRINDSTONE_TRANSFER_ECONOMY_COST("grindstone.transfer.economy.cost"),
+    GRINDSTONE_TRANSFER_ECONOMY_SHOW_COST("grindstone.transfer.economy.show-cost"),
+    GRINDSTONE_TRANSFER_ECONOMY_CHARGE_MESSAGE("grindstone.transfer.economy.charge-message"),
+
+    BEDROCK_FALLBACK_ENABLED("bedrock.fallback-enabled"),
+    BEDROCK_ALLOW_JAVA_PLAYERS("bedrock.allow-java-players"),
+    BEDROCK_DETECT("bedrock.detect"),
+    BEDROCK_PREFIXES("bedrock.prefixes"),
+    BEDROCK_OPEN_ON_SNEAK_CLICK("bedrock.open-on-sneak-click"),
     ;
 
     private final String key;

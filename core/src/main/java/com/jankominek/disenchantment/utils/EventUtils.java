@@ -7,10 +7,13 @@ import com.jankominek.disenchantment.types.EnchantmentStateType;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -32,6 +35,15 @@ public class EventUtils {
     }
 
     /**
+     * Returns whether the material-bypass flag is active on the current thread.
+     *
+     * @return {@code true} if disabled-material checks must be skipped
+     */
+    public static boolean isMaterialBypassActive() {
+        return materialBypassActive.get();
+    }
+
+    /**
      * Event utilities for disenchantment operations (extracting enchantments from items to books).
      */
     public static class Disenchantment {
@@ -50,7 +62,7 @@ public class EventUtils {
             if (firstItem.getType() == Material.AIR || secondItem.getType() == Material.AIR) return List.of();
 
             if (firstItem.getType() == Material.ENCHANTED_BOOK) return List.of();
-            if (secondItem.getType() != Material.BOOK) return List.of();
+            if (!isBlankBook(secondItem)) return List.of();
 
             if (firstItem.getAmount() > 1) {
                 DiagnosticUtils.debug("DISENCHANT", "EventUtils: rejected — source item is a stack (amount " + firstItem.getAmount() + " > 1); disenchantment operates on a single item");
@@ -108,7 +120,7 @@ public class EventUtils {
             if (firstItem.getType() == Material.AIR || secondItem.getType() == Material.AIR) return List.of();
 
             if (firstItem.getType() == Material.ENCHANTED_BOOK) return List.of();
-            if (secondItem.getType() != Material.BOOK) return List.of();
+            if (!isBlankBook(secondItem)) return List.of();
 
             if (firstItem.getAmount() > 1) {
                 DiagnosticUtils.debug("DISENCHANT", "EventUtils [" + activatedPlugin.getName() + "]: rejected — source item is a stack (amount " + firstItem.getAmount() + " > 1); disenchantment operates on a single item");
@@ -190,6 +202,22 @@ public class EventUtils {
      */
     public static class Shatterment {
         /**
+         * Returns {@code true} when the source book carries at least one enchantment in the KEEP
+         * state. Such enchantments always stay on the source, so every splittable enchantment may
+         * move to the result without leaving the source book empty.
+         *
+         * @param book the enchanted book being shattered
+         * @return whether a KEEP-state enchantment remains on the source after splitting
+         */
+        public static boolean hasKeptEnchantment(ItemStack book) {
+            if (book == null) return false;
+            Map<String, EnchantmentStateType> states = Config.Shatterment.getEnchantmentStates();
+            if (states.isEmpty()) return false;
+            return EnchantmentUtils.getItemEnchantments(book).stream()
+                    .anyMatch(e -> EnchantmentStateType.KEEP.equals(getStateForKey(states, e.getKey())));
+        }
+
+        /**
          * Determines the enchantments eligible for shatterment from an enchanted book.
          * Requires the first item to be an enchanted book with at least 2 enchantments
          * and the second item to be a plain book.
@@ -204,7 +232,7 @@ public class EventUtils {
             if (firstItem.getType() == Material.AIR || secondItem.getType() == Material.AIR) return List.of();
 
             if (firstItem.getType() != Material.ENCHANTED_BOOK) return List.of();
-            if (secondItem.getType() != Material.BOOK) return List.of();
+            if (!isBlankBook(secondItem)) return List.of();
 
             if (firstItem.getAmount() > 1) {
                 DiagnosticUtils.debug("SHATTER", "EventUtils: rejected — source book is a stack (amount " + firstItem.getAmount() + " > 1); shatterment operates on a single item");
@@ -267,7 +295,7 @@ public class EventUtils {
             if (firstItem.getType() == Material.AIR || secondItem.getType() == Material.AIR) return List.of();
 
             if (firstItem.getType() != Material.ENCHANTED_BOOK) return List.of();
-            if (secondItem.getType() != Material.BOOK) return List.of();
+            if (!isBlankBook(secondItem)) return List.of();
 
             if (firstItem.getAmount() > 1) {
                 DiagnosticUtils.debug("SHATTER", "EventUtils [" + activatedPlugin.getName() + "]: rejected — source book is a stack (amount " + firstItem.getAmount() + " > 1); shatterment operates on a single item");
@@ -349,6 +377,90 @@ public class EventUtils {
         }
     }
 
+    /**
+     * Returns {@code true} when {@code item} is a plain, unmodified {@link Material#BOOK} that may
+     * serve as the blank book of an operation. A book another plugin has tagged as something special
+     * (custom display name, lore, custom model data, or any persistent-data key) is rejected so a
+     * quest/currency/voucher book cannot be consumed by a disenchant or shatter operation.
+     *
+     * @param item the item in the second anvil slot
+     * @return whether the item is a vanilla-looking blank book
+     */
+    public static boolean isBlankBook(ItemStack item) {
+        if (item == null || item.getType() != Material.BOOK) return false;
+        if (!item.hasItemMeta()) return true;
+
+        ItemMeta meta = item.getItemMeta();
+        if (meta == null) return true;
+
+        if (meta.hasDisplayName() || meta.hasLore() || meta.hasCustomModelData()) return false;
+        return meta.getPersistentDataContainer().getKeys().isEmpty();
+    }
+
+    /**
+     * Normalized (namespace-stripped, lower-case) lookup key for an enchantment key, so vanilla
+     * ({@code sharpness}), namespaced ({@code minecraft:sharpness}) and adapter keys compare equal.
+     */
+    private static String lookupKey(String key) {
+        return normalizeKey(key == null ? "" : key).toLowerCase();
+    }
+
+    /**
+     * Returns the subset of {@code collected} that the anvil result book actually carries — i.e. the
+     * enchantments that are really transferred to the player. This is the one set both the action-bar
+     * cost display (Prepare) and the economy charge (Click) must be based on: the click-time
+     * collection also contains enchantments that never reach the book (DELETE-state ones, or the
+     * shatter candidates not picked for this split).
+     * <p>
+     * The result book is read the same way the click handlers read it to strip the source item:
+     * vanilla stored enchantments plus every activated adapter's view of the book.
+     *
+     * @param collected     the enchantments collected for the operation (order is preserved)
+     * @param resultBook    the item in the anvil result slot
+     * @param activatedPlugins the activated third-party adapters
+     * @param world         the player's world (passed through to adapters)
+     * @return the entries of {@code collected} whose key is present on the result book
+     */
+    public static List<IPluginEnchantment> findTransferredEnchantments(
+            List<IPluginEnchantment> collected,
+            ItemStack resultBook,
+            List<ISupportedPlugin> activatedPlugins,
+            World world) {
+        Set<String> onBook = new HashSet<>();
+        if (resultBook != null && resultBook.getType() != Material.AIR) {
+            for (IPluginEnchantment ench : EnchantmentUtils.getItemEnchantments(resultBook)) {
+                onBook.add(lookupKey(ench.getKey()));
+            }
+            for (ISupportedPlugin plugin : activatedPlugins) {
+                for (IPluginEnchantment ench : plugin.getItemEnchantments(resultBook, world)) {
+                    onBook.add(lookupKey(ench.getKey()));
+                }
+            }
+        }
+
+        List<IPluginEnchantment> transferred = new ArrayList<>();
+        for (IPluginEnchantment ench : collected) {
+            if (onBook.contains(lookupKey(ench.getKey()))) transferred.add(ench);
+        }
+        return transferred;
+    }
+
+    /**
+     * Returns the entries of {@code enchantments} whose key also appears in {@code reference}
+     * (keys compared normalized). Used to keep the economy charge limited to the transferred set
+     * after third-party listeners had a chance to edit the Pre* event's enchantment list.
+     */
+    public static List<IPluginEnchantment> retainByKey(List<IPluginEnchantment> enchantments, List<IPluginEnchantment> reference) {
+        Set<String> keys = new HashSet<>();
+        for (IPluginEnchantment ench : reference) keys.add(lookupKey(ench.getKey()));
+
+        List<IPluginEnchantment> retained = new ArrayList<>();
+        for (IPluginEnchantment ench : enchantments) {
+            if (keys.contains(lookupKey(ench.getKey()))) retained.add(ench);
+        }
+        return retained;
+    }
+
     // Strips namespace prefix (e.g. "minecraft:mending" → "mending") so config keys written
     // with or without a namespace both match server-returned short keys.
     public static String normalizeKey(String key) {
@@ -356,7 +468,7 @@ public class EventUtils {
         return colon >= 0 ? key.substring(colon + 1) : key;
     }
 
-    static EnchantmentStateType getStateForKey(Map<String, EnchantmentStateType> states, String enchantmentKey) {
+    public static EnchantmentStateType getStateForKey(Map<String, EnchantmentStateType> states, String enchantmentKey) {
         String normalized = normalizeKey(enchantmentKey);
         for (Map.Entry<String, EnchantmentStateType> entry : states.entrySet()) {
             if (normalizeKey(entry.getKey()).equalsIgnoreCase(normalized)) return entry.getValue();

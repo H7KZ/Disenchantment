@@ -24,6 +24,11 @@ public enum PermissionGroupType {
             PermissionType.DEPRECATED_ANVIL_SHATTER
     ),
 
+    ERASE_EVENT(
+            PermissionType.ANVIL_ALL,
+            PermissionType.ANVIL_ERASE
+    ),
+
     COMMAND_GUI(
             PermissionType.COMMAND_ALL,
             PermissionType.COMMAND_GUI
@@ -169,6 +174,25 @@ public enum PermissionGroupType {
     GUI_SHATTER_ECONOMY(
             PermissionType.GUI_ALL,
             PermissionType.GUI_SHATTER_ECONOMY
+    ),
+
+    COMMAND_GIVE(
+            PermissionType.COMMAND_ALL,
+            PermissionType.COMMAND_GIVE
+    ),
+
+    COMMAND_ANVIL(
+            PermissionType.COMMAND_ALL,
+            PermissionType.COMMAND_ANVIL
+    ),
+
+    GRINDSTONE_EXTRACT_EVENT(
+            PermissionType.GRINDSTONE_ALL,
+            PermissionType.GRINDSTONE_EXTRACT
+    ),
+    GRINDSTONE_TRANSFER_EVENT(
+            PermissionType.GRINDSTONE_ALL,
+            PermissionType.GRINDSTONE_TRANSFER
     ),
     ;
 

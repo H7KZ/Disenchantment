@@ -1,11 +1,20 @@
 package com.jankominek.disenchantment;
 
+import com.jankominek.disenchantment.anvils.SpecialAnvilListener;
+import com.jankominek.disenchantment.anvils.SpecialAnvilRecipe;
 import com.jankominek.disenchantment.commands.CommandCompleter;
 import com.jankominek.disenchantment.commands.CommandRegister;
 import com.jankominek.disenchantment.config.Config;
+import com.jankominek.disenchantment.config.ConfigValidator;
 import com.jankominek.disenchantment.events.GUIClickEvent;
+import com.jankominek.disenchantment.events.ShatterEvent;
+import com.jankominek.disenchantment.guis.impl.BedrockAnvilGUI;
+import com.jankominek.disenchantment.listeners.BedrockListener;
 import com.jankominek.disenchantment.listeners.DisenchantClickListener;
 import com.jankominek.disenchantment.listeners.DisenchantListener;
+import com.jankominek.disenchantment.listeners.EraseClickListener;
+import com.jankominek.disenchantment.listeners.EraseListener;
+import com.jankominek.disenchantment.listeners.GrindstoneListener;
 import com.jankominek.disenchantment.listeners.ShatterClickListener;
 import com.jankominek.disenchantment.listeners.ShatterListener;
 import com.jankominek.disenchantment.nms.MinecraftVersion;
@@ -63,6 +72,9 @@ public class Disenchantment extends JavaPlugin {
 
     // Tasks
     private final ArrayList<Object> tasks = new ArrayList<>();
+
+    // bStats submitter — kept so it can be shut down on disable/reload (otherwise each reload leaks a live submitter)
+    private BStatsMetrics metrics;
 
     /**
      * Toggles the plugin's enabled state at runtime without unloading it.
@@ -130,6 +142,9 @@ public class Disenchantment extends JavaPlugin {
         // Find and activate supported plugins
         List<String> activatedPlugins = Arrays.stream(getServer().getPluginManager().getPlugins()).toList().stream().map(Plugin::getName).toList();
         SupportedPluginManager.activatePlugins(activatedPlugins);
+        // World names are checked once the server finished loading (ServerLoadEvent below): world-management
+        // plugins such as Multiverse load their worlds after every plugin has enabled.
+        ConfigValidator.validateAndLog(false);
 
         // Economy (Vault) — hooked via ServerLoadEvent so VaultUnlocked's vault2→vault1 bridge
         // has already fired. VaultUnlocked registers the Bukkit service bridge post-Done, after
@@ -137,6 +152,7 @@ public class Disenchantment extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new Listener() {
             @EventHandler
             public void onServerLoad(ServerLoadEvent event) {
+                ConfigValidator.validateWorldNamesAndLog();
                 DiagnosticUtils.debug("ECONOMY", "ServerLoadEvent fired — attempting economy hook");
                 boolean economyAvailable = EconomyUtils.setup();
                 if (!economyAvailable && (Config.Disenchantment.Economy.isEnabled() || Config.Shatterment.Economy.isEnabled())) {
@@ -182,15 +198,21 @@ public class Disenchantment extends JavaPlugin {
         new DisenchantClickListener(Config.EventPriorities.getDisenchantClickEvent());
         new ShatterListener(Config.EventPriorities.getShatterEvent());
         new ShatterClickListener(Config.EventPriorities.getShatterClickEvent());
+        new EraseListener(Config.Erase.getPrepareEventPriority());
+        new EraseClickListener(Config.Erase.getClickEventPriority());
+        new GrindstoneListener(Config.Grindstone.getPrepareEventPriority(), Config.Grindstone.getClickEventPriority());
         getServer().getPluginManager().registerEvents(new GUIClickEvent(), plugin);
+        getServer().getPluginManager().registerEvents(new SpecialAnvilListener(), plugin);
+        getServer().getPluginManager().registerEvents(new BedrockListener(), plugin);
         DiagnosticUtils.debug("STARTUP", "All listeners registered");
+        SpecialAnvilRecipe.register();
 
         // Commands
         Objects.requireNonNull(getCommand(Disenchantment.commandName)).setExecutor(new CommandRegister());
         Objects.requireNonNull(getCommand(Disenchantment.commandName)).setTabCompleter(new CommandCompleter());
 
         // BStats
-        BStatsMetrics metrics = new BStatsMetrics(plugin, bstatsId);
+        metrics = new BStatsMetrics(plugin, bstatsId);
 
         if (Config.Logging.isOperationsEnabled()) {
             StatsManager.init(plugin.getDataFolder(), metrics);
@@ -212,6 +234,9 @@ public class Disenchantment extends JavaPlugin {
      * third-party plugin adapters.
      */
     public void disable() {
+        // Bukkit does not close inventories when a plugin goes away: hand back what is in the Bedrock menus first.
+        BedrockAnvilGUI.closeAll();
+
         for (Object task : tasks) {
             SchedulerUtils.cancelTask(task);
         }
@@ -222,7 +247,14 @@ public class Disenchantment extends JavaPlugin {
         EconomyUtils.reset();
         LuckPermsUtils.reset();
         CooldownManager.reset();
+        SpecialAnvilListener.reset();
+        SpecialAnvilRecipe.unregister();
         StatsManager.shutdown();
+
+        if (metrics != null) {
+            metrics.shutdown();
+            metrics = null;
+        }
 
         logger.info("Disenchantment disabled!");
     }
@@ -259,15 +291,23 @@ public class Disenchantment extends JavaPlugin {
         // 3. Debug flag
         DiagnosticUtils.setDebugEnabled(Config.Logging.getLevel().isAtLeast(LogLevelType.DEBUG));
 
-        // 4. Unregister all our listeners
+        // 4. Unregister all our listeners and drop state derived from the old config
         org.bukkit.event.HandlerList.unregisterAll(plugin);
+        ShatterEvent.clearAllSelections();
 
         // 5. Re-register listeners with fresh priorities
         new DisenchantListener(Config.EventPriorities.getDisenchantEvent());
         new DisenchantClickListener(Config.EventPriorities.getDisenchantClickEvent());
         new ShatterListener(Config.EventPriorities.getShatterEvent());
         new ShatterClickListener(Config.EventPriorities.getShatterClickEvent());
+        new EraseListener(Config.Erase.getPrepareEventPriority());
+        new EraseClickListener(Config.Erase.getClickEventPriority());
+        new GrindstoneListener(Config.Grindstone.getPrepareEventPriority(), Config.Grindstone.getClickEventPriority());
         getServer().getPluginManager().registerEvents(new GUIClickEvent(), plugin);
+        getServer().getPluginManager().registerEvents(new SpecialAnvilListener(), plugin);
+        getServer().getPluginManager().registerEvents(new BedrockListener(), plugin);
+        // The reload command may run on a region thread (Folia), which does not own the recipe manager.
+        SpecialAnvilRecipe.reregister();
 
         // 6. Re-detect plugin adapters
         SupportedPluginManager.deactivateAllPlugins();
@@ -275,6 +315,7 @@ public class Disenchantment extends JavaPlugin {
                 .map(Plugin::getName)
                 .toList();
         SupportedPluginManager.activatePlugins(activePluginNames);
+        ConfigValidator.validateAndLog();
 
         // 7. Re-hook economy
         EconomyUtils.reset();
@@ -286,9 +327,13 @@ public class Disenchantment extends JavaPlugin {
 
         // 9. Stats manager
         StatsManager.shutdown();
+
+        // Shut the old bStats submitter down before replacing it, otherwise it keeps running alongside the new one.
+        if (metrics != null) metrics.shutdown();
+        metrics = new BStatsMetrics(plugin, bstatsId);
+
         if (Config.Logging.isOperationsEnabled()) {
-            BStatsMetrics reloadMetrics = new BStatsMetrics(plugin, bstatsId);
-            StatsManager.init(plugin.getDataFolder(), reloadMetrics);
+            StatsManager.init(plugin.getDataFolder(), metrics);
         }
 
         DiagnosticUtils.debug("RELOAD", "Full reload complete");

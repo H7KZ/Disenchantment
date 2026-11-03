@@ -55,6 +55,7 @@ public class Status {
         s.sendMessage(I18n.Commands.Status.global(enabled ? I18n.Commands.Status.States.enabled() : I18n.Commands.Status.States.disabled()));
         s.sendMessage(I18n.Commands.Status.disenchantment(Config.Disenchantment.isEnabled() ? I18n.Commands.Status.States.enabled() : I18n.Commands.Status.States.disabled()));
         s.sendMessage(I18n.Commands.Status.shatterment(Config.Shatterment.isEnabled() ? I18n.Commands.Status.States.enabled() : I18n.Commands.Status.States.disabled()));
+        s.sendMessage("§7Special anvils: §f" + Config.SpecialAnvils.getMode().name());
     }
 
     private static String buildJson() {
@@ -93,6 +94,7 @@ public class Status {
                 "\"version\":\"" + version.replace("\"", "\\\"") + "\"," +
                 "\"disenchant_enabled\":" + disenchantEnabled + "," +
                 "\"shatter_enabled\":" + shatterEnabled + "," +
+                "\"special_anvils_mode\":\"" + Config.SpecialAnvils.getMode().name() + "\"," +
                 "\"economy_connected\":" + economyConnected + "," +
                 "\"economy_plugin_name\":" + economyPluginName + "," +
                 "\"active_adapters\":" + adaptersJson + "," +

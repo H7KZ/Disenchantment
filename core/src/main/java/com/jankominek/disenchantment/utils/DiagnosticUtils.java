@@ -2,6 +2,8 @@ package com.jankominek.disenchantment.utils;
 
 import com.jankominek.disenchantment.Disenchantment;
 import com.jankominek.disenchantment.config.Config;
+import com.jankominek.disenchantment.config.ConfigIssue;
+import com.jankominek.disenchantment.config.ConfigValidator;
 import com.jankominek.disenchantment.nms.NMSMapper;
 import com.jankominek.disenchantment.plugins.ISupportedPlugin;
 import com.jankominek.disenchantment.plugins.SupportedPluginManager;
@@ -354,6 +356,15 @@ public class DiagnosticUtils {
             report.append("Locale: ").append(Config.getLocale()).append("\n");
             report.append("Log Level: ").append(Config.Logging.getLevel().name()).append("\n");
             report.append("Save Reports: ").append(Config.Logging.isSaveReportsEnabled() ? "Yes" : "No").append("\n");
+            report.append("Special Anvils Mode: ").append(Config.SpecialAnvils.getMode().name());
+            if (Config.SpecialAnvils.getMode() == com.jankominek.disenchantment.types.SpecialAnvilMode.BLOCK_BELOW) {
+                report.append(" (").append(Config.SpecialAnvils.getBlockBelow().name()).append(")");
+            }
+            report.append("\n");
+
+            List<ConfigIssue> configIssues = ConfigValidator.getLastIssues();
+            report.append("Config Problems: ").append(configIssues.isEmpty() ? "None" : configIssues.size()).append("\n");
+            for (ConfigIssue issue : configIssues) report.append(" - ").append(issue.format()).append("\n");
 
             report.append("\n");
 

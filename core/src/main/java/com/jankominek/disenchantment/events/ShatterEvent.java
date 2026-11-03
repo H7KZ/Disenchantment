@@ -9,6 +9,7 @@ import com.jankominek.disenchantment.utils.AnvilCostUtils;
 import com.jankominek.disenchantment.utils.DiagnosticUtils;
 import com.jankominek.disenchantment.utils.EconomyUtils;
 import com.jankominek.disenchantment.utils.EventUtils;
+import com.jankominek.disenchantment.utils.PreviewLore;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
@@ -17,7 +18,11 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 /**
@@ -41,28 +46,6 @@ public class ShatterEvent {
         }
     }
 
-    private static final AnvilEventGuards.EconomyConfig ECONOMY_CONFIG = new AnvilEventGuards.EconomyConfig() {
-        @Override
-        public boolean isEnabled() {
-            return Config.Shatterment.Economy.isEnabled();
-        }
-
-        @Override
-        public double getCost() {
-            return Config.Shatterment.Economy.getCost();
-        }
-
-        @Override
-        public boolean isChargeMessageEnabled() {
-            return Config.Shatterment.Economy.isChargeMessageEnabled();
-        }
-
-        @Override
-        public boolean isShowCostEnabled() {
-            return Config.Shatterment.Economy.isShowCostEnabled();
-        }
-    };
-
     private static void handler(Event event) {
         if (!(event instanceof PrepareAnvilEvent e)) return;
 
@@ -73,12 +56,12 @@ public class ShatterEvent {
 
         if (!Config.isPluginEnabled() || !Config.Shatterment.isEnabled()) return;
 
-        if (AnvilEventGuards.isMaintenanceBlocked(p)) {
-            e.setResult(null);
-            return;
-        }
-
         if (AnvilEventGuards.isWorldBlocked(p, Config.Shatterment.isWorldRestricted(p.getWorld()))) return;
+
+        // Not a special anvil: leave the event untouched so vanilla behaves as without the plugin.
+        // The collection below only runs when a hint may be due (it needs to know it is a genuine operation).
+        boolean anvilAllowed = AnvilEventGuards.isAnvilAllowed(e.getInventory(), p);
+        if (!anvilAllowed && !Config.SpecialAnvils.isHintMessageEnabled()) return;
 
         DiagnosticUtils.debug("SHATTER", () -> "PrepareAnvil: player=" + p.getName() + ", world=" + p.getWorld().getName());
 
@@ -88,19 +71,32 @@ public class ShatterEvent {
         DiagnosticUtils.debug("SHATTER", () -> "PrepareAnvil: slot0=" + (firstItem != null ? firstItem.getType() : "null")
                 + ", slot1=" + (secondItem != null ? secondItem.getType() : "null"));
 
-        List<IPluginEnchantment> enchantments = AnvilEventGuards.collectEnchantments(
-                firstItem, secondItem, true,
-                EventUtils.Shatterment::getShattermentEnchantments,
-                EventUtils.Shatterment::getShattermentEnchantments,
-                p.getWorld(), p);
+        invalidateSelectionIfInputsChanged(p, firstItem, secondItem);
+
+        List<IPluginEnchantment> enchantments = AnvilOperations.collect(AnvilOperations.Kind.SHATTER, p, firstItem, secondItem, true);
 
         if (enchantments.isEmpty()) {
             DiagnosticUtils.debug("SHATTER", "PrepareAnvil: no eligible enchantments → exit");
             return;
         }
 
-        if (AnvilEventGuards.isOnCooldown(p)) {
-            DiagnosticUtils.debug("SHATTER", "PrepareAnvil: player on cooldown → CANCELLED");
+        if (!anvilAllowed) {
+            DiagnosticUtils.debug("SHATTER", "PrepareAnvil: not a special anvil → exit");
+            AnvilEventGuards.sendSpecialAnvilHint(p);
+            return;
+        }
+
+        // Only a genuine plugin operation is blocked by maintenance mode — vanilla anvil use
+        // (repair/rename/combine) must keep working. No message here: PrepareAnvilEvent fires on
+        // every keystroke, the click handler informs the player.
+        if (AnvilEventGuards.isMaintenanceActiveFor(p)) {
+            DiagnosticUtils.debug("SHATTER", "PrepareAnvil: maintenance active → result cleared");
+            e.setResult(null);
+            return;
+        }
+
+        if (AnvilEventGuards.isOnCooldownQuiet(p)) {
+            DiagnosticUtils.debug("SHATTER", "PrepareAnvil: player on cooldown → result cleared (no message, the click path informs)");
             e.setResult(null);
             return;
         }
@@ -110,50 +106,38 @@ public class ShatterEvent {
             return;
         }
 
-        List<IPluginEnchantment> pluginEnchantments = new ArrayList<>();
+        // The chosen subset is reused while the inputs stay the same: PrepareAnvilEvent fires again on
+        // every rename keystroke, and re-rolling there made the selected enchantments and cost flicker.
+        List<IPluginEnchantment> pluginEnchantments = selectSplit(p, enchantments, firstItem, secondItem);
 
-        List<IPluginEnchantment> shuffleEnchantments = new ArrayList<>(enchantments);
-        Collections.shuffle(shuffleEnchantments);
-
-        SplitCountRange splitCountRange = Config.Shatterment.getSplitCount();
-        int splitCount = splitCountRange.isFixed()
-                ? splitCountRange.min()
-                : java.util.concurrent.ThreadLocalRandom.current().nextInt(splitCountRange.min(), splitCountRange.max() + 1);
-        int halfSize = Math.min(Math.max(1, splitCount), shuffleEnchantments.size() - 1);
-
-        for (int i = 0; i < halfSize; i++) {
-            IPluginEnchantment enchantment = shuffleEnchantments.get(i);
-            pluginEnchantments.add(enchantment);
+        if (pluginEnchantments.isEmpty()) {
+            DiagnosticUtils.debug("SHATTER", "PrepareAnvil: nothing can be split off without emptying the source → exit");
+            return;
         }
 
         if (DiagnosticUtils.isDebugEnabled()) {
             String allNames = enchantments.stream().map(ench -> ench.getKey() + ":" + ench.getLevel()).collect(Collectors.joining(", "));
             String splitNames = pluginEnchantments.stream().map(ench -> ench.getKey() + ":" + ench.getLevel()).collect(Collectors.joining(", "));
             DiagnosticUtils.debug("SHATTER", "PrepareAnvil: source enchantments=[" + allNames + "] (" + enchantments.size() + " total)");
-            DiagnosticUtils.debug("SHATTER", "PrepareAnvil: splitting → selected=[" + splitNames + "] (halfSize=" + halfSize + ")");
+            DiagnosticUtils.debug("SHATTER", "PrepareAnvil: splitting → selected=[" + splitNames + "]");
         }
 
         // ----------------------------------------------------------------------------------------------------
         // Disenchantment plugins
 
-        ItemStack book = new ItemStack(Material.ENCHANTED_BOOK);
-
-        for (IPluginEnchantment pluginEnchantment : pluginEnchantments) {
-            book = pluginEnchantment.addToBook(book);
-        }
+        ItemStack book = AnvilOperations.buildBook(pluginEnchantments);
 
         boolean anyChanceBelowOne = pluginEnchantments.stream()
                 .anyMatch(ench -> Config.Shatterment.getEnchantmentChance(ench.getKey()) < 1.0);
 
-        if (anyChanceBelowOne) {
-            var meta = book.getItemMeta();
-            if (meta != null) {
-                java.util.List<String> lore = meta.hasLore() && meta.getLore() != null ? new java.util.ArrayList<>(meta.getLore()) : new java.util.ArrayList<String>();
-                lore.add(com.jankominek.disenchantment.config.I18n.Messages.someEnchantmentsMayNotTransfer());
-                meta.setLore(lore);
-                book.setItemMeta(meta);
-            }
-        }
+        double economyCost = AnvilOperations.economyCost(AnvilOperations.Kind.SHATTER, pluginEnchantments);
+
+        // Everything appended here is marked as preview lore and stripped again when the player takes the
+        // book (ShatterClickEvent) — the chance warning must not stay on the book permanently.
+        List<String> previewLines = PreviewLore.previewLines(p, pluginEnchantments, AnvilEventType.SHATTERMENT,
+                Config.Shatterment.Economy.isEnabled(), Config.Shatterment.Economy.isShowCostEnabled(), economyCost);
+        if (anyChanceBelowOne) previewLines.add(com.jankominek.disenchantment.config.I18n.Messages.someEnchantmentsMayNotTransfer());
+        book = PreviewLore.append(book, previewLines);
 
         // Disenchantment plugins
         // ----------------------------------------------------------------------------------------------------
@@ -168,9 +152,122 @@ public class ShatterEvent {
                 + ", show-cost=" + Config.Shatterment.Economy.isShowCostEnabled()
                 + ", gameMode=" + p.getGameMode());
 
-        double economyCost = AnvilCostUtils.economyCostForEnchantments(
-                pluginEnchantments, Config.Shatterment.Economy.getCost(), Config.Shatterment.Anvil.Repair.getEnchantmentEconomyCosts());
+        AnvilEventGuards.showEconomyActionBarCost(p, AnvilOperations.Kind.SHATTER.economy(), economyCost);
+    }
 
-        AnvilEventGuards.showEconomyActionBarCost(p, ECONOMY_CONFIG, economyCost);
+    // ----------------------------------------------------------------------------------------------------
+    // Stable split selection
+
+    /**
+     * The split subset chosen for one set of anvil inputs.
+     *
+     * @param first      snapshot of slot 0 when the subset was rolled
+     * @param second     snapshot of slot 1 when the subset was rolled
+     * @param splitRange the configured split count the roll was made with
+     * @param keys       keys of the chosen enchantments, in result order
+     */
+    private record CachedSelection(ItemStack first, ItemStack second, SplitCountRange splitRange, List<String> keys) {
+    }
+
+    // ConcurrentHashMap for Folia region-thread safety (same reasoning as the bypass-cost cache).
+    private static final Map<UUID, CachedSelection> selectionCache = new ConcurrentHashMap<>();
+
+    private static boolean sameStack(ItemStack a, ItemStack b) {
+        boolean aEmpty = a == null || a.getType().isAir();
+        boolean bEmpty = b == null || b.getType().isAir();
+        if (aEmpty || bEmpty) return aEmpty && bEmpty;
+        return a.isSimilar(b) && a.getAmount() == b.getAmount();
+    }
+
+    private static void invalidateSelectionIfInputsChanged(Player p, ItemStack first, ItemStack second) {
+        CachedSelection cached = selectionCache.get(p.getUniqueId());
+        if (cached != null && !(sameStack(cached.first(), first) && sameStack(cached.second(), second))) {
+            selectionCache.remove(p.getUniqueId());
+            DiagnosticUtils.debug("SHATTER", "PrepareAnvil: inputs changed → cached split selection dropped");
+        }
+    }
+
+    /**
+     * Returns the enchantments a shatter of these inputs splits off, exactly as the anvil preview does: the
+     * cached subset while the inputs are unchanged, otherwise a fresh roll. Used by the Bedrock chest menu so
+     * the preview it shows is the subset the confirmation applies.
+     *
+     * @param p            the player
+     * @param enchantments the eligible enchantments (prepare-time collection)
+     * @param firstItem    the source book
+     * @param secondItem   the blank book
+     * @return the enchantments to split off, empty when nothing can be split without emptying the source
+     */
+    public static List<IPluginEnchantment> selectForInputs(Player p, List<IPluginEnchantment> enchantments, ItemStack firstItem, ItemStack secondItem) {
+        invalidateSelectionIfInputsChanged(p, firstItem, secondItem);
+        return selectSplit(p, enchantments, firstItem, secondItem);
+    }
+
+    /**
+     * Forgets the player's cached split selection. Called when an operation completes (the next
+     * one must roll afresh) and when the player closes the anvil or quits.
+     *
+     * @param p the player
+     */
+    public static void clearSelection(Player p) {
+        selectionCache.remove(p.getUniqueId());
+    }
+
+    /**
+     * Forgets every cached split selection. Called on reload, since states, chances or the split
+     * count may have changed under a cached subset.
+     */
+    public static void clearAllSelections() {
+        selectionCache.clear();
+    }
+
+    /**
+     * Returns the enchantments to split off for the current inputs: the cached subset while the
+     * inputs, the split-count config and the eligible enchantments are unchanged, otherwise a fresh
+     * random roll (which is then cached). Empty when nothing can be split without emptying the source.
+     */
+    private static List<IPluginEnchantment> selectSplit(Player p, List<IPluginEnchantment> enchantments, ItemStack firstItem, ItemStack secondItem) {
+        SplitCountRange splitCountRange = Config.Shatterment.getSplitCount();
+
+        CachedSelection cached = selectionCache.get(p.getUniqueId());
+        if (cached != null && cached.splitRange().equals(splitCountRange)) {
+            Map<String, IPluginEnchantment> byKey = new HashMap<>();
+            for (IPluginEnchantment ench : enchantments) byKey.put(ench.getKey(), ench);
+
+            List<IPluginEnchantment> reused = new ArrayList<>();
+            for (String key : cached.keys()) {
+                IPluginEnchantment ench = byKey.get(key);
+                if (ench == null) {
+                    reused = null;
+                    break;
+                }
+                reused.add(ench);
+            }
+            if (reused != null && !reused.isEmpty()) {
+                DiagnosticUtils.debug("SHATTER", "PrepareAnvil: reusing cached split selection");
+                return reused;
+            }
+        }
+
+        List<IPluginEnchantment> shuffleEnchantments = new ArrayList<>(enchantments);
+        Collections.shuffle(shuffleEnchantments);
+
+        int splitCount = splitCountRange.isFixed()
+                ? splitCountRange.min()
+                : java.util.concurrent.ThreadLocalRandom.current().nextInt(splitCountRange.min(), splitCountRange.max() + 1);
+        // At least one enchantment must stay on the source book. KEEP-state enchantments already
+        // do; otherwise reserve one of the splittable ones.
+        int maxSplit = EventUtils.Shatterment.hasKeptEnchantment(firstItem)
+                ? shuffleEnchantments.size()
+                : shuffleEnchantments.size() - 1;
+        int halfSize = Math.min(Math.max(1, splitCount), maxSplit);
+
+        if (halfSize < 1) return List.of();
+
+        List<IPluginEnchantment> selected = new ArrayList<>(shuffleEnchantments.subList(0, halfSize));
+        selectionCache.put(p.getUniqueId(), new CachedSelection(
+                firstItem.clone(), secondItem.clone(), splitCountRange,
+                selected.stream().map(IPluginEnchantment::getKey).collect(Collectors.toList())));
+        return selected;
     }
 }

@@ -4,6 +4,7 @@ import com.jankominek.disenchantment.commands.CommandBuilder;
 import com.jankominek.disenchantment.config.Config;
 import com.jankominek.disenchantment.config.I18n;
 import com.jankominek.disenchantment.types.PermissionGroupType;
+import com.jankominek.disenchantment.utils.InputUtils;
 import com.jankominek.disenchantment.utils.EnchantmentUtils;
 import org.bukkit.command.CommandSender;
 import org.bukkit.enchantments.Enchantment;
@@ -59,13 +60,14 @@ public class ShatterChances {
 
         String key = args[1].toLowerCase();
 
-        double chance;
-        try {
-            chance = Double.parseDouble(args[2]);
-        } catch (NumberFormatException e) {
+        // parseFinite rejects NaN/Infinity, which would slip through the range check below
+        Double parsed = InputUtils.parseFinite(args[2]);
+        if (parsed == null) {
             s.sendMessage(I18n.Messages.specifyValidDouble());
             return;
         }
+
+        double chance = parsed;
 
         if (chance < 0.0 || chance > 1.0) {
             s.sendMessage(I18n.Messages.specifyEnchantmentChance());

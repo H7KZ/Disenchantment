@@ -11,6 +11,7 @@ as [LuckPerms](https://luckperms.net/).
 ## Table of Contents
 
 - [Anvil Usage](#anvil-usage)
+- [Grindstone Usage](#grindstone-usage)
 - [Commands](#commands)
 - [GUI](#gui)
 - [Wildcard Permission](#wildcard-permission)
@@ -27,6 +28,8 @@ default to `true` so all players can use the core features out of the box.
 | `disenchantment.anvil.all`        | Allows disenchanting items and splitting books.        | `true`  |
 | `disenchantment.anvil.disenchant` | Allows disenchanting items at the anvil.               | `true`  |
 | `disenchantment.anvil.shatter`    | Allows splitting enchantments from books at the anvil. | `true`  |
+| `disenchantment.anvil.erase`      | Allows erasing enchantments with a catalyst (erase mode, off by default). | `true`  |
+| `disenchantment.anvil.special`    | Allows placing a special anvil. Without it the item is placed as a normal anvil (no mark). | `true`  |
 
 > **Note:** If non-op players cannot use the anvil features, check whether a permission plugin (e.g. LuckPerms) has
 > explicitly denied these nodes.
@@ -34,15 +37,35 @@ default to `true` so all players can use the core features out of the box.
 
 ---
 
+## Grindstone Usage
+
+These permissions control the opt-in [grindstone features](CONFIG.md#grindstone-settings). They default to `true`, so once
+a feature is enabled in the config every player can use it. Vanilla grindstone use is never affected.
+
+| Permission                         | Description                                                              | Default |
+|------------------------------------|--------------------------------------------------------------------------|---------|
+| `disenchantment.grindstone.all`    | Allows both grindstone features.                                         | `true`  |
+| `disenchantment.grindstone.extract`| Allows moving enchantments from an item onto a plain book.               | `true`  |
+| `disenchantment.grindstone.transfer`| Allows moving enchantments from one item to another.                    | `true`  |
+
+The cooldown, maintenance mode, world/material bypass permissions and cost discounts apply to these operations too.
+
+---
+
 ## Commands
 
-These permissions control access to `/disenchantment` commands. All default to `op`.
+These permissions control access to `/disenchantment` commands. All default to `op`, except
+`disenchantment.command.anvil` (`true`): the Bedrock menu has to be reachable by ordinary players, so the plugin checks
+`disenchantment.command.use` itself for every other subcommand instead of in `plugin.yml`.
+Operations done through the menu need the usual anvil permissions (`disenchantment.anvil.disenchant`,
+`.shatter`, `.erase`).
 
 ### General
 
 | Permission                          | Description                                                | Default |
 |-------------------------------------|------------------------------------------------------------|---------|
-| `disenchantment.command.use`        | Access to the base `/disenchantment` command (shows help). | `op`    |
+| `disenchantment.command.use`        | Access to the base `/disenchantment` command (shows help). Required for every subcommand except `anvil`. | `op`    |
+| `disenchantment.command.anvil`      | Access to `/disenchantment anvil`, the Bedrock chest-menu anvil. Works only with `bedrock.fallback-enabled`. | `true`  |
 | `disenchantment.command.all`        | Access to every command.                                   | `op`    |
 | `disenchantment.command.help`       | Access to the help command.                                | `op`    |
 | `disenchantment.command.gui`        | Access to the GUI command.                                 | `op`    |
@@ -50,6 +73,7 @@ These permissions control access to `/disenchantment` commands. All default to `
 | `disenchantment.command.toggle`     | Access to the toggle command.                              | `op`    |
 | `disenchantment.command.diagnostic` | Access to the diagnostic command and all its subcommands.  | `op`    |
 | `disenchantment.command.reload`     | Access to the reload command.                              | `op`    |
+| `disenchantment.command.give`       | Access to `/disenchantment give anvil` (special anvils).   | `op`    |
 
 ### Disenchant Configuration
 

@@ -14,12 +14,16 @@ it against your existing file.
 
 ```yaml
 # ↓ DO NOT EDIT THESE VALUES ↓
-migration: 9
+migration: 13
 locales: [ "cs", "en" ]
 # ↑ DO NOT EDIT THESE VALUES ↑
 
 # Enable or disable the entire plugin globally.
 enabled: true
+
+# Periodically (every 8 hours) ask SpigotMC for the latest version and log a message when a newer one exists.
+# Set to false to disable all outgoing update checks.
+update-checker: true
 
 # Language for plugin messages. Available: "en", "cs".
 locale: "en"
@@ -32,6 +36,10 @@ event-priorities:
   disenchant: HIGHEST
   shatter-click: HIGHEST
   shatter: HIGHEST
+  erase-click: HIGHEST
+  erase: HIGHEST
+  grindstone-click: HIGHEST
+  grindstone: HIGHEST
 
 # ─────────────────────────────────────────────────────────────────────────────
 
@@ -40,6 +48,12 @@ logging:
   level: INFO
   # Write crash/error reports to plugins/Disenchantment/logs/crash-<timestamp>.txt
   save-reports: true
+  # Set to true to record every disenchant/shatter to plugins/Disenchantment/stats.db
+  operations: false
+  # Delete stats.db operation records older than N days on startup. 0 = keep forever.
+  operations-retention-days: 0
+  # Discord webhook URL — if set, crash reports are POSTed asynchronously. Leave empty to disable.
+  discord-webhook: ""
 
 # ─────────────────────────────────────────────────────────────────────────────
 
@@ -133,6 +147,77 @@ shatterment:
     cost: 100.0
     show-cost: true
     charge-message: true
+
+# ─────────────────────────────────────────────────────────────────────────────
+
+# Restrict disenchanting / shattering to designated ("special") anvils.
+special-anvils:
+  mode: ALL                      # ALL | MARKED | BLOCK_BELOW
+  block-below: LAPIS_BLOCK       # used by BLOCK_BELOW
+  allow-virtual-anvils: false    # anvils without a world position (Player#openAnvil, other plugins' menus)
+  drop-special-item: true        # a broken special anvil drops the special item
+  hint-message: false            # tell players the anvil is not special
+  item:
+    name: "&dEnchanter's Anvil"
+    lore:
+      - "&7Place to create a disenchanting anvil"
+  recipe:
+    enabled: false
+    shape: [ "EEE", "EAE", "EEE" ]
+    ingredients:
+      E: EMERALD
+      A: ANVIL                   # ANVIL = any anvil damage state
+
+# Grindstone mode (opt-in). Worlds, materials, enchantment states and chances come from "disenchantment".
+grindstone:
+  # EXTRACT: enchanted item + plain book -> enchanted book.
+  enabled: false
+  # Curses stay on the item unless this is true.
+  curses: false
+  repair:
+    reset: false
+    cost: true
+    base: 10
+    multiply: 0.25
+    enchantment-costs: {}
+    max-cost: -1
+  sound:
+    enabled: true
+    volume: 1.0
+    pitch: 1.0
+  economy:
+    enabled: false
+    cost: 100.0
+    show-cost: true
+    charge-message: true
+  # TRANSFER: enchanted item + a different kind of item -> the second item gets the enchantments.
+  transfer:
+    enabled: false
+    allow-over-max: false
+    max-enchantments: 16
+    repair:
+      reset: false
+      cost: true
+      base: 15
+      multiply: 0.25
+      enchantment-costs: {}
+      max-cost: -1
+    economy:
+      enabled: false
+      cost: 100.0
+      show-cost: true
+      charge-message: true
+
+# ─────────────────────────────────────────────────────────────────────────────
+
+# Bedrock fallback: "/disenchantment anvil" opens a chest menu that disenchants, splits books and erases for
+# clients (Geyser/Bedrock) that cannot see custom anvil results.
+bedrock:
+  fallback-enabled: false
+  allow-java-players: false
+  detect: [ FLOODGATE, GEYSER, UUID, PREFIX ]
+  prefixes: [ ".", "*" ]
+  open-on-sneak-click: false
 ```
 
 ---
@@ -152,6 +237,13 @@ shatterment:
     - [Anvil Sound (Shatter)](#anvil-sound-shatter)
     - [Repair Cost (Shatter)](#repair-cost-shatter)
     - [Economy Cost (Shatterment)](#economy-cost-shatterment)
+- [Erase Mode](#erase-mode)
+- [Feedback](#feedback)
+- [Special Anvils](#special-anvils)
+- [Grindstone Settings](#grindstone-settings)
+    - [Extract](#grindstone-extract)
+    - [Transfer](#grindstone-transfer)
+- [Bedrock Fallback](#bedrock-fallback)
 - [Economy Integration](#economy-integration)
 
 ---
@@ -160,13 +252,91 @@ shatterment:
 
 ```yaml
 enabled: true
+update-checker: true
 locale: "en"
 ```
 
-| Key       | Type    | Default | Description                                              |
-|-----------|---------|---------|----------------------------------------------------------|
-| `enabled` | Boolean | `true`  | Enable or disable the entire plugin globally.            |
-| `locale`  | String  | `"en"`  | Language for plugin messages. Available: `"en"`, `"cs"`. |
+| Key              | Type    | Default | Description                                                                                                                                   |
+|------------------|---------|---------|-----------------------------------------------------------------------------------------------------------------------------------------------|
+| `enabled`        | Boolean | `true`  | Enable or disable the entire plugin globally.                                                                                                 |
+| `update-checker` | Boolean | `true`  | Every 8 hours, query SpigotMC for the latest version and log a line when a newer release exists. Set to `false` to make no outgoing requests. |
+| `locale`         | String  | `"en"`  | Language for plugin messages. Available: `"en"`, `"cs"`.                                                                                      |
+
+The update checker uses 5 second timeouts, ignores responses that are not a version number, and compares versions
+numerically, so running a build newer than the published release is not reported as "outdated". The setting is read on
+every check, so `/disenchantment reload` applies a change without a restart.
+
+### Config safety and backups
+
+- **Syntax errors never wipe your config.** If `config.yml` cannot be parsed (for example a bad indent or an unclosed
+  bracket), the plugin logs the parser error at `SEVERE`, leaves the file exactly as it is, saves a copy as
+  `config.yml.broken-<timestamp>`, and runs on the built-in defaults. While in that state, changes made with commands or
+  the GUI are **not** saved (so they cannot overwrite your file). Fix the file and run `/disenchantment reload`.
+- **`/disenchantment reload` on a broken file** is refused: the sender sees the parser message and the settings that are
+  currently running stay in effect.
+- **Upgrades are backed up.** When a plugin update migrates your config to a newer format, the previous file is first
+  copied to `config.yml.bak`. A config that is already current is not rewritten.
+
+### Config validation
+
+A wrong value never crashes the plugin and never changes your file. Whatever is in `config.yml`, the plugin replaces
+anything unusable with a safe value when it reads it. On every start and `/disenchantment reload` it also checks the
+whole file and logs one `Config: ...` warning per problem, followed by a one-line summary
+(`Config: 3 problems found, see above.`). `/disenchantment reload` tells the sender how many problems were found, and
+`/disenchantment diagnostic` lists them under **Plugin Configuration**.
+
+What is checked, and what the plugin does instead:
+
+| Problem                                                                                                         | What happens                                                                                                    |
+|-----------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|
+| Wrong type (`volume: loud`, `enabled: maybe`, a list where a number is expected, NaN, Infinity)                 | The default is used. Numbers written as text (`"0.5"`, `"0,5"`) and `"true"`/`"false"` are accepted.            |
+| Number out of range                                                                                             | Clamped, see the table below.                                                                                   |
+| Unknown name for `logging.level`, `event-priorities.*`, `mode`                                                  | Default is used (`INFO`, `HIGHEST`, `DENYLIST`). Names are case-insensitive.                                    |
+| Unknown material in a `materials.list`                                                                          | Ignored. Names are case-insensitive and `minecraft:diamond_sword` also works.                                   |
+| World in a `worlds.list` that is not loaded                                                                     | Ignored until a world with that name loads. Checked once the server finished starting (so Multiverse-style worlds count) and on reload, never at plugin enable. |
+| Unknown enchantment in `enchantments-states`, `enchantment-chances`, `enchantment-costs`, `enchantment-groups`  | Reported softly: it may belong to a custom enchantment plugin. Keys in another namespace are not checked.       |
+| Bad `enchantments-states` entry (no state, unknown state, too many `:`)                                         | That entry is ignored (it never turns into a "null" state).                                                     |
+| Non-numeric `enchantment-chances` / `enchantment-costs` value                                                   | That entry is ignored: the enchantment always succeeds / uses the formula (never "always fails" or "free").     |
+| `ALLOWLIST` with an empty `list`                                                                                | Reported: it blocks the feature everywhere.                                                                     |
+| `split-count` that is not a number, `0`, negative, or a reversed range like `"5-2"`                             | Clamped to 1-255; a reversed range is swapped; unusable values become `1`.                                     |
+| Unknown or misspelt option name (`disenchantmnet:`)                                                             | Reported with a "did you mean" hint. The key is ignored. Names are compared with the bundled `config.yml`.      |
+| Invalid `locale` / `locales` entry                                                                              | Only letters, digits, `_` and `-` are accepted; otherwise `"en"` is used.                                       |
+| Unknown or non-block `special-anvils.block-below`; invalid `special-anvils.mode`                                | `LAPIS_BLOCK` / `ALL` is used. Material names are case-insensitive and `minecraft:` ids work.                   |
+| `special-anvils.recipe` with a bad shape (not 1-3 rows of equal length, 1-3 characters) or an ingredient that is not an item | The recipe is not registered. Only reported while `recipe.enabled` is `true`.                       |
+| `erase.catalysts` entry that is unknown, `BOOK`, `ENCHANTED_BOOK` or air; a list with no usable entry          | The entry is skipped. If none is left, erase mode does nothing (reported when `erase.enabled` is `true`).       |
+| `erase.catalysts` entry that is a well-known vanilla repair material (diamond, ingots, leather, planks, ...)    | Kept, but warned: erase replaces the vanilla repair of items using it, wherever erase applies.                   |
+| `feedback.particles.types` / `erase-types` where no name exists on this server                                  | No particles are spawned. One resolvable name is enough, so legacy and current names can be listed together.    |
+| `feedback.failure-sound.sound` that is not a lower-case sound key (`entity.villager.no`)                        | The default key is used.                                                                                        |
+| `grindstone.transfer.max-enchantments` outside 1-64                                                             | Clamped.                                                                                                        |
+
+Clamping ranges:
+
+| Option                                       | Allowed range                                                 | Default      |
+|----------------------------------------------|---------------------------------------------------------------|--------------|
+| `anvil.sound.volume`                         | `0` to `10`                                                   | `1.0`        |
+| `anvil.sound.pitch`                          | `0.5` to `2.0`                                                | `1.0`        |
+| `anvil.repair.base`, `anvil.repair.multiply` | `-1000000` to `1000000` (the final XP cost is never below 0)  | `10`, `0.25` |
+| `anvil.repair.max-cost`                      | `-1` (no cap) or more                                         | `-1`         |
+| `economy.cost`                               | `0` to `1000000000000`                                        | `100.0`      |
+| `enchantment-chances.<key>`                  | `0.0` to `1.0`                                                | `1.0`        |
+| `enchantment-costs.<key>` (xp / economy)     | `0` or more                                                   | formula      |
+| `cooldown.seconds`                           | `0` to `31536000`                                             | `0`          |
+| `logging.operations-retention-days`          | `0` to `36500`                                                | `0`          |
+| `shatterment.split-count` (min / max)        | `1` to `255`                                                  | `1`          |
+| `feedback.particles.count`                   | `1` to `500`                                                  | `30`         |
+| `feedback.particles.spread`                  | `0` to `16`                                                   | `0.4`        |
+| `feedback.failure-sound.volume` / `pitch`    | `0` to `10` / `0.5` to `2.0`                                  | `1.0`        |
+| `erase.*`, `grindstone.*`, `grindstone.transfer.*` | Same ranges as the matching `disenchantment.*` options (sound, repair base/multiply/max-cost, economy cost) | `grindstone.transfer.repair.base` defaults to `15` |
+| `grindstone.transfer.max-enchantments`       | `1` to `64`                                                   | `16`         |
+
+Editing a `worlds` or `materials` list with a command or the GUI keeps entries you wrote by hand that cannot be
+resolved yet (a world that loads later, a modded material), so they are not lost.
+
+### Locale files
+
+`plugins/Disenchantment/locales/<locale>.yml` is created on first start and never overwritten, so your edits are kept.
+On every start and `/disenchantment reload`, any keys that exist in the bundled locale but are missing from your file
+(for example after a plugin update) are added automatically with the bundled text. Existing values are not changed.
 
 ---
 
@@ -181,7 +351,14 @@ event-priorities:
   disenchant: HIGHEST
   shatter-click: HIGHEST
   shatter: HIGHEST
+  erase-click: HIGHEST
+  erase: HIGHEST
+  grindstone-click: HIGHEST
+  grindstone: HIGHEST
 ```
+
+`grindstone-click` covers the plain-book placement and the result click on the grindstone, `grindstone` covers the
+`PrepareGrindstoneEvent` (see [Grindstone Settings](#grindstone-settings)). Like the others, changing them needs a reload.
 
 Available values (lowest to highest): `LOWEST`, `LOW`, `NORMAL`, `HIGH`, `HIGHEST`, `MONITOR`.
 
@@ -199,12 +376,18 @@ Controls how much output the plugin sends to the server console and whether erro
 logging:
   level: INFO
   save-reports: true
+  operations: false
+  operations-retention-days: 0
+  discord-webhook: ""
 ```
 
-| Key            | Type    | Default | Description                                                                       |
-|----------------|---------|---------|-----------------------------------------------------------------------------------|
-| `level`        | String  | `INFO`  | Log verbosity. Options: `NONE`, `INFO`, `DEBUG`.                                  |
-| `save-reports` | Boolean | `true`  | Write crash/error reports to `plugins/Disenchantment/logs/crash-<timestamp>.txt`. |
+| Key                         | Type    | Default | Description                                                                                                      |
+|-----------------------------|---------|---------|------------------------------------------------------------------------------------------------------------------|
+| `level`                     | String  | `INFO`  | Log verbosity. Options: `NONE`, `INFO`, `DEBUG`.                                                                 |
+| `save-reports`              | Boolean | `true`  | Write crash/error reports to `plugins/Disenchantment/logs/crash-<timestamp>.txt`.                                |
+| `operations`                | Boolean | `false` | Record every disenchant/shatter to `plugins/Disenchantment/stats.db`.                                            |
+| `operations-retention-days` | Integer | `0`     | Delete `stats.db` operation records older than this many days on startup. `0` keeps records forever.             |
+| `discord-webhook`           | String  | `""`    | Discord webhook URL; if set, crash reports are POSTed asynchronously. Leave empty to disable.                    |
 
 **Log level meanings:**
 
@@ -359,6 +542,9 @@ Final XP cost:      12 levels
 | `0`  | `0`      | Free — XP cost is always 0 (same as setting `cost: false`)                       | 0 levels  |
 | `1`  | `1`      | Simple — Sharpness V alone costs 6 levels (1 + 5×1)                              | 6 levels  |
 
+> **Negative values:** the final XP cost is never below 0. A negative `base`, `multiply` or override cannot pay the
+> player levels; it simply results in a free operation (the same applies to economy costs).
+
 > **Per-enchantment overrides** in `enchantment-costs` bypass the formula entirely for that enchantment. The override
 > value is added as a flat amount and the multiplier is not advanced for that enchantment.
 
@@ -389,7 +575,10 @@ disenchantment:
 - **On click** — the player takes the result and the currency is deducted. A **chat confirmation** is sent (e.g.
   `You have been charged $100.0`). This message can be suppressed with `charge-message: false`.
 - **If the player cannot afford it** — the operation is **cancelled**, no items are consumed, and the player receives an
-  insufficient-funds message.
+  insufficient-funds message. The same happens (with a "payment could not be processed" message) if the economy plugin
+  rejects the withdrawal.
+- **What is charged** — exactly the amount shown in the action bar: the flat `economy.cost`, or the sum of the
+  per-enchantment economy overrides, counted only for enchantments that are actually transferred to the result book.
 - **Action bar only (no chat)** — set `show-cost: true` and `charge-message: false` for a cleaner experience.
 
 > **Requires:** [Vault](https://www.spigotmc.org/resources/34315/) and a compatible economy plugin such as EssentialsX,
@@ -497,6 +686,292 @@ The same Vault requirements and Creative-mode exemption apply as for disenchantm
 
 ---
 
+## Erase Mode
+
+Erase mode removes enchantments from an item **without producing a book**. The player puts the enchanted item in the
+first anvil slot and a *catalyst* in the second slot; the result is the same item (name, lore, durability and custom
+data kept) without its erasable enchantments. Taking the result costs levels (and optionally money), uses up one
+catalyst and empties the first slot. It is disabled by default. See [HOW_TO.md](HOW_TO.md#erase-enchantments-from-an-item).
+
+```yaml
+erase:
+  enabled: false
+  catalysts: [ ECHO_SHARD ]
+  consume-catalyst: true
+  erase-curses: false
+  anvil:
+    sound: { enabled: true, volume: 1.0, pitch: 1.0 }
+    repair: { reset: false, cost: true, base: 10, multiply: 0.25, enchantment-costs: { }, max-cost: -1 }
+    bypass-too-expensive: false
+  economy: { enabled: false, cost: 100.0, show-cost: true, charge-message: true }
+```
+
+| Key                         | Default        | Description                                                                                                      |
+|-----------------------------|----------------|------------------------------------------------------------------------------------------------------------------|
+| `erase.enabled`             | `false`        | Turns erase mode on.                                                                                             |
+| `erase.catalysts`           | `[ECHO_SHARD]` | Materials accepted in the second slot (any one of them). Matched by material only, so renamed items work.       |
+| `erase.consume-catalyst`    | `true`         | Use up one catalyst per erase. Creative players consume it too.                                                  |
+| `erase.erase-curses`        | `false`        | Also erase Curse of Binding / Vanishing (and any enchantment whose key ends in `_curse`).                        |
+| `erase.anvil.sound.*`       |                | Same as [Anvil Sound](#anvil-sound), but for erase.                                                              |
+| `erase.anvil.repair.*`      |                | Same as [Repair Cost](#repair-cost): `base + level * multiply`, per-enchantment `enchantment-costs`, `max-cost`. |
+| `erase.anvil.repair.reset`  | `false`        | Reset the item's anvil repair penalty to 0 on erase.                                                             |
+| `erase.anvil.bypass-too-expensive` | `false` | Same as the disenchantment option. With it off, an erase costing 40+ levels is refused (not creative), exactly like vanilla's "Too Expensive!". |
+| `erase.economy.*`           |                | Same as [Economy Cost](#economy-cost-disenchantment), with its own cost.                                         |
+| `event-priorities.erase`, `event-priorities.erase-click` | `HIGHEST` | See [Event Priorities](#event-priorities).                                          |
+
+**Catalyst rules.** Entries are parsed like `/give` material ids (`ECHO_SHARD`, `minecraft:echo_shard`). Unknown names
+are skipped with a console warning. `BOOK`, `ENCHANTED_BOOK` and `AIR` are always rejected (disenchantment and
+shatterment own books). If no valid catalyst remains, erase mode stays off and a warning is logged. `ECHO_SHARD` needs
+Minecraft 1.19+; on 1.18 use e.g. `AMETHYST_SHARD`. Avoid vanilla repair materials of the items you want to erase
+(e.g. `DIAMOND` for diamond tools): while erase can act on the item (it has erasable enchantments, the anvil is allowed),
+it replaces the vanilla repair result for that combination, so the item can no longer be repaired with that material at
+that anvil. The plugin only ever clears or takes results it prepared itself, so a vanilla repair at an anvil where erase
+does not apply (for example a non-special anvil, or a player without the erase permission) is never touched. The
+config check warns about catalysts that are well-known repair materials.
+
+**Shared restrictions.** Erase reuses the `disenchantment` section for `worlds`, `materials` and `enchantments-states`:
+`KEEP` enchantments stay on the item, a `DISABLE` enchantment makes the whole item un-erasable, and `DELETE` (like
+`ENABLE`) enchantments are erased. `enchantment-chances` do not apply. An item with nothing erasable (only curses, only
+`KEEP` enchantments) gives no result. Stacks of more than one item are rejected. Text typed into the anvil's rename
+field is ignored by erase.
+
+Permission: `disenchantment.anvil.erase` (see [PERMISSIONS.md](PERMISSIONS.md)).
+
+---
+
+## Feedback
+
+Feedback for anvil operations. All values below are the defaults.
+
+```yaml
+feedback:
+  particles:
+    enabled: true
+    types: [ ENCHANT, ENCHANTMENT_TABLE ]
+    erase-types: [ SMOKE, SMOKE_NORMAL ]
+    count: 30
+    spread: 0.4
+    scope: PLAYER
+  failure-sound:
+    enabled: true
+    sound: "entity.villager.no"
+    volume: 1.0
+    pitch: 1.0
+  not-enough-xp-message: true
+  preview-lore: true
+```
+
+| Key                                | Description                                                                                                                                                                                                           |
+|------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `feedback.particles.enabled`       | Spawn particles at the anvil when a disenchant, shatter or erase succeeds.                                                                                                                                            |
+| `feedback.particles.types`         | Particle names for disenchant/shatter. Names the server does not know are skipped, so a current and a legacy name can be listed together (`ENCHANT` is `ENCHANTMENT_TABLE` before 1.20.5). Only particles without extra data work (no `DUST`, `BLOCK`, `ITEM`, ...). If none of the names exist, one warning is logged. |
+| `feedback.particles.erase-types`   | Particle names for erase.                                                                                                                                                                                             |
+| `feedback.particles.count`         | Particles per name (1-500).                                                                                                                                                                                           |
+| `feedback.particles.spread`        | Random spread in blocks.                                                                                                                                                                                              |
+| `feedback.particles.scope`         | `PLAYER` (only the player sees them) or `WORLD` (everyone nearby).                                                                                                                                                    |
+| `feedback.failure-sound.*`         | Played to the player when taking the result is refused (not enough levels or money, cooldown, maintenance, withdrawal failure, shift/number-key click). `sound` is a vanilla sound **key** such as `entity.villager.no` or `block.note_block.bass`. |
+| `feedback.not-enough-xp-message`   | Tell the player how many levels they need. Refusal messages are sent at most once per second per player.                                                                                                              |
+| `feedback.preview-lore`            | While the result book sits in the anvil, list what transfers and what it costs in its lore. The lines are removed again when the player takes the book.                                                               |
+
+---
+
+## Special Anvils
+
+Limits disenchanting and shattering to designated anvils. **Vanilla anvil use (repair, rename, combine) is never
+affected**, whatever the mode. The default (`ALL`) keeps today's behaviour: every anvil works.
+
+| Key                            | Default                | Description                                                                                                      |
+|--------------------------------|------------------------|------------------------------------------------------------------------------------------------------------------|
+| `special-anvils.mode`          | `ALL`                  | `ALL` every anvil works. `MARKED` only anvils placed from the special anvil item. `BLOCK_BELOW` only anvils standing directly on `block-below`. |
+| `special-anvils.block-below`   | `LAPIS_BLOCK`          | Block an anvil must stand on in `BLOCK_BELOW` mode. Any block material name (`minecraft:` ids accepted).         |
+| `special-anvils.allow-virtual-anvils` | `false`         | Anvils without a world position (`Player#openAnvil`, menus of other plugins) count as special.                    |
+| `special-anvils.drop-special-item` | `true`             | A broken special anvil drops the special item instead of a plain anvil.                                          |
+| `special-anvils.hint-message`  | `false`                | Tell players that the anvil they use is not special (at most once every 5 seconds per player).                    |
+| `special-anvils.item.name`     | `&dEnchanter's Anvil`  | Display name of the special anvil item. `&` colour codes work.                                                    |
+| `special-anvils.item.lore`     | one line               | Lore of the special anvil item.                                                                                  |
+| `special-anvils.recipe.enabled`| `false`                | Register a shaped crafting recipe for the special anvil.                                                          |
+| `special-anvils.recipe.shape`  | `EEE` / `EAE` / `EEE`  | 1 to 3 rows of 1 to 3 characters, all rows the same length. A space is an empty slot.                              |
+| `special-anvils.recipe.ingredients` | `E: EMERALD`, `A: ANVIL` | Material for each shape character. `ANVIL` accepts any anvil damage state.                                  |
+
+An unknown `mode` or a `block-below` that is not a block falls back to the default and logs a warning at startup. A
+recipe that is invalid (unknown material, ragged shape) is skipped with a warning.
+
+**How `MARKED` works.** The special anvil item is a normal anvil carrying a hidden marker. When a player places it, the
+position is stored in the chunk's persistent data (`disenchantment:special_anvils`), so marks survive restarts and
+need no extra files or database. Damage states (chipped, damaged) keep the mark. A mark whose block is no longer an
+anvil is dropped the next time it is looked at. Breaking the anvil gives back the special item. A falling anvil keeps
+its mark when it lands. `/setblock`, WorldEdit and copy/paste do not carry marks.
+
+Changing the mode takes effect after `/disenchantment reload`. Anvils placed from the special item are always
+remembered, even while the mode is `ALL`, so you can switch to `MARKED` later. Players need
+`disenchantment.anvil.special` (default `true`) to place a special anvil; without it the item is placed as a normal
+anvil. See the [setup guide](HOW_TO.md#restrict-disenchanting-to-special-anvils).
+
+## Grindstone Settings
+
+Two opt-in features that work on the **grindstone** instead of the anvil. Both are off by default, are independent of
+each other (`grindstone.enabled` only controls extraction, `grindstone.transfer.enabled` only transfer), and leave every
+other grindstone use (repairing two items, vanilla disenchanting a single item) completely vanilla.
+
+They reuse the `disenchantment` section for: `worlds`, `materials`, `enchantments-states` (`KEEP`, `DISABLE`, `DELETE`),
+`enchantment-chances`, `cooldown` and `cost-multiplier`. Cost, economy and sound are configured under `grindstone`.
+
+Unlike the anvil, the grindstone has no cost label, so the price is shown in the **action bar**. There is **no XP refund**:
+the plugin takes over the result, so vanilla's XP orbs for the inputs are not awarded.
+
+> **Server support.** The result is shown through `PrepareGrindstoneEvent`, which Spigot added in 1.19.4 (Paper has had
+> its own copy since 1.16). On older servers the plugin recomputes the result one tick after every grindstone click
+> instead; an INFO line is logged at startup. Event priorities for both handlers are in
+> [Event Priorities](#event-priorities).
+
+### Grindstone Extract
+
+Put **one enchanted item** in the top slot and a **plain book** in the bottom slot: the result is an enchanted book with
+the item's transferable enchantments. Taking it removes exactly those enchantments from the item (it returns to the top
+slot), consumes one book, and costs levels.
+
+The vanilla grindstone refuses a plain book in its input slots, so the plugin places it for you: **click the bottom slot
+with a book on the cursor**, or **shift-click a book** in your inventory, while the item is already in the top slot.
+Exactly one book is placed even from a stack. Number-key swaps and drag-placing are not intercepted.
+
+```yaml
+grindstone:
+  enabled: false
+  curses: false
+  repair:
+    reset: false
+    cost: true
+    base: 10
+    multiply: 0.25
+    enchantment-costs: {}
+    max-cost: -1
+  sound:
+    enabled: true
+    volume: 1.0
+    pitch: 1.0
+  economy:
+    enabled: false
+    cost: 100.0
+    show-cost: true
+    charge-message: true
+```
+
+| Key                          | Type    | Default | Description                                                                                     |
+|------------------------------|---------|---------|-------------------------------------------------------------------------------------------------|
+| `enabled`                    | Boolean | `false` | Enable extraction (item + plain book).                                                          |
+| `curses`                     | Boolean | `false` | `false`: curses stay on the item (like the vanilla grindstone). `true`: they move to the book too. Also applies to transfer. |
+| `repair.reset`               | Boolean | `false` | Reset the item's anvil repair cost after extraction.                                            |
+| `repair.cost`                | Boolean | `true`  | Charge experience levels.                                                                       |
+| `repair.base`                | Double  | `10`    | Base cost. Formula: `base + sum(level x multiply)`, same as the anvil.                          |
+| `repair.multiply`            | Double  | `0.25`  | Per-enchantment multiplier (increases with every enchantment, highest level first).             |
+| `repair.enchantment-costs`   | Map     | `{}`    | Per-enchantment fixed cost, `sharpness: 5` or `mending: { xp: 10, economy: 500 }`.              |
+| `repair.max-cost`            | Integer | `-1`    | Cap on the level cost, `-1` = none.                                                             |
+| `sound.enabled/volume/pitch` | -       | on/1/1  | `block.grindstone.use` played on success.                                                       |
+| `economy.*`                  | -       | off     | Same keys and rules as the [anvil economy cost](#economy-cost-disenchantment).                  |
+
+Enchantment **chances** apply as with the anvil: a failed roll destroys that enchantment, and if every roll fails the
+player receives a plain book. `DELETE` enchantments are destroyed on the item, `KEEP` ones stay, a `DISABLE` one blocks
+the operation.
+
+### Grindstone Transfer
+
+Put an **enchanted item** in the top slot and a **different kind of item** (not a book) in the bottom slot: the result
+is the bottom item carrying the enchantments it can take. Unlike the anvil, the source item is **not destroyed**: it
+returns to the top slot minus exactly the enchantments that moved. Two items of the **same material** are a vanilla repair
+and are never touched. Put the source in the top slot and the receiving item in the bottom slot.
+
+An enchantment moves only if: it is a vanilla enchantment, the target can take it (`canEnchantItem`), it conflicts with
+nothing already on the target or already chosen, the target does not already have it at the same or a higher level, and
+the source enchantment is not `KEEP` (a `DISABLE` state blocks the whole transfer). Levels above the enchantment's vanilla
+maximum are lowered to the maximum unless `allow-over-max` is `true` (the source still loses the enchantment).
+Enchantments that cannot move simply stay on the source.
+
+```yaml
+grindstone:
+  transfer:
+    enabled: false
+    allow-over-max: false
+    max-enchantments: 16
+    repair:
+      reset: false
+      cost: true
+      base: 15
+      multiply: 0.25
+      enchantment-costs: {}
+      max-cost: -1
+    economy:
+      enabled: false
+      cost: 100.0
+      show-cost: true
+      charge-message: true
+```
+
+| Key                        | Type    | Default | Description                                                                         |
+|----------------------------|---------|---------|-------------------------------------------------------------------------------------|
+| `transfer.enabled`         | Boolean | `false` | Enable item-to-item transfer.                                                       |
+| `transfer.allow-over-max`  | Boolean | `false` | Keep levels above the vanilla maximum instead of lowering them.                     |
+| `transfer.max-enchantments`| Integer | `16`    | Safety cap on enchantments moved per transfer (highest levels first).               |
+| `transfer.repair.*`        | -       | base 15 | Same keys as `grindstone.repair`; `reset` resets the repair cost of both items.     |
+| `transfer.economy.*`       | -       | off     | Same keys as `grindstone.economy`.                                                  |
+
+The material restriction (`disenchantment.materials`) is checked against the **source** item.
+
+---
+
+## Bedrock Fallback
+
+Geyser cannot show custom anvil results to Bedrock clients ([Geyser's list of limitations](https://geysermc.org/wiki/geyser/current-limitations)),
+so a Bedrock player puts an item and a book in the anvil and sees nothing. With this section enabled they use
+`/disenchantment anvil` (or `/disenchant anvil`) instead: a three-row chest menu, which Bedrock clients show correctly.
+It is **off by default** and Java players are not affected unless you allow them.
+
+| Key                              | Default                                | Description                                                                                           |
+|----------------------------------|----------------------------------------|-------------------------------------------------------------------------------------------------------|
+| `bedrock.fallback-enabled`       | `false`                                | Master switch for the command and the sneak-click trigger.                                            |
+| `bedrock.allow-java-players`     | `false`                                | `false`: only players detected as Bedrock players may open the menu. `true`: everybody may.           |
+| `bedrock.detect`                 | `FLOODGATE, GEYSER, UUID, PREFIX`      | How a Bedrock player is recognised. Tried in this order, the first hit wins.                          |
+| `bedrock.prefixes`               | `"."`, `"*"`                           | Name prefixes for the `PREFIX` method.                                                                |
+| `bedrock.open-on-sneak-click`    | `false`                                | A detected Bedrock player who sneaks and right-clicks an anvil gets the menu; a normal tap opens the vanilla anvil. |
+
+**Detection methods.** None of them needs Floodgate or Geyser at compile time; the plugin asks them by reflection when
+they are installed and silently skips a method that is not available.
+
+| Method      | How it decides                                                                                                                               |
+|-------------|----------------------------------------------------------------------------------------------------------------------------------------------|
+| `FLOODGATE` | `FloodgateApi.getInstance().isFloodgatePlayer(uuid)`, when Floodgate is installed on this server.                                              |
+| `GEYSER`    | `GeyserApi.api().isBedrockPlayer(uuid)`, for a standalone Geyser without Floodgate.                                                            |
+| `UUID`      | Floodgate-style UUID (the first 16 hex digits are zeros). Useful when Floodgate only runs on the proxy and not on this server.                 |
+| `PREFIX`    | The name starts with one of `bedrock.prefixes`. Java names cannot contain `.` or `*`, so this is safe in online mode; in offline mode anyone can pick such a name. |
+
+An unknown method name is skipped with a startup warning; an empty `detect` list turns detection off (then only
+`allow-java-players: true` lets anyone in). Values of the wrong type fall back to the defaults, see
+[Config validation](#config-validation).
+
+**What the menu does.** Layout: your item (left), a plain book or catalyst (second), the result preview, a mode label that
+detects the operation, Confirm and Cancel.
+
+- *Putting things in:* tapping an item in your own inventory moves **one** of it into the menu (a plain book or an erase
+  catalyst into the second slot, anything else into the first). Tapping an item in the menu gives it back. Tapping another
+  item for an occupied slot swaps them; the old one returns to you.
+- *Mode:* plain book + any enchanted item = disenchant; plain book + enchanted book = split the book; catalyst + item =
+  erase (only with `erase.enabled`).
+- *Confirm* runs exactly what the anvil does: the same enchantment collection, the same XP and economy cost, chances,
+  `Pre*`/`Post*` API events, cooldown, maintenance mode, permissions (`disenchantment.anvil.*`), world and material
+  restrictions, sounds and particles. The preview lines never reach the item you receive. Costs of 40 levels or more are
+  refused unless the operation's `bypass-too-expensive` is on, exactly like at the anvil.
+- *Nothing is lost:* closing the menu, Cancel, disconnecting, a kick, `/disenchantment reload` and plugin disable all hand the
+  items in the menu back; if your inventory is full they drop at your feet. A server crash while a menu is open loses
+  the items in it, as it does for any open container.
+- *Special anvils:* with `special-anvils.mode` other than `ALL` the command only opens while the player **looks at** a
+  special anvil within 5 blocks (not merely near one, so not through a wall), and only if a synthetic right-click on
+  that anvil is not cancelled, so WorldGuard, GriefPrevention and similar plugins decide whether the player may use it.
+  The anvil is remembered; every click re-checks that it is still a special anvil in the same world within 6 blocks,
+  otherwise the menu closes and the items come back. The sneak-click trigger uses the real click (and respects a
+  cancellation by an earlier plugin). In `ALL` mode the command works anywhere, acting like a virtual anvil: enabling
+  the fallback is an explicit decision to allow that.
+
+These keys are read every time they are used, so a change applies on the next command or tap; `/disenchantment reload` re-reads the file.
+
 ## Economy Integration
 
 Economy support is disabled by default and entirely optional.
@@ -526,6 +1001,10 @@ When enabled, Disenchantment hooks into Vault automatically on startup. The star
 | Shatter cost              | `shatterment.economy.cost`              | `100.0` |
 | Shatter action bar        | `shatterment.economy.show-cost`         | `true`  |
 | Shatter charge message    | `shatterment.economy.charge-message`    | `true`  |
+| Grindstone extract economy on/off | `grindstone.economy.enabled`    | `false` |
+| Grindstone extract cost           | `grindstone.economy.cost`       | `100.0` |
+| Grindstone transfer economy on/off| `grindstone.transfer.economy.enabled` | `false` |
+| Grindstone transfer cost          | `grindstone.transfer.economy.cost`    | `100.0` |
 
 See also [COMMANDS.md — Disenchant Economy](COMMANDS.md#disenchant-economy)
 and [COMMANDS.md — Shatter Economy](COMMANDS.md#shatter-economy) for commands that change these settings without editing

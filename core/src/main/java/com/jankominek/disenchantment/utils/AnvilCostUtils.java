@@ -93,7 +93,7 @@ public class AnvilCostUtils {
      *
      * @param enchantments   the enchantments involved in the operation
      * @param anvilEventType the type of anvil event (DISENCHANTMENT or SHATTERMENT)
-     * @return the calculated cost in experience levels, or 0 if cost is disabled
+     * @return the calculated cost in experience levels (never negative), or 0 if cost is disabled
      */
     public static int countAnvilCost(List<IPluginEnchantment> enchantments, AnvilEventType anvilEventType) {
         return countAnvilCost(enchantments, anvilEventType, null);
@@ -114,7 +114,12 @@ public class AnvilCostUtils {
         double baseMultiplier;
         Map<String, Integer> overrides;
         int maxCost;
-        String category = anvilEventType == AnvilEventType.DISENCHANTMENT ? "DISENCHANT" : "SHATTER";
+        String category = switch (anvilEventType) {
+            case DISENCHANTMENT -> "DISENCHANT";
+            case SHATTERMENT -> "SHATTER";
+            case ERASE -> "ERASE";
+            default -> "GRINDSTONE";
+        };
 
         switch (anvilEventType) {
             case DISENCHANTMENT:
@@ -139,6 +144,39 @@ public class AnvilCostUtils {
                 overrides = Config.Shatterment.Anvil.Repair.getEnchantmentCosts();
                 maxCost = Config.Shatterment.Anvil.Repair.getMaxCost();
                 break;
+            case ERASE:
+                if (!Config.Erase.Anvil.Repair.isCostEnabled()) {
+                    DiagnosticUtils.debug(category, "AnvilCost: XP cost disabled by config → 0");
+                    return 0;
+                }
+
+                totalCost = Config.Erase.Anvil.Repair.getBaseCost();
+                baseMultiplier = Config.Erase.Anvil.Repair.getCostMultiplier();
+                overrides = Config.Erase.Anvil.Repair.getEnchantmentCosts();
+                maxCost = Config.Erase.Anvil.Repair.getMaxCost();
+                break;
+            case GRINDSTONE_EXTRACT:
+                if (!Config.Grindstone.Repair.isCostEnabled()) {
+                    DiagnosticUtils.debug(category, "AnvilCost: XP cost disabled by config → 0");
+                    return 0;
+                }
+
+                totalCost = Config.Grindstone.Repair.getBaseCost();
+                baseMultiplier = Config.Grindstone.Repair.getCostMultiplier();
+                overrides = Config.Grindstone.Repair.getEnchantmentCosts();
+                maxCost = Config.Grindstone.Repair.getMaxCost();
+                break;
+            case GRINDSTONE_TRANSFER:
+                if (!Config.Grindstone.Transfer.Repair.isCostEnabled()) {
+                    DiagnosticUtils.debug(category, "AnvilCost: XP cost disabled by config → 0");
+                    return 0;
+                }
+
+                totalCost = Config.Grindstone.Transfer.Repair.getBaseCost();
+                baseMultiplier = Config.Grindstone.Transfer.Repair.getCostMultiplier();
+                overrides = Config.Grindstone.Transfer.Repair.getEnchantmentCosts();
+                maxCost = Config.Grindstone.Transfer.Repair.getMaxCost();
+                break;
             default:
                 return 0;
         }
@@ -153,7 +191,7 @@ public class AnvilCostUtils {
                 .toArray(IPluginEnchantment[]::new);
 
         for (IPluginEnchantment enchantment : sortedEnchantments) {
-            String key = enchantment.getKey() != null ? enchantment.getKey() : "";
+            String key = enchantment.getKey() != null ? enchantment.getKey().toLowerCase(java.util.Locale.ROOT) : "";
             String shortKey = key.contains(":") ? key.substring(key.indexOf(':') + 1) : key;
             if (overrides.containsKey(key) || overrides.containsKey(shortKey)) {
                 // fixed override cost — does not interact with the level*multiplier formula
@@ -182,6 +220,12 @@ public class AnvilCostUtils {
             }
         }
 
+        // A negative base/multiplier/override (or multiplier) must never pay the player levels.
+        if (result < 0) {
+            DiagnosticUtils.debug(category, "AnvilCost: negative cost " + result + " clamped to 0");
+            result = 0;
+        }
+
         DiagnosticUtils.debug(category, "AnvilCost: calculated=" + result + " XP levels");
         return result;
     }
@@ -195,16 +239,20 @@ public class AnvilCostUtils {
      * @param enchantments     the enchantments involved in the operation
      * @param flatCost         the configured flat economy cost (economy.cost)
      * @param economyOverrides map of enchantment key → per-enchantment economy cost override
-     * @return the total economy cost to charge
+     * @return the total economy cost to charge (never negative)
      */
     public static double economyCostForEnchantments(List<IPluginEnchantment> enchantments, double flatCost, Map<String, Double> economyOverrides) {
-        if (economyOverrides == null || economyOverrides.isEmpty()) return flatCost;
+        if (economyOverrides == null || economyOverrides.isEmpty()) return Math.max(0, flatCost);
+
+        // No enchantment to price (e.g. a Pre event listener emptied the list): the operation still
+        // runs, so charge the flat cost rather than letting it through for free.
+        if (enchantments == null || enchantments.isEmpty()) return Math.max(0, flatCost);
 
         double total = 0;
         boolean hasUnoverridden = false;
 
         for (IPluginEnchantment enchantment : enchantments) {
-            String key = enchantment.getKey() != null ? enchantment.getKey() : "";
+            String key = enchantment.getKey() != null ? enchantment.getKey().toLowerCase(java.util.Locale.ROOT) : "";
             String shortKey = key.contains(":") ? key.substring(key.indexOf(':') + 1) : key;
 
             if (economyOverrides.containsKey(key)) {
@@ -218,6 +266,7 @@ public class AnvilCostUtils {
 
         if (hasUnoverridden) total += flatCost;
 
-        return total;
+        // A negative flat cost or override must never pay the player money.
+        return Math.max(0, total);
     }
 }

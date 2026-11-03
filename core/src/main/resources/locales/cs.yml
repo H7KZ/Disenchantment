@@ -5,6 +5,8 @@ messages:
   invalid-argument: "&cNeplatný argument!&r"
   unknown-enchantment: "&cNeznámé očarování!&r"
   specify-enchantment-state: "&cProsím specifikujte stav očarování!&r"
+  specify-enchantment-chance: "&cZadejte očarování a šanci mezi 0.0 a 1.0&r"
+  enchantment-chance-is-set: "&aŠance pro {enchantment} nastavena na {chance}&r"
   enchantment-is-enabled: "&a{enchantment} &7je povoleno!&r"
   enchantment-is-kept: "&b{enchantment} &7je zachováno!&r"
   enchantment-is-deleted: "&e{enchantment} &7je smazáno!&r"
@@ -17,6 +19,7 @@ messages:
   specify-repair-value: "&cProsím zadejte hodnotu opravy!&r"
   specify-valid-integer: "&cProsím zadejte platné celé číslo!&r"
   specify-valid-double: "&cProsím zadejte platné desetinné číslo!&r"
+  specify-non-negative-double: "&cProsím zadejte číslo, které je nula nebo větší!&r"
   repair-cost-is-enabled: "&aCena opravy je povolena!&r"
   repair-cost-is-disabled: "&cCena opravy je zakázána!&r"
   repair-cost-reset-is-enabled: "&aReset ceny opravy je povolen!&r"
@@ -43,6 +46,63 @@ messages:
   economy-charged: "&7Byl vám strhnut poplatek &f{cost}&7.&r"
   economy-not-available: "&cEkonomika je povolena v konfiguraci, ale nebyl nalezen žádný ekonomický plugin. Prosím nainstalujte Vault a ekonomický plugin.&r"
   cooldown-active: "&cMusíte počkat &f{seconds}s &cpřed dalším použitím.&r"
+  maintenance-active: "&cDisenchantment je momentálně v údržbě. Zkuste to prosím později.&r"
+  maintenance-is-enabled: "&aRežim údržby je nyní &fzapnut&a.&r"
+  maintenance-is-disabled: "&aRežim údržby je nyní &fvypnut&a.&r"
+  config-reloaded: "&aKonfigurace byla znovu načtena.&r"
+  reload-failed: "&cconfig.yml obsahuje chybu a nebyl načten, aktuální nastavení zůstává beze změny: &f{error}&r"
+  economy-withdraw-failed: "&cPlatbu se nepodařilo zpracovat. Nebyl vám strhnut žádný poplatek.&r"
+  not-enough-levels: "&cK tomu potřebujete &f{levels} &cúrovní zkušeností.&r"
+  enchantments-failed-to-transfer: "&cPřenos kouzel se nezdařil. Místo toho jste obdrželi obyčejnou knihu.&r"
+  use-normal-click: "&cVýsledek vezměte běžným kliknutím levým nebo pravým tlačítkem.&r"
+  some-enchantments-may-not-transfer: "&7Některá kouzla se nemusí přenést&r"
+  preview-transfers: "&7Přenese: &f{enchantments}&r"
+  preview-cost-levels: "&7Cena: &f{levels} úrovní&r"
+  preview-cost-levels-money: "&7Cena: &f{levels} úrovní &7+ &f{money}&r"
+  preview-cost-money: "&7Cena: &f{money}&r"
+  special-anvil-required: "&7Toto funguje pouze na speciální kovadlině.&r"
+  give-anvil-usage: "&cPoužití: /disenchantment give anvil <hráč> [počet]&r"
+  give-player-not-found: "&cHráč {player} není online!&r"
+  give-amount-invalid: "&cPočet musí být celé číslo od 1 do {max}!&r"
+  give-anvil-given: "&aHráči &f{player} &abylo předáno &f{amount}x &aspeciální kovadlina.&r"
+  give-anvil-received: "&7Obdrželi jste &f{amount}x &7speciální kovadlina.&r"
+  grindstone-cost: "&7Cena: &f{levels} &7úrovní&r"
+  grindstone-cost-economy: "&7Cena: &f{levels} &7úrovní &8+ &f{cost}&r"
+  bedrock-unavailable: "&cBedrock kovadlina není na tomto serveru dostupná.&r"
+  bedrock-only: "&cBedrock kovadlina je dostupná pouze hráčům z Bedrocku.&r"
+  bedrock-players-only: "&cTento příkaz mohou použít pouze hráči.&r"
+  bedrock-title: "&7&lDisenchantment kovadlina&r"
+  bedrock-item-label: "&f&lPředmět&r"
+  bedrock-item-label-lore:
+    - "&7Klepněte na předmět ve svém inventáři,"
+    - "&7aby se sem vložil. Klepnutím zde jej vrátíte."
+  bedrock-second-label: "&f&lPrázdná kniha / katalyzátor&r"
+  bedrock-second-label-lore:
+    - "&7Klepněte na prázdnou knihu (odkouzlení, rozdělení)"
+    - "&7nebo katalyzátor (vymazání) ve svém inventáři."
+  bedrock-result-label: "&f&lVýsledek&r"
+  bedrock-result-empty:
+    - "&7Zatím není co zobrazit."
+  bedrock-mode-none: "&7Režim: &fžádný&r"
+  bedrock-mode-disenchant: "&7Režim: &fOdkouzlení&r"
+  bedrock-mode-shatter: "&7Režim: &fRozdělení knihy&r"
+  bedrock-mode-erase: "&7Režim: &fVymazání&r"
+  bedrock-status-waiting: "&7Vložte předmět a prázdnou knihu (nebo katalyzátor).&r"
+  bedrock-status-ready: "&aPřipraveno. Klepněte na Potvrdit.&r"
+  bedrock-status-nothing: "&cS těmito předměty nelze nic udělat.&r"
+  bedrock-status-disabled: "&cToto je zde zakázáno.&r"
+  bedrock-status-cooldown: "&cMáte aktivní cooldown.&r"
+  bedrock-status-permission: "&cTo nemáte povoleno.&r"
+  bedrock-status-expensive: "&cPříliš drahé!&r"
+  bedrock-status-special: "&cZůstaňte poblíž speciální kovadliny.&r"
+  bedrock-confirm: "&a&lPotvrdit&r"
+  bedrock-confirm-lore:
+    - "&7Klepnutím to provedete a zaplatíte cenu."
+  bedrock-cancel: "&c&lZrušit&r"
+  bedrock-cancel-lore:
+    - "&7Zavře okno a vrátí vám předměty."
+  bedrock-erases: "&7Vymaže: &f{enchantments}&r"
+  bedrock-items-dropped: "&7Váš inventář je plný, některé předměty byly upuštěny k vašim nohám.&r"
 
 states:
   enabled: "&aPovoleno&r"
@@ -63,6 +123,8 @@ commands:
       2:
         - "&8/disenchant status &7- Zobrazí stav pluginu"
         - "&8/disenchant toggle ['global', 'disenchantment', 'shatterment'] &7- Přepne plugin zapnuto/vypnuto"
+        - "&8/disenchant give anvil [hráč] [počet] &7- Předá hráči speciální kovadliny"
+        - "&8/disenchant anvil &7- Otevře kovadlinu v podobě menu pro hráče z Bedrocku (je-li zapnuta v configu)"
       3:
         - "&8/disenchant disenchant:enchantments &7- Zobrazí seznam stavů očarování"
         - "&8/disenchant disenchant:enchantments [enchantment name] ['enable', 'keep', 'delete', 'disable'] &7- Upraví chování očarování"
@@ -114,13 +176,21 @@ commands:
       title: "&7&lStavy očarování pro roztříštění&r"
       empty: "&7Žádná očarování nenalezena!&r"
       enchantment: "&7{enchantment}: {state}&r"
-  materials:
+  chances:
     disenchantment:
-      title: "&7&lMateriály pro odčarování&r"
-      empty: "&7Žádné materiály nenalezeny!&r"
-      material: "&7{material}: {state}&r"
-      states:
-        disabled: "&cZakázáno&r"
+      title: "&6Šance očarování pro odčarování:&r"
+      empty: "&7Nejsou nastaveny žádné vlastní šance.&r"
+      enchantment: "&7{enchantment}: &f{chance}&r"
+    shatterment:
+      title: "&6Šance očarování pro roztříštění:&r"
+      empty: "&7Nejsou nastaveny žádné vlastní šance.&r"
+      enchantment: "&7{enchantment}: &f{chance}&r"
+  materials:
+    title: "&7&lMateriály pro odčarování&r"
+    empty: "&7Žádné materiály nenalezeny!&r"
+    material: "&7{material}: {state}&r"
+    states:
+      disabled: "&cZakázáno&r"
   repair:
     disenchantment:
       title: "&7&lNastavení oprav pro odčarování&r"
@@ -237,6 +307,17 @@ gui:
       title: "&b&lStats&r"
       lore:
         - "&7View operation statistics"
+    economy:
+      title: "&6&lEkonomika&r"
+      lore:
+        - "&7Upravte nastavení ekonomiky"
+        - "&7LEVÝ KLIK pro úpravu odčarování"
+        - "&7PRAVÝ KLIK pro úpravu roztříštění"
+    split-count:
+      title: "&d&lPočet rozdělení&r"
+      lore:
+        - "&7Nastavte, kolik očarování se"
+        - "&7oddělí při jednom roztříštění"
   worlds:
     inventory: "&7&lSvěty&r"
     lore:
@@ -360,8 +441,12 @@ gui:
   materials:
     inventory: "&7&lMateriály&r"
     lore:
-      enabled: "&7Odčarování: &aPovoleno&r"
-      disabled: "&7Odčarování: &cZakázáno&r"
+      disenchantment:
+        enabled: "&7Odčarování: &aPovoleno&r"
+        disabled: "&7Odčarování: &cZakázáno&r"
+      shatterment:
+        enabled: "&7Roztříštění: &aPovoleno&r"
+        disabled: "&7Roztříštění: &cZakázáno&r"
     help:
       title: "&d&lNápověda&r"
       lore:
@@ -426,3 +511,100 @@ gui:
           - "&7PRAVÝ KLIK pro snížení"
   stats:
     inventory: "&7&lStatistics&r"
+  economy:
+    disenchantment:
+      inventory: "&7&lEkonomika | Odčarování&r"
+      enabled:
+        title: "&7&lEkonomika&r"
+        lore:
+          enabled:
+            - "&aPovoleno&r"
+            - "&7Klikněte pro zakázání&r"
+          disabled:
+            - "&cZakázáno&r"
+            - "&7Klikněte pro povolení&r"
+      cost:
+        title: "&7&lCena&r"
+        lore:
+          - "&7Aktuální hodnota: &f{cost}&r"
+          - "&7LEVÝ KLIK pro zvýšení"
+          - "&7PRAVÝ KLIK pro snížení"
+      show-cost:
+        title: "&7&lZobrazit cenu&r"
+        lore:
+          enabled:
+            - "&aPovoleno&r"
+            - "&7Klikněte pro zakázání&r"
+          disabled:
+            - "&cZakázáno&r"
+            - "&7Klikněte pro povolení&r"
+      charge-message:
+        title: "&7&lZpráva o poplatku&r"
+        lore:
+          enabled:
+            - "&aPovoleno&r"
+            - "&7Klikněte pro zakázání&r"
+          disabled:
+            - "&cZakázáno&r"
+            - "&7Klikněte pro povolení&r"
+    shatterment:
+      inventory: "&7&lEkonomika | Roztříštění&r"
+      enabled:
+        title: "&7&lEkonomika&r"
+        lore:
+          enabled:
+            - "&aPovoleno&r"
+            - "&7Klikněte pro zakázání&r"
+          disabled:
+            - "&cZakázáno&r"
+            - "&7Klikněte pro povolení&r"
+      cost:
+        title: "&7&lCena&r"
+        lore:
+          - "&7Aktuální hodnota: &f{cost}&r"
+          - "&7LEVÝ KLIK pro zvýšení"
+          - "&7PRAVÝ KLIK pro snížení"
+      show-cost:
+        title: "&7&lZobrazit cenu&r"
+        lore:
+          enabled:
+            - "&aPovoleno&r"
+            - "&7Klikněte pro zakázání&r"
+          disabled:
+            - "&cZakázáno&r"
+            - "&7Klikněte pro povolení&r"
+      charge-message:
+        title: "&7&lZpráva o poplatku&r"
+        lore:
+          enabled:
+            - "&aPovoleno&r"
+            - "&7Klikněte pro zakázání&r"
+          disabled:
+            - "&cZakázáno&r"
+            - "&7Klikněte pro povolení&r"
+  split-count:
+    inventory: "&7&lPočet rozdělení&r"
+    count:
+      title: "&7&lPočet rozdělení&r"
+      lore:
+        fixed:
+          - "&7Aktuální hodnota: &f{value}&r"
+          - "&7LEVÝ KLIK pro zvýšení"
+          - "&7PRAVÝ KLIK pro snížení"
+        min:
+          - "&7Minimum: &f{value}&r"
+          - "&7LEVÝ KLIK pro zvýšení"
+          - "&7PRAVÝ KLIK pro snížení"
+        max:
+          - "&7Maximum: &f{value}&r"
+          - "&7LEVÝ KLIK pro zvýšení"
+          - "&7PRAVÝ KLIK pro snížení"
+    mode:
+      title: "&7&lRežim&r"
+      lore:
+        fixed:
+          - "&7Aktuálně: &fPevný&r"
+          - "&7Klikněte pro přepnutí na Rozsah&r"
+        range:
+          - "&7Aktuálně: &fRozsah&r"
+          - "&7Klikněte pro přepnutí na Pevný&r"

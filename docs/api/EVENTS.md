@@ -2,9 +2,10 @@
 
 # API Events
 
-Disenchantment fires four public Bukkit events that other plugins can listen to. Two events are fired for the disenchant
+Disenchantment fires eight public Bukkit events that other plugins can listen to. Two events are fired for the disenchant
 operation (removing enchantments from gear onto a book) and two for the shatter operation (splitting a multi-enchantment
-book).
+book). Four more cover the opt-in grindstone features ([extract](#pregrindstoneextractevent) and
+[transfer](#pregrindstonetransferevent)).
 
 All events are in the package `com.jankominek.disenchantment.events.api`.
 
@@ -22,7 +23,7 @@ prevents the enchantments from being transferred and the XP cost from being appl
 |----------------------------|--------------------------------|-------------------------------------------------------|
 | `Player`                   | `getPlayer()`                  | The player who triggered the disenchant               |
 | `ItemStack`                | `getSourceItem()`              | The enchanted item placed in the anvil's first slot   |
-| `List<IPluginEnchantment>` | `getEnchantments()`            | The enchantments that will be transferred to the book |
+| `List<IPluginEnchantment>` | `getEnchantments()`            | The enchantments that will be transferred to the book (plus any `delete`-state enchantments that will be destroyed on the source; remove one from the list to veto its deletion) |
 | `boolean`                  | `isCancelled()`                | Whether the event has been cancelled                  |
 | `void`                     | `setCancelled(boolean cancel)` | Cancel or un-cancel the event                         |
 
@@ -120,7 +121,7 @@ enchantment off a multi-enchantment book onto a blank book. Cancelling this even
 |----------------------------|--------------------------------|-----------------------------------------------------|
 | `Player`                   | `getPlayer()`                  | The player who triggered the shatter                |
 | `ItemStack`                | `getSourceItem()`              | The enchanted book placed in the anvil's first slot |
-| `List<IPluginEnchantment>` | `getEnchantments()`            | The enchantments present on the source book         |
+| `List<IPluginEnchantment>` | `getEnchantments()`            | The enchantments being split off onto the result book — the randomly chosen subset, **not** every enchantment on the source book (plus any `delete`-state enchantments that will be destroyed on the source; remove one from the list to veto its deletion) |
 | `boolean`                  | `isCancelled()`                | Whether the event has been cancelled                |
 | `void`                     | `setCancelled(boolean cancel)` | Cancel or un-cancel the event                       |
 
@@ -198,6 +199,112 @@ public class MyListener implements Listener {
 
 ---
 
+## PreEraseEvent
+
+**Package:** `com.jankominek.disenchantment.events.api`
+**Cancellable:** Yes **When it fires:** When a player takes the result of an erase operation (item + catalyst in the
+anvil, see [CONFIG.md - Erase Mode](../user/CONFIG.md#erase-mode)), after the permission and XP checks pass but before
+money is charged and before anything is removed from the anvil. Cancelling leaves the anvil, the player's XP and money
+untouched.
+
+### Methods
+
+| Return type                | Method              | Description                                                                                       |
+|----------------------------|---------------------|---------------------------------------------------------------------------------------------------|
+| `Player`                   | `getPlayer()`       | The player performing the erase                                                                   |
+| `ItemStack`                | `getSourceItem()`   | Snapshot of the enchanted item in anvil slot 0                                                    |
+| `List<IPluginEnchantment>` | `getEnchantments()` | The enchantments about to be erased. Removing entries keeps them on the item and lowers the cost. |
+| `ItemStack`                | `getCatalyst()`     | Snapshot of the catalyst stack in anvil slot 1                                                    |
+| `boolean`                  | `isCancelled()`     | Whether the erase has been cancelled                                                              |
+
+### Code Example
+
+```java
+@EventHandler
+public void onPreErase(PreEraseEvent event) {
+    // Example: protect items with a custom "soulbound" tag from being erased
+    if (SoulboundAPI.isSoulbound(event.getSourceItem())) {
+        event.setCancelled(true);
+    }
+
+## PreGrindstoneExtractEvent
+
+**Package:** `com.jankominek.disenchantment.events.api`
+**Cancellable:** Yes **When it fires:** On the result click of a grindstone extraction (enchanted item + plain book),
+after the XP check and **before** the economy charge or any change to the grindstone.
+
+| Return type                | Method              | Description                                                                         |
+|----------------------------|---------------------|-------------------------------------------------------------------------------------|
+| `Player`                   | `getPlayer()`       | The player                                                                          |
+| `ItemStack`                | `getSourceItem()`   | Snapshot of the enchanted item in the top slot                                      |
+| `List<IPluginEnchantment>` | `getEnchantments()` | Enchantments about to move (plus `DELETE`-state ones that will be destroyed). Remove entries to veto them: a vetoed enchantment stays on the item and is not put on the book |
+
+Cancelling leaves the grindstone, XP and economy untouched.
+
+## PostGrindstoneExtractEvent
+
+**Cancellable:** No **When it fires:** After the extraction completed.
+
+| Return type | Method                    | Description                                              |
+|-------------|---------------------------|----------------------------------------------------------|
+| `Player`    | `getPlayer()`             | The player                                               |
+| `ItemStack` | `getResultBook()`         | Snapshot of the book given to the player (a plain `BOOK` if every chance roll failed) |
+| `ItemStack` | `getModifiedSourceItem()` | Snapshot of the item after the enchantments were removed |
+| `int`       | `getXpCost()`             | Levels charged (0 in Creative)                           |
+| `double`    | `getEconomyCost()`        | Money charged (0.0 if economy is off or Creative)        |
+
+## PreGrindstoneTransferEvent
+
+**Cancellable:** Yes **When it fires:** On the result click of a grindstone item-to-item transfer, after the XP check and
+before the economy charge or any change.
+
+| Return type                | Method              | Description                                                                          |
+|----------------------------|---------------------|--------------------------------------------------------------------------------------|
+| `Player`                   | `getPlayer()`       | The player                                                                           |
+| `ItemStack`                | `getSourceItem()`   | Snapshot of the enchanted item in the top slot                                       |
+| `ItemStack`                | `getTargetItem()`   | Snapshot of the item in the bottom slot                                              |
+| `List<IPluginEnchantment>` | `getEnchantments()` | Enchantments about to move, with the level they get on the target. Remove entries to veto them |
+
+## PostGrindstoneTransferEvent
+
+**Cancellable:** No **When it fires:** After the transfer completed.
+
+| Return type                | Method                    | Description                                                    |
+|----------------------------|---------------------------|----------------------------------------------------------------|
+| `Player`                   | `getPlayer()`             | The player                                                     |
+| `ItemStack`                | `getResultItem()`         | Snapshot of the enriched target item given to the player       |
+| `ItemStack`                | `getModifiedSourceItem()` | Snapshot of the source after the moved enchantments were removed |
+| `List<IPluginEnchantment>` | `getEnchantments()`       | The enchantments that moved                                    |
+| `int`                      | `getXpCost()`             | Levels charged (0 in Creative)                                 |
+| `double`                   | `getEconomyCost()`        | Money charged (0.0 if economy is off or Creative)              |
+
+```java
+@EventHandler
+public void onPreTransfer(PreGrindstoneTransferEvent event) {
+    // Example: never let mending leave the item
+    event.getEnchantments().removeIf(e -> e.getKey().equals("mending"));
+}
+```
+
+---
+
+## PostEraseEvent
+
+**Package:** `com.jankominek.disenchantment.events.api`
+**Cancellable:** No **When it fires:** After an erase has completed: the item (without the erased enchantments) is on
+the player's cursor, the catalyst is consumed and the cost charged.
+
+### Methods
+
+| Return type                | Method              | Description                                         |
+|----------------------------|---------------------|-----------------------------------------------------|
+| `Player`                   | `getPlayer()`       | The player who performed the erase                  |
+| `ItemStack`                | `getResultItem()`   | Snapshot of the item the player received            |
+| `List<IPluginEnchantment>` | `getErased()`       | The enchantments that were erased                   |
+| `int`                      | `getXpCost()`       | XP levels deducted (`0` in creative mode)           |
+| `double`                   | `getEconomyCost()`  | Money charged (`0.0` if economy is off or creative) |
+
+---
 ## IPluginEnchantment
 
 **Package:** `com.jankominek.disenchantment.plugins`
