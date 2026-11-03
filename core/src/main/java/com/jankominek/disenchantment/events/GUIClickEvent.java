@@ -66,7 +66,8 @@ public class GUIClickEvent implements Listener {
                 || holder instanceof EnchantmentsGUI
                 || holder instanceof EconomyGUI
                 || holder instanceof SplitCountGUI
-                || holder instanceof StatsGUI;
+                || holder instanceof StatsGUI
+                || holder instanceof BedrockAnvilGUI;
     }
 
     private void handler(InventoryClickEvent e) {
@@ -77,6 +78,13 @@ public class GUIClickEvent implements Listener {
         if (e.getClickedInventory() == null) return;
 
         if (!(e.getWhoClicked() instanceof Player p)) return;
+
+        // The Bedrock anvil menu works with clicks in the player's own inventory too (tapping an item puts it in),
+        // so it gets the event whichever half of the window was clicked.
+        if (e.getInventory().getHolder() instanceof BedrockAnvilGUI bedrockAnvilGUI) {
+            bedrockAnvilGUI.onInventoryClick(e);
+            return;
+        }
 
         InventoryHolder clickedHolder = e.getClickedInventory().getHolder();
 

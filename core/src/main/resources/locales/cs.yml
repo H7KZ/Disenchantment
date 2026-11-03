@@ -66,6 +66,41 @@ messages:
   give-anvil-received: "&7Obdrželi jste &f{amount}x &7speciální kovadlina.&r"
   grindstone-cost: "&7Cena: &f{levels} &7úrovní&r"
   grindstone-cost-economy: "&7Cena: &f{levels} &7úrovní &8+ &f{cost}&r"
+  bedrock-unavailable: "&cBedrock kovadlina není na tomto serveru dostupná.&r"
+  bedrock-only: "&cBedrock kovadlina je dostupná pouze hráčům z Bedrocku.&r"
+  bedrock-players-only: "&cTento příkaz mohou použít pouze hráči.&r"
+  bedrock-title: "&7&lDisenchantment kovadlina&r"
+  bedrock-item-label: "&f&lPředmět&r"
+  bedrock-item-label-lore:
+    - "&7Klepněte na předmět ve svém inventáři,"
+    - "&7aby se sem vložil. Klepnutím zde jej vrátíte."
+  bedrock-second-label: "&f&lPrázdná kniha / katalyzátor&r"
+  bedrock-second-label-lore:
+    - "&7Klepněte na prázdnou knihu (odkouzlení, rozdělení)"
+    - "&7nebo katalyzátor (vymazání) ve svém inventáři."
+  bedrock-result-label: "&f&lVýsledek&r"
+  bedrock-result-empty:
+    - "&7Zatím není co zobrazit."
+  bedrock-mode-none: "&7Režim: &fžádný&r"
+  bedrock-mode-disenchant: "&7Režim: &fOdkouzlení&r"
+  bedrock-mode-shatter: "&7Režim: &fRozdělení knihy&r"
+  bedrock-mode-erase: "&7Režim: &fVymazání&r"
+  bedrock-status-waiting: "&7Vložte předmět a prázdnou knihu (nebo katalyzátor).&r"
+  bedrock-status-ready: "&aPřipraveno. Klepněte na Potvrdit.&r"
+  bedrock-status-nothing: "&cS těmito předměty nelze nic udělat.&r"
+  bedrock-status-disabled: "&cToto je zde zakázáno.&r"
+  bedrock-status-cooldown: "&cMáte aktivní cooldown.&r"
+  bedrock-status-permission: "&cTo nemáte povoleno.&r"
+  bedrock-status-expensive: "&cPříliš drahé!&r"
+  bedrock-status-special: "&cZůstaňte poblíž speciální kovadliny.&r"
+  bedrock-confirm: "&a&lPotvrdit&r"
+  bedrock-confirm-lore:
+    - "&7Klepnutím to provedete a zaplatíte cenu."
+  bedrock-cancel: "&c&lZrušit&r"
+  bedrock-cancel-lore:
+    - "&7Zavře okno a vrátí vám předměty."
+  bedrock-erases: "&7Vymaže: &f{enchantments}&r"
+  bedrock-items-dropped: "&7Váš inventář je plný, některé předměty byly upuštěny k vašim nohám.&r"
 
 states:
   enabled: "&aPovoleno&r"
@@ -87,6 +122,7 @@ commands:
         - "&8/disenchant status &7- Zobrazí stav pluginu"
         - "&8/disenchant toggle ['global', 'disenchantment', 'shatterment'] &7- Přepne plugin zapnuto/vypnuto"
         - "&8/disenchant give anvil [hráč] [počet] &7- Předá hráči speciální kovadliny"
+        - "&8/disenchant anvil &7- Otevře kovadlinu v podobě menu pro hráče z Bedrocku (je-li zapnuta v configu)"
       3:
         - "&8/disenchant disenchant:enchantments &7- Zobrazí seznam stavů očarování"
         - "&8/disenchant disenchant:enchantments [enchantment name] ['enable', 'keep', 'delete', 'disable'] &7- Upraví chování očarování"

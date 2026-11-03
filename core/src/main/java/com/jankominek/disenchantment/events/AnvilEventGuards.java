@@ -244,11 +244,28 @@ public final class AnvilEventGuards {
         if (location == null || location.getWorld() == null || !SpecialAnvilStore.isAnvilMaterial(location.getBlock().getType()))
             return Config.SpecialAnvils.isAllowVirtualAnvils();
 
-        Block block = location.getBlock();
+        return isSpecialBlock(location.getBlock(), mode);
+    }
 
+    private static boolean isSpecialBlock(Block block, SpecialAnvilMode mode) {
         if (mode == SpecialAnvilMode.MARKED) return SpecialAnvilStore.isMarked(block);
 
         return block.getRelative(BlockFace.DOWN).getType() == Config.SpecialAnvils.getBlockBelow();
+    }
+
+    /**
+     * Returns whether {@code block} is an anvil that may perform plugin operations under the configured
+     * {@code special-anvils.mode}. Used where there is a world block but no anvil inventory (the Bedrock
+     * sneak-click trigger).
+     *
+     * @param block the clicked block
+     * @return {@code true} if it is an anvil that counts as special ({@code ALL}: any anvil)
+     */
+    public static boolean isSpecialAnvilBlock(Block block) {
+        if (block == null || !SpecialAnvilStore.isAnvilMaterial(block.getType())) return false;
+
+        SpecialAnvilMode mode = Config.SpecialAnvils.getMode();
+        return mode == SpecialAnvilMode.ALL || isSpecialBlock(block, mode);
     }
 
     /**
@@ -467,6 +484,19 @@ public final class AnvilEventGuards {
 
     // ponytail: ConcurrentHashMap for Folia region-thread safety
     private static final Map<UUID, Integer> bypassCostCache = new ConcurrentHashMap<>();
+
+    /**
+     * Returns whether vanilla would show "Too Expensive!" for an operation of this cost: the cost is at or above
+     * 40 and {@code bypass-too-expensive} is off for the operation. Surfaces without the vanilla screen (the
+     * Bedrock chest menu) apply the same limit so they cannot be used to get around it.
+     *
+     * @param eventType the operation
+     * @param cost      the XP levels it would cost
+     * @return {@code true} if the operation must be refused as too expensive
+     */
+    public static boolean isTooExpensive(AnvilEventType eventType, int cost) {
+        return cost >= VANILLA_TOO_EXPENSIVE_THRESHOLD && !isBypassEnabled(eventType);
+    }
 
     private static boolean isBypassEnabled(AnvilEventType eventType) {
         return switch (eventType) {

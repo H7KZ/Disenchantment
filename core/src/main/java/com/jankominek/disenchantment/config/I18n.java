@@ -662,6 +662,218 @@ public class I18n {
                             .replace("{cost}", cost)
             );
         }
+
+        // ------------------------------------------------------------------------------------------
+        // Bedrock fallback
+
+        /**
+         * Returns the localized Bedrock anvil text {@code unavailable}.
+         */
+        public static String bedrockUnavailable() {
+            return I18n.translateColors(localeConfig.getString(I18nKeys.MESSAGES_BEDROCK_UNAVAILABLE.getKey(), "&cThe Bedrock anvil is not available on this server.&r"));
+        }
+
+        /**
+         * Returns the localized Bedrock anvil text {@code only}.
+         */
+        public static String bedrockOnly() {
+            return I18n.translateColors(localeConfig.getString(I18nKeys.MESSAGES_BEDROCK_ONLY.getKey(), "&cThe Bedrock anvil is only available to Bedrock players.&r"));
+        }
+
+        /**
+         * Returns the localized Bedrock anvil text {@code players-only}.
+         */
+        public static String bedrockPlayersOnly() {
+            return I18n.translateColors(localeConfig.getString(I18nKeys.MESSAGES_BEDROCK_PLAYERS_ONLY.getKey(), "&cOnly players can use this command.&r"));
+        }
+
+        /**
+         * Returns the localized Bedrock anvil text {@code title}.
+         */
+        public static String bedrockTitle() {
+            return I18n.translateColors(localeConfig.getString(I18nKeys.MESSAGES_BEDROCK_TITLE.getKey(), "&7&lDisenchantment anvil&r"));
+        }
+
+        /**
+         * Returns the localized Bedrock anvil text {@code item-label}.
+         */
+        public static String bedrockItemLabel() {
+            return I18n.translateColors(localeConfig.getString(I18nKeys.MESSAGES_BEDROCK_ITEM_LABEL.getKey(), "&f&lItem&r"));
+        }
+
+        /**
+         * Returns the localized lines of the Bedrock anvil text {@code item-label-lore}.
+         */
+        public static List<String> bedrockItemLabelLore() {
+            List<String> lines = localeConfig.getStringList(I18nKeys.MESSAGES_BEDROCK_ITEM_LABEL_LORE.getKey());
+            if (lines.isEmpty()) lines = List.of("&7Tap an item in your inventory", "&7to put it here. Tap here to take it back.");
+            return lines.stream().map(I18n::translateColors).toList();
+        }
+
+        /**
+         * Returns the localized Bedrock anvil text {@code second-label}.
+         */
+        public static String bedrockSecondLabel() {
+            return I18n.translateColors(localeConfig.getString(I18nKeys.MESSAGES_BEDROCK_SECOND_LABEL.getKey(), "&f&lBlank book / catalyst&r"));
+        }
+
+        /**
+         * Returns the localized lines of the Bedrock anvil text {@code second-label-lore}.
+         */
+        public static List<String> bedrockSecondLabelLore() {
+            List<String> lines = localeConfig.getStringList(I18nKeys.MESSAGES_BEDROCK_SECOND_LABEL_LORE.getKey());
+            if (lines.isEmpty()) lines = List.of("&7Tap a plain book (disenchant, split)", "&7or a catalyst (erase) in your inventory.");
+            return lines.stream().map(I18n::translateColors).toList();
+        }
+
+        /**
+         * Returns the localized Bedrock anvil text {@code result-label}.
+         */
+        public static String bedrockResultLabel() {
+            return I18n.translateColors(localeConfig.getString(I18nKeys.MESSAGES_BEDROCK_RESULT_LABEL.getKey(), "&f&lResult&r"));
+        }
+
+        /**
+         * Returns the localized lines of the Bedrock anvil text {@code result-empty}.
+         */
+        public static List<String> bedrockResultEmpty() {
+            List<String> lines = localeConfig.getStringList(I18nKeys.MESSAGES_BEDROCK_RESULT_EMPTY.getKey());
+            if (lines.isEmpty()) lines = List.of("&7Nothing to preview yet.");
+            return lines.stream().map(I18n::translateColors).toList();
+        }
+
+        /**
+         * Returns the localized Bedrock anvil text {@code mode-none}.
+         */
+        public static String bedrockModeNone() {
+            return I18n.translateColors(localeConfig.getString(I18nKeys.MESSAGES_BEDROCK_MODE_NONE.getKey(), "&7Mode: &fnone&r"));
+        }
+
+        /**
+         * Returns the localized Bedrock anvil text {@code mode-disenchant}.
+         */
+        public static String bedrockModeDisenchant() {
+            return I18n.translateColors(localeConfig.getString(I18nKeys.MESSAGES_BEDROCK_MODE_DISENCHANT.getKey(), "&7Mode: &fDisenchant&r"));
+        }
+
+        /**
+         * Returns the localized Bedrock anvil text {@code mode-shatter}.
+         */
+        public static String bedrockModeShatter() {
+            return I18n.translateColors(localeConfig.getString(I18nKeys.MESSAGES_BEDROCK_MODE_SHATTER.getKey(), "&7Mode: &fSplit book&r"));
+        }
+
+        /**
+         * Returns the localized Bedrock anvil text {@code mode-erase}.
+         */
+        public static String bedrockModeErase() {
+            return I18n.translateColors(localeConfig.getString(I18nKeys.MESSAGES_BEDROCK_MODE_ERASE.getKey(), "&7Mode: &fErase&r"));
+        }
+
+        /**
+         * Returns the localized Bedrock anvil text {@code status-waiting}.
+         */
+        public static String bedrockStatusWaiting() {
+            return I18n.translateColors(localeConfig.getString(I18nKeys.MESSAGES_BEDROCK_STATUS_WAITING.getKey(), "&7Put an item and a blank book (or a catalyst) in.&r"));
+        }
+
+        /**
+         * Returns the localized Bedrock anvil text {@code status-ready}.
+         */
+        public static String bedrockStatusReady() {
+            return I18n.translateColors(localeConfig.getString(I18nKeys.MESSAGES_BEDROCK_STATUS_READY.getKey(), "&aReady. Tap Confirm.&r"));
+        }
+
+        /**
+         * Returns the localized Bedrock anvil text {@code status-nothing}.
+         */
+        public static String bedrockStatusNothing() {
+            return I18n.translateColors(localeConfig.getString(I18nKeys.MESSAGES_BEDROCK_STATUS_NOTHING.getKey(), "&cNothing can be done with these items.&r"));
+        }
+
+        /**
+         * Returns the localized Bedrock anvil text {@code status-disabled}.
+         */
+        public static String bedrockStatusDisabled() {
+            return I18n.translateColors(localeConfig.getString(I18nKeys.MESSAGES_BEDROCK_STATUS_DISABLED.getKey(), "&cThis is disabled here.&r"));
+        }
+
+        /**
+         * Returns the localized Bedrock anvil text {@code status-cooldown}.
+         */
+        public static String bedrockStatusCooldown() {
+            return I18n.translateColors(localeConfig.getString(I18nKeys.MESSAGES_BEDROCK_STATUS_COOLDOWN.getKey(), "&cYou are on cooldown.&r"));
+        }
+
+        /**
+         * Returns the localized Bedrock anvil text {@code status-permission}.
+         */
+        public static String bedrockStatusPermission() {
+            return I18n.translateColors(localeConfig.getString(I18nKeys.MESSAGES_BEDROCK_STATUS_PERMISSION.getKey(), "&cYou may not do this.&r"));
+        }
+
+        /**
+         * Returns the localized Bedrock anvil text {@code status-expensive}.
+         */
+        public static String bedrockStatusExpensive() {
+            return I18n.translateColors(localeConfig.getString(I18nKeys.MESSAGES_BEDROCK_STATUS_EXPENSIVE.getKey(), "&cToo expensive!&r"));
+        }
+
+        /**
+         * Returns the localized Bedrock anvil text {@code status-special}.
+         */
+        public static String bedrockStatusSpecial() {
+            return I18n.translateColors(localeConfig.getString(I18nKeys.MESSAGES_BEDROCK_STATUS_SPECIAL.getKey(), "&cStay close to a special anvil.&r"));
+        }
+
+        /**
+         * Returns the localized Bedrock anvil text {@code confirm}.
+         */
+        public static String bedrockConfirm() {
+            return I18n.translateColors(localeConfig.getString(I18nKeys.MESSAGES_BEDROCK_CONFIRM.getKey(), "&a&lConfirm&r"));
+        }
+
+        /**
+         * Returns the localized lines of the Bedrock anvil text {@code confirm-lore}.
+         */
+        public static List<String> bedrockConfirmLore() {
+            List<String> lines = localeConfig.getStringList(I18nKeys.MESSAGES_BEDROCK_CONFIRM_LORE.getKey());
+            if (lines.isEmpty()) lines = List.of("&7Tap to do it and pay the cost.");
+            return lines.stream().map(I18n::translateColors).toList();
+        }
+
+        /**
+         * Returns the localized Bedrock anvil text {@code cancel}.
+         */
+        public static String bedrockCancel() {
+            return I18n.translateColors(localeConfig.getString(I18nKeys.MESSAGES_BEDROCK_CANCEL.getKey(), "&c&lCancel&r"));
+        }
+
+        /**
+         * Returns the localized lines of the Bedrock anvil text {@code cancel-lore}.
+         */
+        public static List<String> bedrockCancelLore() {
+            List<String> lines = localeConfig.getStringList(I18nKeys.MESSAGES_BEDROCK_CANCEL_LORE.getKey());
+            if (lines.isEmpty()) lines = List.of("&7Close and take your items back.");
+            return lines.stream().map(I18n::translateColors).toList();
+        }
+
+        /**
+         * Returns the localized Bedrock anvil text {@code erases}.
+         *
+         * @param enchantments the value substituted for {enchantments}
+         */
+        public static String bedrockErases(String enchantments) {
+            return I18n.translateColors(localeConfig.getString(I18nKeys.MESSAGES_BEDROCK_ERASES.getKey(), "&7Erases: &f{enchantments}&r")
+                    .replace("{enchantments}", enchantments));
+        }
+
+        /**
+         * Returns the localized Bedrock anvil text {@code items-dropped}.
+         */
+        public static String bedrockItemsDropped() {
+            return I18n.translateColors(localeConfig.getString(I18nKeys.MESSAGES_BEDROCK_ITEMS_DROPPED.getKey(), "&7Your inventory is full, some items were dropped at your feet.&r"));
+        }
     }
 
     /**

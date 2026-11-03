@@ -54,13 +54,18 @@ The cooldown, maintenance mode, world/material bypass permissions and cost disco
 
 ## Commands
 
-These permissions control access to `/disenchantment` commands. All default to `op`.
+These permissions control access to `/disenchantment` commands. All default to `op`, except
+`disenchantment.command.anvil` (`true`): the Bedrock menu has to be reachable by ordinary players, so the plugin checks
+`disenchantment.command.use` itself for every other subcommand instead of in `plugin.yml`.
+Operations done through the menu need the usual anvil permissions (`disenchantment.anvil.disenchant`,
+`.shatter`, `.erase`).
 
 ### General
 
 | Permission                          | Description                                                | Default |
 |-------------------------------------|------------------------------------------------------------|---------|
-| `disenchantment.command.use`        | Access to the base `/disenchantment` command (shows help). | `op`    |
+| `disenchantment.command.use`        | Access to the base `/disenchantment` command (shows help). Required for every subcommand except `anvil`. | `op`    |
+| `disenchantment.command.anvil`      | Access to `/disenchantment anvil`, the Bedrock chest-menu anvil. Works only with `bedrock.fallback-enabled`. | `true`  |
 | `disenchantment.command.all`        | Access to every command.                                   | `op`    |
 | `disenchantment.command.help`       | Access to the help command.                                | `op`    |
 | `disenchantment.command.gui`        | Access to the GUI command.                                 | `op`    |

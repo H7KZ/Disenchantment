@@ -357,6 +357,44 @@ XP, funds, Pre cancel) return before any mutation, so they can neither lose nor 
 
 ---
 
+## Shared settlement (`AnvilOperations`)
+
+`events/AnvilOperations.java` is the single place that settles a disenchant, shatter or erase. The three click
+handlers do their entry-specific checks (result slot, special anvil, maintenance, unsafe click, pending, cooldown, XP,
+permission) and then call `AnvilOperations.settle(kind, p, first, second, result, enchantments, repairCost, effects, applier)`,
+which runs, in this order and for every entry point: `Pre*` event (cancel -> `CANCELLED`), economy (`charge`: refusals
+message the player and return `CANCELLED`), `clearBypassCost`, the delivered item (disenchant/shatter: strip the source,
+per-enchantment chance rolls, level restore #76, plain-book fallback, `PreviewLore.strip`; erase: `EraseUtils.buildResult`),
+the **`Applier`** (the only caller-specific part: write the slots and hand over the result), the XP charge, the cooldown,
+the `Post*` event, sound and particles. `Outcome(status, delivered, newFirst, xpCost, economyCost)` reports the result;
+`DONE`, `CANCELLED` (anvil handlers cancel the click), `IGNORED`.
+
+`AnvilOperations.Kind` (`DISENCHANT`, `SHATTER`, `ERASE`) also owns the per-operation bindings that used to be duplicated in
+each handler: the `EconomyConfig`, enabled/world checks, permission group, cost type; and `collect`, `buildBook`,
+`economyCost`, `decrement`, `consumeCatalyst`. The Prepare handlers use the same `collect`/`buildBook`/`economyCost`.
+
+## Bedrock menu flow
+
+`events/BedrockOperation.java` (stateless; the menu in `guis/impl/BedrockAnvilGUI.java` owns the items).
+
+- `evaluate(p, first, second, specialAnvilReady)` -> `Plan(kind, status, enchantments, result, xpCost, economyCost)`:
+  `detectKind` (plain book + enchanted book = shatter, plain book + other = disenchant, erase catalyst = erase), then
+  plugin/feature/world, special anvil (`specialAnvilReady`, = `BedrockAnvilGUI.specialAnvilHolds()`: the remembered anvil block), maintenance,
+  cooldown (quiet), permission, `AnvilOperations.collect(..., true)`, the shatter subset through
+  `ShatterEvent.selectForInputs` (same per-player cache as the anvil preview, so the previewed subset is the confirmed
+  one), result, cost and `AnvilEventGuards.isTooExpensive` (40+ levels without `bypass-too-expensive`; not in creative).
+- `confirm(p, first, second, specialAnvilReady, applier)`: `evaluate`, then maintenance -> cooldown (messages) -> XP
+  (`refuseNotEnoughXp`) -> permission, `collect(..., false)`, and `AnvilOperations.settle` with `effects = null` (particles
+  at the player). The second item is consumed through the `Applier` (`decrement`, or `consumeCatalyst` for erase).
+- Stats, API events and PlaceholderAPI need nothing extra: they hang off the `Pre*`/`Post*` events `settle` fires.
+
+`listeners/BedrockListener.java`: close and quit hooks (return the inputs), and the opt-in sneak-click trigger
+(`PlayerInteractEvent` at HIGHEST with `ignoreCancelled`, so an earlier protection veto wins: `RIGHT_CLICK_BLOCK`, main hand, sneaking, anvil block, detected Bedrock player,
+`disenchantment.command.anvil`, the clicked anvil is special; then the event is cancelled and `tryOpen` runs).
+`utils/BedrockUtils.java` is the detector (Floodgate/Geyser by reflection, UUID heuristic, name prefix; never throws).
+
+---
+
 ## Feedback hooks
 
 - **Refusals.** `FeedbackUtils.refuse(p, message)` = debounced message (one per player per second, shared by all reasons)
@@ -498,6 +536,7 @@ are then routed to the correct screen by checking `e.getClickedInventory().getHo
 | `MaterialsGUI`    | `materialsGUI.onInventoryClick(e)`    | `GUI_MATERIALS`                                                  |
 | `EnchantmentsGUI` | `enchantmentsGUI.onInventoryClick(e)` | `GUI_ENCHANTMENTS`                                               |
 | `EconomyGUI`      | `economyGUI.onInventoryClick(e)`      | `GUI_DISENCHANT_ECONOMY` or `GUI_SHATTER_ECONOMY`                |
+| `BedrockAnvilGUI` | `gui.onInventoryClick(e)` for a click in **either** half of the window (top holder check, before the clicked-holder switch) | none here; operation permissions are checked when confirming |
 
 Each GUI class implements `InventoryHolder` so Bukkit associates the inventory with it.
 

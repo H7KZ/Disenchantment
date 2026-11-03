@@ -207,6 +207,17 @@ grindstone:
       cost: 100.0
       show-cost: true
       charge-message: true
+
+# ─────────────────────────────────────────────────────────────────────────────
+
+# Bedrock fallback: "/disenchantment anvil" opens a chest menu that disenchants, splits books and erases for
+# clients (Geyser/Bedrock) that cannot see custom anvil results.
+bedrock:
+  fallback-enabled: false
+  allow-java-players: false
+  detect: [ FLOODGATE, GEYSER, UUID, PREFIX ]
+  prefixes: [ ".", "*" ]
+  open-on-sneak-click: false
 ```
 
 ---
@@ -232,6 +243,7 @@ grindstone:
 - [Grindstone Settings](#grindstone-settings)
     - [Extract](#grindstone-extract)
     - [Transfer](#grindstone-transfer)
+- [Bedrock Fallback](#bedrock-fallback)
 - [Economy Integration](#economy-integration)
 
 ---
@@ -900,6 +912,60 @@ grindstone:
 The material restriction (`disenchantment.materials`) is checked against the **source** item.
 
 ---
+
+## Bedrock Fallback
+
+Geyser cannot show custom anvil results to Bedrock clients ([Geyser's list of limitations](https://geysermc.org/wiki/geyser/current-limitations)),
+so a Bedrock player puts an item and a book in the anvil and sees nothing. With this section enabled they use
+`/disenchantment anvil` (or `/disenchant anvil`) instead: a three-row chest menu, which Bedrock clients show correctly.
+It is **off by default** and Java players are not affected unless you allow them.
+
+| Key                              | Default                                | Description                                                                                           |
+|----------------------------------|----------------------------------------|-------------------------------------------------------------------------------------------------------|
+| `bedrock.fallback-enabled`       | `false`                                | Master switch for the command and the sneak-click trigger.                                            |
+| `bedrock.allow-java-players`     | `false`                                | `false`: only players detected as Bedrock players may open the menu. `true`: everybody may.           |
+| `bedrock.detect`                 | `FLOODGATE, GEYSER, UUID, PREFIX`      | How a Bedrock player is recognised. Tried in this order, the first hit wins.                          |
+| `bedrock.prefixes`               | `"."`, `"*"`                           | Name prefixes for the `PREFIX` method.                                                                |
+| `bedrock.open-on-sneak-click`    | `false`                                | A detected Bedrock player who sneaks and right-clicks an anvil gets the menu; a normal tap opens the vanilla anvil. |
+
+**Detection methods.** None of them needs Floodgate or Geyser at compile time; the plugin asks them by reflection when
+they are installed and silently skips a method that is not available.
+
+| Method      | How it decides                                                                                                                               |
+|-------------|----------------------------------------------------------------------------------------------------------------------------------------------|
+| `FLOODGATE` | `FloodgateApi.getInstance().isFloodgatePlayer(uuid)`, when Floodgate is installed on this server.                                              |
+| `GEYSER`    | `GeyserApi.api().isBedrockPlayer(uuid)`, for a standalone Geyser without Floodgate.                                                            |
+| `UUID`      | Floodgate-style UUID (the first 16 hex digits are zeros). Useful when Floodgate only runs on the proxy and not on this server.                 |
+| `PREFIX`    | The name starts with one of `bedrock.prefixes`. Java names cannot contain `.` or `*`, so this is safe in online mode; in offline mode anyone can pick such a name. |
+
+An unknown method name is skipped with a startup warning; an empty `detect` list turns detection off (then only
+`allow-java-players: true` lets anyone in). Values of the wrong type fall back to the defaults, see
+[Config validation](#config-validation).
+
+**What the menu does.** Layout: your item (left), a plain book or catalyst (second), the result preview, a mode label that
+detects the operation, Confirm and Cancel.
+
+- *Putting things in:* tapping an item in your own inventory moves **one** of it into the menu (a plain book or an erase
+  catalyst into the second slot, anything else into the first). Tapping an item in the menu gives it back. Tapping another
+  item for an occupied slot swaps them; the old one returns to you.
+- *Mode:* plain book + any enchanted item = disenchant; plain book + enchanted book = split the book; catalyst + item =
+  erase (only with `erase.enabled`).
+- *Confirm* runs exactly what the anvil does: the same enchantment collection, the same XP and economy cost, chances,
+  `Pre*`/`Post*` API events, cooldown, maintenance mode, permissions (`disenchantment.anvil.*`), world and material
+  restrictions, sounds and particles. The preview lines never reach the item you receive. Costs of 40 levels or more are
+  refused unless the operation's `bypass-too-expensive` is on, exactly like at the anvil.
+- *Nothing is lost:* closing the menu, Cancel, disconnecting, a kick, `/disenchantment reload` and plugin disable all hand the
+  items in the menu back; if your inventory is full they drop at your feet. A server crash while a menu is open loses
+  the items in it, as it does for any open container.
+- *Special anvils:* with `special-anvils.mode` other than `ALL` the command only opens while the player **looks at** a
+  special anvil within 5 blocks (not merely near one, so not through a wall), and only if a synthetic right-click on
+  that anvil is not cancelled, so WorldGuard, GriefPrevention and similar plugins decide whether the player may use it.
+  The anvil is remembered; every click re-checks that it is still a special anvil in the same world within 6 blocks,
+  otherwise the menu closes and the items come back. The sneak-click trigger uses the real click (and respects a
+  cancellation by an earlier plugin). In `ALL` mode the command works anywhere, acting like a virtual anvil: enabling
+  the fallback is an explicit decision to allow that.
+
+These keys are read every time they are used, so a change applies on the next command or tap; `/disenchantment reload` re-reads the file.
 
 ## Economy Integration
 

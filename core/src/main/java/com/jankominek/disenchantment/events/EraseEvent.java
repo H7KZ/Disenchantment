@@ -36,28 +36,6 @@ public class EraseEvent {
         }
     }
 
-    private static final AnvilEventGuards.EconomyConfig ECONOMY_CONFIG = new AnvilEventGuards.EconomyConfig() {
-        @Override
-        public boolean isEnabled() {
-            return Config.Erase.Economy.isEnabled();
-        }
-
-        @Override
-        public double getCost() {
-            return Config.Erase.Economy.getCost();
-        }
-
-        @Override
-        public boolean isChargeMessageEnabled() {
-            return Config.Erase.Economy.isChargeMessageEnabled();
-        }
-
-        @Override
-        public boolean isShowCostEnabled() {
-            return Config.Erase.Economy.isShowCostEnabled();
-        }
-    };
-
     private static void handler(Event event) {
         if (!(event instanceof PrepareAnvilEvent e)) return;
 
@@ -80,11 +58,7 @@ public class EraseEvent {
         DiagnosticUtils.debug("ERASE", () -> "PrepareAnvil: slot0=" + (firstItem != null ? firstItem.getType() : "null")
                 + ", slot1=" + (secondItem != null ? secondItem.getType() : "null"));
 
-        List<IPluginEnchantment> pluginEnchantments = AnvilEventGuards.collectEnchantments(
-                firstItem, secondItem, true,
-                EraseUtils::getErasableEnchantments,
-                EraseUtils::getErasableEnchantments,
-                p.getWorld(), p);
+        List<IPluginEnchantment> pluginEnchantments = AnvilOperations.collect(AnvilOperations.Kind.ERASE, p, firstItem, secondItem, true);
 
         if (pluginEnchantments.isEmpty()) {
             DiagnosticUtils.debug("ERASE", "PrepareAnvil: no erasable enchantments → exit");
@@ -136,9 +110,8 @@ public class EraseEvent {
                 + ", show-cost=" + Config.Erase.Economy.isShowCostEnabled()
                 + ", gameMode=" + p.getGameMode());
 
-        double economyCost = AnvilCostUtils.economyCostForEnchantments(
-                pluginEnchantments, Config.Erase.Economy.getCost(), Config.Erase.Anvil.Repair.getEnchantmentEconomyCosts());
+        double economyCost = AnvilOperations.economyCost(AnvilOperations.Kind.ERASE, pluginEnchantments);
 
-        AnvilEventGuards.showEconomyActionBarCost(p, ECONOMY_CONFIG, economyCost);
+        AnvilEventGuards.showEconomyActionBarCost(p, AnvilOperations.Kind.ERASE.economy(), economyCost);
     }
 }

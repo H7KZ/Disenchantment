@@ -63,6 +63,7 @@ public enum PermissionType {
 
     ANVIL_SPECIAL("disenchantment.anvil.special"),
     COMMAND_GIVE("disenchantment.command.give"),
+    COMMAND_ANVIL("disenchantment.command.anvil"),
     GRINDSTONE_ALL("disenchantment.grindstone.all"),
     GRINDSTONE_EXTRACT("disenchantment.grindstone.extract"),
     GRINDSTONE_TRANSFER("disenchantment.grindstone.transfer"),

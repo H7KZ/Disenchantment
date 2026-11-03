@@ -2,22 +2,19 @@ package com.jankominek.disenchantment.events;
 
 import com.jankominek.disenchantment.config.Config;
 import com.jankominek.disenchantment.config.I18n;
-import com.jankominek.disenchantment.events.api.PostEraseEvent;
-import com.jankominek.disenchantment.events.api.PreEraseEvent;
 import com.jankominek.disenchantment.plugins.IPluginEnchantment;
 import com.jankominek.disenchantment.types.PermissionGroupType;
-import com.jankominek.disenchantment.utils.*;
-import org.bukkit.GameMode;
-import org.bukkit.Sound;
+import com.jankominek.disenchantment.utils.AnvilCostUtils;
+import com.jankominek.disenchantment.utils.DiagnosticUtils;
+import com.jankominek.disenchantment.utils.EraseUtils;
+import com.jankominek.disenchantment.utils.FeedbackUtils;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.AnvilInventory;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Handles the {@link InventoryClickEvent} when a player clicks the result slot of an anvil during an
@@ -46,23 +43,6 @@ public class EraseClickEvent {
         }
     }
 
-    private static final AnvilEventGuards.EconomyConfig ECONOMY_CONFIG = new AnvilEventGuards.EconomyConfig() {
-        @Override
-        public boolean isEnabled() {
-            return Config.Erase.Economy.isEnabled();
-        }
-
-        @Override
-        public double getCost() {
-            return Config.Erase.Economy.getCost();
-        }
-
-        @Override
-        public boolean isChargeMessageEnabled() {
-            return Config.Erase.Economy.isChargeMessageEnabled();
-        }
-    };
-
     private static void handler(Event event) {
         if (!(event instanceof InventoryClickEvent e)) return;
 
@@ -84,11 +64,7 @@ public class EraseClickEvent {
         if (firstItem == null) return;
         if (secondItem == null) return;
 
-        List<IPluginEnchantment> enchantments = AnvilEventGuards.collectEnchantments(
-                firstItem, secondItem, false,
-                EraseUtils::getErasableEnchantments,
-                EraseUtils::getErasableEnchantments,
-                p.getWorld(), p);
+        List<IPluginEnchantment> enchantments = AnvilOperations.collect(AnvilOperations.Kind.ERASE, p, firstItem, secondItem, false);
 
         if (enchantments.isEmpty()) {
             DiagnosticUtils.debug("ERASE", "Click: no erasable enchantments → exit");
@@ -162,102 +138,27 @@ public class EraseClickEvent {
             return;
         }
 
-        PreEraseEvent preEvent = new PreEraseEvent(p, firstItem.clone(), new ArrayList<>(enchantments), secondItem.clone());
-        org.bukkit.Bukkit.getPluginManager().callEvent(preEvent);
-        if (preEvent.isCancelled()) {
+        // Manual-result pattern: cancel and write the slots and the cursor synchronously. Everything from the
+        // Pre event on (economy, XP, the delivered item, cooldown, Post event, sound, particles) is shared
+        // with the Bedrock GUI; only the slot writes below are specific to the anvil.
+        AnvilOperations.Outcome outcome = AnvilOperations.settle(AnvilOperations.Kind.ERASE, p, firstItem, secondItem, result,
+                enchantments, repairCost, anvilInventory, (newFirst, delivered) -> {
+                    e.setCancelled(true);
+
+                    anvilInventory.setItem(0, null);
+                    anvilInventory.setItem(1, AnvilOperations.consumeCatalyst(secondItem));
+                    anvilInventory.setItem(2, null);
+
+                    p.setItemOnCursor(delivered);
+                });
+
+        if (outcome.status() == AnvilOperations.Status.CANCELLED) {
             e.setCancelled(true);
             return;
         }
-
-        List<IPluginEnchantment> erased = new ArrayList<>(preEvent.getEnchantments());
-        if (erased.isEmpty()) {
-            DiagnosticUtils.debug("ERASE", "Click: listeners removed every enchantment → CANCELLED");
-            e.setCancelled(true);
-            return;
-        }
-
-        // Economy check — runs after PreEraseEvent so cancellation doesn't charge the player
-        DiagnosticUtils.debug("ERASE", () -> "Click: economy check — enabled=" + Config.Erase.Economy.isEnabled() + ", gameMode=" + p.getGameMode());
-        double economyCost = AnvilCostUtils.economyCostForEnchantments(
-                erased, Config.Erase.Economy.getCost(), Config.Erase.Anvil.Repair.getEnchantmentEconomyCosts());
-        AnvilEventGuards.EconomyResult economyResult = AnvilEventGuards.processEconomyCost(p, ECONOMY_CONFIG, economyCost);
-        if (economyResult == AnvilEventGuards.EconomyResult.NOT_AVAILABLE) {
-            DiagnosticUtils.debug("ERASE", "Click: economy not available → CANCELLED");
-            FeedbackUtils.refuse(p, I18n.Messages.economyNotAvailable());
-            e.setCancelled(true);
-            return;
-        }
-        if (economyResult == AnvilEventGuards.EconomyResult.INSUFFICIENT_FUNDS) {
-            DiagnosticUtils.debug("ERASE", "Click: insufficient funds → CANCELLED");
-            FeedbackUtils.refuse(p, I18n.Messages.economyInsufficientFunds(EconomyUtils.format(economyCost)));
-            e.setCancelled(true);
-            return;
-        }
-        if (economyResult == AnvilEventGuards.EconomyResult.WITHDRAW_FAILED) {
-            DiagnosticUtils.debug("ERASE", "Click: economy withdrawal failed → CANCELLED");
-            FeedbackUtils.refuse(p, I18n.Messages.economyWithdrawFailed());
-            e.setCancelled(true);
-            return;
-        }
-
-        AnvilEventGuards.clearBypassCost(p);
-
-        int exp = p.getLevel() - repairCost;
-        DiagnosticUtils.debug("ERASE", () -> "Click: xp → " + p.getLevel() + " - " + repairCost + " = " + exp);
-
-        // ----------------------------------------------------------------------------------------------------
-        // Manual result: nothing below may return before the whole mutation is done.
-
-        // Rebuilt from the live source item instead of trusting the result slot, so the delivered item is
-        // exactly the source minus what the listeners agreed to erase.
-        ItemStack delivered = EraseUtils.buildResult(firstItem, erased);
-        if (Config.Erase.Anvil.Repair.isResetEnabled()) AnvilCostUtils.setItemRepairCost(delivered, 0);
-
-        e.setCancelled(true);
-
-        anvilInventory.setItem(0, null);
-        anvilInventory.setItem(1, consumeCatalyst(secondItem));
-        anvilInventory.setItem(2, null);
-
-        p.setItemOnCursor(delivered);
-
-        boolean creative = p.getGameMode() == GameMode.CREATIVE;
-        if (!creative) p.setLevel(exp);
-
-        int xpCost = creative ? 0 : repairCost;
-        double finalEconomyCost = (Config.Erase.Economy.isEnabled() && !creative) ? economyCost : 0.0;
-        AnvilEventGuards.recordCooldownOperation(p);
-        org.bukkit.Bukkit.getPluginManager().callEvent(new PostEraseEvent(p, delivered.clone(), List.copyOf(erased), xpCost, finalEconomyCost));
-
-        if (Config.Erase.Anvil.Sound.isEnabled())
-            p.playSound(
-                    p.getLocation(),
-                    Sound.BLOCK_ANVIL_USE,
-                    Config.Erase.Anvil.Sound.getVolume().floatValue(),
-                    Config.Erase.Anvil.Sound.getPitch().floatValue()
-            );
-
-        ParticleUtils.playErase(p, anvilInventory);
 
         p.updateInventory();
 
-        if (DiagnosticUtils.isDebugEnabled()) {
-            String names = erased.stream().map(ench -> ench.getKey() + ":" + ench.getLevel()).collect(Collectors.joining(", "));
-            DiagnosticUtils.debug("ERASE", "Click: erased=[" + names + "]");
-        }
         DiagnosticUtils.debug("ERASE", "Click: complete ✓");
-    }
-
-    /**
-     * Returns what slot 1 holds after one catalyst was used: one fewer, or {@code null} when it was the
-     * last. The stack is returned unchanged when {@code erase.consume-catalyst} is off.
-     */
-    private static ItemStack consumeCatalyst(ItemStack catalyst) {
-        if (!Config.Erase.isConsumeCatalyst()) return catalyst;
-        if (catalyst.getAmount() <= 1) return null;
-
-        ItemStack remaining = catalyst.clone();
-        remaining.setAmount(catalyst.getAmount() - 1);
-        return remaining;
     }
 }

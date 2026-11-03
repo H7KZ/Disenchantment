@@ -278,3 +278,23 @@ grindstone:
       cost: 100.0
       show-cost: true
       charge-message: true
+
+# ----------------------------------------------------------------------------------------
+
+# Bedrock fallback. Geyser cannot show custom anvil results to Bedrock clients, so disenchanting, splitting
+# books and erasing do not work in the real anvil for them. With this enabled, "/disenchantment anvil" (or
+# "/disenchant anvil") opens a chest menu that does the same: tap an item in your inventory to put it in, tap
+# "Confirm" to do it. Java players are not affected unless allow-java-players is true.
+# With special-anvils.mode other than ALL the player must look at a special anvil within 5 blocks that they may use
+# (claim/region plugins are asked). In ALL mode the command works anywhere, like a virtual anvil.
+bedrock:
+  fallback-enabled: false
+  # false = only players detected as Bedrock players (see detect) may open the menu.
+  allow-java-players: false
+  # Tried in this order, the first hit wins. FLOODGATE and GEYSER ask the plugin API if it is installed.
+  # UUID: Floodgate-style UUID (starts with 16 zeros), useful when Floodgate only runs on the proxy.
+  # PREFIX: the player name starts with one of the prefixes below.
+  detect: [ FLOODGATE, GEYSER, UUID, PREFIX ]
+  prefixes: [ ".", "*" ]
+  # A Bedrock player who sneaks and right-clicks an anvil gets the menu; a normal tap opens the vanilla anvil.
+  open-on-sneak-click: false

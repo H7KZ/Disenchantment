@@ -2,15 +2,12 @@ package com.jankominek.disenchantment.events;
 
 import com.jankominek.disenchantment.config.Config;
 import com.jankominek.disenchantment.config.I18n;
-import com.jankominek.disenchantment.events.api.PostShatterEvent;
-import com.jankominek.disenchantment.events.api.PreShatterEvent;
 import com.jankominek.disenchantment.plugins.IPluginEnchantment;
-import com.jankominek.disenchantment.plugins.ISupportedPlugin;
-import com.jankominek.disenchantment.plugins.SupportedPluginManager;
 import com.jankominek.disenchantment.types.PermissionGroupType;
-import com.jankominek.disenchantment.utils.*;
+import com.jankominek.disenchantment.utils.AnvilCostUtils;
+import com.jankominek.disenchantment.utils.DiagnosticUtils;
+import com.jankominek.disenchantment.utils.FeedbackUtils;
 import org.bukkit.Material;
-import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -18,10 +15,7 @@ import org.bukkit.inventory.AnvilInventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -45,23 +39,6 @@ public class ShatterClickEvent {
         }
     }
 
-    private static final AnvilEventGuards.EconomyConfig ECONOMY_CONFIG = new AnvilEventGuards.EconomyConfig() {
-        @Override
-        public boolean isEnabled() {
-            return Config.Shatterment.Economy.isEnabled();
-        }
-
-        @Override
-        public double getCost() {
-            return Config.Shatterment.Economy.getCost();
-        }
-
-        @Override
-        public boolean isChargeMessageEnabled() {
-            return Config.Shatterment.Economy.isChargeMessageEnabled();
-        }
-    };
-
     private static void handler(Event event) {
         if (!(event instanceof InventoryClickEvent e)) return;
 
@@ -84,13 +61,7 @@ public class ShatterClickEvent {
         if (firstItem == null) return;
         if (secondItem == null) return;
 
-        List<ISupportedPlugin> activatedPlugins = SupportedPluginManager.getAllActivatedPlugins();
-
-        List<IPluginEnchantment> enchantments = AnvilEventGuards.collectEnchantments(
-                firstItem, secondItem, false,
-                EventUtils.Shatterment::getShattermentEnchantments,
-                EventUtils.Shatterment::getShattermentEnchantments,
-                p.getWorld(), p);
+        List<IPluginEnchantment> enchantments = AnvilOperations.collect(AnvilOperations.Kind.SHATTER, p, firstItem, secondItem, false);
 
         if (enchantments.isEmpty()) {
             DiagnosticUtils.debug("SHATTER", "Click: no eligible enchantments → exit");
@@ -170,167 +141,21 @@ public class ShatterClickEvent {
             return;
         }
 
-        // Every abortable precondition must be checked BEFORE the player is charged — nothing below the
-        // economy step may return without delivering the result.
-        EnchantmentStorageMeta resultItemMeta = (EnchantmentStorageMeta) result.getItemMeta();
+        // Everything from the Pre event on (economy, XP, the delivered book, cooldown, Post event, sound,
+        // particles) is shared with the Bedrock GUI; only the slot writes below are specific to the anvil.
+        if (!(result.getItemMeta() instanceof EnchantmentStorageMeta)) return;
 
-        if (resultItemMeta == null) return;
+        AnvilOperations.Outcome outcome = AnvilOperations.settle(AnvilOperations.Kind.SHATTER, p, firstItem, secondItem, result,
+                enchantments, repairCost, anvilInventory, (newFirst, delivered) -> {
+                    anvilInventory.setItem(0, newFirst);
+                    AnvilEventGuards.scheduleSecondItemRemoval(p, anvilInventory, secondItem, e);
+                    p.setItemOnCursor(delivered);
+                });
 
-        // The enchantments that really end up on the result book. The click-time collection above is
-        // wider (it also holds DELETE-state enchantments, and for shatter every split candidate, not
-        // just the randomly chosen subset), so the charge — like the Prepare cost display — must be
-        // based on this set, not on the full collection.
-        List<IPluginEnchantment> transferred = EventUtils.findTransferredEnchantments(enchantments, result, activatedPlugins, p.getWorld());
-        List<IPluginEnchantment> destroyed = EventUtils.Shatterment.findEnchantmentsToDelete(enchantments);
-
-        // Listeners see what is transferred plus what a DELETE state destroys on the source; removing
-        // a DELETE entry still vetoes its removal.
-        List<IPluginEnchantment> preEnchantments = new ArrayList<>();
-        for (IPluginEnchantment enchantment : enchantments) {
-            if (transferred.contains(enchantment) || destroyed.contains(enchantment)) preEnchantments.add(enchantment);
-        }
-
-        PreShatterEvent preEvent = new PreShatterEvent(p, firstItem.clone(), preEnchantments);
-        org.bukkit.Bukkit.getPluginManager().callEvent(preEvent);
-        if (preEvent.isCancelled()) {
+        if (outcome.status() == AnvilOperations.Status.CANCELLED) {
             e.setCancelled(true);
             return;
         }
-
-        // Economy check — runs after PreShatterEvent so cancellation doesn't charge the player
-        DiagnosticUtils.debug("SHATTER", () -> "Click: economy check — enabled=" + Config.Shatterment.Economy.isEnabled() + ", gameMode=" + p.getGameMode());
-        double economyCost = AnvilCostUtils.economyCostForEnchantments(
-                EventUtils.retainByKey(preEvent.getEnchantments(), transferred), Config.Shatterment.Economy.getCost(), Config.Shatterment.Anvil.Repair.getEnchantmentEconomyCosts());
-        AnvilEventGuards.EconomyResult economyResult = AnvilEventGuards.processEconomyCost(p, ECONOMY_CONFIG, economyCost);
-        if (economyResult == AnvilEventGuards.EconomyResult.NOT_AVAILABLE) {
-            DiagnosticUtils.debug("SHATTER", "Click: economy not available → CANCELLED");
-            FeedbackUtils.refuse(p, I18n.Messages.economyNotAvailable());
-            e.setCancelled(true);
-            return;
-        }
-        if (economyResult == AnvilEventGuards.EconomyResult.INSUFFICIENT_FUNDS) {
-            DiagnosticUtils.debug("SHATTER", "Click: insufficient funds → CANCELLED");
-            FeedbackUtils.refuse(p, I18n.Messages.economyInsufficientFunds(EconomyUtils.format(economyCost)));
-            e.setCancelled(true);
-            return;
-        }
-        if (economyResult == AnvilEventGuards.EconomyResult.WITHDRAW_FAILED) {
-            DiagnosticUtils.debug("SHATTER", "Click: economy withdrawal failed → CANCELLED");
-            FeedbackUtils.refuse(p, I18n.Messages.economyWithdrawFailed());
-            e.setCancelled(true);
-            return;
-        }
-
-        AnvilEventGuards.clearBypassCost(p);
-
-        int exp = p.getLevel() - repairCost;
-        DiagnosticUtils.debug("SHATTER", () -> "Click: xp → " + p.getLevel() + " - " + repairCost + " = " + exp);
-
-        // ----------------------------------------------------------------------------------------------------
-        // Shatterment plugins
-
-        ItemStack finalFirstItem = firstItem.clone();
-        List<IPluginEnchantment> enchantmentsToDelete = EventUtils.Shatterment.findEnchantmentsToDelete(preEvent.getEnchantments());
-
-        // Always remove the vanilla/Bukkit enchantments recorded on the result book from the
-        // source book — this must NOT depend on whether a custom enchantment plugin is active.
-        // A namespace-scoped adapter (e.g. Vane) reports no vanilla enchantments, so gating this
-        // on "no plugins active" left the split enchantment on the source book — a dupe (issue #73).
-        finalFirstItem = EnchantmentUtils.removeEnchantments(finalFirstItem, resultItemMeta.getStoredEnchants());
-
-        // Additionally let each active adapter strip its own (e.g. vane:*) enchantments, which are
-        // not part of the book's vanilla stored-enchant set.
-        for (ISupportedPlugin activatedPlugin : activatedPlugins) {
-            List<IPluginEnchantment> pluginEnchantments = activatedPlugin.getItemEnchantments(result, p.getWorld());
-
-            for (IPluginEnchantment enchantment : pluginEnchantments) {
-                // Use removeFromBook since firstItem is always an ENCHANTED_BOOK in shatterment
-                finalFirstItem = enchantment.removeFromBook(finalFirstItem);
-            }
-        }
-
-        for (IPluginEnchantment enchantment : enchantmentsToDelete) {
-            // Use removeFromBook since firstItem is always an ENCHANTED_BOOK in shatterment
-            finalFirstItem = enchantment.removeFromBook(finalFirstItem);
-        }
-
-        // Shatterment plugins
-        // ----------------------------------------------------------------------------------------------------
-
-        if (Config.Shatterment.Anvil.Repair.isResetEnabled()) AnvilCostUtils.setItemRepairCost(finalFirstItem, 0);
-
-        anvilInventory.setItem(0, finalFirstItem);
-        AnvilEventGuards.scheduleSecondItemRemoval(p, anvilInventory, secondItem, e);
-
-        if (p.getGameMode() != org.bukkit.GameMode.CREATIVE) p.setLevel(exp);
-
-        // Per-enchantment chance roll — failed enchantments are destroyed (already stripped from
-        // the source book above via the full stored-enchant set) rather than transferred to the result.
-        //
-        // In the same pass, restore each surviving enchantment's raw source level. The book pulled
-        // from the anvil result slot may have had above-vanilla-max levels clamped down during the
-        // PrepareAnvilEvent → result-slot round-trip (e.g. Unbreaking 4 → 3, issue #76). We re-stamp
-        // from the freshly collected source levels via addStoredEnchant(..., true) and deliver the
-        // book straight to the cursor, so the restored level is not clamped again.
-        boolean allTransfersFailed = false;
-        if (resultItemMeta != null) {
-            Map<String, Integer> sourceLevels = new HashMap<>();
-            for (IPluginEnchantment ench : enchantments) sourceLevels.put(EventUtils.normalizeKey(ench.getKey()).toLowerCase(), ench.getLevel());
-
-            Map<org.bukkit.enchantments.Enchantment, Integer> stored = new HashMap<>(resultItemMeta.getStoredEnchants());
-            boolean metaChanged = false;
-            for (Map.Entry<org.bukkit.enchantments.Enchantment, Integer> entry : stored.entrySet()) {
-                org.bukkit.enchantments.Enchantment enchantment = entry.getKey();
-
-                double chance = Config.Shatterment.getEnchantmentChance(enchantment.getKey().getKey());
-                if (chance < 1.0 && Math.random() >= chance) {
-                    resultItemMeta.removeStoredEnchant(enchantment);
-                    metaChanged = true;
-                    continue;
-                }
-
-                Integer rawLevel = sourceLevels.get(EventUtils.normalizeKey(enchantment.getKey().getKey()).toLowerCase());
-                if (rawLevel != null && !rawLevel.equals(entry.getValue())) {
-                    resultItemMeta.addStoredEnchant(enchantment, rawLevel, true);
-                    metaChanged = true;
-                }
-            }
-            if (metaChanged) result.setItemMeta(resultItemMeta);
-
-            // Every roll failed: an empty enchanted book would be a useless, confusing reward. Hand
-            // back a plain book instead (unless an adapter enchantment still made it onto the book).
-            allTransfersFailed = !stored.isEmpty() && resultItemMeta.getStoredEnchants().isEmpty()
-                    && activatedPlugins.stream().allMatch(plugin -> plugin.getItemEnchantments(result, p.getWorld()).isEmpty());
-        }
-
-        // Past every abort: drop the preview lines (and the chance warning) that Prepare added, in place so
-        // the result slot cannot hand a second, still-annotated copy to vanilla's own pick-up.
-        PreviewLore.strip(result);
-
-        ItemStack delivered = result;
-        if (allTransfersFailed) {
-            delivered = new ItemStack(Material.BOOK);
-            p.sendMessage(I18n.getPrefix() + " " + I18n.Messages.enchantmentsFailedToTransfer());
-            DiagnosticUtils.debug("SHATTER", "Click: every enchantment failed its chance roll → plain book delivered");
-        }
-
-        p.setItemOnCursor(delivered);
-        boolean creative = p.getGameMode() == org.bukkit.GameMode.CREATIVE;
-        int xpCost = creative ? 0 : repairCost;
-        double finalEconomyCost = (Config.Shatterment.Economy.isEnabled() && !creative) ? economyCost : 0.0;
-        AnvilEventGuards.recordCooldownOperation(p);
-        ShatterEvent.clearSelection(p);
-        org.bukkit.Bukkit.getPluginManager().callEvent(new PostShatterEvent(p, delivered.clone(), finalFirstItem.clone(), xpCost, finalEconomyCost));
-
-        if (Config.Shatterment.Anvil.Sound.isEnabled())
-            p.playSound(
-                    p.getLocation(),
-                    Sound.BLOCK_ANVIL_USE,
-                    Config.Shatterment.Anvil.Sound.getVolume().floatValue(),
-                    Config.Shatterment.Anvil.Sound.getPitch().floatValue()
-            );
-
-        ParticleUtils.playSuccess(p, anvilInventory);
 
         DiagnosticUtils.debug("SHATTER", "Click: complete ✓");
     }

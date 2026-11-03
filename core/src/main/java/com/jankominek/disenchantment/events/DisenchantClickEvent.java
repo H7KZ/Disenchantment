@@ -2,15 +2,12 @@ package com.jankominek.disenchantment.events;
 
 import com.jankominek.disenchantment.config.Config;
 import com.jankominek.disenchantment.config.I18n;
-import com.jankominek.disenchantment.events.api.PostDisenchantEvent;
-import com.jankominek.disenchantment.events.api.PreDisenchantEvent;
 import com.jankominek.disenchantment.plugins.IPluginEnchantment;
-import com.jankominek.disenchantment.plugins.ISupportedPlugin;
-import com.jankominek.disenchantment.plugins.SupportedPluginManager;
 import com.jankominek.disenchantment.types.PermissionGroupType;
-import com.jankominek.disenchantment.utils.*;
+import com.jankominek.disenchantment.utils.AnvilCostUtils;
+import com.jankominek.disenchantment.utils.DiagnosticUtils;
+import com.jankominek.disenchantment.utils.FeedbackUtils;
 import org.bukkit.Material;
-import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -18,10 +15,7 @@ import org.bukkit.inventory.AnvilInventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -44,23 +38,6 @@ public class DisenchantClickEvent {
             DiagnosticUtils.throwReport(e);
         }
     }
-
-    private static final AnvilEventGuards.EconomyConfig ECONOMY_CONFIG = new AnvilEventGuards.EconomyConfig() {
-        @Override
-        public boolean isEnabled() {
-            return Config.Disenchantment.Economy.isEnabled();
-        }
-
-        @Override
-        public double getCost() {
-            return Config.Disenchantment.Economy.getCost();
-        }
-
-        @Override
-        public boolean isChargeMessageEnabled() {
-            return Config.Disenchantment.Economy.isChargeMessageEnabled();
-        }
-    };
 
     private static void handler(Event event) {
         if (!(event instanceof InventoryClickEvent e)) return;
@@ -85,13 +62,7 @@ public class DisenchantClickEvent {
         if (firstItem == null) return;
         if (secondItem == null) return;
 
-        List<ISupportedPlugin> activatedPlugins = SupportedPluginManager.getAllActivatedPlugins();
-
-        List<IPluginEnchantment> enchantments = AnvilEventGuards.collectEnchantments(
-                firstItem, secondItem, false,
-                EventUtils.Disenchantment::getDisenchantedEnchantments,
-                EventUtils.Disenchantment::getDisenchantedEnchantments,
-                p.getWorld(), p);
+        List<IPluginEnchantment> enchantments = AnvilOperations.collect(AnvilOperations.Kind.DISENCHANT, p, firstItem, secondItem, false);
 
         if (enchantments.isEmpty()) {
             DiagnosticUtils.debug("DISENCHANT", "Click: no eligible enchantments → exit");
@@ -171,165 +142,21 @@ public class DisenchantClickEvent {
             return;
         }
 
-        // Every abortable precondition must be checked BEFORE the player is charged — nothing below the
-        // economy step may return without delivering the result.
-        EnchantmentStorageMeta resultItemMeta = (EnchantmentStorageMeta) result.getItemMeta();
+        // Everything from the Pre event on (economy, XP, the delivered book, cooldown, Post event, sound,
+        // particles) is shared with the Bedrock GUI; only the slot writes below are specific to the anvil.
+        if (!(result.getItemMeta() instanceof EnchantmentStorageMeta)) return;
 
-        if (resultItemMeta == null) return;
+        AnvilOperations.Outcome outcome = AnvilOperations.settle(AnvilOperations.Kind.DISENCHANT, p, firstItem, secondItem, result,
+                enchantments, repairCost, anvilInventory, (newFirst, delivered) -> {
+                    anvilInventory.setItem(0, newFirst);
+                    AnvilEventGuards.scheduleSecondItemRemoval(p, anvilInventory, secondItem, e);
+                    p.setItemOnCursor(delivered);
+                });
 
-        // The enchantments that really end up on the result book. The click-time collection above is
-        // wider (it also holds DELETE-state enchantments, and for shatter every split candidate, not
-        // just the randomly chosen subset), so the charge — like the Prepare cost display — must be
-        // based on this set, not on the full collection.
-        List<IPluginEnchantment> transferred = EventUtils.findTransferredEnchantments(enchantments, result, activatedPlugins, p.getWorld());
-        List<IPluginEnchantment> destroyed = EventUtils.Disenchantment.findEnchantmentsToDelete(enchantments);
-
-        // Listeners see what is transferred plus what a DELETE state destroys on the source; removing
-        // a DELETE entry still vetoes its removal.
-        List<IPluginEnchantment> preEnchantments = new ArrayList<>();
-        for (IPluginEnchantment enchantment : enchantments) {
-            if (transferred.contains(enchantment) || destroyed.contains(enchantment)) preEnchantments.add(enchantment);
-        }
-
-        PreDisenchantEvent preEvent = new PreDisenchantEvent(p, firstItem.clone(), preEnchantments);
-        org.bukkit.Bukkit.getPluginManager().callEvent(preEvent);
-        if (preEvent.isCancelled()) {
+        if (outcome.status() == AnvilOperations.Status.CANCELLED) {
             e.setCancelled(true);
             return;
         }
-
-        // Economy check — runs after PreDisenchantEvent so cancellation doesn't charge the player
-        DiagnosticUtils.debug("DISENCHANT", () -> "Click: economy check — enabled=" + Config.Disenchantment.Economy.isEnabled() + ", gameMode=" + p.getGameMode());
-        double economyCost = AnvilCostUtils.economyCostForEnchantments(
-                EventUtils.retainByKey(preEvent.getEnchantments(), transferred), Config.Disenchantment.Economy.getCost(), Config.Disenchantment.Anvil.Repair.getEnchantmentEconomyCosts());
-        AnvilEventGuards.EconomyResult economyResult = AnvilEventGuards.processEconomyCost(p, ECONOMY_CONFIG, economyCost);
-        if (economyResult == AnvilEventGuards.EconomyResult.NOT_AVAILABLE) {
-            DiagnosticUtils.debug("DISENCHANT", "Click: economy not available → CANCELLED");
-            FeedbackUtils.refuse(p, I18n.Messages.economyNotAvailable());
-            e.setCancelled(true);
-            return;
-        }
-        if (economyResult == AnvilEventGuards.EconomyResult.INSUFFICIENT_FUNDS) {
-            DiagnosticUtils.debug("DISENCHANT", "Click: insufficient funds → CANCELLED");
-            FeedbackUtils.refuse(p, I18n.Messages.economyInsufficientFunds(EconomyUtils.format(economyCost)));
-            e.setCancelled(true);
-            return;
-        }
-        if (economyResult == AnvilEventGuards.EconomyResult.WITHDRAW_FAILED) {
-            DiagnosticUtils.debug("DISENCHANT", "Click: economy withdrawal failed → CANCELLED");
-            FeedbackUtils.refuse(p, I18n.Messages.economyWithdrawFailed());
-            e.setCancelled(true);
-            return;
-        }
-
-        AnvilEventGuards.clearBypassCost(p);
-
-        int exp = p.getLevel() - repairCost;
-        DiagnosticUtils.debug("DISENCHANT", () -> "Click: xp → " + p.getLevel() + " - " + repairCost + " = " + exp);
-
-        // ----------------------------------------------------------------------------------------------------
-        // Supported plugins
-
-        ItemStack finalFirstItem = firstItem.clone();
-        List<IPluginEnchantment> enchantmentsToDelete = EventUtils.Disenchantment.findEnchantmentsToDelete(preEvent.getEnchantments());
-
-        // Always remove the vanilla/Bukkit enchantments recorded on the result book from the
-        // source item — this must NOT depend on whether a custom enchantment plugin is active.
-        // A namespace-scoped adapter (e.g. Vane) reports no vanilla enchantments, so gating this
-        // on "no plugins active" left them on the source item: the book was delivered while the
-        // item kept its enchantments — an item dupe (issue #73).
-        finalFirstItem = EnchantmentUtils.removeEnchantments(finalFirstItem, resultItemMeta.getStoredEnchants());
-
-        // Additionally let each active adapter strip its own (e.g. vane:*) enchantments, which are
-        // not part of the book's vanilla stored-enchant set.
-        for (ISupportedPlugin activatedPlugin : activatedPlugins) {
-            List<IPluginEnchantment> pluginEnchantments = activatedPlugin.getItemEnchantments(result, p.getWorld());
-
-            for (IPluginEnchantment enchantment : pluginEnchantments) {
-                finalFirstItem = enchantment.removeFromItem(finalFirstItem);
-            }
-        }
-
-        for (IPluginEnchantment enchantment : enchantmentsToDelete) {
-            finalFirstItem = enchantment.removeFromItem(finalFirstItem);
-        }
-
-        // Supported plugins
-        // ----------------------------------------------------------------------------------------------------
-
-        if (Config.Disenchantment.Anvil.Repair.isResetEnabled()) AnvilCostUtils.setItemRepairCost(finalFirstItem, 0);
-
-        anvilInventory.setItem(0, finalFirstItem);
-        AnvilEventGuards.scheduleSecondItemRemoval(p, anvilInventory, secondItem, e);
-
-        if (p.getGameMode() != org.bukkit.GameMode.CREATIVE) p.setLevel(exp);
-
-        // Per-enchantment chance roll — failed enchantments are destroyed (already stripped from
-        // the source item above via the full stored-enchant set) rather than transferred to the book.
-        //
-        // In the same pass, restore each surviving enchantment's raw source level. The book pulled
-        // from the anvil result slot may have had above-vanilla-max levels clamped down during the
-        // PrepareAnvilEvent → result-slot round-trip (e.g. Unbreaking 4 → 3, issue #76). We re-stamp
-        // from the freshly collected source levels via addStoredEnchant(..., true) and deliver the
-        // book straight to the cursor, so the restored level is not clamped again.
-        boolean allTransfersFailed = false;
-        if (resultItemMeta != null) {
-            Map<String, Integer> sourceLevels = new HashMap<>();
-            for (IPluginEnchantment ench : enchantments) sourceLevels.put(EventUtils.normalizeKey(ench.getKey()).toLowerCase(), ench.getLevel());
-
-            Map<org.bukkit.enchantments.Enchantment, Integer> stored = new HashMap<>(resultItemMeta.getStoredEnchants());
-            boolean metaChanged = false;
-            for (Map.Entry<org.bukkit.enchantments.Enchantment, Integer> entry : stored.entrySet()) {
-                org.bukkit.enchantments.Enchantment enchantment = entry.getKey();
-
-                double chance = Config.Disenchantment.getEnchantmentChance(enchantment.getKey().getKey());
-                if (chance < 1.0 && Math.random() >= chance) {
-                    resultItemMeta.removeStoredEnchant(enchantment);
-                    metaChanged = true;
-                    continue;
-                }
-
-                Integer rawLevel = sourceLevels.get(EventUtils.normalizeKey(enchantment.getKey().getKey()).toLowerCase());
-                if (rawLevel != null && !rawLevel.equals(entry.getValue())) {
-                    resultItemMeta.addStoredEnchant(enchantment, rawLevel, true);
-                    metaChanged = true;
-                }
-            }
-            if (metaChanged) result.setItemMeta(resultItemMeta);
-
-            // Every roll failed: an empty enchanted book would be a useless, confusing reward. Hand
-            // back a plain book instead (unless an adapter enchantment still made it onto the book).
-            allTransfersFailed = !stored.isEmpty() && resultItemMeta.getStoredEnchants().isEmpty()
-                    && activatedPlugins.stream().allMatch(plugin -> plugin.getItemEnchantments(result, p.getWorld()).isEmpty());
-        }
-
-        // Past every abort: drop the preview lines (and the chance warning) that Prepare added, in place so
-        // the result slot cannot hand a second, still-annotated copy to vanilla's own pick-up.
-        PreviewLore.strip(result);
-
-        ItemStack delivered = result;
-        if (allTransfersFailed) {
-            delivered = new ItemStack(Material.BOOK);
-            p.sendMessage(I18n.getPrefix() + " " + I18n.Messages.enchantmentsFailedToTransfer());
-            DiagnosticUtils.debug("DISENCHANT", "Click: every enchantment failed its chance roll → plain book delivered");
-        }
-
-        p.setItemOnCursor(delivered);
-        boolean creative = p.getGameMode() == org.bukkit.GameMode.CREATIVE;
-        int xpCost = creative ? 0 : repairCost;
-        double finalEconomyCost = (Config.Disenchantment.Economy.isEnabled() && !creative) ? economyCost : 0.0;
-        AnvilEventGuards.recordCooldownOperation(p);
-        org.bukkit.Bukkit.getPluginManager().callEvent(new PostDisenchantEvent(p, delivered.clone(), finalFirstItem.clone(), xpCost, finalEconomyCost));
-
-        if (Config.Disenchantment.Anvil.Sound.isEnabled())
-            p.playSound(
-                    p.getLocation(),
-                    Sound.BLOCK_ANVIL_USE,
-                    Config.Disenchantment.Anvil.Sound.getVolume().floatValue(),
-                    Config.Disenchantment.Anvil.Sound.getPitch().floatValue()
-            );
-
-        ParticleUtils.playSuccess(p, anvilInventory);
 
         DiagnosticUtils.debug("DISENCHANT", "Click: complete ✓");
     }

@@ -46,28 +46,6 @@ public class ShatterEvent {
         }
     }
 
-    private static final AnvilEventGuards.EconomyConfig ECONOMY_CONFIG = new AnvilEventGuards.EconomyConfig() {
-        @Override
-        public boolean isEnabled() {
-            return Config.Shatterment.Economy.isEnabled();
-        }
-
-        @Override
-        public double getCost() {
-            return Config.Shatterment.Economy.getCost();
-        }
-
-        @Override
-        public boolean isChargeMessageEnabled() {
-            return Config.Shatterment.Economy.isChargeMessageEnabled();
-        }
-
-        @Override
-        public boolean isShowCostEnabled() {
-            return Config.Shatterment.Economy.isShowCostEnabled();
-        }
-    };
-
     private static void handler(Event event) {
         if (!(event instanceof PrepareAnvilEvent e)) return;
 
@@ -95,11 +73,7 @@ public class ShatterEvent {
 
         invalidateSelectionIfInputsChanged(p, firstItem, secondItem);
 
-        List<IPluginEnchantment> enchantments = AnvilEventGuards.collectEnchantments(
-                firstItem, secondItem, true,
-                EventUtils.Shatterment::getShattermentEnchantments,
-                EventUtils.Shatterment::getShattermentEnchantments,
-                p.getWorld(), p);
+        List<IPluginEnchantment> enchantments = AnvilOperations.collect(AnvilOperations.Kind.SHATTER, p, firstItem, secondItem, true);
 
         if (enchantments.isEmpty()) {
             DiagnosticUtils.debug("SHATTER", "PrepareAnvil: no eligible enchantments → exit");
@@ -151,17 +125,12 @@ public class ShatterEvent {
         // ----------------------------------------------------------------------------------------------------
         // Disenchantment plugins
 
-        ItemStack book = new ItemStack(Material.ENCHANTED_BOOK);
-
-        for (IPluginEnchantment pluginEnchantment : pluginEnchantments) {
-            book = pluginEnchantment.addToBook(book);
-        }
+        ItemStack book = AnvilOperations.buildBook(pluginEnchantments);
 
         boolean anyChanceBelowOne = pluginEnchantments.stream()
                 .anyMatch(ench -> Config.Shatterment.getEnchantmentChance(ench.getKey()) < 1.0);
 
-        double economyCost = AnvilCostUtils.economyCostForEnchantments(
-                pluginEnchantments, Config.Shatterment.Economy.getCost(), Config.Shatterment.Anvil.Repair.getEnchantmentEconomyCosts());
+        double economyCost = AnvilOperations.economyCost(AnvilOperations.Kind.SHATTER, pluginEnchantments);
 
         // Everything appended here is marked as preview lore and stripped again when the player takes the
         // book (ShatterClickEvent) — the chance warning must not stay on the book permanently.
@@ -183,7 +152,7 @@ public class ShatterEvent {
                 + ", show-cost=" + Config.Shatterment.Economy.isShowCostEnabled()
                 + ", gameMode=" + p.getGameMode());
 
-        AnvilEventGuards.showEconomyActionBarCost(p, ECONOMY_CONFIG, economyCost);
+        AnvilEventGuards.showEconomyActionBarCost(p, AnvilOperations.Kind.SHATTER.economy(), economyCost);
     }
 
     // ----------------------------------------------------------------------------------------------------
@@ -216,6 +185,22 @@ public class ShatterEvent {
             selectionCache.remove(p.getUniqueId());
             DiagnosticUtils.debug("SHATTER", "PrepareAnvil: inputs changed → cached split selection dropped");
         }
+    }
+
+    /**
+     * Returns the enchantments a shatter of these inputs splits off, exactly as the anvil preview does: the
+     * cached subset while the inputs are unchanged, otherwise a fresh roll. Used by the Bedrock chest menu so
+     * the preview it shows is the subset the confirmation applies.
+     *
+     * @param p            the player
+     * @param enchantments the eligible enchantments (prepare-time collection)
+     * @param firstItem    the source book
+     * @param secondItem   the blank book
+     * @return the enchantments to split off, empty when nothing can be split without emptying the source
+     */
+    public static List<IPluginEnchantment> selectForInputs(Player p, List<IPluginEnchantment> enchantments, ItemStack firstItem, ItemStack secondItem) {
+        invalidateSelectionIfInputsChanged(p, firstItem, secondItem);
+        return selectSplit(p, enchantments, firstItem, secondItem);
     }
 
     /**

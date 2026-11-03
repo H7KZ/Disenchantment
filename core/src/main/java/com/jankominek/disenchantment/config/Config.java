@@ -2298,4 +2298,105 @@ public class Config {
             return ConfigValues.parseEconomyCosts(ConfigValues.raw(key), null);
         }
     }
+
+    /**
+     * Configuration section for the Bedrock fallback: a chest-menu anvil for clients (Geyser/Bedrock) that
+     * cannot see custom anvil results. Every getter is total: whatever the YAML holds, it neither throws nor
+     * returns something that would make the fallback open for everybody by accident (booleans fall back to
+     * {@code false}, list entries that name nothing are skipped).
+     */
+    public static class Bedrock {
+        /**
+         * The detection order used when {@code bedrock.detect} is missing or unusable.
+         */
+        public static final List<BedrockDetectMethod> DEFAULT_DETECT = List.of(
+                BedrockDetectMethod.FLOODGATE, BedrockDetectMethod.GEYSER, BedrockDetectMethod.UUID, BedrockDetectMethod.PREFIX);
+
+        /**
+         * The name prefixes used when {@code bedrock.prefixes} is missing or unusable.
+         */
+        public static final List<String> DEFAULT_PREFIXES = List.of(".", "*");
+
+        /**
+         * Checks whether the {@code /disenchantment anvil} command and the sneak-click trigger work at all.
+         *
+         * @return {@code true} if the fallback is enabled (default {@code false})
+         */
+        public static boolean isFallbackEnabled() {
+            return ConfigValues.bool(ConfigKeys.BEDROCK_FALLBACK_ENABLED);
+        }
+
+        /**
+         * Checks whether players who are not detected as Bedrock players may use the command too.
+         *
+         * @return {@code true} if everyone may use it (default {@code false}: Bedrock players only)
+         */
+        public static boolean isAllowJavaPlayers() {
+            return ConfigValues.bool(ConfigKeys.BEDROCK_ALLOW_JAVA_PLAYERS);
+        }
+
+        /**
+         * Checks whether a Bedrock player who sneaks and right-clicks an anvil gets the chest menu instead of
+         * the vanilla anvil.
+         *
+         * @return {@code true} if the sneak-click opens the menu (default {@code false})
+         */
+        public static boolean isOpenOnSneakClick() {
+            return ConfigValues.bool(ConfigKeys.BEDROCK_OPEN_ON_SNEAK_CLICK);
+        }
+
+        /**
+         * Gets the ordered detection methods. A missing key or a value that is neither a list nor a single
+         * name gives {@link #DEFAULT_DETECT}; entries that name no method are skipped, so an explicit empty
+         * list (or a list of only unknown names) turns detection off.
+         *
+         * @return the methods in the order they are tried, without duplicates
+         */
+        public static List<BedrockDetectMethod> getDetect() {
+            return parseDetect(ConfigValues.raw(ConfigKeys.BEDROCK_DETECT), null);
+        }
+
+        /**
+         * Parses a raw {@code bedrock.detect} value.
+         *
+         * @param raw     any value
+         * @param unknown receives the entries that name no method, or {@code null}
+         * @return the methods in order, without duplicates
+         */
+        public static List<BedrockDetectMethod> parseDetect(Object raw, List<String> unknown) {
+            if (raw == null) return DEFAULT_DETECT;
+            if (!(raw instanceof java.util.Collection<?>) && ConfigValues.scalar(raw) == null) return DEFAULT_DETECT;
+
+            List<BedrockDetectMethod> methods = new ArrayList<>();
+            for (String entry : ConfigValues.toStringList(raw)) {
+                BedrockDetectMethod method = BedrockDetectMethod.match(entry);
+                if (method == null) {
+                    if (unknown != null) unknown.add(entry);
+                } else if (!methods.contains(method)) {
+                    methods.add(method);
+                }
+            }
+
+            return methods;
+        }
+
+        /**
+         * Gets the Bedrock name prefixes. A missing key or a value that is neither a list nor a single text
+         * gives {@link #DEFAULT_PREFIXES}; blank entries are skipped (an empty prefix would match everybody).
+         *
+         * @return the prefixes, without duplicates
+         */
+        public static List<String> getPrefixes() {
+            Object raw = ConfigValues.raw(ConfigKeys.BEDROCK_PREFIXES);
+            if (raw == null) return DEFAULT_PREFIXES;
+            if (!(raw instanceof java.util.Collection<?>) && ConfigValues.scalar(raw) == null) return DEFAULT_PREFIXES;
+
+            List<String> prefixes = new ArrayList<>();
+            for (String prefix : ConfigValues.toStringList(raw)) {
+                if (!prefixes.contains(prefix)) prefixes.add(prefix);
+            }
+
+            return prefixes;
+        }
+    }
 }

@@ -66,6 +66,41 @@ messages:
   give-anvil-received: "&7You received &f{amount}x &7special anvil.&r"
   grindstone-cost: "&7Cost: &f{levels} &7levels&r"
   grindstone-cost-economy: "&7Cost: &f{levels} &7levels &8+ &f{cost}&r"
+  bedrock-unavailable: "&cThe Bedrock anvil is not available on this server.&r"
+  bedrock-only: "&cThe Bedrock anvil is only available to Bedrock players.&r"
+  bedrock-players-only: "&cOnly players can use this command.&r"
+  bedrock-title: "&7&lDisenchantment anvil&r"
+  bedrock-item-label: "&f&lItem&r"
+  bedrock-item-label-lore:
+    - "&7Tap an item in your inventory"
+    - "&7to put it here. Tap here to take it back."
+  bedrock-second-label: "&f&lBlank book / catalyst&r"
+  bedrock-second-label-lore:
+    - "&7Tap a plain book (disenchant, split)"
+    - "&7or a catalyst (erase) in your inventory."
+  bedrock-result-label: "&f&lResult&r"
+  bedrock-result-empty:
+    - "&7Nothing to preview yet."
+  bedrock-mode-none: "&7Mode: &fnone&r"
+  bedrock-mode-disenchant: "&7Mode: &fDisenchant&r"
+  bedrock-mode-shatter: "&7Mode: &fSplit book&r"
+  bedrock-mode-erase: "&7Mode: &fErase&r"
+  bedrock-status-waiting: "&7Put an item and a blank book (or a catalyst) in.&r"
+  bedrock-status-ready: "&aReady. Tap Confirm.&r"
+  bedrock-status-nothing: "&cNothing can be done with these items.&r"
+  bedrock-status-disabled: "&cThis is disabled here.&r"
+  bedrock-status-cooldown: "&cYou are on cooldown.&r"
+  bedrock-status-permission: "&cYou may not do this.&r"
+  bedrock-status-expensive: "&cToo expensive!&r"
+  bedrock-status-special: "&cStay close to a special anvil.&r"
+  bedrock-confirm: "&a&lConfirm&r"
+  bedrock-confirm-lore:
+    - "&7Tap to do it and pay the cost."
+  bedrock-cancel: "&c&lCancel&r"
+  bedrock-cancel-lore:
+    - "&7Close and take your items back."
+  bedrock-erases: "&7Erases: &f{enchantments}&r"
+  bedrock-items-dropped: "&7Your inventory is full, some items were dropped at your feet.&r"
 
 states:
   enabled: "&aEnabled&r"
@@ -87,6 +122,7 @@ commands:
         - "&8/disenchant status &7- Displays the plugin's status"
         - "&8/disenchant toggle ['global', 'disenchantment', 'shatterment'] &7- Toggles the plugin on or off"
         - "&8/disenchant give anvil [player] [amount] &7- Gives special anvils to a player"
+        - "&8/disenchant anvil &7- Opens the Bedrock chest-menu anvil (when enabled in the config)"
       3:
         - "&8/disenchant disenchant:enchantments &7- View list of enchantment states"
         - "&8/disenchant disenchant:enchantments [enchantment name] ['enable', 'keep', 'delete', 'disable'] &7- Edit enchantment behavior"

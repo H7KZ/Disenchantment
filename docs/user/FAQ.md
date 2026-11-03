@@ -22,6 +22,7 @@ Common issues and questions about Disenchantment.
 - [Why isn't Disenchantment working with EcoEnchants?](#why-isnt-disenchantment-working-with-ecoenchants)
 - [Why aren't UberEnchants working with Disenchantment?](#why-arent-uberenchants-working-with-disenchantment)
 - [I'm using GeyserMC and there are issues.](#im-using-geysermc-and-there-are-issues-is-this-a-known-problem)
+- [Bedrock players see nothing in the anvil (Geyser)](#bedrock-players-see-nothing-in-the-anvil-geyser)
 - [How much exactly is charged when `enchantment-costs` economy overrides are set?](#how-much-exactly-is-charged-when-enchantment-costs-economy-overrides-are-set)
 - [Economy is enabled but players aren't being charged.](#economy-is-enabled-but-players-arent-being-charged)
 - [Do I need Vault for the plugin to work?](#do-i-need-vault-for-the-plugin-to-work)
@@ -236,6 +237,23 @@ Bedrock players connected via Geyser can use the anvil features without errors. 
 level cost shown in the anvil UI) may appear inaccurate for Bedrock clients. This is because Geyser's proxy
 `InventoryView` does not support cost propagation via the `AnvilView` API. This is a known limitation of the Geyser
 proxy layer and cannot be worked around on the server side.
+
+---
+
+### Bedrock players see nothing in the anvil (Geyser)
+
+This is a Geyser limitation: Bedrock clients cannot display anvil results the server invents (see
+[Geyser's limitations](https://geysermc.org/wiki/geyser/current-limitations)), so disenchanting, splitting and erasing
+look broken for them even though the plugin computed the result. It cannot be fixed on the server side of the anvil.
+Use the built-in workaround instead: set `bedrock.fallback-enabled: true`, reload, and tell Bedrock players to run
+`/disenchant anvil`. They put items in by tapping them in their inventory and tap Confirm. Details and options (sneak-tap
+an anvil, detection methods, letting Java players use it too) are in [Bedrock Fallback](CONFIG.md#bedrock-fallback); a
+step-by-step is in the [how-to](HOW_TO.md#let-bedrock-players-use-the-anvil-geyser).
+
+Common reasons the command says no: the fallback is disabled; the player is not recognised as a Bedrock player (install
+Floodgate, or make sure `detect` includes `UUID`/`PREFIX` matching how your proxy names them, or set
+`allow-java-players: true`); `special-anvils.mode` is not `ALL` and the player is not looking at a special anvil within 5 blocks (or a claim/region plugin
+forbids using it).
 
 ---
 

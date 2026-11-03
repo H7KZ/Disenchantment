@@ -180,6 +180,50 @@ Takes `AnvilFeature feature`. Shows four items:
 - Show-cost toggle (action bar display)
 - Charge-message toggle (chat confirmation)
 
+### `BedrockAnvilGUI`
+
+`guis/impl/BedrockAnvilGUI.java` - the Bedrock fallback (`/disenchantment anvil`, optional sneak-click). It is the one
+screen that **holds real player items**, so it differs from the others in three ways.
+
+**Layout (27 slots).** `10` item, `12` second item (plain book / erase catalyst), `13` mode label (anvil icon, name =
+detected mode, lore = status), `14` result preview, `16` Confirm, `25` Cancel; `19`/`21`/`23` caption papers; everything
+else border panes. Slots `10` and `12` are the only slots that ever contain real items; empty means `null`.
+
+**Item movement is explicit** because `GUIClickEvent` cancels every click and drag. For this holder the router skips
+the clicked-holder switch and calls `onInventoryClick(e)` for a click in *either* half of the window:
+
+- click in the player's own inventory (`rawSlot >= 27`): one item moves into the matching input slot - `BOOK` or an erase
+  catalyst into slot 12 (merging with a similar stack up to its max), anything else into slot 10 (an occupied slot is
+  swapped, the old stack returned). The player slot is decremented *before* the menu slot is written, in the same call.
+- click on slot 10/12: the content is taken out of the menu first, then handed back.
+- only `LEFT`, `RIGHT`, `SHIFT_LEFT`, `SHIFT_RIGHT` do anything; all other click types stay cancelled and inert.
+- one item per tap is a deliberate choice: an operation consumes exactly one book/catalyst, so extra items never leave the
+  inventory and are never exposed to the close/crash paths.
+
+**No loss, no duplication.** `finish()` is the single exit and is idempotent: `returnInputs()` empties both slots *before*
+giving anything (`giveOrDrop`: `addItem`, leftovers `dropItem` at the feet, and the whole stack is dropped if `addItem`
+throws), then unregisters the menu and clears the cached shatter selection. It is called from `BedrockListener`
+(`InventoryCloseEvent`, `PlayerQuitEvent` at LOWEST so it runs before the data save; a kick ends in a quit),
+from the Cancel button, when a second menu is opened for the same player, and from `closeAll()` in
+`Disenchantment#disable()` (Bukkit does not close inventories when a plugin goes away). A `busy` flag blocks re-entrant
+confirms (a `Pre*` listener clicking again) and `CONFIRM_DEBOUNCE_MS` (500 ms, overridable with `setClock`) swallows the
+second tap of a double tap after a successful confirm. The result slot, mode label and buttons are display copies and are
+never given to anyone.
+
+**Operations.** `refresh()` calls `BedrockOperation.evaluate` (the PrepareAnvilEvent equivalent: world, special anvil
+proximity, maintenance, cooldown, permission, collection, shatter subset via `ShatterEvent.selectForInputs`, result, cost,
+too-expensive limit) and redraws slots 13/14/16. Confirm calls `BedrockOperation.confirm`, which re-evaluates, applies the
+click-time guards in the anvil handlers' order and delegates to `AnvilOperations.settle`; the menu only supplies the
+`Applier` that writes its slots and gives the result to the player. See [EVENTS.md](EVENTS.md#bedrock-menu-flow).
+
+`tryOpen(player, clickedAnvil)` is the one gate for the command and the sneak-click trigger: plugin and
+`bedrock.fallback-enabled` on, `BedrockUtils.isBedrockPlayer` (or `allow-java-players`), and - unless
+`special-anvils.mode` is `ALL` - a special anvil block tied to the menu: by command the block from `getTargetBlockExact(5)`
+(`setTargetResolver` is the test seam) that passes `isSpecialAnvilBlock` and whose synthetic `PlayerInteractEvent`
+(`RIGHT_CLICK_BLOCK`, fired with the `PROBING` flag so `BedrockListener` ignores it) is not cancelled / `DENY`; by sneak-click
+the clicked block. The block is remembered and `specialAnvilHolds()` (still special, same world, within 6 blocks) runs at
+the start of every click; when it fails the menu finishes (items returned), closes and says why. Text lives under `messages.bedrock-*` in the locale files.
+
 ---
 
 ## How to Add a New GUI Screen

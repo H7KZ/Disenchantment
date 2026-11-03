@@ -8,6 +8,8 @@ import com.jankominek.disenchantment.config.Config;
 import com.jankominek.disenchantment.config.ConfigValidator;
 import com.jankominek.disenchantment.events.GUIClickEvent;
 import com.jankominek.disenchantment.events.ShatterEvent;
+import com.jankominek.disenchantment.guis.impl.BedrockAnvilGUI;
+import com.jankominek.disenchantment.listeners.BedrockListener;
 import com.jankominek.disenchantment.listeners.DisenchantClickListener;
 import com.jankominek.disenchantment.listeners.DisenchantListener;
 import com.jankominek.disenchantment.listeners.EraseClickListener;
@@ -198,6 +200,7 @@ public class Disenchantment extends JavaPlugin {
         new GrindstoneListener(Config.Grindstone.getPrepareEventPriority(), Config.Grindstone.getClickEventPriority());
         getServer().getPluginManager().registerEvents(new GUIClickEvent(), plugin);
         getServer().getPluginManager().registerEvents(new SpecialAnvilListener(), plugin);
+        getServer().getPluginManager().registerEvents(new BedrockListener(), plugin);
         DiagnosticUtils.debug("STARTUP", "All listeners registered");
         SpecialAnvilRecipe.register();
 
@@ -228,6 +231,9 @@ public class Disenchantment extends JavaPlugin {
      * third-party plugin adapters.
      */
     public void disable() {
+        // Bukkit does not close inventories when a plugin goes away: hand back what is in the Bedrock menus first.
+        BedrockAnvilGUI.closeAll();
+
         for (Object task : tasks) {
             SchedulerUtils.cancelTask(task);
         }
@@ -296,6 +302,7 @@ public class Disenchantment extends JavaPlugin {
         new GrindstoneListener(Config.Grindstone.getPrepareEventPriority(), Config.Grindstone.getClickEventPriority());
         getServer().getPluginManager().registerEvents(new GUIClickEvent(), plugin);
         getServer().getPluginManager().registerEvents(new SpecialAnvilListener(), plugin);
+        getServer().getPluginManager().registerEvents(new BedrockListener(), plugin);
         SpecialAnvilRecipe.register();
 
         // 6. Re-detect plugin adapters

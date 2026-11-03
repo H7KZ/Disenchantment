@@ -121,6 +121,7 @@ public final class ConfigValidator {
         if (split != null) issues.add(new ConfigIssue(ConfigKeys.SHATTERMENT_SPLIT_COUNT.getKey(), split));
 
         checkGroups(cfg, issues);
+        checkBedrock(cfg, issues);
 
         return issues;
     }
@@ -353,6 +354,27 @@ public final class ConfigValidator {
         List<String> names = ConfigValues.toStringList(raw);
         if (!names.isEmpty() && names.stream().noneMatch(ParticleUtils::exists)) {
             issues.add(new ConfigIssue(path, "none of " + names + " exist on this server; no particles are spawned"));
+        }
+    }
+
+    private static void checkBedrock(FileConfiguration cfg, List<ConfigIssue> issues) {
+        Object detect = cfg.get(ConfigKeys.BEDROCK_DETECT.getKey(), null);
+        String detectPath = ConfigKeys.BEDROCK_DETECT.getKey();
+        if (detect != null && !(detect instanceof Collection) && ConfigValues.scalar(detect) == null) {
+            issues.add(new ConfigIssue(detectPath, "expected a list of detection methods but found " + ConfigValues.describe(detect)
+                    + "; using " + Config.Bedrock.DEFAULT_DETECT));
+        } else if (detect != null) {
+            List<String> unknown = new ArrayList<>();
+            Config.Bedrock.parseDetect(detect, unknown);
+            for (String entry : unknown) {
+                issues.add(new ConfigIssue(detectPath, "unknown detection method \"" + entry + "\" (valid: FLOODGATE, GEYSER, UUID, PREFIX); ignored"));
+            }
+        }
+
+        Object prefixes = cfg.get(ConfigKeys.BEDROCK_PREFIXES.getKey(), null);
+        if (prefixes != null && !(prefixes instanceof Collection) && ConfigValues.scalar(prefixes) == null) {
+            issues.add(new ConfigIssue(ConfigKeys.BEDROCK_PREFIXES.getKey(), "expected a list of name prefixes but found "
+                    + ConfigValues.describe(prefixes) + "; using " + Config.Bedrock.DEFAULT_PREFIXES));
         }
     }
 

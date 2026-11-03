@@ -44,10 +44,21 @@ Several commands let you configure per-enchantment behavior. The following state
 | `/disenchantment toggle`      | Toggle the plugin on or off globally.                     | `disenchantment.command.toggle` |
 | `/disenchantment reload`      | Reload the configuration from disk.                       | `disenchantment.command.reload` |
 | `/disenchantment give anvil <player> [amount]` | Give special anvils to an online player (1-64, default 1). Items that do not fit are dropped at their feet. | `disenchantment.command.give` |
+| `/disenchantment anvil` | Open the chest-menu anvil for Bedrock players (needs `bedrock.fallback-enabled: true`). | `disenchantment.command.anvil` (default `true`) |
 
 `give anvil` tab-completes online player names and common amounts. See
 [Special Anvils](CONFIG.md#special-anvils) for what the item does. `status` also shows the current special anvils mode
 (and `special_anvils_mode` in `status --json`); `diagnostic` lists it in the configuration section.
+
+**`anvil`** (Bedrock fallback). Opens a three-row chest menu that does what the anvil does, for players whose client
+cannot see custom anvil results (Geyser/Bedrock). It is the one subcommand every player may run by default, so it is
+exempt from the base `disenchantment.command.use` check; every other subcommand still needs it. It does nothing
+unless `bedrock.fallback-enabled` is `true`, refuses players who are not detected as Bedrock players unless
+`bedrock.allow-java-players` is `true`, and, when `special-anvils.mode` is not `ALL`, only opens while you **look at** a
+special anvil within 5 blocks that you are allowed to use (claim and region plugins are asked, as for a right-click).
+In `ALL` mode it works anywhere, like a virtual anvil. Tap an item in your inventory to put one into the menu, tap Confirm to do it, Cancel (or closing the
+menu) gives your items back. See [Bedrock Fallback](CONFIG.md#bedrock-fallback) and the
+[setup guide](HOW_TO.md#let-bedrock-players-use-the-anvil-geyser).
 
 `reload` refuses to run if `config.yml` has a YAML syntax error: it reports the parser message to you and keeps the
 current settings (the file is never overwritten). See [Config safety and backups](CONFIG.md#config-safety-and-backups).
