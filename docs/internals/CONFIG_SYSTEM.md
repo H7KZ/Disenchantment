@@ -63,6 +63,12 @@ Other accessors added with migration 13: `Config.isUpdateCheckerEnabled()` (`upd
 `Config.getOperationsRetentionDays()` / `Config.Logging.getOperationsRetentionDays()` (`logging.operations-retention-days`,
 default `0` = keep forever, negatives read as `0`).
 
+`Config.Grindstone` (appended at the end of `Config.java`) holds the grindstone settings: `isEnabled()`, `isCursesEnabled()`,
+`getPrepareEventPriority()` / `getClickEventPriority()`, nested `Sound`, `Repair`, `Economy` and `Transfer`
+(`isEnabled()`, `isAllowOverMax()`, `getMaxEnchantments()`, own `Repair` and `Economy`). Values are read straight from the
+config on every call (no caches, so `invalidateCaches()` needs no entry). The `grindstone:` section and the
+`grindstone`/`grindstone-click` event priorities are part of migration 13 (unreleased, so no separate step).
+
 ---
 
 ## Config Inner Class Hierarchy

@@ -26,6 +26,8 @@ getServer().getPluginManager().registerEvent(
 );
 ```
 
+`GrindstoneListener` follows the same pattern but resolves the prepare event by class name (see [Grindstone Flow](#grindstone-flow)).
+
 `DisenchantListener` implements `EventExecutor` and delegates to `DisenchantEvent.onEvent(e)`. Same pattern for the
 other three listeners.
 
@@ -274,6 +276,64 @@ collectors. Key differences:
 
 ---
 
+## Grindstone Flow
+
+`events/GrindstoneEvent.java` (prepare), `events/GrindstoneClickEvent.java` (clicks), `events/GrindstoneOps.java`
+(pure computation), `listeners/GrindstoneListener.java` (registration). Two opt-in operations share one pipeline;
+`Config.Grindstone` holds the settings (read live, not cached).
+
+### Registration
+
+`GrindstoneListener` registers `InventoryClickEvent` at `event-priorities.grindstone-click` and the prepare event at
+`event-priorities.grindstone`. The core is compiled against Spigot 1.18, which has no `PrepareGrindstoneEvent`
+(Spigot 1.19.4+; Paper has `com.destroystokyo.paper.event.inventory.PrepareGrindstoneEvent` since 1.16), so the class is
+looked up by name (`org.bukkit.event...` first, Paper's legacy one second; only the first found is registered) and
+handled as a plain `Event`: the inventory comes from `InventoryEvent#getInventory()` (`instanceof GrindstoneInventory`) and
+the result is set through a cached reflective `setResult(ItemStack)`. If neither class exists the listener logs an INFO
+line and uses a **tick-based fallback**: after any click on a grindstone it schedules (`SchedulerUtils.runForEntityLater`,
+1 tick) `GrindstoneEvent.refresh`, which runs the same `prepare` logic and writes slot 2 directly.
+
+Research notes: Paper's `GrindstoneMenu` patch calls `callPrepareGrindstoneEvent(view, computeResult(...))`
+unconditionally, so the event also fires for combinations vanilla rejects (different items, plain book). The vanilla
+input slots only accept damageable or enchanted items (`mayPlace`), which is why a plain book needs the click
+interception below.
+
+### Prepare (`GrindstoneEvent.prepare(player, inventory, setResult)`)
+
+Slot 1 is a blank book (`EventUtils.isBlankBook`) -> **extract** (needs `grindstone.enabled`); otherwise -> **transfer**
+(needs `grindstone.transfer.enabled`). Nothing is touched when the combination is not a plugin operation, so vanilla
+results stay. Extract uses `AnvilEventGuards.collectEnchantments` with the `EventUtils.Disenchantment` collectors
+(worlds, materials, states, plugin adapters) and drops curses unless `grindstone.curses`. Maintenance mode and cooldown
+clear the result silently, a missing permission leaves it alone. The cost is shown in the action bar (no cost label on a
+grindstone).
+
+### Clicks (`GrindstoneClickEvent`)
+
+- **Book placement** (raw slot 1, cursor is a blank book, LEFT/RIGHT; or shift-click of a blank book in the player
+  inventory): if slot 1 is empty and slot 0 holds something extractable, the click is cancelled and exactly one book moves
+  into slot 1 via `inventory.setItem` (the API bypasses `mayPlace`). No-op on a server that already allows it.
+- **Result click** (raw slot 2), manual-result pattern. Order: maintenance -> result present -> **cancel from here on** ->
+  cursor empty -> unsafe click (`isUnsafeResultClick`) -> cooldown -> XP -> permission -> `Pre*Event` -> economy ->
+  mutate. The result is **recomputed from slots 0/1** at click time; the item in slot 2 is only a "something is shown"
+  check, so a stale result can never be delivered. All items are built before the first write, then (after XP is
+  deducted) slot 2 is cleared, slot 1 is consumed, the stripped source goes into slot 0 and the result onto the cursor.
+  Vanilla's own take (which clears both inputs and awards XP orbs) never runs.
+- Extract per-enchantment chance rolls and the all-failed plain-book fallback mirror `DisenchantClickEvent`. A `Pre*`
+  listener removing an entry from `getEnchantments()` vetoes that enchantment (it neither moves nor is removed).
+
+### Transfer (`GrindstoneOps.computeTransfer`)
+
+Vanilla `minecraft:` enchantments only; source and target single, non-book, different materials; per enchantment (highest
+level first): not `KEEP`, curse rule, `canEnchantItem(target)`, level clamp, skip if target already >=, no
+`conflictsWith` against the target's other enchantments or those already chosen; capped at `grindstone.transfer.max-enchantments`.
+A `DISABLE` state on any source enchantment or a restricted source material rejects the whole transfer.
+
+New `AnvilEventType` values `GRINDSTONE_EXTRACT` / `GRINDSTONE_TRANSFER` select the `grindstone.repair` /
+`grindstone.transfer.repair` blocks in `AnvilCostUtils.countAnvilCost`. `StatsListener` records the Post events as
+`OperationType.GRIND_EXTRACT` / `GRIND_TRANSFER` (not counted in the disenchant/shatter totals).
+
+---
+
 ## Public API Events
 
 All in `events/api/`.
@@ -308,6 +368,11 @@ Fired after item modification and XP deduction, before sound playback.
 ### `PreShatterEvent` / `PostShatterEvent`
 
 Same fields and semantics as the disenchant variants but for the shattering operation. `PreShatterEvent` is cancellable.
+
+### `PreGrindstoneExtractEvent` / `PostGrindstoneExtractEvent` / `PreGrindstoneTransferEvent` / `PostGrindstoneTransferEvent`
+
+Fired from `GrindstoneClickEvent` at the same points as the disenchant events (Pre after the XP check, before economy and
+mutation; Post after the mutation with `xpCost` + `economyCost`). See [api/EVENTS.md](../api/EVENTS.md).
 
 ---
 

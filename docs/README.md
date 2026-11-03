@@ -32,7 +32,7 @@ Integrate your plugin with Disenchantment's disenchant and shatter mechanics.
 | Document                                   | Description                                                                                               |
 |--------------------------------------------|-----------------------------------------------------------------------------------------------------------|
 | [api/README.md](api/README.md)             | API overview — adding the dependency, declaring soft-depend, and getting started                          |
-| [api/EVENTS.md](api/EVENTS.md)             | Full reference for `PreDisenchantEvent`, `PostDisenchantEvent`, `PreShatterEvent`, and `PostShatterEvent` |
+| [api/EVENTS.md](api/EVENTS.md)             | Full reference for `PreDisenchantEvent`, `PostDisenchantEvent`, `PreShatterEvent`, `PostShatterEvent` and the four grindstone events |
 | [api/PLACEHOLDERS.md](api/PLACEHOLDERS.md) | PlaceholderAPI placeholders registered under `%disenchantment_*%`                                         |
 
 ---

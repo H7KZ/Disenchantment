@@ -26,6 +26,9 @@ Common issues and questions about Disenchantment.
 - [Economy is enabled but players aren't being charged.](#economy-is-enabled-but-players-arent-being-charged)
 - [Do I need Vault for the plugin to work?](#do-i-need-vault-for-the-plugin-to-work)
 - [Does Disenchantment support Minecraft 26.1.x?](#does-disenchantment-support-minecraft-261x)
+- [The grindstone does not accept my book](#the-grindstone-does-not-accept-my-book)
+- [Do players get XP back on the grindstone?](#do-players-get-xp-back-on-the-grindstone)
+- [Grindstone transfer does nothing](#grindstone-transfer-does-nothing)
 
 ---
 
@@ -294,3 +297,30 @@ Disenchantment release first, then file a bug report with the output of `/disenc
 No — the operation only runs on a **single** source item (stack size 1). Every enchantable item in vanilla is
 unstackable, so this never affects normal play. It only matters if another plugin makes enchanted items stackable: in
 that case a stacked source produces no anvil result. Split the stack to one item to disenchant or shatter it.
+
+---
+
+### The grindstone does not accept my book
+
+Enable `grindstone.enabled: true` first. The vanilla grindstone only accepts damageable or enchanted items in its slots, so
+a plain book is refused; the plugin places it for you when the **top slot already holds an enchanted item** with something
+extractable (not just curses) and you click the bottom slot with the book on the cursor or shift-click the book. Check
+that the player has `disenchantment.grindstone.extract`, the world is not disabled in `disenchantment.worlds`, and the
+book has no custom name, lore or data (a "tagged" book is never used). Number-key swaps and dragging are not intercepted.
+
+---
+
+### Do players get XP back on the grindstone?
+
+Not for plugin operations. Vanilla refunds experience orbs when you take a grindstone result; extraction and transfer take
+over the result click, so they **cost** levels (`grindstone.repair`, `grindstone.transfer.repair`) instead. Normal
+grindstone use is unchanged and still refunds XP.
+
+---
+
+### Grindstone transfer does nothing
+
+Transfer needs `grindstone.transfer.enabled: true`, an enchanted item in the **top** slot and a **different** material in
+the bottom slot (two items of the same kind are a vanilla repair; books use extraction). Only enchantments the target can
+take and that conflict with nothing on it move, and an enchantment the target already has at the same or a higher level
+is skipped, so a result can be empty. Run with `logging.level: DEBUG` to see the reason (`GRINDSTONE` lines).
