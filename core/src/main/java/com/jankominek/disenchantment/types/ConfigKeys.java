@@ -94,6 +94,18 @@ public enum ConfigKeys {
 
     // Shared settings
     ENCHANTMENT_GROUPS("enchantment-groups"),
+
+    // Special anvils
+    SPECIAL_ANVILS_MODE("special-anvils.mode"),
+    SPECIAL_ANVILS_BLOCK_BELOW("special-anvils.block-below"),
+    SPECIAL_ANVILS_ALLOW_VIRTUAL_ANVILS("special-anvils.allow-virtual-anvils"),
+    SPECIAL_ANVILS_DROP_SPECIAL_ITEM("special-anvils.drop-special-item"),
+    SPECIAL_ANVILS_HINT_MESSAGE("special-anvils.hint-message"),
+    SPECIAL_ANVILS_ITEM_NAME("special-anvils.item.name"),
+    SPECIAL_ANVILS_ITEM_LORE("special-anvils.item.lore"),
+    SPECIAL_ANVILS_RECIPE_ENABLED("special-anvils.recipe.enabled"),
+    SPECIAL_ANVILS_RECIPE_SHAPE("special-anvils.recipe.shape"),
+    SPECIAL_ANVILS_RECIPE_INGREDIENTS("special-anvils.recipe.ingredients"),
     ;
 
     private final String key;

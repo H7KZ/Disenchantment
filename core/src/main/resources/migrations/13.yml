@@ -103,3 +103,25 @@ shatterment:
     cost: 100.0
     show-cost: true
     charge-message: true
+
+# ----------------------------------------------------------------------------------------
+
+special-anvils:
+  mode: ALL
+  block-below: LAPIS_BLOCK
+  allow-virtual-anvils: false
+  drop-special-item: true
+  hint-message: false
+  item:
+    name: "&dEnchanter's Anvil"
+    lore:
+      - "&7Place to create a disenchanting anvil"
+  recipe:
+    enabled: false
+    shape:
+      - "EEE"
+      - "EAE"
+      - "EEE"
+    ingredients:
+      E: EMERALD
+      A: ANVIL

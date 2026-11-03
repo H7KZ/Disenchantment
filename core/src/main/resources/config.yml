@@ -128,3 +128,36 @@ shatterment:
     cost: 100.0
     show-cost: true
     charge-message: true
+
+# ----------------------------------------------------------------------------------------
+
+# Restrict disenchanting / shattering to designated ("special") anvils. Vanilla anvil use
+# (repair, rename, combine) is never affected.
+special-anvils:
+  # ALL          = every anvil works (default, same as before this option existed)
+  # MARKED       = only anvils placed from the special anvil item work
+  #                (give one with "/disenchantment give anvil <player> [amount]")
+  # BLOCK_BELOW  = only anvils standing directly on the block-below material work
+  mode: ALL
+  block-below: LAPIS_BLOCK
+  # Anvils opened without a world position (Player#openAnvil, other plugins' menus).
+  allow-virtual-anvils: false
+  # A broken special anvil drops the special item instead of a plain anvil.
+  drop-special-item: true
+  # Tell players that the anvil they use is not a special anvil (at most once every few seconds).
+  hint-message: false
+  # Look of the special anvil item. '&' colour codes are supported.
+  item:
+    name: "&dEnchanter's Anvil"
+    lore:
+      - "&7Place to create a disenchanting anvil"
+  # Optional crafting recipe. "ANVIL" in the ingredients stands for any anvil damage state.
+  recipe:
+    enabled: false
+    shape:
+      - "EEE"
+      - "EAE"
+      - "EEE"
+    ingredients:
+      E: EMERALD
+      A: ANVIL

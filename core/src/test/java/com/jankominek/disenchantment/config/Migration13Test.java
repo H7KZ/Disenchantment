@@ -104,6 +104,38 @@ class Migration13Test extends DisenchantmentTestBase {
                 "Migrated config must contain every key of the bundled config.yml");
     }
 
+    // -> special anvils section
+
+    @Test
+    void givenV12Config_whenMigrated_thenSpecialAnvilsGetDefaults() {
+        FileConfiguration result = new Migration13().migrate(v12Config(), template13());
+
+        assertEquals("ALL", result.getString("special-anvils.mode"), "Default keeps every anvil working");
+        assertEquals("LAPIS_BLOCK", result.getString("special-anvils.block-below"));
+        assertFalse(result.getBoolean("special-anvils.allow-virtual-anvils"));
+        assertTrue(result.getBoolean("special-anvils.drop-special-item"));
+        assertFalse(result.getBoolean("special-anvils.hint-message"));
+        assertEquals("&dEnchanter's Anvil", result.getString("special-anvils.item.name"));
+        assertFalse(result.getStringList("special-anvils.item.lore").isEmpty());
+        assertFalse(result.getBoolean("special-anvils.recipe.enabled"));
+        assertEquals(List.of("EEE", "EAE", "EEE"), result.getStringList("special-anvils.recipe.shape"));
+        assertEquals("EMERALD", result.getString("special-anvils.recipe.ingredients.E"));
+        assertEquals("ANVIL", result.getString("special-anvils.recipe.ingredients.A"));
+    }
+
+    @Test
+    void givenUserAlreadySetSpecialAnvils_whenMigrated_thenTheirValuesWin() {
+        YamlConfiguration old = v12Config();
+        old.set("special-anvils.mode", "MARKED");
+        old.set("special-anvils.recipe.enabled", true);
+
+        FileConfiguration result = new Migration13().migrate(old, template13());
+
+        assertEquals("MARKED", result.getString("special-anvils.mode"));
+        assertTrue(result.getBoolean("special-anvils.recipe.enabled"));
+        assertEquals("LAPIS_BLOCK", result.getString("special-anvils.block-below"), "untouched keys keep defaults");
+    }
+
     // -> accessors
 
     @Test
