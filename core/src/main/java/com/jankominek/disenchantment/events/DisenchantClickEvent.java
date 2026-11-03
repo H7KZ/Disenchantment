@@ -288,6 +288,10 @@ public class DisenchantClickEvent {
                     && activatedPlugins.stream().allMatch(plugin -> plugin.getItemEnchantments(result, p.getWorld()).isEmpty());
         }
 
+        // Past every abort: drop the preview lines (and the chance warning) that Prepare added, in place so
+        // the result slot cannot hand a second, still-annotated copy to vanilla's own pick-up.
+        PreviewLore.strip(result);
+
         ItemStack delivered = result;
         if (allTransfersFailed) {
             delivered = new ItemStack(Material.BOOK);

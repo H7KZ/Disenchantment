@@ -9,6 +9,7 @@ import com.jankominek.disenchantment.utils.AnvilCostUtils;
 import com.jankominek.disenchantment.utils.DiagnosticUtils;
 import com.jankominek.disenchantment.utils.EconomyUtils;
 import com.jankominek.disenchantment.utils.EventUtils;
+import com.jankominek.disenchantment.utils.PreviewLore;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
@@ -148,15 +149,15 @@ public class ShatterEvent {
         boolean anyChanceBelowOne = pluginEnchantments.stream()
                 .anyMatch(ench -> Config.Shatterment.getEnchantmentChance(ench.getKey()) < 1.0);
 
-        if (anyChanceBelowOne) {
-            var meta = book.getItemMeta();
-            if (meta != null) {
-                java.util.List<String> lore = meta.hasLore() && meta.getLore() != null ? new java.util.ArrayList<>(meta.getLore()) : new java.util.ArrayList<String>();
-                lore.add(com.jankominek.disenchantment.config.I18n.Messages.someEnchantmentsMayNotTransfer());
-                meta.setLore(lore);
-                book.setItemMeta(meta);
-            }
-        }
+        double economyCost = AnvilCostUtils.economyCostForEnchantments(
+                pluginEnchantments, Config.Shatterment.Economy.getCost(), Config.Shatterment.Anvil.Repair.getEnchantmentEconomyCosts());
+
+        // Everything appended here is marked as preview lore and stripped again when the player takes the
+        // book (ShatterClickEvent) — the chance warning must not stay on the book permanently.
+        List<String> previewLines = PreviewLore.previewLines(p, pluginEnchantments, AnvilEventType.SHATTERMENT,
+                Config.Shatterment.Economy.isEnabled(), Config.Shatterment.Economy.isShowCostEnabled(), economyCost);
+        if (anyChanceBelowOne) previewLines.add(com.jankominek.disenchantment.config.I18n.Messages.someEnchantmentsMayNotTransfer());
+        book = PreviewLore.append(book, previewLines);
 
         // Disenchantment plugins
         // ----------------------------------------------------------------------------------------------------
@@ -170,9 +171,6 @@ public class ShatterEvent {
                 + ", available=" + EconomyUtils.isAvailable()
                 + ", show-cost=" + Config.Shatterment.Economy.isShowCostEnabled()
                 + ", gameMode=" + p.getGameMode());
-
-        double economyCost = AnvilCostUtils.economyCostForEnchantments(
-                pluginEnchantments, Config.Shatterment.Economy.getCost(), Config.Shatterment.Anvil.Repair.getEnchantmentEconomyCosts());
 
         AnvilEventGuards.showEconomyActionBarCost(p, ECONOMY_CONFIG, economyCost);
     }
