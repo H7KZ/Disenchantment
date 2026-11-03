@@ -142,7 +142,9 @@ public class Disenchantment extends JavaPlugin {
         // Find and activate supported plugins
         List<String> activatedPlugins = Arrays.stream(getServer().getPluginManager().getPlugins()).toList().stream().map(Plugin::getName).toList();
         SupportedPluginManager.activatePlugins(activatedPlugins);
-        ConfigValidator.validateAndLog();
+        // World names are checked once the server finished loading (ServerLoadEvent below): world-management
+        // plugins such as Multiverse load their worlds after every plugin has enabled.
+        ConfigValidator.validateAndLog(false);
 
         // Economy (Vault) — hooked via ServerLoadEvent so VaultUnlocked's vault2→vault1 bridge
         // has already fired. VaultUnlocked registers the Bukkit service bridge post-Done, after
@@ -150,6 +152,7 @@ public class Disenchantment extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new Listener() {
             @EventHandler
             public void onServerLoad(ServerLoadEvent event) {
+                ConfigValidator.validateWorldNamesAndLog();
                 DiagnosticUtils.debug("ECONOMY", "ServerLoadEvent fired — attempting economy hook");
                 boolean economyAvailable = EconomyUtils.setup();
                 if (!economyAvailable && (Config.Disenchantment.Economy.isEnabled() || Config.Shatterment.Economy.isEnabled())) {

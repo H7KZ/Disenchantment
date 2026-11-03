@@ -109,4 +109,17 @@ class ConfigValidationWiringTest extends DisenchantmentTestBase {
 
         assertEquals(List.of("BOW", "MODDED_THING"), com.jankominek.disenchantment.Disenchantment.config.getStringList("disenchantment.materials.list"));
     }
+
+    @Test
+    void givenWorldNotLoadedAtEnable_whenServerLoadEvent_thenWorldIssueReported() {
+        world();
+        setConfig("shatterment.worlds.list", List.of("world", "loaded_by_multiverse_later"));
+        ConfigValidator.validateAndLog(false);
+        assertTrue(ConfigValidator.getLastIssues().stream().noneMatch(i -> i.path().equals("shatterment.worlds.list")));
+
+        server.getPluginManager().callEvent(new org.bukkit.event.server.ServerLoadEvent(org.bukkit.event.server.ServerLoadEvent.LoadType.STARTUP));
+
+        assertTrue(ConfigValidator.getLastIssues().stream().anyMatch(i -> i.path().equals("shatterment.worlds.list")),
+                ConfigValidator.getLastIssues().toString());
+    }
 }

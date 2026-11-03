@@ -65,10 +65,22 @@ public final class ConfigValidator {
      * @return the problems found (also available through {@link #getLastIssues()})
      */
     public static List<ConfigIssue> validateAndLog() {
+        return validateAndLog(true);
+    }
+
+    /**
+     * Same as {@link #validateAndLog()}, optionally leaving out the check that world names in {@code worlds.list}
+     * are loaded. At plugin enable, world-management plugins (Multiverse and the like) have not loaded their worlds
+     * yet, so the check runs later, on {@link #validateWorldNamesAndLog()}.
+     *
+     * @param worldNames {@code false} to skip the loaded-world check
+     * @return the problems found (also available through {@link #getLastIssues()})
+     */
+    public static List<ConfigIssue> validateAndLog(boolean worldNames) {
         List<ConfigIssue> issues;
 
         try {
-            issues = validate(config, loadTemplate());
+            issues = validate(config, loadTemplate(), worldNames);
         } catch (RuntimeException e) {
             logger.log(Level.WARNING, "Config validation failed unexpectedly; the configuration is still usable", e);
             issues = List.of();
@@ -94,6 +106,42 @@ public final class ConfigValidator {
      * @return the problems found, in a stable order
      */
     public static List<ConfigIssue> validate(FileConfiguration cfg, FileConfiguration template) {
+        return validate(cfg, template, true);
+    }
+
+    /**
+     * Runs only the world-name checks (is every name in {@code disenchantment.worlds.list} /
+     * {@code shatterment.worlds.list} a loaded world), logs each problem and adds them to
+     * {@link #getLastIssues()}. Meant for {@code ServerLoadEvent}, when every world plugin has loaded its worlds.
+     * Never throws.
+     *
+     * @return the world problems found
+     */
+    public static List<ConfigIssue> validateWorldNamesAndLog() {
+        List<ConfigIssue> found = new ArrayList<>();
+
+        try {
+            checkRestriction(config, "disenchantment.worlds", false, true, found);
+            checkRestriction(config, "shatterment.worlds", false, true, found);
+        } catch (RuntimeException e) {
+            logger.log(Level.WARNING, "World name validation failed unexpectedly", e);
+            return List.of();
+        }
+
+        // Only the loaded-world findings: the structural ones were already reported by the full run.
+        List<ConfigIssue> worldIssues = found.stream().filter(i -> i.message().contains("is not currently loaded")).toList();
+        for (ConfigIssue issue : worldIssues) logger.warning("Config: " + issue.format());
+
+        if (!worldIssues.isEmpty()) {
+            List<ConfigIssue> merged = new ArrayList<>(lastIssues);
+            merged.addAll(worldIssues);
+            lastIssues = Collections.unmodifiableList(merged);
+        }
+
+        return worldIssues;
+    }
+
+    private static List<ConfigIssue> validate(FileConfiguration cfg, FileConfiguration template, boolean worldNames) {
         List<ConfigIssue> issues = new ArrayList<>();
 
         if (template != null) checkUnknownKeys(cfg, template, "", issues);
@@ -106,8 +154,8 @@ public final class ConfigValidator {
         checkLocales(cfg, issues);
         checkWebhook(cfg, issues);
 
-        checkFeature(cfg, "disenchantment", issues);
-        checkFeature(cfg, "shatterment", issues);
+        checkFeature(cfg, "disenchantment", worldNames, issues);
+        checkFeature(cfg, "shatterment", worldNames, issues);
 
         checkCosts(cfg, "erase.anvil.repair.enchantment-costs", issues);
         checkCosts(cfg, "grindstone.repair.enchantment-costs", issues);
@@ -183,9 +231,9 @@ public final class ConfigValidator {
         }
     }
 
-    private static void checkFeature(FileConfiguration cfg, String feature, List<ConfigIssue> issues) {
-        checkRestriction(cfg, feature + ".worlds", false, issues);
-        checkRestriction(cfg, feature + ".materials", true, issues);
+    private static void checkFeature(FileConfiguration cfg, String feature, boolean worldNames, List<ConfigIssue> issues) {
+        checkRestriction(cfg, feature + ".worlds", false, worldNames, issues);
+        checkRestriction(cfg, feature + ".materials", true, false, issues);
 
         // enchantment states
         String statesPath = feature + ".enchantments-states";
@@ -230,7 +278,7 @@ public final class ConfigValidator {
         }
     }
 
-    private static void checkRestriction(FileConfiguration cfg, String base, boolean materials, List<ConfigIssue> issues) {
+    private static void checkRestriction(FileConfiguration cfg, String base, boolean materials, boolean worldNames, List<ConfigIssue> issues) {
         Object section = cfg.get(base, null);
         if (section == null) return;
 
@@ -267,7 +315,7 @@ public final class ConfigValidator {
         }
 
         Set<String> seen = new LinkedHashSet<>();
-        boolean worldsLoaded = !Bukkit.getWorlds().isEmpty();
+        boolean worldsLoaded = worldNames && !Bukkit.getWorlds().isEmpty();
 
         for (String name : names) {
             if (!seen.add(name.toLowerCase(Locale.ROOT))) {
@@ -306,6 +354,9 @@ public final class ConfigValidator {
                 issues.add(new ConfigIssue(path, material.name() + " cannot be a catalyst (books belong to disenchantment and shatterment, air is not an item); skipped"));
             } else {
                 usable++;
+                if (isKnownRepairMaterial(material)) {
+                    issues.add(new ConfigIssue(path, material.name() + " is also a vanilla repair material; where erase applies it replaces the vanilla repair of items that use it (a different catalyst avoids that)"));
+                }
             }
         }
 
@@ -313,6 +364,16 @@ public final class ConfigValidator {
         if (enabled && usable == 0) {
             issues.add(new ConfigIssue(path, "no usable catalyst material; erase mode is disabled"));
         }
+    }
+
+    // Best effort: the common repair materials, by name so the list compiles and loads on every supported version.
+    private static final Set<String> REPAIR_MATERIALS = Set.of(
+            "DIAMOND", "IRON_INGOT", "GOLD_INGOT", "NETHERITE_INGOT", "COPPER_INGOT", "LEATHER", "PHANTOM_MEMBRANE",
+            "SCUTE", "TURTLE_SCUTE", "ARMADILLO_SCUTE", "BREEZE_ROD", "COBBLESTONE", "COBBLED_DEEPSLATE", "BLACKSTONE");
+
+    private static boolean isKnownRepairMaterial(Material material) {
+        String name = material.name();
+        return REPAIR_MATERIALS.contains(name) || name.endsWith("_PLANKS");
     }
 
     private static void checkSpecialAnvils(FileConfiguration cfg, List<ConfigIssue> issues) {

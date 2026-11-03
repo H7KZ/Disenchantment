@@ -396,4 +396,63 @@ class ConfigValidatorTest extends DisenchantmentTestBase {
         assertTrue(validate().stream().noneMatch(issue -> issue.path().startsWith("erase.catalysts")),
                 "Catalysts are only checked while erase is enabled (ECHO_SHARD is missing before 1.19)");
     }
+
+    // ----------------------------------------------------------------------------------------------------
+    // Repair-material catalysts
+
+    @Test
+    void givenCatalystThatIsAlsoARepairMaterial_whenValidate_thenWarned() {
+        setConfig("erase.enabled", true);
+        setConfig("erase.catalysts", List.of("ECHO_SHARD", "DIAMOND", "oak_planks"));
+
+        List<ConfigIssue> issues = validate().stream().filter(i -> i.path().equals("erase.catalysts")).toList();
+
+        assertEquals(2, issues.size(), issues.toString());
+        assertTrue(issues.stream().anyMatch(i -> i.message().startsWith("DIAMOND is also a vanilla repair material")));
+        assertTrue(issues.stream().anyMatch(i -> i.message().startsWith("OAK_PLANKS is also a vanilla repair material")));
+    }
+
+    @Test
+    void givenNonRepairCatalyst_whenValidate_thenNoRepairWarning() {
+        setConfig("erase.enabled", true);
+        setConfig("erase.catalysts", List.of("AMETHYST_SHARD", "NETHER_STAR"));
+
+        assertFalse(hasIssueAt(validate(), "erase.catalysts"));
+    }
+
+    // ----------------------------------------------------------------------------------------------------
+    // World names are checked once the server finished loading
+
+    @Test
+    void givenUnloadedWorld_whenValidateAtEnable_thenWorldNamesNotChecked() {
+        world();
+        setConfig("shatterment.worlds.list", List.of("world", "nether_later"));
+
+        ConfigValidator.validateAndLog(false);
+
+        assertFalse(hasIssueAt(ConfigValidator.getLastIssues(), "shatterment.worlds.list"));
+    }
+
+    @Test
+    void givenUnloadedWorld_whenServerLoaded_thenWorldIssueLoggedAndRemembered() {
+        world();
+        setConfig("shatterment.worlds.list", List.of("world", "nether_later"));
+        ConfigValidator.validateAndLog(false);
+
+        List<ConfigIssue> found = ConfigValidator.validateWorldNamesAndLog();
+
+        assertEquals(1, found.size());
+        assertTrue(found.get(0).message().contains("\"nether_later\" is not currently loaded"));
+        assertTrue(hasIssueAt(ConfigValidator.getLastIssues(), "shatterment.worlds.list"));
+    }
+
+    @Test
+    void givenAllWorldsLoaded_whenServerLoaded_thenNothingReported() {
+        world();
+        setConfig("shatterment.worlds.list", List.of("world"));
+        ConfigValidator.validateAndLog(false);
+
+        assertEquals(List.of(), ConfigValidator.validateWorldNamesAndLog());
+        assertEquals(List.of(), ConfigValidator.getLastIssues());
+    }
 }
