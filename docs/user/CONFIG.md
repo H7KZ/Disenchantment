@@ -289,6 +289,12 @@ What is checked, and what the plugin does instead:
 | `split-count` that is not a number, `0`, negative, or a reversed range like `"5-2"`                             | Clamped to 1-255; a reversed range is swapped; unusable values become `1`.                                     |
 | Unknown or misspelt option name (`disenchantmnet:`)                                                             | Reported with a "did you mean" hint. The key is ignored. Names are compared with the bundled `config.yml`.      |
 | Invalid `locale` / `locales` entry                                                                              | Only letters, digits, `_` and `-` are accepted; otherwise `"en"` is used.                                       |
+| Unknown or non-block `special-anvils.block-below`; invalid `special-anvils.mode`                                | `LAPIS_BLOCK` / `ALL` is used. Material names are case-insensitive and `minecraft:` ids work.                   |
+| `special-anvils.recipe` with a bad shape (not 1-3 rows of equal length, 1-3 characters) or an ingredient that is not an item | The recipe is not registered. Only reported while `recipe.enabled` is `true`.                       |
+| `erase.catalysts` entry that is unknown, `BOOK`, `ENCHANTED_BOOK` or air; a list with no usable entry          | The entry is skipped. If none is left, erase mode does nothing (reported when `erase.enabled` is `true`).       |
+| `feedback.particles.types` / `erase-types` where no name exists on this server                                  | No particles are spawned. One resolvable name is enough, so legacy and current names can be listed together.    |
+| `feedback.failure-sound.sound` that is not a lower-case sound key (`entity.villager.no`)                        | The default key is used.                                                                                        |
+| `grindstone.transfer.max-enchantments` outside 1-64                                                             | Clamped.                                                                                                        |
 
 Clamping ranges:
 
@@ -304,6 +310,11 @@ Clamping ranges:
 | `cooldown.seconds`                           | `0` to `31536000`                                             | `0`          |
 | `logging.operations-retention-days`          | `0` to `36500`                                                | `0`          |
 | `shatterment.split-count` (min / max)        | `1` to `255`                                                  | `1`          |
+| `feedback.particles.count`                   | `1` to `500`                                                  | `30`         |
+| `feedback.particles.spread`                  | `0` to `16`                                                   | `0.4`        |
+| `feedback.failure-sound.volume` / `pitch`    | `0` to `10` / `0.5` to `2.0`                                  | `1.0`        |
+| `erase.*`, `grindstone.*`, `grindstone.transfer.*` | Same ranges as the matching `disenchantment.*` options (sound, repair base/multiply/max-cost, economy cost) | `grindstone.transfer.repair.base` defaults to `15` |
+| `grindstone.transfer.max-enchantments`       | `1` to `64`                                                   | `16`         |
 
 Editing a `worlds` or `materials` list with a command or the GUI keeps entries you wrote by hand that cannot be
 resolved yet (a world that loads later, a modded material), so they are not lost.

@@ -349,12 +349,17 @@ Rules the parsers follow:
 - Checks: every `ConfigSpec` (`spec.problem`); unknown/misspelt keys against the bundled `config.yml` (empty template
   sections such as `enchantment-chances: { }` are user-defined maps and are not recursed; "did you mean" uses edit
   distance); restriction `mode`/`list` shape; `ALLOWLIST` with an empty list (this replaced the
-  `Config.validateRestrictions()` call in `setupConfig`; the old method remains but is no longer invoked); unknown
+  `Config.validateRestrictions()` call in `setupConfig`; the old method remains but is no longer invoked); `erase.catalysts`
+  (unknown / BOOK / air / none usable), `special-anvils.block-below` and the recipe (`SpecialAnvilRecipe.validate()`, only while
+  enabled), particle lists with no resolvable name (`ParticleUtils.exists`), costs of erase and grindstone; unknown
   materials; worlds not currently loaded (only when at least one world is loaded); enchantment keys in states / chances /
   costs / groups; malformed state entries; split-count; locale file availability; webhook shape.
 - Enchantment keys are checked against `Registry.ENCHANTMENT`. Plugin adapters do not expose their key lists, so a bare
   non-vanilla key gets a soft warning ("ignore if it comes from a custom enchantment plugin") and keys in another
   namespace are accepted. `foreignNamespaceKeys` remembers `ns:key:state` entries because the state parser drops the namespace.
+- Single reporter: the ad-hoc startup warnings of the erase / special-anvils / feedback features were removed
+  (`EraseUtils.validateConfig` and its parse warnings, `Config.SpecialAnvils.validate()`, the `ParticleUtils.resolve` and
+  `SpecialAnvilRecipe.build` warnings). The validator is the only place a config problem is logged, so each is reported once.
 - Exposure: `Reload` prints the problem count to the sender, `DiagnosticUtils.buildReport` adds a `Config Problems` block.
 - Tests: `ConfigTotalityTest` (junk input against every getter), `ConfigValidatorTest`, `ConfigValidationWiringTest`.
 
