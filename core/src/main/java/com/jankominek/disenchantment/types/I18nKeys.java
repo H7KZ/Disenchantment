@@ -59,6 +59,10 @@ public enum I18nKeys {
     MESSAGES_USE_NORMAL_CLICK("messages.use-normal-click"),
     MESSAGES_ENCHANTMENTS_FAILED_TO_TRANSFER("messages.enchantments-failed-to-transfer"),
     MESSAGES_NOT_ENOUGH_LEVELS("messages.not-enough-levels"),
+    MESSAGES_PREVIEW_TRANSFERS("messages.preview-transfers"),
+    MESSAGES_PREVIEW_COST_LEVELS("messages.preview-cost-levels"),
+    MESSAGES_PREVIEW_COST_LEVELS_MONEY("messages.preview-cost-levels-money"),
+    MESSAGES_PREVIEW_COST_MONEY("messages.preview-cost-money"),
 
     COMMANDS_CHANCES_DISENCHANTMENT_TITLE("commands.chances.disenchantment.title"),
     COMMANDS_CHANCES_DISENCHANTMENT_EMPTY("commands.chances.disenchantment.empty"),

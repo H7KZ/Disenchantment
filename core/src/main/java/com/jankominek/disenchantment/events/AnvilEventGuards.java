@@ -194,7 +194,7 @@ public final class AnvilEventGuards {
     public static boolean isMaintenanceBlocked(Player p) {
         if (!isMaintenanceActiveFor(p)) return false;
 
-        p.sendMessage(I18n.getPrefix() + " " + I18n.Messages.maintenanceActive());
+        FeedbackUtils.refuse(p, I18n.Messages.maintenanceActive());
         return true;
     }
 
@@ -225,7 +225,7 @@ public final class AnvilEventGuards {
         if (!isOnCooldownQuiet(p)) return false;
 
         long remaining = CooldownManager.getRemainingSeconds(p);
-        p.sendMessage(I18n.getPrefix() + " " + I18n.Messages.cooldownActive(String.valueOf(remaining)));
+        FeedbackUtils.refuse(p, I18n.Messages.cooldownActive(String.valueOf(remaining)));
         return true;
     }
 

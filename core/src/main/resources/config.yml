@@ -128,3 +128,31 @@ shatterment:
     cost: 100.0
     show-cost: true
     charge-message: true
+
+# ----------------------------------------------------------------------------------------
+
+# Player feedback for anvil operations.
+feedback:
+  # Particles spawned at the anvil when a disenchant/shatter (or erase) succeeds.
+  # Names are tried in order; names the server does not know are skipped, so a current and a legacy
+  # name can be listed together. Only particles without extra data (no dust/block/item) are used.
+  particles:
+    enabled: true
+    types: [ ENCHANT, ENCHANTMENT_TABLE ]
+    # Particles used by erase mode.
+    erase-types: [ SMOKE, SMOKE_NORMAL ]
+    count: 30
+    spread: 0.4
+    # PLAYER = only the player sees them | WORLD = everyone nearby sees them.
+    scope: PLAYER
+  # Played to the player when taking the result is refused (not enough levels or money, cooldown, ...).
+  # "sound" is a vanilla sound key such as "entity.villager.no".
+  failure-sound:
+    enabled: true
+    sound: "entity.villager.no"
+    volume: 1.0
+    pitch: 1.0
+  # Tell the player how many levels they are missing (at most once per second).
+  not-enough-xp-message: true
+  # List what transfers and what it costs in the lore of the result book while it sits in the anvil.
+  preview-lore: true

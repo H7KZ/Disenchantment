@@ -54,6 +54,37 @@ class Migration13Test extends DisenchantmentTestBase {
         assertEquals(13, result.getInt("migration"));
     }
 
+    @Test
+    void givenV12Config_whenMigrated_thenFeedbackDefaultsPresent() {
+        FileConfiguration result = new Migration13().migrate(v12Config(), template13());
+
+        assertTrue(result.getBoolean("feedback.particles.enabled"));
+        assertEquals(List.of("ENCHANT", "ENCHANTMENT_TABLE"), result.getStringList("feedback.particles.types"));
+        assertEquals(List.of("SMOKE", "SMOKE_NORMAL"), result.getStringList("feedback.particles.erase-types"));
+        assertEquals(30, result.getInt("feedback.particles.count"));
+        assertEquals(0.4, result.getDouble("feedback.particles.spread"));
+        assertEquals("PLAYER", result.getString("feedback.particles.scope"));
+        assertTrue(result.getBoolean("feedback.failure-sound.enabled"));
+        assertEquals("entity.villager.no", result.getString("feedback.failure-sound.sound"));
+        assertEquals(1.0, result.getDouble("feedback.failure-sound.volume"));
+        assertEquals(1.0, result.getDouble("feedback.failure-sound.pitch"));
+        assertTrue(result.getBoolean("feedback.not-enough-xp-message"));
+        assertTrue(result.getBoolean("feedback.preview-lore"));
+    }
+
+    @Test
+    void givenUserCustomisedFeedback_whenMigrated_thenTheirValuesWin() {
+        YamlConfiguration old = v12Config();
+        old.set("feedback.particles.enabled", false);
+        old.set("feedback.failure-sound.sound", "block.anvil.land");
+
+        FileConfiguration result = new Migration13().migrate(old, template13());
+
+        assertFalse(result.getBoolean("feedback.particles.enabled"));
+        assertEquals("block.anvil.land", result.getString("feedback.failure-sound.sound"));
+        assertEquals(30, result.getInt("feedback.particles.count"), "Untouched siblings keep the template default");
+    }
+
     // -> existing values preserved
 
     @Test

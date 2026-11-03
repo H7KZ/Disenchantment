@@ -114,7 +114,7 @@ public class ShatterClickEvent {
         if (AnvilEventGuards.isUnsafeResultClick(e)) {
             DiagnosticUtils.debug("SHATTER", () -> "Click: unsafe click type " + e.getClick() + " → CANCELLED");
             e.setCancelled(true);
-            p.sendMessage(I18n.getPrefix() + " " + I18n.Messages.useNormalClick());
+            FeedbackUtils.refuse(p, I18n.Messages.useNormalClick());
             return;
         }
 
@@ -145,7 +145,7 @@ public class ShatterClickEvent {
         DiagnosticUtils.debug("SHATTER", () -> "Click: xp check — repairCost=" + repairCost + ", playerLevel=" + p.getLevel());
         if (!AnvilEventGuards.hasEnoughXp(p, repairCost)) {
             DiagnosticUtils.debug("SHATTER", "Click: insufficient XP → CANCELLED");
-            p.sendMessage(I18n.getPrefix() + " " + I18n.Messages.notEnoughLevels(String.valueOf(repairCost)));
+            FeedbackUtils.refuseNotEnoughXp(p, repairCost);
             e.setCancelled(true);
             return;
         }
@@ -189,19 +189,19 @@ public class ShatterClickEvent {
         AnvilEventGuards.EconomyResult economyResult = AnvilEventGuards.processEconomyCost(p, ECONOMY_CONFIG, economyCost);
         if (economyResult == AnvilEventGuards.EconomyResult.NOT_AVAILABLE) {
             DiagnosticUtils.debug("SHATTER", "Click: economy not available → CANCELLED");
-            p.sendMessage(I18n.getPrefix() + " " + I18n.Messages.economyNotAvailable());
+            FeedbackUtils.refuse(p, I18n.Messages.economyNotAvailable());
             e.setCancelled(true);
             return;
         }
         if (economyResult == AnvilEventGuards.EconomyResult.INSUFFICIENT_FUNDS) {
             DiagnosticUtils.debug("SHATTER", "Click: insufficient funds → CANCELLED");
-            p.sendMessage(I18n.getPrefix() + " " + I18n.Messages.economyInsufficientFunds(EconomyUtils.format(economyCost)));
+            FeedbackUtils.refuse(p, I18n.Messages.economyInsufficientFunds(EconomyUtils.format(economyCost)));
             e.setCancelled(true);
             return;
         }
         if (economyResult == AnvilEventGuards.EconomyResult.WITHDRAW_FAILED) {
             DiagnosticUtils.debug("SHATTER", "Click: economy withdrawal failed → CANCELLED");
-            p.sendMessage(I18n.getPrefix() + " " + I18n.Messages.economyWithdrawFailed());
+            FeedbackUtils.refuse(p, I18n.Messages.economyWithdrawFailed());
             e.setCancelled(true);
             return;
         }
@@ -310,6 +310,8 @@ public class ShatterClickEvent {
                     Config.Shatterment.Anvil.Sound.getVolume().floatValue(),
                     Config.Shatterment.Anvil.Sound.getPitch().floatValue()
             );
+
+        ParticleUtils.playSuccess(p, anvilInventory);
 
         DiagnosticUtils.debug("SHATTER", "Click: complete ✓");
     }

@@ -53,6 +53,11 @@ messages:
   not-enough-levels: "&cYou need &f{levels} &clevels to do that.&r"
   enchantments-failed-to-transfer: "&cThe enchantments failed to transfer. You received a plain book instead.&r"
   use-normal-click: "&cTake the result with a normal left or right click.&r"
+  some-enchantments-may-not-transfer: "&7Some enchantments may not transfer&r"
+  preview-transfers: "&7Transfers: &f{enchantments}&r"
+  preview-cost-levels: "&7Cost: &f{levels} levels&r"
+  preview-cost-levels-money: "&7Cost: &f{levels} levels &7+ &f{money}&r"
+  preview-cost-money: "&7Cost: &f{money}&r"
 
 states:
   enabled: "&aEnabled&r"

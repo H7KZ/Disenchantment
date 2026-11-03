@@ -94,6 +94,20 @@ public enum ConfigKeys {
 
     // Shared settings
     ENCHANTMENT_GROUPS("enchantment-groups"),
+
+    // Feedback settings (particles, failure sound, refusal messages, preview lore)
+    FEEDBACK_PARTICLES_ENABLED("feedback.particles.enabled"),
+    FEEDBACK_PARTICLES_TYPES("feedback.particles.types"),
+    FEEDBACK_PARTICLES_ERASE_TYPES("feedback.particles.erase-types"),
+    FEEDBACK_PARTICLES_COUNT("feedback.particles.count"),
+    FEEDBACK_PARTICLES_SPREAD("feedback.particles.spread"),
+    FEEDBACK_PARTICLES_SCOPE("feedback.particles.scope"),
+    FEEDBACK_FAILURE_SOUND_ENABLED("feedback.failure-sound.enabled"),
+    FEEDBACK_FAILURE_SOUND_SOUND("feedback.failure-sound.sound"),
+    FEEDBACK_FAILURE_SOUND_VOLUME("feedback.failure-sound.volume"),
+    FEEDBACK_FAILURE_SOUND_PITCH("feedback.failure-sound.pitch"),
+    FEEDBACK_NOT_ENOUGH_XP_MESSAGE("feedback.not-enough-xp-message"),
+    FEEDBACK_PREVIEW_LORE("feedback.preview-lore"),
     ;
 
     private final String key;

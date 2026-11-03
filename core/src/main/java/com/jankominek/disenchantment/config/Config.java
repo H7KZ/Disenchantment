@@ -1660,4 +1660,137 @@ public class Config {
             }
         }
     }
+
+    /**
+     * Player feedback settings: success particles, the failure sound, the debounced
+     * "not enough levels" message and the result-book preview lore. Read-only: edit
+     * {@code config.yml} and reload.
+     */
+    public static class Feedback {
+        /**
+         * Checks whether the debounced "not enough levels" message is sent when a click is refused.
+         *
+         * @return {@code true} (default) if the message is enabled
+         */
+        public static boolean isNotEnoughXpMessageEnabled() {
+            return config.getBoolean(ConfigKeys.FEEDBACK_NOT_ENOUGH_XP_MESSAGE.getKey(), true);
+        }
+
+        /**
+         * Checks whether the result book of a prepared disenchant/shatter lists what transfers and the cost.
+         *
+         * @return {@code true} (default) if the preview lore is enabled
+         */
+        public static boolean isPreviewLoreEnabled() {
+            return config.getBoolean(ConfigKeys.FEEDBACK_PREVIEW_LORE.getKey(), true);
+        }
+
+        /**
+         * Success particle settings, spawned at the anvil when an operation completes.
+         */
+        public static class Particles {
+            /**
+             * Checks whether success particles are enabled.
+             *
+             * @return {@code true} (default) if particles are spawned
+             */
+            public static boolean isEnabled() {
+                return config.getBoolean(ConfigKeys.FEEDBACK_PARTICLES_ENABLED.getKey(), true);
+            }
+
+            /**
+             * Gets the particle names spawned by a successful disenchant or shatter. Names that do not
+             * exist on the running server are skipped, so legacy and current names can be listed together.
+             *
+             * @return the configured particle names (default {@code ENCHANT, ENCHANTMENT_TABLE})
+             */
+            public static List<String> getTypes() {
+                return getNames(ConfigKeys.FEEDBACK_PARTICLES_TYPES, List.of("ENCHANT", "ENCHANTMENT_TABLE"));
+            }
+
+            /**
+             * Gets the particle names spawned by a successful erase.
+             *
+             * @return the configured particle names (default {@code SMOKE, SMOKE_NORMAL})
+             */
+            public static List<String> getEraseTypes() {
+                return getNames(ConfigKeys.FEEDBACK_PARTICLES_ERASE_TYPES, List.of("SMOKE", "SMOKE_NORMAL"));
+            }
+
+            /**
+             * Gets how many particles of each type are spawned.
+             *
+             * @return the count, clamped to [1, 500]
+             */
+            public static int getCount() {
+                return Math.max(1, Math.min(500, config.getInt(ConfigKeys.FEEDBACK_PARTICLES_COUNT.getKey(), 30)));
+            }
+
+            /**
+             * Gets the random spread of the particles around the spawn point, in blocks.
+             *
+             * @return the spread, never negative
+             */
+            public static double getSpread() {
+                return Math.max(0.0, config.getDouble(ConfigKeys.FEEDBACK_PARTICLES_SPREAD.getKey(), 0.4));
+            }
+
+            /**
+             * Gets who sees the particles.
+             *
+             * @return the {@link ParticleScopeType} (defaults to {@link ParticleScopeType#PLAYER})
+             */
+            public static ParticleScopeType getScope() {
+                return ParticleScopeType.fromConfig(config.getString(ConfigKeys.FEEDBACK_PARTICLES_SCOPE.getKey(), "PLAYER"));
+            }
+
+            private static List<String> getNames(ConfigKeys key, List<String> fallback) {
+                if (!config.contains(key.getKey())) return fallback;
+                return config.getStringList(key.getKey());
+            }
+        }
+
+        /**
+         * Sound played to a player whose anvil click was refused.
+         */
+        public static class FailureSound {
+            /**
+             * Checks whether the failure sound is enabled.
+             *
+             * @return {@code true} (default) if the sound is played
+             */
+            public static boolean isEnabled() {
+                return config.getBoolean(ConfigKeys.FEEDBACK_FAILURE_SOUND_ENABLED.getKey(), true);
+            }
+
+            /**
+             * Gets the vanilla sound key played on a refused click (a string, never a {@code Sound}
+             * constant, so it works on every server version).
+             *
+             * @return the sound key (default {@code entity.villager.no})
+             */
+            public static String getSound() {
+                String sound = config.getString(ConfigKeys.FEEDBACK_FAILURE_SOUND_SOUND.getKey(), "entity.villager.no");
+                return sound == null || sound.isBlank() ? "entity.villager.no" : sound.trim();
+            }
+
+            /**
+             * Gets the failure sound volume.
+             *
+             * @return the configured volume
+             */
+            public static float getVolume() {
+                return (float) config.getDouble(ConfigKeys.FEEDBACK_FAILURE_SOUND_VOLUME.getKey(), 1.0);
+            }
+
+            /**
+             * Gets the failure sound pitch.
+             *
+             * @return the configured pitch
+             */
+            public static float getPitch() {
+                return (float) config.getDouble(ConfigKeys.FEEDBACK_FAILURE_SOUND_PITCH.getKey(), 1.0);
+            }
+        }
+    }
 }

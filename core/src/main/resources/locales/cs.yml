@@ -53,6 +53,11 @@ messages:
   not-enough-levels: "&cK tomu potřebujete &f{levels} &cúrovní zkušeností.&r"
   enchantments-failed-to-transfer: "&cPřenos kouzel se nezdařil. Místo toho jste obdrželi obyčejnou knihu.&r"
   use-normal-click: "&cVýsledek vezměte běžným kliknutím levým nebo pravým tlačítkem.&r"
+  some-enchantments-may-not-transfer: "&7Některá kouzla se nemusí přenést&r"
+  preview-transfers: "&7Přenese: &f{enchantments}&r"
+  preview-cost-levels: "&7Cena: &f{levels} úrovní&r"
+  preview-cost-levels-money: "&7Cena: &f{levels} úrovní &7+ &f{money}&r"
+  preview-cost-money: "&7Cena: &f{money}&r"
 
 states:
   enabled: "&aPovoleno&r"
