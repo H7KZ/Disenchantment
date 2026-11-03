@@ -379,4 +379,21 @@ class ConfigValidatorTest extends DisenchantmentTestBase {
         assertFalse(ConfigValidator.isKnownEnchantment("has space"));
         assertFalse(ConfigValidator.isKnownEnchantment(null));
     }
+
+    @Test
+    void givenCustomRecipeSymbol_whenValidate_thenNotReportedAsUnknown() {
+        setConfig("special-anvils.recipe.ingredients.I", "IRON_INGOT");
+
+        assertTrue(validate().stream().noneMatch(issue -> issue.path().startsWith("special-anvils.recipe.ingredients")),
+                "User-added recipe symbols are used by the recipe and must not be flagged");
+    }
+
+    @Test
+    void givenEraseDisabledAndUnknownCatalyst_whenValidate_thenNotReported() {
+        setConfig("erase.enabled", false);
+        setConfig("erase.catalysts", List.of("NOT_A_MATERIAL"));
+
+        assertTrue(validate().stream().noneMatch(issue -> issue.path().startsWith("erase.catalysts")),
+                "Catalysts are only checked while erase is enabled (ECHO_SHARD is missing before 1.19)");
+    }
 }

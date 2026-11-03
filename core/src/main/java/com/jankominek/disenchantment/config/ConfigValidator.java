@@ -137,7 +137,9 @@ public final class ConfigValidator {
             if (known.contains(key)) {
                 ConfigurationSection templateChild = template.getConfigurationSection(key);
                 // An empty template section ({ }) is a user-defined map (chances, costs, groups): any keys are fine.
-                if (templateChild != null && !templateChild.getKeys(false).isEmpty() && user.isConfigurationSection(key)) {
+                // Recipe ingredients are symbol → material entries the user may freely add to.
+                boolean userDefinedMap = (path).equals(ConfigKeys.SPECIAL_ANVILS_RECIPE_INGREDIENTS.getKey());
+                if (!userDefinedMap && templateChild != null && !templateChild.getKeys(false).isEmpty() && user.isConfigurationSection(key)) {
                     checkUnknownKeys(user.getConfigurationSection(key), templateChild, path + ".", issues);
                 }
                 continue;
@@ -278,6 +280,9 @@ public final class ConfigValidator {
     }
 
     private static void checkErase(FileConfiguration cfg, List<ConfigIssue> issues) {
+        // The default catalyst (ECHO_SHARD) does not exist before 1.19 — only complain when erase is on.
+        if (!cfg.getBoolean(ConfigKeys.ERASE_ENABLED.getKey(), false)) return;
+
         String path = ConfigKeys.ERASE_CATALYSTS.getKey();
         Object raw = cfg.get(path, null);
         if (raw == null) return;

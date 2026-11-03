@@ -127,4 +127,20 @@ public final class FeedbackUtils {
     public static void reset() {
         lastRefusalMessage.clear();
     }
+
+    /**
+     * Shows {@code legacyText} (section-sign colour codes) in the player's action bar. Uses Paper's
+     * Adventure API when present and falls back to the Spigot/BungeeCord chat API on plain Spigot,
+     * where {@code Player#sendActionBar(Component)} and Adventure do not exist.
+     *
+     * @param p          the player
+     * @param legacyText the text, already colour-translated
+     */
+    public static void sendActionBar(Player p, String legacyText) {
+        try {
+            p.sendActionBar(net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.legacySection().deserialize(legacyText));
+        } catch (LinkageError paperApiMissing) {
+            p.spigot().sendMessage(net.md_5.bungee.api.ChatMessageType.ACTION_BAR, net.md_5.bungee.api.chat.TextComponent.fromLegacyText(legacyText));
+        }
+    }
 }

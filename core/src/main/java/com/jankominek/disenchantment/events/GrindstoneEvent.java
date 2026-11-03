@@ -6,11 +6,11 @@ import com.jankominek.disenchantment.config.I18n;
 import com.jankominek.disenchantment.plugins.IPluginEnchantment;
 import com.jankominek.disenchantment.types.AnvilEventType;
 import com.jankominek.disenchantment.types.PermissionGroupType;
+import com.jankominek.disenchantment.utils.FeedbackUtils;
 import com.jankominek.disenchantment.utils.AnvilCostUtils;
 import com.jankominek.disenchantment.utils.DiagnosticUtils;
 import com.jankominek.disenchantment.utils.EconomyUtils;
 import com.jankominek.disenchantment.utils.EventUtils;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
@@ -251,7 +251,7 @@ public class GrindstoneEvent {
             text = I18n.Messages.grindstoneCost(String.valueOf(xp));
         }
 
-        if (text != null) p.sendActionBar(LegacyComponentSerializer.legacySection().deserialize(text));
+        if (text != null) FeedbackUtils.sendActionBar(p, text);
     }
 
     /**

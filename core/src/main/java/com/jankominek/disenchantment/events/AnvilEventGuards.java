@@ -11,7 +11,6 @@ import com.jankominek.disenchantment.types.AnvilEventType;
 import com.jankominek.disenchantment.types.PermissionType;
 import com.jankominek.disenchantment.types.SpecialAnvilMode;
 import com.jankominek.disenchantment.utils.*;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -431,9 +430,7 @@ public final class AnvilEventGuards {
                 && EconomyUtils.isAvailable()
                 && config.isShowCostEnabled()
                 && p.getGameMode() != GameMode.CREATIVE) {
-            p.sendActionBar(LegacyComponentSerializer.legacySection().deserialize(
-                    I18n.Messages.economyCost(EconomyUtils.format(cost))
-            ));
+            FeedbackUtils.sendActionBar(p, I18n.Messages.economyCost(EconomyUtils.format(cost)));
         }
     }
 
