@@ -386,6 +386,24 @@ public final class AnvilEventGuards {
     }
 
     /**
+     * Gives back what {@link #processEconomyCost} withdrew. A no-op when nothing was withdrawn (economy off,
+     * creative, no provider). Never throws: a failing provider is only logged, the caller is already handling an error.
+     *
+     * @param p      the player
+     * @param config economy config of the operation
+     * @param cost   the amount that was withdrawn
+     */
+    public static void refundEconomy(Player p, EconomyConfig config, double cost) {
+        if (!config.isEnabled() || p.getGameMode() == GameMode.CREATIVE || !EconomyUtils.isAvailable()) return;
+
+        try {
+            EconomyUtils.deposit(p, cost);
+        } catch (RuntimeException | LinkageError e) {
+            Disenchantment.logger.warning("Could not refund " + cost + " to " + p.getName() + ": " + e);
+        }
+    }
+
+    /**
      * Result codes returned by {@link #processEconomy} and {@link #processEconomyCost}.
      */
     public enum EconomyResult {

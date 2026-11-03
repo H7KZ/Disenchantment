@@ -384,11 +384,16 @@ XP, funds, Pre cancel) return before any mutation, so they can neither lose nor 
 `events/AnvilOperations.java` is the single place that settles a disenchant, shatter or erase. The three click
 handlers do their entry-specific checks (result slot, special anvil, maintenance, unsafe click, pending, cooldown, XP,
 permission) and then call `AnvilOperations.settle(kind, p, first, second, result, enchantments, repairCost, effects, applier)`,
-which runs, in this order and for every entry point: `Pre*` event (cancel -> `CANCELLED`), economy (`charge`: refusals
-message the player and return `CANCELLED`), `clearBypassCost`, the delivered item (disenchant/shatter: strip the source,
-per-enchantment chance rolls, level restore #76, plain-book fallback, `PreviewLore.strip`; erase: `EraseUtils.buildResult`),
-the **`Applier`** (the only caller-specific part: write the slots and hand over the result), the XP charge, the cooldown,
-the `Post*` event, sound and particles. `Outcome(status, delivered, newFirst, xpCost, economyCost)` reports the result;
+which runs, in this order and for every entry point: `Pre*` event (cancel -> `CANCELLED`), then **build every item** (disenchant/shatter:
+strip the source, per-enchantment chance rolls, level restore #76, plain-book fallback, `PreviewLore.strip` on a copy; erase:
+`EraseUtils.buildResult`) - adapters can throw here, and nothing has been charged or written yet - then **`takePayment`**
+(economy `charge`, whose refusals message the player and return `CANCELLED`; then the XP is re-checked, because an economy
+plugin can change levels while withdrawing, and taken; `clearBypassCost`), then the **`Applier`** (the only caller-specific
+part: write the slots and hand over the result), the cooldown, the `Post*` event, sound and particles.
+
+If the `Applier` throws, the XP and the money are given back (`refund`: levels restored, `AnvilEventGuards.refundEconomy` deposits;
+a no-op in creative or with the economy off) and the exception propagates to the handler's `DiagnosticUtils.throwReport`.
+`Outcome(status, delivered, newFirst, xpCost, economyCost)` reports the result;
 `DONE`, `CANCELLED` (anvil handlers cancel the click), `IGNORED`.
 
 `AnvilOperations.Kind` (`DISENCHANT`, `SHATTER`, `ERASE`) also owns the per-operation bindings that used to be duplicated in
@@ -470,10 +475,10 @@ grindstone).
   inventory): if slot 1 is empty and slot 0 holds something extractable, the click is cancelled and exactly one book moves
   into slot 1 via `inventory.setItem` (the API bypasses `mayPlace`). No-op on a server that already allows it.
 - **Result click** (raw slot 2), manual-result pattern. Order: maintenance -> result present -> **cancel from here on** ->
-  cursor empty -> unsafe click (`isUnsafeResultClick`) -> cooldown -> XP -> permission -> `Pre*Event` -> economy ->
+  cursor empty -> unsafe click (`isUnsafeResultClick`) -> cooldown -> XP -> permission -> `Pre*Event` -> build items -> economy + XP ->
   mutate. The result is **recomputed from slots 0/1** at click time; the item in slot 2 is only a "something is shown"
-  check, so a stale result can never be delivered. All items are built before the first write, then (after XP is
-  deducted) slot 2 is cleared, slot 1 is consumed, the stripped source goes into slot 0 and the result onto the cursor.
+  check, so a stale result can never be delivered. All items are built before anything is charged or written
+  (an adapter that throws costs nothing), then the economy and XP are charged (a failing slot write refunds both), slot 2 is cleared, slot 1 is consumed, the stripped source goes into slot 0 and the result onto the cursor.
   Vanilla's own take (which clears both inputs and awards XP orbs) never runs.
 - Extract per-enchantment chance rolls and the all-failed plain-book fallback mirror `DisenchantClickEvent`. A `Pre*`
   listener removing an entry from `getEnchantments()` vetoes that enchantment (it neither moves nor is removed).

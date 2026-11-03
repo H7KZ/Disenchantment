@@ -306,8 +306,8 @@ public final class AnvilOperations {
 
     /**
      * Writes the physical outcome of a settled operation. Called by {@link #settle} after every abortable
-     * precondition has passed and the player has been charged; nothing may fail in a way that skips the
-     * delivery.
+     * precondition has passed, the delivered items are fully built and the player has been charged. If it
+     * throws, the payment is refunded and the exception propagates.
      */
     @FunctionalInterface
     public interface Applier {
@@ -396,6 +396,45 @@ public final class AnvilOperations {
         return true;
     }
 
+    /**
+     * What a settlement took from the player, so a failure while writing the result can give it back.
+     *
+     * @param economyCost money withdrawn (0 when the economy is off or the player is in creative)
+     * @param xpCost      levels taken (0 in creative)
+     * @param levelBefore the player's level before the charge
+     */
+    private record Payment(double economyCost, int xpCost, int levelBefore) {
+    }
+
+    /**
+     * Charges the economy and then the XP levels. Returns {@code null} (the player is told, nothing stays
+     * charged) when either is refused. The XP is re-checked after the economy step because an economy plugin can
+     * change a player's levels while withdrawing.
+     */
+    private static Payment takePayment(Kind kind, Player p, double economyCost, int repairCost) {
+        if (!charge(kind, p, economyCost)) return null;
+
+        boolean creative = p.getGameMode() == GameMode.CREATIVE;
+        int levelBefore = p.getLevel();
+
+        if (!creative && levelBefore < repairCost) {
+            AnvilEventGuards.refundEconomy(p, kind.economy(), economyCost);
+            FeedbackUtils.refuseNotEnoughXp(p, repairCost);
+            return null;
+        }
+
+        if (!creative) p.setLevel(levelBefore - repairCost);
+        AnvilEventGuards.clearBypassCost(p);
+
+        return new Payment(economyCost, creative ? 0 : repairCost, levelBefore);
+    }
+
+    private static void refund(Kind kind, Player p, Payment payment) {
+        if (payment.xpCost() > 0) p.setLevel(payment.levelBefore());
+        AnvilEventGuards.refundEconomy(p, kind.economy(), payment.economyCost());
+        DiagnosticUtils.debug(kind.category(), "Click: writing the result failed → payment refunded");
+    }
+
     private static void playSound(Kind kind, Player p) {
         boolean enabled;
         float volume;
@@ -461,18 +500,11 @@ public final class AnvilOperations {
             approved = preEvent.getEnchantments();
         }
 
-        // Economy check — runs after the Pre event so cancellation doesn't charge the player
-        DiagnosticUtils.debug(cat, () -> "Click: economy check — enabled=" + kind.economy().isEnabled() + ", gameMode=" + p.getGameMode());
-        double economyCost = economyCost(kind, EventUtils.retainByKey(approved, transferred));
-        if (!charge(kind, p, economyCost)) return Outcome.of(Status.CANCELLED);
-
-        AnvilEventGuards.clearBypassCost(p);
-
-        int exp = p.getLevel() - repairCost;
-        DiagnosticUtils.debug(cat, () -> "Click: xp → " + p.getLevel() + " - " + repairCost + " = " + exp);
-
         // ----------------------------------------------------------------------------------------------------
-        // Supported plugins
+        // Build everything first. Adapters can throw here; nothing has been charged or written yet, so such a
+        // failure costs the player nothing. The shown result is left untouched until the player has paid.
+
+        double economyCost = economyCost(kind, EventUtils.retainByKey(approved, transferred));
 
         ItemStack finalFirstItem = firstItem.clone();
         List<IPluginEnchantment> enchantmentsToDelete = disenchant
@@ -498,9 +530,6 @@ public final class AnvilOperations {
             finalFirstItem = disenchant ? enchantment.removeFromItem(finalFirstItem) : enchantment.removeFromBook(finalFirstItem);
         }
 
-        // Supported plugins
-        // ----------------------------------------------------------------------------------------------------
-
         boolean reset = disenchant ? Config.Disenchantment.Anvil.Repair.isResetEnabled() : Config.Shatterment.Anvil.Repair.isResetEnabled();
         if (reset) AnvilCostUtils.setItemRepairCost(finalFirstItem, 0);
 
@@ -515,6 +544,7 @@ public final class AnvilOperations {
         Map<String, Integer> sourceLevels = new HashMap<>();
         for (IPluginEnchantment ench : enchantments) sourceLevels.put(EventUtils.normalizeKey(ench.getKey()).toLowerCase(), ench.getLevel());
 
+        ItemStack built = result.clone();
         Map<Enchantment, Integer> stored = new HashMap<>(resultItemMeta.getStoredEnchants());
         boolean metaChanged = false;
         for (Map.Entry<Enchantment, Integer> entry : stored.entrySet()) {
@@ -535,30 +565,44 @@ public final class AnvilOperations {
                 metaChanged = true;
             }
         }
-        if (metaChanged) result.setItemMeta(resultItemMeta);
+        if (metaChanged) built.setItemMeta(resultItemMeta);
 
         // Every roll failed: an empty enchanted book would be a useless, confusing reward. Hand
         // back a plain book instead (unless an adapter enchantment still made it onto the book).
-        final ItemStack rolled = result;
+        final ItemStack rolled = built;
         boolean allTransfersFailed = !stored.isEmpty() && resultItemMeta.getStoredEnchants().isEmpty()
                 && activatedPlugins.stream().allMatch(plugin -> plugin.getItemEnchantments(rolled, p.getWorld()).isEmpty());
 
-        // Past every abort: drop the preview lines (and the chance warning) that Prepare added, in place so
-        // the result slot cannot hand a second, still-annotated copy to vanilla's own pick-up.
+        // Drop the preview lines (and the chance warning) that Prepare added from the delivered copy.
+        PreviewLore.strip(built);
+
+        ItemStack delivered = allTransfersFailed ? new ItemStack(Material.BOOK) : built;
+
+        // ----------------------------------------------------------------------------------------------------
+        // Pay, then write. A refusal changes nothing; a failure while writing refunds both payments.
+
+        DiagnosticUtils.debug(cat, () -> "Click: economy check — enabled=" + kind.economy().isEnabled() + ", gameMode=" + p.getGameMode());
+        Payment payment = takePayment(kind, p, economyCost, repairCost);
+        if (payment == null) return Outcome.of(Status.CANCELLED);
+        DiagnosticUtils.debug(cat, () -> "Click: xp → " + payment.levelBefore() + " - " + repairCost);
+
+        // Past every abort: also drop the preview lines from the shown result, in place, so the result slot
+        // cannot hand a second, still-annotated copy to vanilla's own pick-up.
         PreviewLore.strip(result);
 
-        ItemStack delivered = result;
         if (allTransfersFailed) {
-            delivered = new ItemStack(Material.BOOK);
             p.sendMessage(I18n.getPrefix() + " " + I18n.Messages.enchantmentsFailedToTransfer());
             DiagnosticUtils.debug(cat, "Click: every enchantment failed its chance roll → plain book delivered");
         }
 
-        applier.apply(finalFirstItem, delivered);
+        try {
+            applier.apply(finalFirstItem, delivered);
+        } catch (RuntimeException | LinkageError e) {
+            refund(kind, p, payment);
+            throw e;
+        }
 
         boolean creative = p.getGameMode() == GameMode.CREATIVE;
-        if (!creative) p.setLevel(exp);
-
         int xpCost = creative ? 0 : repairCost;
         double finalEconomyCost = (kind.economy().isEnabled() && !creative) ? economyCost : 0.0;
         AnvilEventGuards.recordCooldownOperation(p);
@@ -587,29 +631,27 @@ public final class AnvilOperations {
             return Outcome.of(Status.CANCELLED);
         }
 
-        // Economy check — runs after PreEraseEvent so cancellation doesn't charge the player
-        DiagnosticUtils.debug("ERASE", () -> "Click: economy check — enabled=" + Config.Erase.Economy.isEnabled() + ", gameMode=" + p.getGameMode());
-        double economyCost = economyCost(Kind.ERASE, erased);
-        if (!charge(Kind.ERASE, p, economyCost)) return Outcome.of(Status.CANCELLED);
-
-        AnvilEventGuards.clearBypassCost(p);
-
-        int exp = p.getLevel() - repairCost;
-        DiagnosticUtils.debug("ERASE", () -> "Click: xp → " + p.getLevel() + " - " + repairCost + " = " + exp);
-
-        // ----------------------------------------------------------------------------------------------------
-        // Manual result: nothing below may return before the whole mutation is done.
-
         // Rebuilt from the live source item instead of trusting the result slot, so the delivered item is
-        // exactly the source minus what the listeners agreed to erase.
+        // exactly the source minus what the listeners agreed to erase. Built before anything is charged: an
+        // adapter that throws here costs the player nothing.
+        double economyCost = economyCost(Kind.ERASE, erased);
         ItemStack delivered = EraseUtils.buildResult(firstItem, erased);
         if (Config.Erase.Anvil.Repair.isResetEnabled()) AnvilCostUtils.setItemRepairCost(delivered, 0);
 
-        applier.apply(null, delivered);
+        // Pay (after PreEraseEvent, so a cancellation never charges), then write; a failure while writing refunds.
+        DiagnosticUtils.debug("ERASE", () -> "Click: economy check — enabled=" + Config.Erase.Economy.isEnabled() + ", gameMode=" + p.getGameMode());
+        Payment payment = takePayment(Kind.ERASE, p, economyCost, repairCost);
+        if (payment == null) return Outcome.of(Status.CANCELLED);
+        DiagnosticUtils.debug("ERASE", () -> "Click: xp → " + payment.levelBefore() + " - " + repairCost);
+
+        try {
+            applier.apply(null, delivered);
+        } catch (RuntimeException | LinkageError e) {
+            refund(Kind.ERASE, p, payment);
+            throw e;
+        }
 
         boolean creative = p.getGameMode() == GameMode.CREATIVE;
-        if (!creative) p.setLevel(exp);
-
         int xpCost = creative ? 0 : repairCost;
         double finalEconomyCost = (Config.Erase.Economy.isEnabled() && !creative) ? economyCost : 0.0;
         AnvilEventGuards.recordCooldownOperation(p);

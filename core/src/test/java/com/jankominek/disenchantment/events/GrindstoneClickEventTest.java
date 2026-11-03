@@ -860,4 +860,49 @@ class GrindstoneClickEventTest extends DisenchantmentTestBase {
 
         assertEquals(53, player.getLevel());
     }
+
+    // ====================================================================================================
+    // Charge ordering
+
+    @Test
+    void givenAdapterThrowsWhileBuildingExtract_whenClickResult_thenNothingCharged() {
+        setConfig("grindstone.enabled", true);
+        setConfig("grindstone.economy.enabled", true);
+        activateMockPlugin(new com.jankominek.disenchantment.plugins.MockPluginAdapter("Test", new SettleOrderingTest.BoomEnchantment()));
+        Economy economy = EconomyTestSupport.install();
+        try {
+            PlayerMock player = playerWithLevels(20);
+            ItemStack sword = enchanted(Material.DIAMOND_SWORD, "sharpness", 5);
+            FakeGrindstone grindstone = new FakeGrindstone(player, sword, books(1), someResult());
+
+            clickResult(player, grindstone);
+
+            assertEquals(20, player.getLevel(), "XP must not be taken when the result could not be built");
+            Mockito.verify(economy, Mockito.never()).withdrawPlayer(Mockito.any(OfflinePlayer.class), Mockito.anyDouble());
+            assertTrue(player.getItemOnCursor().getType().isAir());
+            assertSame(sword, grindstone.slot(SOURCE), "The source is untouched");
+        } finally {
+            EconomyTestSupport.uninstall();
+        }
+    }
+
+    @Test
+    void givenSlotWriteFailsAfterPayment_whenClickResult_thenXpAndMoneyRefunded() {
+        setConfig("grindstone.enabled", true);
+        setConfig("grindstone.economy.enabled", true);
+        Economy economy = EconomyTestSupport.install();
+        try {
+            PlayerMock player = playerWithLevels(20);
+            FakeGrindstone grindstone = new FakeGrindstone(player, enchanted(Material.DIAMOND_SWORD, "sharpness", 5), books(1), someResult());
+            Mockito.doThrow(new IllegalStateException("slot write failed")).when(grindstone.inventory).setItem(Mockito.eq(SOURCE), Mockito.any());
+
+            clickResult(player, grindstone);
+
+            assertEquals(20, player.getLevel(), "XP is restored");
+            Mockito.verify(economy).withdrawPlayer(Mockito.any(OfflinePlayer.class), Mockito.eq(100.0));
+            Mockito.verify(economy).depositPlayer(Mockito.any(OfflinePlayer.class), Mockito.eq(100.0));
+        } finally {
+            EconomyTestSupport.uninstall();
+        }
+    }
 }

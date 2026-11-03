@@ -236,6 +236,40 @@ public class GrindstoneClickEvent {
         }
     }
 
+    /**
+     * What a click took from the player, so a failure while writing the result can give it back.
+     */
+    private record Payment(double economyCost, int xpCost, int levelBefore) {
+    }
+
+    /**
+     * Charges the economy, then the XP levels (re-checked, as an economy plugin can change levels while withdrawing).
+     * Returns {@code null} when either is refused: the player is told and nothing stays charged.
+     */
+    private static Payment pay(Player p, AnvilEventGuards.EconomyConfig economy, double economyCost, int xpCost) {
+        AnvilEventGuards.EconomyResult economyResult = AnvilEventGuards.processEconomyCost(p, economy, economyCost);
+        if (!economyAllows(p, economyResult, economyCost)) return null;
+
+        boolean creative = p.getGameMode() == GameMode.CREATIVE;
+        int levelBefore = p.getLevel();
+
+        if (!creative && levelBefore < xpCost) {
+            AnvilEventGuards.refundEconomy(p, economy, economyCost);
+            p.sendMessage(I18n.getPrefix() + " " + I18n.Messages.notEnoughLevels(String.valueOf(xpCost)));
+            return null;
+        }
+
+        if (!creative) p.setLevel(levelBefore - xpCost);
+
+        return new Payment(economyCost, creative ? 0 : xpCost, levelBefore);
+    }
+
+    private static void refund(Player p, AnvilEventGuards.EconomyConfig economy, Payment payment) {
+        if (payment.xpCost() > 0) p.setLevel(payment.levelBefore());
+        AnvilEventGuards.refundEconomy(p, economy, payment.economyCost());
+        DiagnosticUtils.debug("GRINDSTONE", "Click: writing the result failed → payment refunded");
+    }
+
     private static void takeExtract(InventoryClickEvent e, Player p, GrindstoneInventory inventory, ItemStack first, ItemStack book) {
         if (AnvilEventGuards.isWorldBlocked(p, Config.Disenchantment.isWorldRestricted(p.getWorld()))) return;
 
@@ -284,14 +318,9 @@ public class GrindstoneClickEvent {
 
         double economyCost = AnvilCostUtils.economyCostForEnchantments(
                 moving, Config.Grindstone.Economy.getCost(), Config.Grindstone.Repair.getEnchantmentEconomyCosts());
-        AnvilEventGuards.EconomyResult economyResult = AnvilEventGuards.processEconomyCost(p, GrindstoneEvent.extractEconomy(), economyCost);
-        if (!economyAllows(p, economyResult, economyCost)) {
-            DiagnosticUtils.debug("GRINDSTONE", () -> "Click: economy " + economyResult + " → CANCELLED");
-            return;
-        }
 
         // ----------------------------------------------------------------------------------------------------
-        // Everything below is plain assignment: the result is fully built before the first inventory write.
+        // Build everything first. An adapter can throw here; nothing has been charged or written yet.
 
         List<IPluginEnchantment> surviving = new ArrayList<>();
         for (IPluginEnchantment enchantment : moving) {
@@ -300,14 +329,9 @@ public class GrindstoneClickEvent {
             surviving.add(enchantment);
         }
 
-        ItemStack delivered;
-        if (surviving.isEmpty()) {
-            // Every roll failed: hand back a plain book rather than an empty enchanted one.
-            delivered = new ItemStack(Material.BOOK);
-            p.sendMessage(I18n.getPrefix() + " " + I18n.Messages.enchantmentsFailedToTransfer());
-        } else {
-            delivered = GrindstoneOps.buildExtractBook(surviving);
-        }
+        // Every roll failed: hand back a plain book rather than an empty enchanted one.
+        boolean allFailed = surviving.isEmpty();
+        ItemStack delivered = allFailed ? new ItemStack(Material.BOOK) : GrindstoneOps.buildExtractBook(surviving);
 
         List<IPluginEnchantment> toRemove = new ArrayList<>(moving);
         toRemove.addAll(deleting);
@@ -320,15 +344,27 @@ public class GrindstoneClickEvent {
             remainingBooks.setAmount(book.getAmount() - 1);
         }
 
-        boolean creative = p.getGameMode() == GameMode.CREATIVE;
-        if (!creative) p.setLevel(p.getLevel() - xpCost);
+        Payment payment = pay(p, GrindstoneEvent.extractEconomy(), economyCost, xpCost);
+        if (payment == null) {
+            DiagnosticUtils.debug("GRINDSTONE", "Click: payment refused → CANCELLED");
+            return;
+        }
 
-        // Result first so the intermediate recomputes triggered by the next writes never see a stale result.
-        inventory.setItem(SLOT_RESULT, null);
-        inventory.setItem(SLOT_SECOND, remainingBooks);
-        inventory.setItem(SLOT_SOURCE, finalFirst);
-        p.setItemOnCursor(delivered);
+        if (allFailed) p.sendMessage(I18n.getPrefix() + " " + I18n.Messages.enchantmentsFailedToTransfer());
+
+        try {
+            // Result first so the intermediate recomputes triggered by the next writes never see a stale result.
+            inventory.setItem(SLOT_RESULT, null);
+            inventory.setItem(SLOT_SECOND, remainingBooks);
+            inventory.setItem(SLOT_SOURCE, finalFirst);
+            p.setItemOnCursor(delivered);
+        } catch (RuntimeException | LinkageError ex) {
+            refund(p, GrindstoneEvent.extractEconomy(), payment);
+            throw ex;
+        }
         p.updateInventory();
+
+        boolean creative = p.getGameMode() == GameMode.CREATIVE;
 
         double charged = (Config.Grindstone.Economy.isEnabled() && !creative) ? economyCost : 0.0;
         AnvilEventGuards.recordCooldownOperation(p);
@@ -375,15 +411,10 @@ public class GrindstoneClickEvent {
 
         double economyCost = AnvilCostUtils.economyCostForEnchantments(
                 moving, Config.Grindstone.Transfer.Economy.getCost(), Config.Grindstone.Transfer.Repair.getEnchantmentEconomyCosts());
-        AnvilEventGuards.EconomyResult economyResult = AnvilEventGuards.processEconomyCost(p, GrindstoneEvent.transferEconomy(), economyCost);
-        if (!economyAllows(p, economyResult, economyCost)) {
-            DiagnosticUtils.debug("GRINDSTONE", () -> "Click: economy " + economyResult + " → CANCELLED");
-            return;
-        }
 
         // ----------------------------------------------------------------------------------------------------
-        // Enchantments are moved, never copied: both new items are built before the first inventory write,
-        // and the source loses exactly what the target gained.
+        // Enchantments are moved, never copied: both new items are built before anything is charged or written
+        // (an adapter can throw here), and the source loses exactly what the target gained.
 
         ItemStack delivered = GrindstoneOps.buildTransferResult(target, moving);
         ItemStack finalFirst = GrindstoneOps.stripFromSource(first, moving);
@@ -392,14 +423,24 @@ public class GrindstoneClickEvent {
             AnvilCostUtils.setItemRepairCost(delivered, 0);
         }
 
-        boolean creative = p.getGameMode() == GameMode.CREATIVE;
-        if (!creative) p.setLevel(p.getLevel() - xpCost);
+        Payment payment = pay(p, GrindstoneEvent.transferEconomy(), economyCost, xpCost);
+        if (payment == null) {
+            DiagnosticUtils.debug("GRINDSTONE", "Click: payment refused → CANCELLED");
+            return;
+        }
 
-        inventory.setItem(SLOT_RESULT, null);
-        inventory.setItem(SLOT_SECOND, null);
-        inventory.setItem(SLOT_SOURCE, finalFirst);
-        p.setItemOnCursor(delivered);
+        try {
+            inventory.setItem(SLOT_RESULT, null);
+            inventory.setItem(SLOT_SECOND, null);
+            inventory.setItem(SLOT_SOURCE, finalFirst);
+            p.setItemOnCursor(delivered);
+        } catch (RuntimeException | LinkageError ex) {
+            refund(p, GrindstoneEvent.transferEconomy(), payment);
+            throw ex;
+        }
         p.updateInventory();
+
+        boolean creative = p.getGameMode() == GameMode.CREATIVE;
 
         double charged = (Config.Grindstone.Transfer.Economy.isEnabled() && !creative) ? economyCost : 0.0;
         AnvilEventGuards.recordCooldownOperation(p);
