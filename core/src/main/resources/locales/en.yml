@@ -53,6 +53,12 @@ messages:
   not-enough-levels: "&cYou need &f{levels} &clevels to do that.&r"
   enchantments-failed-to-transfer: "&cThe enchantments failed to transfer. You received a plain book instead.&r"
   use-normal-click: "&cTake the result with a normal left or right click.&r"
+  special-anvil-required: "&7This only works at a special anvil.&r"
+  give-anvil-usage: "&cUsage: /disenchantment give anvil <player> [amount]&r"
+  give-player-not-found: "&cPlayer {player} is not online!&r"
+  give-amount-invalid: "&cThe amount must be a whole number between 1 and {max}!&r"
+  give-anvil-given: "&aGave &f{amount}x &aspecial anvil to &f{player}&a.&r"
+  give-anvil-received: "&7You received &f{amount}x &7special anvil.&r"
 
 states:
   enabled: "&aEnabled&r"

@@ -79,6 +79,11 @@ public class ShatterEvent {
 
         if (AnvilEventGuards.isWorldBlocked(p, Config.Shatterment.isWorldRestricted(p.getWorld()))) return;
 
+        // Not a special anvil: leave the event untouched so vanilla behaves as without the plugin.
+        // The collection below only runs when a hint may be due (it needs to know it is a genuine operation).
+        boolean anvilAllowed = AnvilEventGuards.isAnvilAllowed(e.getInventory(), p);
+        if (!anvilAllowed && !Config.SpecialAnvils.isHintMessageEnabled()) return;
+
         DiagnosticUtils.debug("SHATTER", () -> "PrepareAnvil: player=" + p.getName() + ", world=" + p.getWorld().getName());
 
         ItemStack firstItem = e.getInventory().getItem(0);
@@ -97,6 +102,12 @@ public class ShatterEvent {
 
         if (enchantments.isEmpty()) {
             DiagnosticUtils.debug("SHATTER", "PrepareAnvil: no eligible enchantments → exit");
+            return;
+        }
+
+        if (!anvilAllowed) {
+            DiagnosticUtils.debug("SHATTER", "PrepareAnvil: not a special anvil → exit");
+            AnvilEventGuards.sendSpecialAnvilHint(p);
             return;
         }
 

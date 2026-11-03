@@ -74,6 +74,9 @@ public class ShatterClickEvent {
 
         if (AnvilEventGuards.isWorldBlocked(p, Config.Shatterment.isWorldRestricted(p.getWorld()))) return;
 
+        // Not a special anvil: Prepare produced no plugin result, so this is plain vanilla anvil use.
+        if (!AnvilEventGuards.isAnvilAllowed(e.getInventory(), p)) return;
+
         AnvilInventory anvilInventory = (AnvilInventory) e.getInventory();
 
         ItemStack firstItem = anvilInventory.getItem(0);

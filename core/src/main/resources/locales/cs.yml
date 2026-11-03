@@ -53,6 +53,12 @@ messages:
   not-enough-levels: "&cK tomu potřebujete &f{levels} &cúrovní zkušeností.&r"
   enchantments-failed-to-transfer: "&cPřenos kouzel se nezdařil. Místo toho jste obdrželi obyčejnou knihu.&r"
   use-normal-click: "&cVýsledek vezměte běžným kliknutím levým nebo pravým tlačítkem.&r"
+  special-anvil-required: "&7Toto funguje pouze na speciální kovadlině.&r"
+  give-anvil-usage: "&cPoužití: /disenchantment give anvil <hráč> [počet]&r"
+  give-player-not-found: "&cHráč {player} není online!&r"
+  give-amount-invalid: "&cPočet musí být celé číslo od 1 do {max}!&r"
+  give-anvil-given: "&aHráči &f{player} &abylo předáno &f{amount}x &aspeciální kovadlina.&r"
+  give-anvil-received: "&7Obdrželi jste &f{amount}x &7speciální kovadlina.&r"
 
 states:
   enabled: "&aPovoleno&r"
