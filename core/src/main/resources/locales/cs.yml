@@ -79,6 +79,7 @@ commands:
       2:
         - "&8/disenchant status &7- Zobrazí stav pluginu"
         - "&8/disenchant toggle ['global', 'disenchantment', 'shatterment'] &7- Přepne plugin zapnuto/vypnuto"
+        - "&8/disenchant give anvil [hráč] [počet] &7- Předá hráči speciální kovadliny"
       3:
         - "&8/disenchant disenchant:enchantments &7- Zobrazí seznam stavů očarování"
         - "&8/disenchant disenchant:enchantments [enchantment name] ['enable', 'keep', 'delete', 'disable'] &7- Upraví chování očarování"

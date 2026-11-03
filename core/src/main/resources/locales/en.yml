@@ -79,6 +79,7 @@ commands:
       2:
         - "&8/disenchant status &7- Displays the plugin's status"
         - "&8/disenchant toggle ['global', 'disenchantment', 'shatterment'] &7- Toggles the plugin on or off"
+        - "&8/disenchant give anvil [player] [amount] &7- Gives special anvils to a player"
       3:
         - "&8/disenchant disenchant:enchantments &7- View list of enchantment states"
         - "&8/disenchant disenchant:enchantments [enchantment name] ['enable', 'keep', 'delete', 'disable'] &7- Edit enchantment behavior"
