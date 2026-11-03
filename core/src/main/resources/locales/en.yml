@@ -5,6 +5,8 @@ messages:
   invalid-argument: "&cInvalid argument!&r"
   unknown-enchantment: "&cUnknown enchantment!&r"
   specify-enchantment-state: "&cPlease specify an enchantment state!&r"
+  specify-enchantment-chance: "&cSpecify an enchantment and a chance between 0.0 and 1.0&r"
+  enchantment-chance-is-set: "&aChance for {enchantment} set to {chance}&r"
   enchantment-is-enabled: "&a{enchantment} &7is enabled!&r"
   enchantment-is-kept: "&b{enchantment} &7is kept!&r"
   enchantment-is-deleted: "&e{enchantment} &7is deleted!&r"
@@ -184,13 +186,21 @@ commands:
       title: "&7&lShatterment enchantment states&r"
       empty: "&7No enchantments found!&r"
       enchantment: "&7{enchantment}: {state}&r"
-  materials:
+  chances:
     disenchantment:
-      title: "&7&lDisenchantment materials&r"
-      empty: "&7No materials found!&r"
-      material: "&7{material}: {state}&r"
-      states:
-        disabled: "&cDisabled&r"
+      title: "&6Disenchantment enchantment chances:&r"
+      empty: "&7No custom chances configured.&r"
+      enchantment: "&7{enchantment}: &f{chance}&r"
+    shatterment:
+      title: "&6Shatterment enchantment chances:&r"
+      empty: "&7No custom chances configured.&r"
+      enchantment: "&7{enchantment}: &f{chance}&r"
+  materials:
+    title: "&7&lDisenchantment materials&r"
+    empty: "&7No materials found!&r"
+    material: "&7{material}: {state}&r"
+    states:
+      disabled: "&cDisabled&r"
   repair:
     disenchantment:
       title: "&7&lDisenchantment repair settings&r"

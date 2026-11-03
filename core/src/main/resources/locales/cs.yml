@@ -5,6 +5,8 @@ messages:
   invalid-argument: "&cNeplatný argument!&r"
   unknown-enchantment: "&cNeznámé očarování!&r"
   specify-enchantment-state: "&cProsím specifikujte stav očarování!&r"
+  specify-enchantment-chance: "&cZadejte očarování a šanci mezi 0.0 a 1.0&r"
+  enchantment-chance-is-set: "&aŠance pro {enchantment} nastavena na {chance}&r"
   enchantment-is-enabled: "&a{enchantment} &7je povoleno!&r"
   enchantment-is-kept: "&b{enchantment} &7je zachováno!&r"
   enchantment-is-deleted: "&e{enchantment} &7je smazáno!&r"
@@ -174,13 +176,21 @@ commands:
       title: "&7&lStavy očarování pro roztříštění&r"
       empty: "&7Žádná očarování nenalezena!&r"
       enchantment: "&7{enchantment}: {state}&r"
-  materials:
+  chances:
     disenchantment:
-      title: "&7&lMateriály pro odčarování&r"
-      empty: "&7Žádné materiály nenalezeny!&r"
-      material: "&7{material}: {state}&r"
-      states:
-        disabled: "&cZakázáno&r"
+      title: "&6Šance očarování pro odčarování:&r"
+      empty: "&7Nejsou nastaveny žádné vlastní šance.&r"
+      enchantment: "&7{enchantment}: &f{chance}&r"
+    shatterment:
+      title: "&6Šance očarování pro roztříštění:&r"
+      empty: "&7Nejsou nastaveny žádné vlastní šance.&r"
+      enchantment: "&7{enchantment}: &f{chance}&r"
+  materials:
+    title: "&7&lMateriály pro odčarování&r"
+    empty: "&7Žádné materiály nenalezeny!&r"
+    material: "&7{material}: {state}&r"
+    states:
+      disabled: "&cZakázáno&r"
   repair:
     disenchantment:
       title: "&7&lNastavení oprav pro odčarování&r"

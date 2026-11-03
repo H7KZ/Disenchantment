@@ -1,6 +1,7 @@
 package com.jankominek.disenchantment.utils;
 
 import com.jankominek.disenchantment.DisenchantmentTestBase;
+import com.jankominek.disenchantment.types.I18nKeys;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.junit.jupiter.api.Test;
 
@@ -12,6 +13,7 @@ import java.nio.file.Files;
 import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -85,5 +87,27 @@ class LocaleMergeTest extends DisenchantmentTestBase {
     void bundledLocalesDefineTheSameKeys() {
         assertEquals(leafKeys(bundled("en")), leafKeys(bundled("cs")),
                 "en.yml and cs.yml must define identical key sets");
+    }
+
+    @Test
+    void everyI18nKeyExistsInBothBundledLocales() {
+        Set<String> keys = java.util.Arrays.stream(I18nKeys.values()).map(I18nKeys::getKey).collect(Collectors.toCollection(TreeSet::new));
+
+        for (String locale : new String[]{"en", "cs"}) {
+            Set<String> missing = new TreeSet<>(keys);
+            missing.removeAll(leafKeys(bundled(locale)));
+            assertTrue(missing.isEmpty(), locale + ".yml is missing keys the code reads: " + missing);
+        }
+    }
+
+    @Test
+    void bundledLocalesHaveNoKeyTheCodeNeverReads() {
+        Set<String> keys = java.util.Arrays.stream(I18nKeys.values()).map(I18nKeys::getKey).collect(Collectors.toCollection(TreeSet::new));
+
+        for (String locale : new String[]{"en", "cs"}) {
+            Set<String> stale = leafKeys(bundled(locale));
+            stale.removeAll(keys);
+            assertTrue(stale.isEmpty(), locale + ".yml has keys no I18nKeys entry reads (stale): " + stale);
+        }
     }
 }
