@@ -170,6 +170,15 @@ public enum PermissionGroupType {
             PermissionType.GUI_ALL,
             PermissionType.GUI_SHATTER_ECONOMY
     ),
+
+    GRINDSTONE_EXTRACT_EVENT(
+            PermissionType.GRINDSTONE_ALL,
+            PermissionType.GRINDSTONE_EXTRACT
+    ),
+    GRINDSTONE_TRANSFER_EVENT(
+            PermissionType.GRINDSTONE_ALL,
+            PermissionType.GRINDSTONE_TRANSFER
+    ),
     ;
 
     private final PermissionType[] permissions;

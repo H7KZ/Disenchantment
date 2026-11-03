@@ -304,6 +304,9 @@ public enum I18nKeys {
     GUI_ECONOMY_SHATTERMENT_CHARGE_MESSAGE_TITLE("gui.economy.shatterment.charge-message.title"),
     GUI_ECONOMY_SHATTERMENT_CHARGE_MESSAGE_LORE_ENABLED("gui.economy.shatterment.charge-message.lore.enabled"),
     GUI_ECONOMY_SHATTERMENT_CHARGE_MESSAGE_LORE_DISABLED("gui.economy.shatterment.charge-message.lore.disabled"),
+
+    MESSAGES_GRINDSTONE_COST("messages.grindstone-cost"),
+    MESSAGES_GRINDSTONE_COST_ECONOMY("messages.grindstone-cost-economy"),
     ;
 
     private final String key;

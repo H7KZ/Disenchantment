@@ -94,6 +94,45 @@ public enum ConfigKeys {
 
     // Shared settings
     ENCHANTMENT_GROUPS("enchantment-groups"),
+
+    // Grindstone settings (extract + transfer)
+    EVENT_PRIORITIES_GRINDSTONE("event-priorities.grindstone"),
+    EVENT_PRIORITIES_GRINDSTONE_CLICK("event-priorities.grindstone-click"),
+
+    GRINDSTONE_ENABLED("grindstone.enabled"),
+    GRINDSTONE_CURSES("grindstone.curses"),
+
+    GRINDSTONE_SOUND_ENABLED("grindstone.sound.enabled"),
+    GRINDSTONE_SOUND_VOLUME("grindstone.sound.volume"),
+    GRINDSTONE_SOUND_PITCH("grindstone.sound.pitch"),
+
+    GRINDSTONE_REPAIR_RESET_ENABLED("grindstone.repair.reset"),
+    GRINDSTONE_REPAIR_COST_ENABLED("grindstone.repair.cost"),
+    GRINDSTONE_REPAIR_COST_BASE("grindstone.repair.base"),
+    GRINDSTONE_REPAIR_COST_MULTIPLIER("grindstone.repair.multiply"),
+    GRINDSTONE_REPAIR_ENCHANTMENT_COSTS("grindstone.repair.enchantment-costs"),
+    GRINDSTONE_REPAIR_MAX_COST("grindstone.repair.max-cost"),
+
+    GRINDSTONE_ECONOMY_ENABLED("grindstone.economy.enabled"),
+    GRINDSTONE_ECONOMY_COST("grindstone.economy.cost"),
+    GRINDSTONE_ECONOMY_SHOW_COST("grindstone.economy.show-cost"),
+    GRINDSTONE_ECONOMY_CHARGE_MESSAGE("grindstone.economy.charge-message"),
+
+    GRINDSTONE_TRANSFER_ENABLED("grindstone.transfer.enabled"),
+    GRINDSTONE_TRANSFER_ALLOW_OVER_MAX("grindstone.transfer.allow-over-max"),
+    GRINDSTONE_TRANSFER_MAX_ENCHANTMENTS("grindstone.transfer.max-enchantments"),
+
+    GRINDSTONE_TRANSFER_REPAIR_RESET_ENABLED("grindstone.transfer.repair.reset"),
+    GRINDSTONE_TRANSFER_REPAIR_COST_ENABLED("grindstone.transfer.repair.cost"),
+    GRINDSTONE_TRANSFER_REPAIR_COST_BASE("grindstone.transfer.repair.base"),
+    GRINDSTONE_TRANSFER_REPAIR_COST_MULTIPLIER("grindstone.transfer.repair.multiply"),
+    GRINDSTONE_TRANSFER_REPAIR_ENCHANTMENT_COSTS("grindstone.transfer.repair.enchantment-costs"),
+    GRINDSTONE_TRANSFER_REPAIR_MAX_COST("grindstone.transfer.repair.max-cost"),
+
+    GRINDSTONE_TRANSFER_ECONOMY_ENABLED("grindstone.transfer.economy.enabled"),
+    GRINDSTONE_TRANSFER_ECONOMY_COST("grindstone.transfer.economy.cost"),
+    GRINDSTONE_TRANSFER_ECONOMY_SHOW_COST("grindstone.transfer.economy.show-cost"),
+    GRINDSTONE_TRANSFER_ECONOMY_CHARGE_MESSAGE("grindstone.transfer.economy.charge-message"),
     ;
 
     private final String key;

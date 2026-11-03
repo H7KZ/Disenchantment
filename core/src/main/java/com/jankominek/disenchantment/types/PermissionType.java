@@ -60,6 +60,10 @@ public enum PermissionType {
     GUI_SHATTER_SOUND("disenchantment.gui.shatter.sound"),
     GUI_SHATTER_ECONOMY("disenchantment.gui.shatter.economy"),
 
+    GRINDSTONE_ALL("disenchantment.grindstone.all"),
+    GRINDSTONE_EXTRACT("disenchantment.grindstone.extract"),
+    GRINDSTONE_TRANSFER("disenchantment.grindstone.transfer"),
+
 
     /**
      * DEPRECATED PERMISSIONS

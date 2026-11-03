@@ -203,3 +203,12 @@ permissions:
   disenchantment.discount.95:
     description: Grants a 95% XP cost discount on anvil operations.
     default: false
+  disenchantment.grindstone.all:
+    description: Allows the player to extract enchantments onto a book and transfer them between items on the grindstone.
+    default: true
+  disenchantment.grindstone.extract:
+    description: Allows the player to extract enchantments from an item onto a plain book on the grindstone.
+    default: true
+  disenchantment.grindstone.transfer:
+    description: Allows the player to transfer enchantments from one item to another on the grindstone.
+    default: true

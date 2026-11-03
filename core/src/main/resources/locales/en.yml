@@ -53,6 +53,8 @@ messages:
   not-enough-levels: "&cYou need &f{levels} &clevels to do that.&r"
   enchantments-failed-to-transfer: "&cThe enchantments failed to transfer. You received a plain book instead.&r"
   use-normal-click: "&cTake the result with a normal left or right click.&r"
+  grindstone-cost: "&7Cost: &f{levels} &7levels&r"
+  grindstone-cost-economy: "&7Cost: &f{levels} &7levels &8+ &f{cost}&r"
 
 states:
   enabled: "&aEnabled&r"

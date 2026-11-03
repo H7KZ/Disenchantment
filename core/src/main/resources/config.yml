@@ -20,6 +20,8 @@ event-priorities:
   disenchant: HIGHEST
   shatter-click: HIGHEST
   shatter: HIGHEST
+  grindstone: HIGHEST
+  grindstone-click: HIGHEST
 
 # ----------------------------------------------------------------------------------------
 
@@ -128,3 +130,54 @@ shatterment:
     cost: 100.0
     show-cost: true
     charge-message: true
+
+# ----------------------------------------------------------------------------------------
+
+# Grindstone mode. Worlds, materials, enchantment states and enchantment chances are shared with the
+# "disenchantment" section; costs, economy and sound are configured here.
+#
+# EXTRACT: put ONE enchanted item in the top grindstone slot and a plain BOOK in the bottom slot to move
+# the enchantments onto the book. The item stays, minus those enchantments. The vanilla grindstone refuses
+# a plain book, so the plugin places it for you when you click the bottom slot (or shift-click the book).
+# Needs a server that has PrepareGrindstoneEvent (Spigot 1.19.4+); on older servers a tick-based fallback is used.
+grindstone:
+  enabled: false
+  # Curses stay on the item unless this is true (vanilla grindstone behaviour).
+  curses: false
+  repair:
+    reset: false
+    cost: true
+    base: 10
+    multiply: 0.25
+    enchantment-costs: { }
+    max-cost: -1
+  sound:
+    enabled: true
+    volume: 1.0
+    pitch: 1.0
+  economy:
+    enabled: false
+    cost: 100.0
+    show-cost: true
+    charge-message: true
+  # TRANSFER: top slot = enchanted source item, bottom slot = a DIFFERENT kind of item (not a book).
+  # Compatible enchantments move to the target; the source loses exactly the ones that moved.
+  # Two items of the same kind are a vanilla repair and are never touched.
+  transfer:
+    enabled: false
+    # false = levels above the enchantment's vanilla maximum are lowered to the maximum.
+    allow-over-max: false
+    # Safety cap on how many enchantments one transfer may move.
+    max-enchantments: 16
+    repair:
+      reset: false
+      cost: true
+      base: 15
+      multiply: 0.25
+      enchantment-costs: { }
+      max-cost: -1
+    economy:
+      enabled: false
+      cost: 100.0
+      show-cost: true
+      charge-message: true
