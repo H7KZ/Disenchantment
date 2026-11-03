@@ -188,6 +188,22 @@ public class ShatterEvent {
     }
 
     /**
+     * Returns the enchantments a shatter of these inputs splits off, exactly as the anvil preview does: the
+     * cached subset while the inputs are unchanged, otherwise a fresh roll. Used by the Bedrock chest menu so
+     * the preview it shows is the subset the confirmation applies.
+     *
+     * @param p            the player
+     * @param enchantments the eligible enchantments (prepare-time collection)
+     * @param firstItem    the source book
+     * @param secondItem   the blank book
+     * @return the enchantments to split off, empty when nothing can be split without emptying the source
+     */
+    public static List<IPluginEnchantment> selectForInputs(Player p, List<IPluginEnchantment> enchantments, ItemStack firstItem, ItemStack secondItem) {
+        invalidateSelectionIfInputsChanged(p, firstItem, secondItem);
+        return selectSplit(p, enchantments, firstItem, secondItem);
+    }
+
+    /**
      * Forgets the player's cached split selection. Called when an operation completes (the next
      * one must roll afresh) and when the player closes the anvil or quits.
      *

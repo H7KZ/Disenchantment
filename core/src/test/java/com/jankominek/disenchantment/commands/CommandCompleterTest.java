@@ -19,6 +19,8 @@ class CommandCompleterTest extends DisenchantmentTestBase {
     @Test
     void givenNoPermissions_whenTabCompleteSubcommand_thenNothingSuggested() {
         PlayerMock player = server.addPlayer("Nobody");
+        // "anvil" is the one subcommand that defaults to every player (the Bedrock fallback); deny it here.
+        player.addAttachment(plugin, "disenchantment.command.anvil", false);
 
         assertTrue(complete(player, "").isEmpty());
         assertTrue(complete(player, "re").isEmpty());
@@ -28,9 +30,18 @@ class CommandCompleterTest extends DisenchantmentTestBase {
     void givenOnlyHelpPermission_whenTabCompleteSubcommand_thenOnlyHelpSuggested() {
         PlayerMock player = server.addPlayer("Helper");
         player.addAttachment(plugin, "disenchantment.command.help", true);
+        player.addAttachment(plugin, "disenchantment.command.anvil", false);
 
         assertEquals(List.of("help"), complete(player, ""));
         assertTrue(complete(player, "rel").isEmpty(), "reload requires its own permission");
+    }
+
+    @Test
+    void givenPlainPlayer_whenTabCompleteSubcommand_thenOnlyTheDefaultTrueAnvilCommandIsSuggested() {
+        PlayerMock player = server.addPlayer("Plain");
+
+        assertEquals(List.of("anvil"), complete(player, ""));
+        assertEquals(List.of("anvil"), complete(player, "an"));
     }
 
     @Test

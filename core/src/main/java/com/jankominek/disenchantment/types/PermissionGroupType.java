@@ -181,6 +181,11 @@ public enum PermissionGroupType {
             PermissionType.COMMAND_GIVE
     ),
 
+    COMMAND_ANVIL(
+            PermissionType.COMMAND_ALL,
+            PermissionType.COMMAND_ANVIL
+    ),
+
     GRINDSTONE_EXTRACT_EVENT(
             PermissionType.GRINDSTONE_ALL,
             PermissionType.GRINDSTONE_EXTRACT

@@ -7,7 +7,7 @@ folia-supported: true
 author: Jan Komínek
 website: https://github.com/H7KZ/Disenchantment
 
-softdepend: [ Vault, VaultUnlocked, ExcellentEnchants, EcoEnchants, eco, AdvancedEnchantments, UberEnchant, EnchantsSquared, PlaceholderAPI, LuckPerms, CMI, Essentials ]
+softdepend: [ Vault, VaultUnlocked, ExcellentEnchants, EcoEnchants, eco, AdvancedEnchantments, UberEnchant, EnchantsSquared, PlaceholderAPI, LuckPerms, CMI, Essentials, floodgate, Geyser-Spigot ]
 
 commands:
   disenchantment:
@@ -16,8 +16,8 @@ commands:
       - disenchantment
       - disenchant
     usage: '/<command>'
-    permission: disenchantment.command.use
-    permission-message: You don't have permission to use this command.
+    # No command-level permission on purpose: CommandRegister enforces disenchantment.command.use for every
+    # subcommand except "anvil", which Bedrock players (non-ops) must be able to run.
 
 permissions:
   disenchantment.all:
@@ -212,6 +212,9 @@ permissions:
   disenchantment.command.give:
     description: Access to the give command (special anvils).
     default: op
+  disenchantment.command.anvil:
+    description: Access to the anvil command (the chest-menu anvil for Bedrock players).
+    default: true
   disenchantment.grindstone.all:
     description: Allows the player to extract enchantments onto a book and transfer them between items on the grindstone.
     default: true

@@ -1,6 +1,8 @@
 package com.jankominek.disenchantment.commands;
 
 import com.jankominek.disenchantment.commands.impl.*;
+import com.jankominek.disenchantment.config.I18n;
+import com.jankominek.disenchantment.types.PermissionType;
 import com.jankominek.disenchantment.utils.DiagnosticUtils;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -43,6 +45,7 @@ public class CommandRegister implements CommandExecutor {
             put(Stats.command.name(), Stats.command);
             put(Maintenance.command.name(), Maintenance.command);
             put(Give.command.name(), Give.command);
+            put(Anvil.command.name(), Anvil.command);
         }
     };
 
@@ -52,9 +55,16 @@ public class CommandRegister implements CommandExecutor {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull org.bukkit.command.Command command, @NotNull String label, String[] args) {
         try {
-            if (args.length == 0) return executeCommand("help", sender, args);
+            String name = args.length == 0 ? "help" : args[0].toLowerCase();
 
-            return executeCommand(args[0].toLowerCase(), sender, args);
+            // The base permission is checked here rather than in plugin.yml so that the Bedrock "anvil" subcommand,
+            // which every player may use, is not blocked by it. Every other subcommand behaves as before.
+            if (!name.equals(Anvil.command.name()) && !PermissionType.COMMAND_USE.hasPermission(sender)) {
+                sender.sendMessage(I18n.getPrefix() + " " + I18n.Messages.requiresPermission());
+                return true;
+            }
+
+            return executeCommand(name, sender, args);
         } catch (Exception e) {
             DiagnosticUtils.throwReport(e);
 

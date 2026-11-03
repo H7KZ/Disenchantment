@@ -245,11 +245,60 @@ public final class AnvilEventGuards {
         if (location == null || location.getWorld() == null || !SpecialAnvilStore.isAnvilMaterial(location.getBlock().getType()))
             return Config.SpecialAnvils.isAllowVirtualAnvils();
 
-        Block block = location.getBlock();
+        return isSpecialBlock(location.getBlock(), mode);
+    }
 
+    private static boolean isSpecialBlock(Block block, SpecialAnvilMode mode) {
         if (mode == SpecialAnvilMode.MARKED) return SpecialAnvilStore.isMarked(block);
 
         return block.getRelative(BlockFace.DOWN).getType() == Config.SpecialAnvils.getBlockBelow();
+    }
+
+    /**
+     * Returns whether {@code block} is an anvil that may perform plugin operations under the configured
+     * {@code special-anvils.mode}. Used where there is a world block but no anvil inventory (the Bedrock
+     * sneak-click trigger).
+     *
+     * @param block the clicked block
+     * @return {@code true} if it is an anvil that counts as special ({@code ALL}: any anvil)
+     */
+    public static boolean isSpecialAnvilBlock(Block block) {
+        if (block == null || !SpecialAnvilStore.isAnvilMaterial(block.getType())) return false;
+
+        SpecialAnvilMode mode = Config.SpecialAnvils.getMode();
+        return mode == SpecialAnvilMode.ALL || isSpecialBlock(block, mode);
+    }
+
+    /**
+     * Returns whether the player stands within {@code radius} blocks of an anvil that may perform plugin
+     * operations. Always {@code true} in {@code special-anvils.mode: ALL}. This is what keeps a menu that is
+     * not tied to an anvil block (the Bedrock chest menu) from bypassing the special anvil restriction.
+     *
+     * @param p      the player
+     * @param radius the search radius in blocks (a cube around the player)
+     * @return {@code true} if a special anvil is close enough or every anvil counts as special
+     */
+    public static boolean isSpecialAnvilNearby(Player p, int radius) {
+        if (Config.SpecialAnvils.getMode() == SpecialAnvilMode.ALL) return true;
+
+        Location origin = p.getLocation();
+        World world = origin.getWorld();
+        if (world == null) return false;
+
+        int ox = origin.getBlockX();
+        int oy = origin.getBlockY();
+        int oz = origin.getBlockZ();
+
+        // The player stands there, so the chunks around them are loaded.
+        for (int x = ox - radius; x <= ox + radius; x++) {
+            for (int z = oz - radius; z <= oz + radius; z++) {
+                for (int y = oy - radius; y <= oy + radius; y++) {
+                    if (isSpecialAnvilBlock(world.getBlockAt(x, y, z))) return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -470,6 +519,19 @@ public final class AnvilEventGuards {
 
     // ponytail: ConcurrentHashMap for Folia region-thread safety
     private static final Map<UUID, Integer> bypassCostCache = new ConcurrentHashMap<>();
+
+    /**
+     * Returns whether vanilla would show "Too Expensive!" for an operation of this cost: the cost is at or above
+     * 40 and {@code bypass-too-expensive} is off for the operation. Surfaces without the vanilla screen (the
+     * Bedrock chest menu) apply the same limit so they cannot be used to get around it.
+     *
+     * @param eventType the operation
+     * @param cost      the XP levels it would cost
+     * @return {@code true} if the operation must be refused as too expensive
+     */
+    public static boolean isTooExpensive(AnvilEventType eventType, int cost) {
+        return cost >= VANILLA_TOO_EXPENSIVE_THRESHOLD && !isBypassEnabled(eventType);
+    }
 
     private static boolean isBypassEnabled(AnvilEventType eventType) {
         return switch (eventType) {

@@ -145,8 +145,11 @@ public final class PreviewLore {
 
     /**
      * Formats an enchantment as "Sharpness V": the key without namespace, underscores to spaces, capitalized.
+     *
+     * @param enchantment the enchantment
+     * @return the display text
      */
-    private static String describe(IPluginEnchantment enchantment) {
+    public static String describe(IPluginEnchantment enchantment) {
         String key = enchantment.getKey() == null ? "" : enchantment.getKey();
         int colon = key.indexOf(':');
         if (colon >= 0) key = key.substring(colon + 1);
