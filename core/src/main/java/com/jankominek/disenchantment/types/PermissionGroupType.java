@@ -180,6 +180,15 @@ public enum PermissionGroupType {
             PermissionType.COMMAND_ALL,
             PermissionType.COMMAND_GIVE
     ),
+
+    GRINDSTONE_EXTRACT_EVENT(
+            PermissionType.GRINDSTONE_ALL,
+            PermissionType.GRINDSTONE_EXTRACT
+    ),
+    GRINDSTONE_TRANSFER_EVENT(
+            PermissionType.GRINDSTONE_ALL,
+            PermissionType.GRINDSTONE_TRANSFER
+    ),
     ;
 
     private final PermissionType[] permissions;

@@ -636,6 +636,32 @@ public class I18n {
             return I18n.translateColors(localeConfig.getString(I18nKeys.MESSAGES_GIVE_ANVIL_RECEIVED.getKey(),
                     "&7You received &f{amount}x &7special anvil.&r").replace("{amount}", amount));
         }
+
+        /**
+         * Returns the localized action bar text showing the experience cost of a grindstone operation.
+         *
+         * @param levels the value substituted for {levels}
+         */
+        public static String grindstoneCost(String levels) {
+            return I18n.translateColors(
+                    localeConfig.getString(I18nKeys.MESSAGES_GRINDSTONE_COST.getKey(), "&7Cost: &f{levels} &7levels&r")
+                            .replace("{levels}", levels)
+            );
+        }
+
+        /**
+         * Returns the localized action bar text showing the experience and economy cost of a grindstone operation.
+         *
+         * @param levels the value substituted for {levels}
+         * @param cost   the value substituted for {cost}
+         */
+        public static String grindstoneCostEconomy(String levels, String cost) {
+            return I18n.translateColors(
+                    localeConfig.getString(I18nKeys.MESSAGES_GRINDSTONE_COST_ECONOMY.getKey(), "&7Cost: &f{levels} &7levels &8+ &f{cost}&r")
+                            .replace("{levels}", levels)
+                            .replace("{cost}", cost)
+            );
+        }
     }
 
     /**

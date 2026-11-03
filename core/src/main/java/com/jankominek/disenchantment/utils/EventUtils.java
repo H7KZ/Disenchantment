@@ -468,7 +468,7 @@ public class EventUtils {
         return colon >= 0 ? key.substring(colon + 1) : key;
     }
 
-    static EnchantmentStateType getStateForKey(Map<String, EnchantmentStateType> states, String enchantmentKey) {
+    public static EnchantmentStateType getStateForKey(Map<String, EnchantmentStateType> states, String enchantmentKey) {
         String normalized = normalizeKey(enchantmentKey);
         for (Map.Entry<String, EnchantmentStateType> entry : states.entrySet()) {
             if (normalizeKey(entry.getKey()).equalsIgnoreCase(normalized)) return entry.getValue();

@@ -190,4 +190,43 @@ class AnvilCostUtilsTest extends DisenchantmentTestBase {
 
         assertEquals(100.0, cost, 0.0001, "An operation with nothing to price must not be free");
     }
+    // -> grindstone cost blocks
+
+    @Test
+    void givenGrindstoneExtract_whenCountCost_thenUsesGrindstoneRepairBlock() {
+        setConfig("grindstone.repair.base", 4.0);
+        setConfig("grindstone.repair.multiply", 1.0);
+        IPluginEnchantment sharpnessV = EnchantmentUtils.remapEnchantment(enchantment("sharpness"), 5);
+
+        assertEquals(9, AnvilCostUtils.countAnvilCost(List.of(sharpnessV), AnvilEventType.GRINDSTONE_EXTRACT));
+        assertEquals(11, AnvilCostUtils.countAnvilCost(List.of(sharpnessV), AnvilEventType.DISENCHANTMENT),
+                "The anvil block is independent of the grindstone block");
+    }
+
+    @Test
+    void givenGrindstoneTransfer_whenCountCost_thenDefaultBaseIsHigher() {
+        IPluginEnchantment sharpnessV = EnchantmentUtils.remapEnchantment(enchantment("sharpness"), 5);
+
+        // base=15, multiplier=0.25: 15 + 5 * 0.25 = 16.25 -> 16
+        assertEquals(16, AnvilCostUtils.countAnvilCost(List.of(sharpnessV), AnvilEventType.GRINDSTONE_TRANSFER));
+    }
+
+    @Test
+    void givenGrindstoneCostDisabledOrCapped_whenCountCost_thenRespected() {
+        IPluginEnchantment sharpnessV = EnchantmentUtils.remapEnchantment(enchantment("sharpness"), 5);
+
+        setConfig("grindstone.repair.cost", false);
+        assertEquals(0, AnvilCostUtils.countAnvilCost(List.of(sharpnessV), AnvilEventType.GRINDSTONE_EXTRACT));
+
+        setConfig("grindstone.transfer.repair.max-cost", 5);
+        assertEquals(5, AnvilCostUtils.countAnvilCost(List.of(sharpnessV), AnvilEventType.GRINDSTONE_TRANSFER));
+    }
+
+    @Test
+    void givenGrindstoneEnchantmentOverride_whenCountCost_thenFixedCostUsed() {
+        setConfig("grindstone.repair.enchantment-costs.mending", 30);
+        IPluginEnchantment mending = EnchantmentUtils.remapEnchantment(enchantment("mending"), 1);
+
+        assertEquals(40, AnvilCostUtils.countAnvilCost(List.of(mending), AnvilEventType.GRINDSTONE_EXTRACT));
+    }
 }

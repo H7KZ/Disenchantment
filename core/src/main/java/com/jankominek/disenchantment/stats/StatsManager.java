@@ -104,7 +104,15 @@ public class StatsManager {
      */
     public void record(OperationType type, Player player, ItemStack resultBook,
                        String itemMaterial, int xpCost, double economyCost) {
-        List<String> enchKeys = StatsListener.extractEnchantmentKeys(resultBook);
+        record(type, player, StatsListener.extractEnchantmentKeys(resultBook), itemMaterial, xpCost, economyCost);
+    }
+
+    /**
+     * Records one operation whose enchantment keys were determined by the caller (e.g. an
+     * item-to-item transfer, where the result is not a book).
+     */
+    public void record(OperationType type, Player player, List<String> enchKeys,
+                       String itemMaterial, int xpCost, double economyCost) {
         Instant now = Instant.now();
 
         cache.record(type, enchKeys, player.getUniqueId(), player.getName(),

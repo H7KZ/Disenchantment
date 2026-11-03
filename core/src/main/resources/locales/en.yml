@@ -64,6 +64,8 @@ messages:
   give-amount-invalid: "&cThe amount must be a whole number between 1 and {max}!&r"
   give-anvil-given: "&aGave &f{amount}x &aspecial anvil to &f{player}&a.&r"
   give-anvil-received: "&7You received &f{amount}x &7special anvil.&r"
+  grindstone-cost: "&7Cost: &f{levels} &7levels&r"
+  grindstone-cost-economy: "&7Cost: &f{levels} &7levels &8+ &f{cost}&r"
 
 states:
   enabled: "&aEnabled&r"

@@ -18,4 +18,12 @@ public enum AnvilEventType {
      * Erasing enchantments from an item with a catalyst, without producing a book.
      */
     ERASE,
+    /**
+     * Extracting enchantments from an item onto a plain book on the grindstone.
+     */
+    GRINDSTONE_EXTRACT,
+    /**
+     * Transferring enchantments from one item to another on the grindstone.
+     */
+    GRINDSTONE_TRANSFER,
 }

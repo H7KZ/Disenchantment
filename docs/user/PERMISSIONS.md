@@ -11,6 +11,7 @@ as [LuckPerms](https://luckperms.net/).
 ## Table of Contents
 
 - [Anvil Usage](#anvil-usage)
+- [Grindstone Usage](#grindstone-usage)
 - [Commands](#commands)
 - [GUI](#gui)
 - [Wildcard Permission](#wildcard-permission)
@@ -33,6 +34,21 @@ default to `true` so all players can use the core features out of the box.
 > **Note:** If non-op players cannot use the anvil features, check whether a permission plugin (e.g. LuckPerms) has
 > explicitly denied these nodes.
 > See [FAQ.md](FAQ.md#why-cant-players-who-arent-server-operators-non-ops-use-the-plugin).
+
+---
+
+## Grindstone Usage
+
+These permissions control the opt-in [grindstone features](CONFIG.md#grindstone-settings). They default to `true`, so once
+a feature is enabled in the config every player can use it. Vanilla grindstone use is never affected.
+
+| Permission                         | Description                                                              | Default |
+|------------------------------------|--------------------------------------------------------------------------|---------|
+| `disenchantment.grindstone.all`    | Allows both grindstone features.                                         | `true`  |
+| `disenchantment.grindstone.extract`| Allows moving enchantments from an item onto a plain book.               | `true`  |
+| `disenchantment.grindstone.transfer`| Allows moving enchantments from one item to another.                    | `true`  |
+
+The cooldown, maintenance mode, world/material bypass permissions and cost discounts apply to these operations too.
 
 ---
 

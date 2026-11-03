@@ -19,6 +19,8 @@ the result you want.
 - [Disable only shattering, keep disenchanting](#disable-only-shattering-keep-disenchanting)
 - [Erase enchantments from an item](#erase-enchantments-from-an-item)
 - [Tune the feedback (particles, sounds, preview)](#tune-the-feedback-particles-sounds-preview)
+- [Let players extract enchantments on the grindstone](#let-players-extract-enchantments-on-the-grindstone)
+- [Let players transfer enchantments between items on the grindstone](#let-players-transfer-enchantments-between-items-on-the-grindstone)
 - [Fix event priority conflicts with other plugins](#fix-event-priority-conflicts-with-other-plugins)
 - [Grant or revoke permissions with LuckPerms](#grant-or-revoke-permissions-with-luckperms)
 - [Open and use the in-game GUI](#open-and-use-the-in-game-gui)
@@ -391,6 +393,44 @@ Everything is under `feedback:` in `config.yml` (see [CONFIG.md - Feedback](CONF
 - **Hide the lore preview** on the result book: `feedback.preview-lore: false`.
 
 ---
+
+## Let players extract enchantments on the grindstone
+
+Grindstone extraction is off by default. Enable it in `config.yml` and reload:
+
+```yaml
+grindstone:
+  enabled: true
+```
+
+```
+/disenchantment reload
+```
+
+Players put the enchanted item in the top slot, then click the bottom slot with a plain book on the cursor (or
+shift-click a book) and take the enchanted book from the result slot. It costs levels
+(`grindstone.repair`), keeps curses on the item and respects the `disenchantment` worlds, materials and enchantment
+states. See [Grindstone Settings](CONFIG.md#grindstone-settings).
+
+To make it cost money instead of (or on top of) levels, set `grindstone.repair.cost: false` and/or
+`grindstone.economy.enabled: true`.
+
+---
+
+## Let players transfer enchantments between items on the grindstone
+
+```yaml
+grindstone:
+  transfer:
+    enabled: true
+```
+
+Players put the enchanted source item in the top slot and a **different kind** of item in the bottom slot (for example a
+pickaxe and a shovel). The result is the bottom item with every enchantment it can take; the source goes back to the top
+slot without the enchantments that moved. To forbid it for some players, deny `disenchantment.grindstone.transfer`.
+
+---
+
 ## Fix event priority conflicts with other plugins
 
 If another plugin (such as UberEnchants, CMI, or other anvil-modifying plugins) conflicts with Disenchantment, you may

@@ -11,6 +11,7 @@ import com.jankominek.disenchantment.listeners.DisenchantClickListener;
 import com.jankominek.disenchantment.listeners.DisenchantListener;
 import com.jankominek.disenchantment.listeners.EraseClickListener;
 import com.jankominek.disenchantment.listeners.EraseListener;
+import com.jankominek.disenchantment.listeners.GrindstoneListener;
 import com.jankominek.disenchantment.listeners.ShatterClickListener;
 import com.jankominek.disenchantment.listeners.ShatterListener;
 import com.jankominek.disenchantment.nms.MinecraftVersion;
@@ -192,6 +193,7 @@ public class Disenchantment extends JavaPlugin {
         new ShatterClickListener(Config.EventPriorities.getShatterClickEvent());
         new EraseListener(Config.Erase.getPrepareEventPriority());
         new EraseClickListener(Config.Erase.getClickEventPriority());
+        new GrindstoneListener(Config.Grindstone.getPrepareEventPriority(), Config.Grindstone.getClickEventPriority());
         getServer().getPluginManager().registerEvents(new GUIClickEvent(), plugin);
         getServer().getPluginManager().registerEvents(new SpecialAnvilListener(), plugin);
         DiagnosticUtils.debug("STARTUP", "All listeners registered");
@@ -290,6 +292,7 @@ public class Disenchantment extends JavaPlugin {
         new ShatterClickListener(Config.EventPriorities.getShatterClickEvent());
         new EraseListener(Config.Erase.getPrepareEventPriority());
         new EraseClickListener(Config.Erase.getClickEventPriority());
+        new GrindstoneListener(Config.Grindstone.getPrepareEventPriority(), Config.Grindstone.getClickEventPriority());
         getServer().getPluginManager().registerEvents(new GUIClickEvent(), plugin);
         getServer().getPluginManager().registerEvents(new SpecialAnvilListener(), plugin);
         Config.SpecialAnvils.validate().forEach(logger::warning);

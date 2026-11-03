@@ -2184,4 +2184,319 @@ public class Config {
             return warnings;
         }
     }
+
+    /**
+     * Configuration section for grindstone mode: extracting enchantments onto a plain book and
+     * transferring them between two different items. Worlds, materials, enchantment states and
+     * chances are shared with the {@code disenchantment} section; everything else lives under
+     * {@code grindstone}. Values are read straight from the config (not cached) because they are
+     * only read on grindstone slot changes and clicks.
+     */
+    public static class Grindstone {
+        /**
+         * Checks whether grindstone extraction (enchanted item + plain book) is enabled.
+         *
+         * @return {@code true} if the feature is enabled
+         */
+        public static boolean isEnabled() {
+            return config.getBoolean(ConfigKeys.GRINDSTONE_ENABLED.getKey(), false);
+        }
+
+        /**
+         * Checks whether curses are extracted too. By default curses stay on the source item,
+         * matching the vanilla grindstone.
+         *
+         * @return {@code true} if curses are transferable
+         */
+        public static boolean isCursesEnabled() {
+            return config.getBoolean(ConfigKeys.GRINDSTONE_CURSES.getKey(), false);
+        }
+
+        /**
+         * Gets the configured priority of the grindstone prepare event handler.
+         *
+         * @return the configured {@link EventPriority}, defaulting to HIGHEST
+         */
+        public static EventPriority getPrepareEventPriority() {
+            try {
+                return EventPriority.valueOf(config.getString(ConfigKeys.EVENT_PRIORITIES_GRINDSTONE.getKey(), "HIGHEST").toUpperCase());
+            } catch (IllegalArgumentException e) {
+                return EventPriority.HIGHEST;
+            }
+        }
+
+        /**
+         * Gets the configured priority of the grindstone click handler (book placement and result click).
+         *
+         * @return the configured {@link EventPriority}, defaulting to HIGHEST
+         */
+        public static EventPriority getClickEventPriority() {
+            try {
+                return EventPriority.valueOf(config.getString(ConfigKeys.EVENT_PRIORITIES_GRINDSTONE_CLICK.getKey(), "HIGHEST").toUpperCase());
+            } catch (IllegalArgumentException e) {
+                return EventPriority.HIGHEST;
+            }
+        }
+
+        /**
+         * Sound settings shared by both grindstone operations.
+         */
+        public static class Sound {
+            /**
+             * Checks whether the grindstone sound is enabled.
+             *
+             * @return {@code true} if the sound is enabled
+             */
+            public static boolean isEnabled() {
+                return config.getBoolean(ConfigKeys.GRINDSTONE_SOUND_ENABLED.getKey(), true);
+            }
+
+            /**
+             * Gets the grindstone sound volume.
+             *
+             * @return the configured volume
+             */
+            public static Double getVolume() {
+                return config.getDouble(ConfigKeys.GRINDSTONE_SOUND_VOLUME.getKey(), 1.0);
+            }
+
+            /**
+             * Gets the grindstone sound pitch.
+             *
+             * @return the configured pitch
+             */
+            public static Double getPitch() {
+                return config.getDouble(ConfigKeys.GRINDSTONE_SOUND_PITCH.getKey(), 1.0);
+            }
+        }
+
+        /**
+         * XP cost settings of the extraction operation ({@code grindstone.repair}).
+         */
+        public static class Repair {
+            /**
+             * @return {@code true} if the item's anvil repair cost is reset after the operation
+             */
+            public static boolean isResetEnabled() {
+                return config.getBoolean(ConfigKeys.GRINDSTONE_REPAIR_RESET_ENABLED.getKey(), false);
+            }
+
+            /**
+             * @return {@code true} if the operation costs experience levels
+             */
+            public static boolean isCostEnabled() {
+                return config.getBoolean(ConfigKeys.GRINDSTONE_REPAIR_COST_ENABLED.getKey(), true);
+            }
+
+            /**
+             * @return the configured base cost
+             */
+            public static Double getBaseCost() {
+                return config.getDouble(ConfigKeys.GRINDSTONE_REPAIR_COST_BASE.getKey(), 10);
+            }
+
+            /**
+             * @return the configured per-enchantment multiplier
+             */
+            public static Double getCostMultiplier() {
+                return config.getDouble(ConfigKeys.GRINDSTONE_REPAIR_COST_MULTIPLIER.getKey(), 0.25);
+            }
+
+            /**
+             * @return map of enchantment key to its fixed XP cost override
+             */
+            public static Map<String, Integer> getEnchantmentCosts() {
+                return readEnchantmentCosts(ConfigKeys.GRINDSTONE_REPAIR_ENCHANTMENT_COSTS);
+            }
+
+            /**
+             * @return map of enchantment key to its fixed economy cost override
+             */
+            public static Map<String, Double> getEnchantmentEconomyCosts() {
+                return readEnchantmentEconomyCosts(ConfigKeys.GRINDSTONE_REPAIR_ENCHANTMENT_COSTS);
+            }
+
+            /**
+             * @return the XP cost cap, or -1 for no cap
+             */
+            public static int getMaxCost() {
+                return config.getInt(ConfigKeys.GRINDSTONE_REPAIR_MAX_COST.getKey(), -1);
+            }
+        }
+
+        /**
+         * Economy settings of the extraction operation ({@code grindstone.economy}).
+         */
+        public static class Economy {
+            /**
+             * @return {@code true} if extraction charges money
+             */
+            public static boolean isEnabled() {
+                return config.getBoolean(ConfigKeys.GRINDSTONE_ECONOMY_ENABLED.getKey(), false);
+            }
+
+            /**
+             * @return the economy cost of one extraction
+             */
+            public static double getCost() {
+                return config.getDouble(ConfigKeys.GRINDSTONE_ECONOMY_COST.getKey(), 100.0);
+            }
+
+            /**
+             * @return {@code true} if the cost is shown in the action bar
+             */
+            public static boolean isShowCostEnabled() {
+                return config.getBoolean(ConfigKeys.GRINDSTONE_ECONOMY_SHOW_COST.getKey(), true);
+            }
+
+            /**
+             * @return {@code true} if a charge confirmation message is sent
+             */
+            public static boolean isChargeMessageEnabled() {
+                return config.getBoolean(ConfigKeys.GRINDSTONE_ECONOMY_CHARGE_MESSAGE.getKey(), true);
+            }
+        }
+
+        /**
+         * Item-to-item enchantment transfer on the grindstone ({@code grindstone.transfer}).
+         */
+        public static class Transfer {
+            /**
+             * @return {@code true} if item-to-item transfer is enabled
+             */
+            public static boolean isEnabled() {
+                return config.getBoolean(ConfigKeys.GRINDSTONE_TRANSFER_ENABLED.getKey(), false);
+            }
+
+            /**
+             * @return {@code true} if enchantments may keep a level above the enchantment's vanilla maximum
+             */
+            public static boolean isAllowOverMax() {
+                return config.getBoolean(ConfigKeys.GRINDSTONE_TRANSFER_ALLOW_OVER_MAX.getKey(), false);
+            }
+
+            /**
+             * @return the maximum number of enchantments one transfer may move (at least 1)
+             */
+            public static int getMaxEnchantments() {
+                return Math.max(1, config.getInt(ConfigKeys.GRINDSTONE_TRANSFER_MAX_ENCHANTMENTS.getKey(), 16));
+            }
+
+            /**
+             * XP cost settings of the transfer operation ({@code grindstone.transfer.repair}).
+             */
+            public static class Repair {
+                /**
+                 * @return {@code true} if the target's anvil repair cost is reset after the operation
+                 */
+                public static boolean isResetEnabled() {
+                    return config.getBoolean(ConfigKeys.GRINDSTONE_TRANSFER_REPAIR_RESET_ENABLED.getKey(), false);
+                }
+
+                /**
+                 * @return {@code true} if the operation costs experience levels
+                 */
+                public static boolean isCostEnabled() {
+                    return config.getBoolean(ConfigKeys.GRINDSTONE_TRANSFER_REPAIR_COST_ENABLED.getKey(), true);
+                }
+
+                /**
+                 * @return the configured base cost
+                 */
+                public static Double getBaseCost() {
+                    return config.getDouble(ConfigKeys.GRINDSTONE_TRANSFER_REPAIR_COST_BASE.getKey(), 15);
+                }
+
+                /**
+                 * @return the configured per-enchantment multiplier
+                 */
+                public static Double getCostMultiplier() {
+                    return config.getDouble(ConfigKeys.GRINDSTONE_TRANSFER_REPAIR_COST_MULTIPLIER.getKey(), 0.25);
+                }
+
+                /**
+                 * @return map of enchantment key to its fixed XP cost override
+                 */
+                public static Map<String, Integer> getEnchantmentCosts() {
+                    return readEnchantmentCosts(ConfigKeys.GRINDSTONE_TRANSFER_REPAIR_ENCHANTMENT_COSTS);
+                }
+
+                /**
+                 * @return map of enchantment key to its fixed economy cost override
+                 */
+                public static Map<String, Double> getEnchantmentEconomyCosts() {
+                    return readEnchantmentEconomyCosts(ConfigKeys.GRINDSTONE_TRANSFER_REPAIR_ENCHANTMENT_COSTS);
+                }
+
+                /**
+                 * @return the XP cost cap, or -1 for no cap
+                 */
+                public static int getMaxCost() {
+                    return config.getInt(ConfigKeys.GRINDSTONE_TRANSFER_REPAIR_MAX_COST.getKey(), -1);
+                }
+            }
+
+            /**
+             * Economy settings of the transfer operation ({@code grindstone.transfer.economy}).
+             */
+            public static class Economy {
+                /**
+                 * @return {@code true} if transfer charges money
+                 */
+                public static boolean isEnabled() {
+                    return config.getBoolean(ConfigKeys.GRINDSTONE_TRANSFER_ECONOMY_ENABLED.getKey(), false);
+                }
+
+                /**
+                 * @return the economy cost of one transfer
+                 */
+                public static double getCost() {
+                    return config.getDouble(ConfigKeys.GRINDSTONE_TRANSFER_ECONOMY_COST.getKey(), 100.0);
+                }
+
+                /**
+                 * @return {@code true} if the cost is shown in the action bar
+                 */
+                public static boolean isShowCostEnabled() {
+                    return config.getBoolean(ConfigKeys.GRINDSTONE_TRANSFER_ECONOMY_SHOW_COST.getKey(), true);
+                }
+
+                /**
+                 * @return {@code true} if a charge confirmation message is sent
+                 */
+                public static boolean isChargeMessageEnabled() {
+                    return config.getBoolean(ConfigKeys.GRINDSTONE_TRANSFER_ECONOMY_CHARGE_MESSAGE.getKey(), true);
+                }
+            }
+        }
+
+        // Same two shapes as the anvil sections: "sharpness: 5" (XP only) or "mending: { xp: 10, economy: 500 }".
+        private static Map<String, Integer> readEnchantmentCosts(ConfigKeys key) {
+            Map<String, Integer> costs = new HashMap<>();
+            var section = config.getConfigurationSection(key.getKey());
+            if (section == null) return costs;
+
+            for (String entry : section.getKeys(false)) {
+                var sub = section.getConfigurationSection(entry);
+                if (sub != null) {
+                    if (sub.contains("xp")) costs.put(entry, sub.getInt("xp"));
+                } else {
+                    costs.put(entry, section.getInt(entry));
+                }
+            }
+            return costs;
+        }
+
+        private static Map<String, Double> readEnchantmentEconomyCosts(ConfigKeys key) {
+            Map<String, Double> costs = new HashMap<>();
+            var section = config.getConfigurationSection(key.getKey());
+            if (section == null) return costs;
+
+            for (String entry : section.getKeys(false)) {
+                var sub = section.getConfigurationSection(entry);
+                if (sub != null && sub.contains("economy")) costs.put(entry, sub.getDouble("economy"));
+            }
+            return costs;
+        }
+    }
 }

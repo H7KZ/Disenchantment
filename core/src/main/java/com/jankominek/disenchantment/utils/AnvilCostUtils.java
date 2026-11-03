@@ -118,6 +118,7 @@ public class AnvilCostUtils {
             case DISENCHANTMENT -> "DISENCHANT";
             case SHATTERMENT -> "SHATTER";
             case ERASE -> "ERASE";
+            default -> "GRINDSTONE";
         };
 
         switch (anvilEventType) {
@@ -153,6 +154,28 @@ public class AnvilCostUtils {
                 baseMultiplier = Config.Erase.Anvil.Repair.getCostMultiplier();
                 overrides = Config.Erase.Anvil.Repair.getEnchantmentCosts();
                 maxCost = Config.Erase.Anvil.Repair.getMaxCost();
+                break;
+            case GRINDSTONE_EXTRACT:
+                if (!Config.Grindstone.Repair.isCostEnabled()) {
+                    DiagnosticUtils.debug(category, "AnvilCost: XP cost disabled by config → 0");
+                    return 0;
+                }
+
+                totalCost = Config.Grindstone.Repair.getBaseCost();
+                baseMultiplier = Config.Grindstone.Repair.getCostMultiplier();
+                overrides = Config.Grindstone.Repair.getEnchantmentCosts();
+                maxCost = Config.Grindstone.Repair.getMaxCost();
+                break;
+            case GRINDSTONE_TRANSFER:
+                if (!Config.Grindstone.Transfer.Repair.isCostEnabled()) {
+                    DiagnosticUtils.debug(category, "AnvilCost: XP cost disabled by config → 0");
+                    return 0;
+                }
+
+                totalCost = Config.Grindstone.Transfer.Repair.getBaseCost();
+                baseMultiplier = Config.Grindstone.Transfer.Repair.getCostMultiplier();
+                overrides = Config.Grindstone.Transfer.Repair.getEnchantmentCosts();
+                maxCost = Config.Grindstone.Transfer.Repair.getMaxCost();
                 break;
             default:
                 return 0;

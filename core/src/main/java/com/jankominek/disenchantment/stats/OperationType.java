@@ -11,5 +11,13 @@ public enum OperationType {
     /**
      * A multi-enchantment book was split into separate books.
      */
-    SHATTER
+    SHATTER,
+    /**
+     * Enchantments were extracted from an item onto a plain book on the grindstone.
+     */
+    GRIND_EXTRACT,
+    /**
+     * Enchantments were transferred from one item to another on the grindstone.
+     */
+    GRIND_TRANSFER
 }

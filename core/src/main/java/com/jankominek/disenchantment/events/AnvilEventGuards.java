@@ -476,6 +476,8 @@ public final class AnvilEventGuards {
             case DISENCHANTMENT -> Config.Disenchantment.Anvil.isBypassTooExpensiveEnabled();
             case SHATTERMENT -> Config.Shatterment.Anvil.isBypassTooExpensiveEnabled();
             case ERASE -> Config.Erase.Anvil.isBypassTooExpensiveEnabled();
+            // The grindstone has no "Too Expensive!" screen.
+            case GRINDSTONE_EXTRACT, GRINDSTONE_TRANSFER -> false;
         };
     }
 

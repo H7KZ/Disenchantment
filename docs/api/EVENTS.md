@@ -2,9 +2,10 @@
 
 # API Events
 
-Disenchantment fires four public Bukkit events that other plugins can listen to. Two events are fired for the disenchant
+Disenchantment fires eight public Bukkit events that other plugins can listen to. Two events are fired for the disenchant
 operation (removing enchantments from gear onto a book) and two for the shatter operation (splitting a multi-enchantment
-book).
+book). Four more cover the opt-in grindstone features ([extract](#pregrindstoneextractevent) and
+[transfer](#pregrindstonetransferevent)).
 
 All events are in the package `com.jankominek.disenchantment.events.api`.
 
@@ -225,6 +226,63 @@ public void onPreErase(PreEraseEvent event) {
     if (SoulboundAPI.isSoulbound(event.getSourceItem())) {
         event.setCancelled(true);
     }
+
+## PreGrindstoneExtractEvent
+
+**Package:** `com.jankominek.disenchantment.events.api`
+**Cancellable:** Yes **When it fires:** On the result click of a grindstone extraction (enchanted item + plain book),
+after the XP check and **before** the economy charge or any change to the grindstone.
+
+| Return type                | Method              | Description                                                                         |
+|----------------------------|---------------------|-------------------------------------------------------------------------------------|
+| `Player`                   | `getPlayer()`       | The player                                                                          |
+| `ItemStack`                | `getSourceItem()`   | Snapshot of the enchanted item in the top slot                                      |
+| `List<IPluginEnchantment>` | `getEnchantments()` | Enchantments about to move (plus `DELETE`-state ones that will be destroyed). Remove entries to veto them: a vetoed enchantment stays on the item and is not put on the book |
+
+Cancelling leaves the grindstone, XP and economy untouched.
+
+## PostGrindstoneExtractEvent
+
+**Cancellable:** No **When it fires:** After the extraction completed.
+
+| Return type | Method                    | Description                                              |
+|-------------|---------------------------|----------------------------------------------------------|
+| `Player`    | `getPlayer()`             | The player                                               |
+| `ItemStack` | `getResultBook()`         | Snapshot of the book given to the player (a plain `BOOK` if every chance roll failed) |
+| `ItemStack` | `getModifiedSourceItem()` | Snapshot of the item after the enchantments were removed |
+| `int`       | `getXpCost()`             | Levels charged (0 in Creative)                           |
+| `double`    | `getEconomyCost()`        | Money charged (0.0 if economy is off or Creative)        |
+
+## PreGrindstoneTransferEvent
+
+**Cancellable:** Yes **When it fires:** On the result click of a grindstone item-to-item transfer, after the XP check and
+before the economy charge or any change.
+
+| Return type                | Method              | Description                                                                          |
+|----------------------------|---------------------|--------------------------------------------------------------------------------------|
+| `Player`                   | `getPlayer()`       | The player                                                                           |
+| `ItemStack`                | `getSourceItem()`   | Snapshot of the enchanted item in the top slot                                       |
+| `ItemStack`                | `getTargetItem()`   | Snapshot of the item in the bottom slot                                              |
+| `List<IPluginEnchantment>` | `getEnchantments()` | Enchantments about to move, with the level they get on the target. Remove entries to veto them |
+
+## PostGrindstoneTransferEvent
+
+**Cancellable:** No **When it fires:** After the transfer completed.
+
+| Return type                | Method                    | Description                                                    |
+|----------------------------|---------------------------|----------------------------------------------------------------|
+| `Player`                   | `getPlayer()`             | The player                                                     |
+| `ItemStack`                | `getResultItem()`         | Snapshot of the enriched target item given to the player       |
+| `ItemStack`                | `getModifiedSourceItem()` | Snapshot of the source after the moved enchantments were removed |
+| `List<IPluginEnchantment>` | `getEnchantments()`       | The enchantments that moved                                    |
+| `int`                      | `getXpCost()`             | Levels charged (0 in Creative)                                 |
+| `double`                   | `getEconomyCost()`        | Money charged (0.0 if economy is off or Creative)              |
+
+```java
+@EventHandler
+public void onPreTransfer(PreGrindstoneTransferEvent event) {
+    // Example: never let mending leave the item
+    event.getEnchantments().removeIf(e -> e.getKey().equals("mending"));
 }
 ```
 

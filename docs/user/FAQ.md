@@ -27,6 +27,9 @@ Common issues and questions about Disenchantment.
 - [Do I need Vault for the plugin to work?](#do-i-need-vault-for-the-plugin-to-work)
 - [Does Disenchantment support Minecraft 26.1.x?](#does-disenchantment-support-minecraft-261x)
 - [Nothing happens at some anvils: special anvils](#nothing-happens-at-some-anvils-special-anvils)
+- [The grindstone does not accept my book](#the-grindstone-does-not-accept-my-book)
+- [Do players get XP back on the grindstone?](#do-players-get-xp-back-on-the-grindstone)
+- [Grindstone transfer does nothing](#grindstone-transfer-does-nothing)
 
 ---
 
@@ -313,3 +316,28 @@ still repairs and renames normally. Check `/disenchantment status` for the mode 
 
 Turn on `special-anvils.hint-message` to tell players when this is the reason. A falling special anvil keeps its mark
 when it lands, best effort: if a different plugin changes the falling block, the mark can be lost.
+
+### The grindstone does not accept my book
+
+Enable `grindstone.enabled: true` first. The vanilla grindstone only accepts damageable or enchanted items in its slots, so
+a plain book is refused; the plugin places it for you when the **top slot already holds an enchanted item** with something
+extractable (not just curses) and you click the bottom slot with the book on the cursor or shift-click the book. Check
+that the player has `disenchantment.grindstone.extract`, the world is not disabled in `disenchantment.worlds`, and the
+book has no custom name, lore or data (a "tagged" book is never used). Number-key swaps and dragging are not intercepted.
+
+---
+
+### Do players get XP back on the grindstone?
+
+Not for plugin operations. Vanilla refunds experience orbs when you take a grindstone result; extraction and transfer take
+over the result click, so they **cost** levels (`grindstone.repair`, `grindstone.transfer.repair`) instead. Normal
+grindstone use is unchanged and still refunds XP.
+
+---
+
+### Grindstone transfer does nothing
+
+Transfer needs `grindstone.transfer.enabled: true`, an enchanted item in the **top** slot and a **different** material in
+the bottom slot (two items of the same kind are a vanilla repair; books use extraction). Only enchantments the target can
+take and that conflict with nothing on it move, and an enchantment the target already has at the same or a higher level
+is skipped, so a result can be empty. Run with `logging.level: DEBUG` to see the reason (`GRINDSTONE` lines).

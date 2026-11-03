@@ -251,6 +251,73 @@ class Migration13Test extends DisenchantmentTestBase {
         assertEquals(0, Config.getOperationsRetentionDays());
     }
 
+    // -> grindstone section
+
+    @Test
+    void givenV12Config_whenMigrated_thenGrindstoneDefaultsAreOffAndPrioritiesPresent() {
+        FileConfiguration result = new Migration13().migrate(v12Config(), template13());
+
+        assertFalse(result.getBoolean("grindstone.enabled"), "Grindstone mode is opt-in");
+        assertFalse(result.getBoolean("grindstone.transfer.enabled"), "Transfer is opt-in");
+        assertFalse(result.getBoolean("grindstone.curses"));
+        assertEquals(10.0, result.getDouble("grindstone.repair.base"));
+        assertEquals(15.0, result.getDouble("grindstone.transfer.repair.base"), "Transfer costs more by default");
+        assertEquals(16, result.getInt("grindstone.transfer.max-enchantments"));
+        assertFalse(result.getBoolean("grindstone.transfer.allow-over-max"));
+        assertEquals("HIGHEST", result.getString("event-priorities.grindstone"));
+        assertEquals("HIGHEST", result.getString("event-priorities.grindstone-click"));
+    }
+
+    @Test
+    void givenUserSetGrindstoneKeys_whenMigrated_thenTheirValuesWin() {
+        YamlConfiguration old = v12Config();
+        old.set("grindstone.enabled", true);
+        old.set("grindstone.transfer.repair.base", 30.0);
+        old.set("event-priorities.grindstone-click", "LOW");
+
+        FileConfiguration result = new Migration13().migrate(old, template13());
+
+        assertTrue(result.getBoolean("grindstone.enabled"));
+        assertEquals(30.0, result.getDouble("grindstone.transfer.repair.base"));
+        assertEquals("LOW", result.getString("event-priorities.grindstone-click"));
+    }
+
+    @Test
+    void givenDefaults_whenReadGrindstoneAccessors_thenDefaults() {
+        assertFalse(Config.Grindstone.isEnabled());
+        assertFalse(Config.Grindstone.isCursesEnabled());
+        assertFalse(Config.Grindstone.Transfer.isEnabled());
+        assertFalse(Config.Grindstone.Transfer.isAllowOverMax());
+        assertEquals(16, Config.Grindstone.Transfer.getMaxEnchantments());
+        assertEquals(10.0, Config.Grindstone.Repair.getBaseCost());
+        assertEquals(15.0, Config.Grindstone.Transfer.Repair.getBaseCost());
+        assertTrue(Config.Grindstone.Repair.isCostEnabled());
+        assertEquals(-1, Config.Grindstone.Repair.getMaxCost());
+        assertTrue(Config.Grindstone.Sound.isEnabled());
+        assertFalse(Config.Grindstone.Economy.isEnabled());
+        assertEquals(org.bukkit.event.EventPriority.HIGHEST, Config.Grindstone.getPrepareEventPriority());
+        assertEquals(org.bukkit.event.EventPriority.HIGHEST, Config.Grindstone.getClickEventPriority());
+    }
+
+    @Test
+    void givenCustomGrindstoneValues_whenRead_thenReflectedAndInvalidPriorityFallsBack() {
+        setConfig("grindstone.enabled", true);
+        setConfig("grindstone.transfer.max-enchantments", 0);
+        setConfig("grindstone.repair.enchantment-costs.mending.xp", 7);
+        setConfig("grindstone.repair.enchantment-costs.mending.economy", 250.0);
+        setConfig("grindstone.repair.enchantment-costs.sharpness", 3);
+        setConfig("event-priorities.grindstone", "bogus");
+        setConfig("event-priorities.grindstone-click", "low");
+
+        assertTrue(Config.Grindstone.isEnabled());
+        assertEquals(1, Config.Grindstone.Transfer.getMaxEnchantments(), "Cap is clamped to at least one");
+        assertEquals(7, Config.Grindstone.Repair.getEnchantmentCosts().get("mending"));
+        assertEquals(3, Config.Grindstone.Repair.getEnchantmentCosts().get("sharpness"));
+        assertEquals(250.0, Config.Grindstone.Repair.getEnchantmentEconomyCosts().get("mending"));
+        assertEquals(org.bukkit.event.EventPriority.HIGHEST, Config.Grindstone.getPrepareEventPriority());
+        assertEquals(org.bukkit.event.EventPriority.LOW, Config.Grindstone.getClickEventPriority());
+    }
+
     private static java.util.Set<String> leafKeys(FileConfiguration config) {
         java.util.Set<String> keys = new java.util.TreeSet<>();
         for (String key : config.getKeys(true)) if (!config.isConfigurationSection(key)) keys.add(key);

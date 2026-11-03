@@ -315,6 +315,8 @@ public enum I18nKeys {
     MESSAGES_GIVE_AMOUNT_INVALID("messages.give-amount-invalid"),
     MESSAGES_GIVE_ANVIL_GIVEN("messages.give-anvil-given"),
     MESSAGES_GIVE_ANVIL_RECEIVED("messages.give-anvil-received"),
+    MESSAGES_GRINDSTONE_COST("messages.grindstone-cost"),
+    MESSAGES_GRINDSTONE_COST_ECONOMY("messages.grindstone-cost-economy"),
     ;
 
     private final String key;

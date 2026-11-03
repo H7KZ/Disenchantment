@@ -88,7 +88,7 @@ Logs `[DEBUG][CATEGORY] msg` at INFO level to the plugin logger, but only when `
 `DEBUG`. Safe to call before config is loaded (silently no-ops if `Disenchantment.config == null`).
 
 Categories used throughout the codebase: `DISENCHANT`, `SHATTER`, `NMS`, `ECONOMY`, `ADAPTER`, `STARTUP`, `CONFIG`,
-`GUI`, `UPDATE`.
+`GUI`, `UPDATE`, `GRINDSTONE`.
 
 ### `isDebugEnabled()`
 

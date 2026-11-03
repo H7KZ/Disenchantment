@@ -212,3 +212,12 @@ permissions:
   disenchantment.command.give:
     description: Access to the give command (special anvils).
     default: op
+  disenchantment.grindstone.all:
+    description: Allows the player to extract enchantments onto a book and transfer them between items on the grindstone.
+    default: true
+  disenchantment.grindstone.extract:
+    description: Allows the player to extract enchantments from an item onto a plain book on the grindstone.
+    default: true
+  disenchantment.grindstone.transfer:
+    description: Allows the player to transfer enchantments from one item to another on the grindstone.
+    default: true

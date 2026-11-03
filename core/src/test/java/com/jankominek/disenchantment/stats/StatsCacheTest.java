@@ -157,4 +157,16 @@ class StatsCacheTest {
         assertEquals(3, cache.getPlayerStats(uuid).disenchants());
         assertEquals(Instant.ofEpochSecond(5000), cache.getPlayerStats(uuid).lastOperation());
     }
+    @Test
+    void record_grindstoneTypes_areNotCountedAsDisenchantOrShatter() {
+        UUID uuid = UUID.randomUUID();
+        cache.record(OperationType.GRIND_EXTRACT, List.of("minecraft:sharpness"), uuid, "Steve", 4, 0.0, Instant.now());
+        cache.record(OperationType.GRIND_TRANSFER, List.of("minecraft:mending"), uuid, "Steve", 6, 2.0, Instant.now());
+
+        assertEquals(0, cache.getTotalDisenchants());
+        assertEquals(0, cache.getTotalShatters(), "Grindstone operations must not inflate the shatter total");
+        assertEquals(1L, cache.getEnchantmentCounts().get("minecraft:sharpness"));
+        assertEquals(1L, cache.getEnchantmentCounts().get("minecraft:mending"));
+        assertEquals(10, cache.getTotalXpSpent());
+    }
 }

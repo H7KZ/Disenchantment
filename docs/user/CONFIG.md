@@ -38,6 +38,8 @@ event-priorities:
   shatter: HIGHEST
   erase-click: HIGHEST
   erase: HIGHEST
+  grindstone-click: HIGHEST
+  grindstone: HIGHEST
 
 # ─────────────────────────────────────────────────────────────────────────────
 
@@ -165,6 +167,46 @@ special-anvils:
     ingredients:
       E: EMERALD
       A: ANVIL                   # ANVIL = any anvil damage state
+
+# Grindstone mode (opt-in). Worlds, materials, enchantment states and chances come from "disenchantment".
+grindstone:
+  # EXTRACT: enchanted item + plain book -> enchanted book.
+  enabled: false
+  # Curses stay on the item unless this is true.
+  curses: false
+  repair:
+    reset: false
+    cost: true
+    base: 10
+    multiply: 0.25
+    enchantment-costs: {}
+    max-cost: -1
+  sound:
+    enabled: true
+    volume: 1.0
+    pitch: 1.0
+  economy:
+    enabled: false
+    cost: 100.0
+    show-cost: true
+    charge-message: true
+  # TRANSFER: enchanted item + a different kind of item -> the second item gets the enchantments.
+  transfer:
+    enabled: false
+    allow-over-max: false
+    max-enchantments: 16
+    repair:
+      reset: false
+      cost: true
+      base: 15
+      multiply: 0.25
+      enchantment-costs: {}
+      max-cost: -1
+    economy:
+      enabled: false
+      cost: 100.0
+      show-cost: true
+      charge-message: true
 ```
 
 ---
@@ -187,6 +229,9 @@ special-anvils:
 - [Erase Mode](#erase-mode)
 - [Feedback](#feedback)
 - [Special Anvils](#special-anvils)
+- [Grindstone Settings](#grindstone-settings)
+    - [Extract](#grindstone-extract)
+    - [Transfer](#grindstone-transfer)
 - [Economy Integration](#economy-integration)
 
 ---
@@ -241,7 +286,12 @@ event-priorities:
   shatter: HIGHEST
   erase-click: HIGHEST
   erase: HIGHEST
+  grindstone-click: HIGHEST
+  grindstone: HIGHEST
 ```
+
+`grindstone-click` covers the plain-book placement and the result click on the grindstone, `grindstone` covers the
+`PrepareGrindstoneEvent` (see [Grindstone Settings](#grindstone-settings)). Like the others, changing them needs a reload.
 
 Available values (lowest to highest): `LOWEST`, `LOW`, `NORMAL`, `HIGH`, `HIGHEST`, `MONITOR`.
 
@@ -686,6 +736,115 @@ remembered, even while the mode is `ALL`, so you can switch to `MARKED` later. P
 `disenchantment.anvil.special` (default `true`) to place a special anvil; without it the item is placed as a normal
 anvil. See the [setup guide](HOW_TO.md#restrict-disenchanting-to-special-anvils).
 
+## Grindstone Settings
+
+Two opt-in features that work on the **grindstone** instead of the anvil. Both are off by default, are independent of
+each other (`grindstone.enabled` only controls extraction, `grindstone.transfer.enabled` only transfer), and leave every
+other grindstone use (repairing two items, vanilla disenchanting a single item) completely vanilla.
+
+They reuse the `disenchantment` section for: `worlds`, `materials`, `enchantments-states` (`KEEP`, `DISABLE`, `DELETE`),
+`enchantment-chances`, `cooldown` and `cost-multiplier`. Cost, economy and sound are configured under `grindstone`.
+
+Unlike the anvil, the grindstone has no cost label, so the price is shown in the **action bar**. There is **no XP refund**:
+the plugin takes over the result, so vanilla's XP orbs for the inputs are not awarded.
+
+> **Server support.** The result is shown through `PrepareGrindstoneEvent`, which Spigot added in 1.19.4 (Paper has had
+> its own copy since 1.16). On older servers the plugin recomputes the result one tick after every grindstone click
+> instead; an INFO line is logged at startup. Event priorities for both handlers are in
+> [Event Priorities](#event-priorities).
+
+### Grindstone Extract
+
+Put **one enchanted item** in the top slot and a **plain book** in the bottom slot: the result is an enchanted book with
+the item's transferable enchantments. Taking it removes exactly those enchantments from the item (it returns to the top
+slot), consumes one book, and costs levels.
+
+The vanilla grindstone refuses a plain book in its input slots, so the plugin places it for you: **click the bottom slot
+with a book on the cursor**, or **shift-click a book** in your inventory, while the item is already in the top slot.
+Exactly one book is placed even from a stack. Number-key swaps and drag-placing are not intercepted.
+
+```yaml
+grindstone:
+  enabled: false
+  curses: false
+  repair:
+    reset: false
+    cost: true
+    base: 10
+    multiply: 0.25
+    enchantment-costs: {}
+    max-cost: -1
+  sound:
+    enabled: true
+    volume: 1.0
+    pitch: 1.0
+  economy:
+    enabled: false
+    cost: 100.0
+    show-cost: true
+    charge-message: true
+```
+
+| Key                          | Type    | Default | Description                                                                                     |
+|------------------------------|---------|---------|-------------------------------------------------------------------------------------------------|
+| `enabled`                    | Boolean | `false` | Enable extraction (item + plain book).                                                          |
+| `curses`                     | Boolean | `false` | `false`: curses stay on the item (like the vanilla grindstone). `true`: they move to the book too. Also applies to transfer. |
+| `repair.reset`               | Boolean | `false` | Reset the item's anvil repair cost after extraction.                                            |
+| `repair.cost`                | Boolean | `true`  | Charge experience levels.                                                                       |
+| `repair.base`                | Double  | `10`    | Base cost. Formula: `base + sum(level x multiply)`, same as the anvil.                          |
+| `repair.multiply`            | Double  | `0.25`  | Per-enchantment multiplier (increases with every enchantment, highest level first).             |
+| `repair.enchantment-costs`   | Map     | `{}`    | Per-enchantment fixed cost, `sharpness: 5` or `mending: { xp: 10, economy: 500 }`.              |
+| `repair.max-cost`            | Integer | `-1`    | Cap on the level cost, `-1` = none.                                                             |
+| `sound.enabled/volume/pitch` | -       | on/1/1  | `block.grindstone.use` played on success.                                                       |
+| `economy.*`                  | -       | off     | Same keys and rules as the [anvil economy cost](#economy-cost-disenchantment).                  |
+
+Enchantment **chances** apply as with the anvil: a failed roll destroys that enchantment, and if every roll fails the
+player receives a plain book. `DELETE` enchantments are destroyed on the item, `KEEP` ones stay, a `DISABLE` one blocks
+the operation.
+
+### Grindstone Transfer
+
+Put an **enchanted item** in the top slot and a **different kind of item** (not a book) in the bottom slot: the result
+is the bottom item carrying the enchantments it can take. Unlike the anvil, the source item is **not destroyed**: it
+returns to the top slot minus exactly the enchantments that moved. Two items of the **same material** are a vanilla repair
+and are never touched. Put the source in the top slot and the receiving item in the bottom slot.
+
+An enchantment moves only if: it is a vanilla enchantment, the target can take it (`canEnchantItem`), it conflicts with
+nothing already on the target or already chosen, the target does not already have it at the same or a higher level, and
+the source enchantment is not `KEEP` (a `DISABLE` state blocks the whole transfer). Levels above the enchantment's vanilla
+maximum are lowered to the maximum unless `allow-over-max` is `true` (the source still loses the enchantment).
+Enchantments that cannot move simply stay on the source.
+
+```yaml
+grindstone:
+  transfer:
+    enabled: false
+    allow-over-max: false
+    max-enchantments: 16
+    repair:
+      reset: false
+      cost: true
+      base: 15
+      multiply: 0.25
+      enchantment-costs: {}
+      max-cost: -1
+    economy:
+      enabled: false
+      cost: 100.0
+      show-cost: true
+      charge-message: true
+```
+
+| Key                        | Type    | Default | Description                                                                         |
+|----------------------------|---------|---------|-------------------------------------------------------------------------------------|
+| `transfer.enabled`         | Boolean | `false` | Enable item-to-item transfer.                                                       |
+| `transfer.allow-over-max`  | Boolean | `false` | Keep levels above the vanilla maximum instead of lowering them.                     |
+| `transfer.max-enchantments`| Integer | `16`    | Safety cap on enchantments moved per transfer (highest levels first).               |
+| `transfer.repair.*`        | -       | base 15 | Same keys as `grindstone.repair`; `reset` resets the repair cost of both items.     |
+| `transfer.economy.*`       | -       | off     | Same keys as `grindstone.economy`.                                                  |
+
+The material restriction (`disenchantment.materials`) is checked against the **source** item.
+
 ---
 
 ## Economy Integration
@@ -717,6 +876,10 @@ When enabled, Disenchantment hooks into Vault automatically on startup. The star
 | Shatter cost              | `shatterment.economy.cost`              | `100.0` |
 | Shatter action bar        | `shatterment.economy.show-cost`         | `true`  |
 | Shatter charge message    | `shatterment.economy.charge-message`    | `true`  |
+| Grindstone extract economy on/off | `grindstone.economy.enabled`    | `false` |
+| Grindstone extract cost           | `grindstone.economy.cost`       | `100.0` |
+| Grindstone transfer economy on/off| `grindstone.transfer.economy.enabled` | `false` |
+| Grindstone transfer cost          | `grindstone.transfer.economy.cost`    | `100.0` |
 
 See also [COMMANDS.md — Disenchant Economy](COMMANDS.md#disenchant-economy)
 and [COMMANDS.md — Shatter Economy](COMMANDS.md#shatter-economy) for commands that change these settings without editing

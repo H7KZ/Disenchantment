@@ -64,6 +64,8 @@ messages:
   give-amount-invalid: "&cPočet musí být celé číslo od 1 do {max}!&r"
   give-anvil-given: "&aHráči &f{player} &abylo předáno &f{amount}x &aspeciální kovadlina.&r"
   give-anvil-received: "&7Obdrželi jste &f{amount}x &7speciální kovadlina.&r"
+  grindstone-cost: "&7Cena: &f{levels} &7úrovní&r"
+  grindstone-cost-economy: "&7Cena: &f{levels} &7úrovní &8+ &f{cost}&r"
 
 states:
   enabled: "&aPovoleno&r"
