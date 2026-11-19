@@ -48,6 +48,7 @@ How to build, develop, and contribute to the Disenchantment codebase.
 | [engineering/CONTRIBUTING.md](engineering/CONTRIBUTING.md)             | Contribution guide — issues, code style, and PR process              |
 | [engineering/SETUP.md](engineering/SETUP.md)                           | Developer environment setup — JDK, Maven, Spigot BuildTools, and IDE |
 | [engineering/TESTING.md](engineering/TESTING.md)                       | Test structure, how to run tests, and how to write new ones          |
+| [engineering/E2E.md](engineering/E2E.md)                               | Real-server e2e suite on Proofstone (`e2e/`)                         |
 | [engineering/ADDING_NEW_VERSION.md](engineering/ADDING_NEW_VERSION.md) | Step-by-step guide for adding support for a new Minecraft version    |
 
 ---
