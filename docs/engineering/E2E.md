@@ -89,6 +89,10 @@ server oracle (no book, no XP charge, no Post event). Every other driver error i
 
 The agent jar was rebuilt from Proofstone `origin/develop` at `5fdb96d` (includes PR #190, the event-probe class-loader fix), and the suite pointed at it with `-Dproofstone.repo=<that checkout>`. One invocation per cell, 11 tests each (6 cell tests, 5 reported skips): paper@1.18.2, paper@26.3 and paper@1.21.11 all show 0 failures and 0 errors. The paper@1.18.2 red above is therefore gone with that agent; it was the agent's, as diagnosed.
 
+### Audit-branch acceptance (Proofstone develop a5e431f)
+
+Agent rebuilt from develop `a5e431f`. 13 classes, 50 tests per cell (45 run, 5 reported skips), 0 failures, 0 errors: paper@26.3 (three separate invocations), paper@1.21.11, folia@26.3. `mvn test -pl core --offline`: 1199 tests, 0 failures.
+
 ## Proofstone gaps
 
 Scenarios the suite keeps as reasoned skips (`SkippedScenariosE2E`) or checks more weakly than it should, and the Proofstone
