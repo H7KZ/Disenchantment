@@ -79,6 +79,35 @@ Known gap: a click the plugin refuses changes nothing, so the driver gets no syn
 answer ...`. `Fixture.refusedClick` accepts that one message for clicks that must be refused and the tests then check the
 server oracle (no book, no XP charge, no Post event). Every other driver error is rethrown.
 
+## CI
+
+`.github/workflows/e2e.yml` runs the suite on a hosted `ubuntu-latest` runner (Docker and JDK 21 are there). It runs on `pull_request`
+(paths `e2e/**`, `core/**`, `v1_*/**`, `dist/**`, `pom.xml`, the workflow), nightly (03:17 UTC, default branch only) and `workflow_dispatch`.
+Jobs: `preflight` (EULA check) -> `build` (plugin jar via the same Spigot BuildTools cache as `ci.yml`, plus the Proofstone agent jar) ->
+`e2e` (one matrix cell each: paper@26.3, paper@1.21.11, paper@1.20.6, paper@1.20.4, paper@1.18.2, folia@26.3; `fail-fast: false`).
+Permissions are `contents: read`; third-party actions are pinned by commit SHA; stale PR runs are cancelled by a concurrency group.
+Proofstone is checked out at a pinned `develop` commit (`PROOFSTONE_REF` in the workflow, `a5e431f`, the agent the audit runs used; tag
+`v0.1.0` predates the class-loader fix, see "Agent requirement"). Bump it deliberately.
+
+**Set the EULA variable (once, by a repo admin).** Read <https://aka.ms/MinecraftEULA>. Setting the variable is your acceptance:
+Settings > Secrets and variables > Actions > Variables > New repository variable, name `PROOFSTONE_ACCEPT_EULA`, value `true`
+(CLI: `gh variable set PROOFSTONE_ACCEPT_EULA --body true`). The workflow maps it to an environment variable only; it is never written
+to a file. Unset, the run ends green with a "e2e skipped" notice and runs nothing (fork PRs never see repository variables, so they skip too).
+
+**No retries.** A red cell stays red. Reports are always uploaded: artifact `e2e-reports-<cell>` holds `failsafe-reports/` and
+`surefire-reports/` XML plus `e2e/build/proofstone/` (repro bundles with the server logs of a red run); each job also writes a counts
+table to the job summary.
+
+**Flake report (manual).** Actions > e2e > Run workflow, set `repeat` (3 to 20) and `repeat-cell`. This replaces the matrix with one cell
+run with `-Dproofstone.repeat=N`; Proofstone marks a test `FLAKY` (and the job fails) when verdicts differ across repeats. It reports, it
+never retries a failure into green. Artifact: `e2e-flake-report-<cell>`.
+
+**Run locally** (same steps as CI, see "Run it"): `mvn -B package -DskipTests`, build the agent in a Proofstone checkout at the pinned
+commit, then `PROOFSTONE_ACCEPT_EULA=true mvn -B -f e2e/pom.xml verify -Dproofstone.repo=<proofstone> -Dproofstone.cells=paper@26.3`.
+
+**Verification status.** The workflow was linted (actionlint 1.7.7, clean) but a workflow can only be proven on GitHub: the first hosted run
+(cold BuildTools cache, Gradle and Docker image pulls on the runner) is the real check.
+
 ## Recorded results
 
 - **Control run** (`-Dproofstone.controlRun=true`, paper@26.3, no plugin installed): all 6 cell tests fail with `no class named ...PostDisenchantEvent`/`PostShatterEvent`; none passes, so no test is VACUOUS. The 5 skips stay skips.
