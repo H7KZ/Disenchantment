@@ -41,3 +41,9 @@ root `pom.xml`.
 Known gap: a click the plugin refuses changes nothing, so the driver gets no sync and `Window.click` throws `server did not
 answer ...`. `Fixture.refusedClick` accepts that one message for clicks that must be refused and the tests then check the
 server oracle (no book, no XP charge, no Post event). Every other driver error is rethrown.
+
+## Recorded results
+
+- **Control run** (`-Dproofstone.controlRun=true`, paper@26.3, no plugin installed): all 6 cell tests fail with `no class named ...PostDisenchantEvent`/`PostShatterEvent`; none passes, so no test is VACUOUS. The 5 skips stay skips.
+- **paper@1.18.2 is red, deterministically** (2 runs, same 4 of 6 tests): the first test per class that subscribes to a Disenchantment event fails the log guard on `WARN ProofstoneAgent: Loaded class ...PostDisenchantEvent from Disenchantment v6.5.12 which is not a depend or softdepend of this plugin`. Cause is in the Proofstone agent (`EventProbes` loads the class through the agent's own class loader), not in Disenchantment. Other cells are green (paper 1.20.4, 1.20.6, 1.21.11, 26.3 and folia 26.3). The test is not weakened; the cell stays red until the agent is fixed.
+- `mvn test -pl core --offline`: 262 tests, 0 failures. The root reactor lists core, the `v*` modules and dist only, never `e2e/`.
