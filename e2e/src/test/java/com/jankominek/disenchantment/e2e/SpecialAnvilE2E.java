@@ -23,7 +23,7 @@ import java.util.regex.Pattern;
  * Special anvils. The gating by {@code special-anvils.mode} is tested with the two modes that need no block placement:
  * BLOCK_BELOW (setblock a lapis block under the anvil) and MARKED with an anvil that was never placed from the special item.
  * The item itself comes from {@code /disenchantment give anvil} and from the crafting recipe, and is identified by its
- * persistent-data marker on the server. The recipe test reloads through a player command: on Folia that runs on the
+ * configured name and lore (the persistent-data marker is not observable with the 0.1.0 agent). The recipe test reloads through a player command: on Folia that runs on the
  * player's region thread, which is the case commit e2970b6 fixed (the recipe manager belongs to the global region, so the
  * reload has to hand the registration to the global scheduler).
  *
@@ -35,7 +35,6 @@ import java.util.regex.Pattern;
 @Matrix(platform = Platform.FOLIA, versions = {"26.3"})
 class SpecialAnvilE2E {
 
-    private static final String MARKER = "disenchantment:special_anvil";
     private static final int START_LEVEL = 30;
 
     private static PlayerHandle swordPlayer(Agent agent, Client client) {
@@ -117,15 +116,18 @@ class SpecialAnvilE2E {
     void theGiveCommandHandsOutMarkedAnvils(Agent agent, Client client) {
         PlayerHandle player = Fixture.standNextToAnAnvil(agent, client);
         player.give(Item.of("anvil"));
-        assertThat(player.state().inventory().values()).as("control: a plain anvil has no marker")
-                .allSatisfy(item -> assertThat(item.pdc() == null || !item.pdc().containsKey(MARKER)).isTrue());
+        assertThat(player.state().inventory().values()).as("control: a plain anvil has the vanilla name and lore")
+                .allSatisfy(item -> assertThat(item.name() == null && item.lore().isEmpty()).isTrue());
 
         agent.command("disenchantment give anvil " + client.name() + " 2");
         var special = player.awaitState("two special anvils", state -> state.inventory().values().stream()
                 .anyMatch(item -> item.is("anvil") && item.amount() == 2)).inventory().values().stream()
                 .filter(item -> item.is("anvil") && item.amount() == 2).findFirst().orElseThrow();
-        assertThat(special.pdc()).as("server-side persistent data of the special anvil").containsKey(MARKER);
+        // The marker itself is not observable: the 0.1.0 agent never reports persistent data (ItemView.pdc() is null, see the
+        // Proofstone gaps in docs/engineering/E2E.md). The configured name and lore are set only by SpecialAnvilItem.create.
         assertThat(special.name()).contains("Enchanter's Anvil");
+        assertThat(special.lore()).hasSize(1);
+        assertThat(special.lore().get(0)).contains("Place to create a disenchanting anvil");
         assertThat(player.state().inventory().values().stream().filter(item -> item.is("anvil")).count())
                 .as("the plain anvil and the special stack are separate stacks").isEqualTo(2);
     }
@@ -167,8 +169,10 @@ class SpecialAnvilE2E {
                 table.click(Fixture.firstFreePlayerSlot(table), Click.LEFT);
             }
             var special = player.awaitState("the crafted special anvil", state -> state.inventory().values().stream()
-                    .anyMatch(item -> item.is("anvil") && item.pdc() != null && item.pdc().containsKey(MARKER)));
+                    .anyMatch(item -> item.is("anvil") && item.name() != null && item.name().contains("Enchanter's Anvil")));
             assertThat(special.inventory().values()).noneMatch(item -> item.is("emerald"));
+            assertThat(special.inventory().values().stream().filter(item -> item.is("anvil")).count())
+                    .as("the plain anvil was consumed by the recipe").isEqualTo(1);
         } finally {
             plugin.patchConfig("special-anvils.recipe.shape", shape);
             plugin.patchConfig("special-anvils.recipe.enabled", enabled);
