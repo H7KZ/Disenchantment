@@ -1,0 +1,274 @@
+# Real-server e2e suite (e2e/, Proofstone) on a hosted Ubuntu runner. See docs/engineering/E2E.md, section "CI".
+#
+# - Needs the repository variable PROOFSTONE_ACCEPT_EULA=true (setting it is you accepting https://aka.ms/MinecraftEULA).
+#   It is mapped to an environment variable only; it is never written to a file. Unset: the run skips with a notice.
+# - No auto-retry anywhere. A red cell stays red. The optional `repeat` run is a flake REPORT, not a retry.
+# - Proofstone is pinned to a commit of its develop branch that holds the event-probe class-loader fix (PR #190) and is the
+#   agent the audit-branch acceptance runs used. Tag v0.1.0 predates that fix. Bump PROOFSTONE_REF on purpose.
+name: e2e
+
+on:
+  pull_request:
+    paths:
+      - 'e2e/**'
+      - 'core/**'
+      - 'v1_*/**'
+      - 'dist/**'
+      - 'pom.xml'
+      - '.github/workflows/e2e.yml'
+      - '.github/scripts/e2e-summary.py'
+  schedule:
+    - cron: '17 3 * * *' # nightly; scheduled workflows run on the default branch only
+  workflow_dispatch:
+    inputs:
+      repeat:
+        description: 'Flake report: run ONE cell N times (3-20) with -Dproofstone.repeat=N instead of the matrix. Empty: normal run.'
+        required: false
+        default: ''
+        type: string
+      repeat-cell:
+        description: 'Cell for the flake report'
+        required: false
+        default: 'paper@26.3'
+        type: choice
+        options:
+          - paper@26.3
+          - paper@1.21.11
+          - paper@1.20.6
+          - paper@1.20.4
+          - paper@1.18.2
+          - folia@26.3
+
+permissions:
+  contents: read
+
+concurrency:
+  group: e2e-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+  # Proofstone develop at a5e431f (the agent the audit-branch acceptance runs used).
+  PROOFSTONE_REF: a5e431f94ad77c6e739cad9233d9a54a8da7062b
+
+jobs:
+  preflight:
+    name: Preflight
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      ok: ${{ steps.eula.outputs.ok }}
+    env:
+      PROOFSTONE_ACCEPT_EULA: ${{ vars.PROOFSTONE_ACCEPT_EULA }}
+      REPEAT: ${{ inputs.repeat }}
+    steps:
+      - id: eula
+        run: |
+          if [ "$PROOFSTONE_ACCEPT_EULA" = "true" ]; then
+            echo "ok=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "ok=false" >> "$GITHUB_OUTPUT"
+            echo "::notice title=e2e skipped::Repository variable PROOFSTONE_ACCEPT_EULA is not 'true' (it is also unset for fork PRs). Read https://aka.ms/MinecraftEULA, then set it under Settings > Secrets and variables > Actions > Variables to run the e2e suite."
+          fi
+      - name: Validate repeat input
+        if: ${{ inputs.repeat != '' }}
+        run: |
+          case "$REPEAT" in
+            ''|*[!0-9]*) echo "::error::repeat must be an integer 3-20"; exit 1 ;;
+          esac
+          if [ "$REPEAT" -lt 3 ] || [ "$REPEAT" -gt 20 ]; then echo "::error::repeat must be 3-20"; exit 1; fi
+
+  build:
+    name: Build plugin and agent
+    needs: preflight
+    if: needs.preflight.outputs.ok == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: H7KZ/Proofstone
+          ref: ${{ env.PROOFSTONE_REF }}
+          path: proofstone
+          persist-credentials: false
+      # Same JDK set as Proofstone's own gates (agent build) and ci.yml (BuildTools: 1.18 needs 17, the rest 21).
+      # The last entry is the default: 21.
+      - uses: actions/setup-java@d1374f8ac74474200d16ef8ecee22c7ae7a51880 # v6.3.0
+        with:
+          distribution: temurin
+          java-version: |
+            26
+            17
+            21
+      - name: Check the e2e plugin version matches the root pom
+        run: |
+          root=$(sed -n 's|.*<revision>\(.*\)</revision>.*|\1|p' pom.xml | head -1)
+          e2e=$(sed -n 's|.*<disenchantment.version>\(.*\)</disenchantment.version>.*|\1|p' e2e/pom.xml | head -1)
+          echo "root=$root e2e=$e2e"
+          if [ -z "$root" ] || [ "$root" != "$e2e" ]; then
+            echo "::error::e2e/pom.xml disenchantment.version ($e2e) != root revision ($root)"; exit 1
+          fi
+          echo "PLUGIN_VERSION=$root" >> "$GITHUB_ENV"
+      # Same cache key as ci.yml and release.yml (shared Spigot BuildTools output).
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.m2/repository
+          key: maven-spigot-v1-${{ hashFiles('**/pom.xml') }}
+          restore-keys: maven-spigot-v1-
+      - name: Run Spigot BuildTools when the remapped NMS jars are missing
+        run: |
+          M2="$HOME/.m2/repository/org/spigotmc/spigot"
+          check() { [ -f "$M2/$1/spigot-$1-remapped-mojang.jar" ]; }
+          if check "1.18-R0.1-SNAPSHOT" && check "1.20.6-R0.1-SNAPSHOT" && check "1.21.1-R0.1-SNAPSHOT" && check "1.21.8-R0.1-SNAPSHOT"; then
+            echo "Spigot artifacts cached"; exit 0
+          fi
+          git config --global user.email "ci@github.com"
+          git config --global user.name "CI"
+          git config --global --add safe.directory '*'
+          mkdir -p "$RUNNER_TEMP/buildtools" && cd "$RUNNER_TEMP/buildtools"
+          wget -q -O BuildTools.jar https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar
+          for REV in 1.18 1.20.6 1.21.1 1.21.8; do
+            echo "::group::BuildTools $REV"
+            case "$REV" in
+              1.18) JAVA_BIN="$JAVA_HOME_17_X64/bin/java" ;;
+              *)    JAVA_BIN="$JAVA_HOME_21_X64/bin/java" ;;
+            esac
+            "$JAVA_BIN" -jar BuildTools.jar --rev "$REV" --remapped
+            echo "::endgroup::"
+          done
+      - name: Build the plugin jar under test
+        run: mvn -B package -DskipTests
+      - uses: gradle/actions/setup-gradle@8da46b539cd8fe6ab27ca75128919a18d757604c # v6.4.1
+        with:
+          cache-read-only: ${{ github.event_name != 'schedule' }}
+      - name: Build the Proofstone Bukkit agent jar
+        working-directory: proofstone
+        run: ./gradlew :platforms:bukkit:agent:shadowJar --no-daemon
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: plugin-jar
+          path: target/Disenchantment-${{ env.PLUGIN_VERSION }}.jar
+          if-no-files-found: error
+          retention-days: 3
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: proofstone-agent
+          path: proofstone/platforms/bukkit/agent/build/libs/agent-all.jar
+          if-no-files-found: error
+          retention-days: 3
+
+  e2e:
+    name: e2e ${{ matrix.cell }}
+    needs: [preflight, build]
+    if: needs.preflight.outputs.ok == 'true' && inputs.repeat == ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        cell:
+          - paper@26.3
+          - paper@1.21.11
+          - paper@1.20.6
+          - paper@1.20.4
+          - paper@1.18.2
+          - folia@26.3
+    env:
+      PROOFSTONE_ACCEPT_EULA: ${{ vars.PROOFSTONE_ACCEPT_EULA }}
+      CELL: ${{ matrix.cell }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: H7KZ/Proofstone
+          ref: ${{ env.PROOFSTONE_REF }}
+          path: proofstone
+          persist-credentials: false
+      - uses: actions/setup-java@d1374f8ac74474200d16ef8ecee22c7ae7a51880 # v6.3.0
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+          cache-dependency-path: e2e/pom.xml
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: plugin-jar
+          path: target
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: proofstone-agent
+          path: proofstone/platforms/bukkit/agent/build/libs
+      - name: Run e2e (no retry)
+        run: >
+          mvn -B -f e2e/pom.xml verify
+          -Dproofstone.repo="$GITHUB_WORKSPACE/proofstone"
+          -Dproofstone.cells="$CELL"
+      - name: Summary
+        if: always()
+        run: python3 .github/scripts/e2e-summary.py "e2e $CELL" >> "$GITHUB_STEP_SUMMARY"
+      - name: Upload reports and server logs
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: e2e-reports-${{ matrix.cell }}
+          path: |
+            e2e/target/failsafe-reports/
+            e2e/target/surefire-reports/
+            e2e/build/proofstone/
+          if-no-files-found: warn
+          retention-days: 14
+
+  # Flake REPORT: one cell, N repeats, manual only. Proofstone's repeat mode reports FLAKY when verdicts differ across
+  # repeats. Nothing here retries a failed test; a red or FLAKY result fails this job on purpose.
+  flake-report:
+    name: flake report ${{ inputs.repeat-cell }} x${{ inputs.repeat }}
+    needs: [preflight, build]
+    if: needs.preflight.outputs.ok == 'true' && inputs.repeat != ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    env:
+      PROOFSTONE_ACCEPT_EULA: ${{ vars.PROOFSTONE_ACCEPT_EULA }}
+      CELL: ${{ inputs.repeat-cell }}
+      REPEAT: ${{ inputs.repeat }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: H7KZ/Proofstone
+          ref: ${{ env.PROOFSTONE_REF }}
+          path: proofstone
+          persist-credentials: false
+      - uses: actions/setup-java@d1374f8ac74474200d16ef8ecee22c7ae7a51880 # v6.3.0
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+          cache-dependency-path: e2e/pom.xml
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: plugin-jar
+          path: target
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: proofstone-agent
+          path: proofstone/platforms/bukkit/agent/build/libs
+      - name: Run e2e with repeat (report, no retry)
+        run: >
+          mvn -B -f e2e/pom.xml verify
+          -Dproofstone.repo="$GITHUB_WORKSPACE/proofstone"
+          -Dproofstone.cells="$CELL"
+          -Dproofstone.repeat="$REPEAT"
+      - name: Summary
+        if: always()
+        run: python3 .github/scripts/e2e-summary.py "flake report $CELL x$REPEAT" >> "$GITHUB_STEP_SUMMARY"
+      - name: Upload reports and server logs
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: e2e-flake-report-${{ inputs.repeat-cell }}
+          path: |
+            e2e/target/failsafe-reports/
+            e2e/target/surefire-reports/
+            e2e/build/proofstone/
+          if-no-files-found: warn
+          retention-days: 14
