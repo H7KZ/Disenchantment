@@ -1,0 +1,7 @@
+name: DisenchantmentE2eHooks
+version: 0.0.0-e2e
+main: com.jankominek.disenchantment.e2e.support.hooks.E2eHooks
+api-version: "1.18"
+softdepend: [ Disenchantment ]
+folia-supported: true
+description: Test listener for the Disenchantment e2e suite. Cancels Pre*Event when cancel.<event> is true in this plugin's config.
