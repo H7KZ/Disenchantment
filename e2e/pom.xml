@@ -22,7 +22,14 @@
         <!-- The mcpl driver is Java 21 (Proofstone ADR-0004). -->
         <maven.compiler.release>21</maven.compiler.release>
 
+        <!-- Proofstone is consumed from a SOURCE build, not from Central. The Proofstone version string is still 0.1.0, but the
+             Central 0.1.0 predates Agent.logLines (T-M11-01), PlayerState.openWindow (T-M11-02) and Agent.bootLogLines (T-M11-03), which the tests use. Build the
+             checkout at proofstone.ref and run `./gradlew publishToMavenLocal :platforms:bukkit:agent:shadowJar` there first
+             (docs/engineering/E2E.md, "Proofstone source build"); the artefacts then come from the local Maven repository
+             (no <repository> below serves them). A stale Central 0.1.0 in ~/.m2 fails to compile the tests (loud, never silent).
+             Keep proofstone.ref equal to PROOFSTONE_REF in .github/workflows/e2e.yml (the workflow checks it). -->
         <proofstone.version>0.1.0</proofstone.version>
+        <proofstone.ref>f97b9534624def8feb4577aa0e3c21f0484202ce</proofstone.ref>
         <junit.version>5.14.4</junit.version>
         <assertj.version>3.27.7</assertj.version>
 
@@ -40,7 +47,7 @@
     </properties>
 
     <repositories>
-        <!-- Maven Central first, so the Proofstone artefacts come from Central (the other two are proxies or mirrors). -->
+        <!-- Maven Central first (the other three are proxies or mirrors). The Proofstone artefacts are not here: they are built from source. -->
         <repository>
             <id>central</id>
             <url>https://repo.maven.apache.org/maven2</url>
@@ -89,6 +96,16 @@
                     <artifactId>*</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+        <!-- Compile-only: paper-api's Server and Player extend adventure's Audience types, so javac needs those classes to compile
+             the support plugins (a clean build failed without it). Provided scope is on the test classpath too, and the version
+             must be the one MCProtocolLib (the Proofstone driver) brings, because Maven would otherwise pick this one over it and
+             an older adventure breaks the driver (NoClassDefFoundError: net.kyori.adventure.text.Component with the old paper one). -->
+        <dependency>
+            <groupId>net.kyori</groupId>
+            <artifactId>adventure-api</artifactId>
+            <version>5.2.0</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.github.MilkBowl</groupId>

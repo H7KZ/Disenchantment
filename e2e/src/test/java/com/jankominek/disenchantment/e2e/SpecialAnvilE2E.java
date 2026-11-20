@@ -28,7 +28,7 @@ import java.util.regex.Pattern;
  * reload has to hand the registration to the global scheduler).
  *
  * <p>Not covered: marking by placing the special item (the chunk-PDC mark of {@code SpecialAnvilStore}) and the drop swap
- * on breaking. Proofstone 0.1.0 has no client block placement or breaking. See {@link SkippedScenariosE2E}.
+ * on breaking. Proofstone has no client block placement or breaking (gap 3). See {@link SkippedScenariosE2E}.
  */
 @Proofstone(plugins = "target/plugin-under-test/Disenchantment-*.jar")
 @Matrix(platform = Platform.PAPER, versions = {"1.18.2", "1.20.4", "1.20.6", "1.21.11", "26.3"})
@@ -157,6 +157,9 @@ class SpecialAnvilE2E {
             plugin.patchConfig("special-anvils.recipe.enabled", true);
             client.command("disenchantment reload");
             client.awaitMessage(Pattern.compile("(?i)reload"));
+            // The reload (on Folia: the region-thread path that hands the recipe to the global scheduler) logged its end line and
+            // nothing worse: no WARN, no exception, no stack frame since the test started.
+            Fixture.assertNothingProblematicLogged(agent, Pattern.compile("Disenchantment reloaded\\."));
 
             try (Window table = client.openBlock(ANVIL)) {
                 // The first window returned the items to the inventory when it closed.
