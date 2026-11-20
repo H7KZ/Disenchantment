@@ -47,3 +47,7 @@ server oracle (no book, no XP charge, no Post event). Every other driver error i
 - **Control run** (`-Dproofstone.controlRun=true`, paper@26.3, no plugin installed): all 6 cell tests fail with `no class named ...PostDisenchantEvent`/`PostShatterEvent`; none passes, so no test is VACUOUS. The 5 skips stay skips.
 - **paper@1.18.2 is red, deterministically** (2 runs, same 4 of 6 tests): the first test per class that subscribes to a Disenchantment event fails the log guard on `WARN ProofstoneAgent: Loaded class ...PostDisenchantEvent from Disenchantment v6.5.12 which is not a depend or softdepend of this plugin`. Cause is in the Proofstone agent (`EventProbes` loads the class through the agent's own class loader), not in Disenchantment. Other cells are green (paper 1.20.4, 1.20.6, 1.21.11, 26.3 and folia 26.3). The test is not weakened; the cell stays red until the agent is fixed.
 - `mvn test -pl core --offline`: 262 tests, 0 failures. The root reactor lists core, the `v*` modules and dist only, never `e2e/`.
+
+### Re-run with the fixed Proofstone agent
+
+The agent jar was rebuilt from Proofstone `origin/develop` at `5fdb96d` (includes PR #190, the event-probe class-loader fix), and the suite pointed at it with `-Dproofstone.repo=<that checkout>`. One invocation per cell, 11 tests each (6 cell tests, 5 reported skips): paper@1.18.2, paper@26.3 and paper@1.21.11 all show 0 failures and 0 errors. The paper@1.18.2 red above is therefore gone with that agent; it was the agent's, as diagnosed.
