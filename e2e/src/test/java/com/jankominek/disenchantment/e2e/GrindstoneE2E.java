@@ -67,7 +67,7 @@ class GrindstoneE2E {
                 ItemView stripped = grind.awaitSlot(0, item -> item.is("diamond_sword") && item.enchants().isEmpty());
                 assertThat(stripped.amount()).isEqualTo(1);
                 assertThat(grind.slot(1).isEmpty()).as("the consumed book left slot 1").isTrue();
-                assertThat(grind.cursor().is("enchanted_book")).isTrue();
+                grind.awaitCursor(item -> item.is("enchanted_book"));
                 grind.click(Fixture.firstFreePlayerSlot(grind), Click.LEFT);
             }
 
@@ -118,7 +118,7 @@ class GrindstoneE2E {
                 grind.click(2, Click.LEFT);
                 grind.awaitSlot(0, item -> item.is("diamond_sword") && item.enchants().isEmpty());
                 assertThat(grind.slot(1).isEmpty()).as("the target item left slot 1").isTrue();
-                assertThat(grind.cursor().is("iron_sword")).isTrue();
+                grind.awaitCursor(item -> item.is("iron_sword"));
                 grind.click(Fixture.firstFreePlayerSlot(grind), Click.LEFT);
             }
 
@@ -171,6 +171,7 @@ class GrindstoneE2E {
                     assertThat(state.cursor().isEmpty()).as("server cursor after %s", unsafe).isTrue();
                     assertThat(state.inventory().values()).as("server inventory after %s", unsafe)
                             .noneMatch(item -> item.is("enchanted_book"));
+                    grind.awaitCursor(ItemView::isEmpty);
                     assertThat(grind.slots().subList(3, grind.slots().size())).as("client inventory after %s", unsafe)
                             .noneMatch(item -> item.is("enchanted_book"));
                     assertThat(grind.slot(0).enchants()).as("source keeps its enchantments after %s", unsafe).isEqualTo(ENCHANTS);
@@ -179,8 +180,8 @@ class GrindstoneE2E {
 
                 grind.click(2, Click.LEFT);
                 grind.awaitSlot(0, item -> item.is("diamond_sword") && item.enchants().isEmpty());
-                assertThat(grind.cursor().is("enchanted_book")).isTrue();
-                assertThat(grind.cursor().amount()).isEqualTo(1);
+                ItemView delivered = grind.awaitCursor(item -> item.is("enchanted_book"));
+                assertThat(delivered.amount()).isEqualTo(1);
                 grind.click(Fixture.firstFreePlayerSlot(grind), Click.LEFT);
             }
 

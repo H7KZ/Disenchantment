@@ -51,7 +51,7 @@ class EraseModeE2E {
         ItemView catalyst = anvil.awaitSlot(0, ItemView::isEmpty);
         assertThat(catalyst.isEmpty()).as("the source slot is emptied: the result goes to the cursor").isTrue();
         ItemView left = anvil.slot(1);
-        assertThat(anvil.cursor().is("diamond_sword")).isTrue();
+        anvil.awaitCursor(item -> item.is("diamond_sword"));
         anvil.click(Fixture.firstFreePlayerSlot(anvil), Click.LEFT);
         return left;
     }

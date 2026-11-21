@@ -49,8 +49,8 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 env:
-  # Proofstone develop at 11df8e0 (merge of PR #208, T-M11-09 Window.drag; it also holds T-M11-01 to T-M11-07). Keep equal to proofstone.ref in e2e/pom.xml.
-  PROOFSTONE_REF: 11df8e02d620cb934609a2c345355271bd163bfa
+  # Proofstone develop at f5957cc (merge of PR #209, T-M11-11 Window.awaitCursor; it also holds T-M11-01 to T-M11-09). Keep equal to proofstone.ref in e2e/pom.xml.
+  PROOFSTONE_REF: f5957cc22fa44dc8797e76201e951fffd64fb12a
 
 jobs:
   preflight:
