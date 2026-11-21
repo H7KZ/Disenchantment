@@ -82,11 +82,18 @@ therefore (1) records the value at each path, (2) patches, (3) runs `/disenchant
 the caches), and on close patches the originals back and reloads again. Use it in try-with-resources so the revert runs on failure.
 The recipe test in `SpecialAnvilE2E` issues the reload as a player operator on purpose: on Folia that runs on the player's region thread.
 
+## Reading the client window
+
+Never read the client cursor one-shot after a click: `Window.cursor()` is the last synced value, and `click` returns on the first window sync,
+while the server sends the delivered item in a `SetCursorItem` packet just after it (seen on folia@26.3). Use `Window.awaitCursor(predicate)`, and
+`awaitSlot` for slots, then assert on the returned view. An empty-cursor check after a refused click comes after the server-side oracle
+(`player.state().cursor()`), then `awaitCursor(ItemView::isEmpty)`. No sleeps.
+
 ## Proofstone source build
 
-The suite needs `Agent.logLines` (T-M11-01), `PlayerState.openWindow` (T-M11-02), `Agent.bootLogLines` (T-M11-03), `Client.placeBlock`/`breakBlock` and `Agent.blockType` (T-M11-04) `ItemView.pdc` (T-M11-05) and `Window.drag` (T-M11-09, not used by a test yet, see Proofstone gaps item 2), which are in Proofstone `develop` but not in the
+The suite needs `Agent.logLines` (T-M11-01), `PlayerState.openWindow` (T-M11-02), `Agent.bootLogLines` (T-M11-03), `Client.placeBlock`/`breakBlock` and `Agent.blockType` (T-M11-04) `ItemView.pdc` (T-M11-05) `Window.drag` (T-M11-09, not used by a test yet, see Proofstone gaps item 2) and `Window.awaitCursor` (T-M11-11), which are in Proofstone `develop` but not in the
 Central 0.1.0 (the version string is still `0.1.0`). `proofstone.ref` in `e2e/pom.xml` and `PROOFSTONE_REF` in the workflow name the pinned
-commit (`11df8e0`, the merge of PR #208; it also holds T-M11-01 to T-M11-09); the workflow fails the build job when they differ. One Gradle run in a
+commit (`f5957cc`, the merge of PR #209; it also holds T-M11-01 to T-M11-11); the workflow fails the build job when they differ. One Gradle run in a
 checkout of that commit produces both inputs:
 
 ```bash
@@ -135,7 +142,7 @@ server oracle (no book, no XP charge, no Post event). Every other driver error i
 Jobs: `preflight` (EULA check) -> `build` (plugin jar via the same Spigot BuildTools cache as `ci.yml`, plus the Proofstone agent jar) ->
 `e2e` (one matrix cell each: paper@26.3, paper@1.21.11, paper@1.20.6, paper@1.20.4, paper@1.18.2, folia@26.3; `fail-fast: false`).
 Permissions are `contents: read`; third-party actions are pinned by commit SHA; stale PR runs are cancelled by a concurrency group.
-Proofstone is checked out at a pinned `develop` commit (`PROOFSTONE_REF` in the workflow, `11df8e0`, equal to `proofstone.ref` in the pom; tag
+Proofstone is checked out at a pinned `develop` commit (`PROOFSTONE_REF` in the workflow, `f5957cc`, equal to `proofstone.ref` in the pom; tag
 `v0.1.0` predates the class-loader fix and the new APIs, see "Proofstone source build"). The `build` job builds Proofstone from that checkout
 (agent jar and `publishToMavenLocal`) and uploads artifacts `proofstone-agent` and `proofstone-m2`. Bump the pin deliberately, in both places.
 

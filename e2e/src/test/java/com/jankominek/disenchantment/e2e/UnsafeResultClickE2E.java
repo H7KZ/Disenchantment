@@ -79,15 +79,14 @@ class UnsafeResultClickE2E {
                     // Window slots 0 to 2 are the anvil's own (the source may itself be a book); the rest is the player's.
                     assertThat(anvil.slots().subList(3, anvil.slots().size())).as("client inventory after %s", unsafe)
                             .noneMatch(item -> item.is("enchanted_book"));
-                    assertThat(anvil.cursor().isEmpty()).as("client cursor after %s", unsafe).isTrue();
+                    anvil.awaitCursor(ItemView::isEmpty);
                     assertThat(post.events()).as("Post events after %s", unsafe).isEmpty();
                 }
 
                 // The safe click delivers exactly one book.
                 anvil.click(2, Click.LEFT);
                 anvil.awaitSlot(0, sourceAfterTheOperation);
-                ItemView cursor = anvil.cursor();
-                assertThat(cursor.is("enchanted_book")).isTrue();
+                ItemView cursor = anvil.awaitCursor(item -> item.is("enchanted_book"));
                 assertThat(cursor.amount()).isEqualTo(1);
                 anvil.click(Fixture.firstFreePlayerSlot(anvil), Click.LEFT);
             }

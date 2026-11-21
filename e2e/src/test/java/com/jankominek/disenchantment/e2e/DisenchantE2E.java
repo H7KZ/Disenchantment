@@ -50,7 +50,7 @@ class DisenchantE2E {
                 anvil.click(2, Click.LEFT);
                 ItemView stripped = anvil.awaitSlot(0, item -> item.is("diamond_sword") && item.enchants().isEmpty());
                 assertThat(stripped.amount()).isEqualTo(1);
-                assertThat(anvil.cursor().is("enchanted_book")).isTrue();
+                anvil.awaitCursor(item -> item.is("enchanted_book"));
                 anvil.click(Fixture.firstFreePlayerSlot(anvil), Click.LEFT);
             }
 
@@ -88,10 +88,10 @@ class DisenchantE2E {
 
                 Fixture.refusedClick(anvil, 2, Click.LEFT);
                 assertThat(anvil.slot(2).is("enchanted_book")).as("the result is still offered").isTrue();
-                assertThat(anvil.cursor().isEmpty()).as("client cursor after the refused click").isTrue();
                 assertThat(anvil.slot(0).enchants()).as("source keeps its enchantments").isEqualTo(Map.of(
                         "minecraft:sharpness", 5, "minecraft:unbreaking", 3));
                 assertThat(player.state().cursor().isEmpty()).as("server cursor after the refused click").isTrue();
+                anvil.awaitCursor(ItemView::isEmpty);
                 assertThat(player.state().level()).as("level after the refused click").isEqualTo(1);
                 assertThat(post.events()).as("no Post event for a refused click").isEmpty();
 
@@ -99,7 +99,7 @@ class DisenchantE2E {
                 DualAssert.level(player, client).isEqualTo(START_LEVEL);
                 anvil.click(2, Click.LEFT);
                 anvil.awaitSlot(0, item -> item.is("diamond_sword") && item.enchants().isEmpty());
-                assertThat(anvil.cursor().is("enchanted_book")).isTrue();
+                anvil.awaitCursor(item -> item.is("enchanted_book"));
                 anvil.click(Fixture.firstFreePlayerSlot(anvil), Click.LEFT);
             }
 
