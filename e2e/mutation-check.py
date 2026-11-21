@@ -41,7 +41,7 @@ MUTATIONS = {
            "if (mode == SpecialAnvilMode.MARKED) return true;", 1, "SpecialAnvilE2E,SpecialAnvilPlacementE2E"),
     "M9": ("no money refund when writing the result fails", O,
            "AnvilEventGuards.refundEconomy(p, kind.economy(), payment.economyCost());",
-           "/* mutated: no refund */", 1, "EconomyE2E,SkippedScenariosE2E"),
+           "/* mutated: no refund */", 1, "RefundOnWriteFailureE2E"),
     "M10": ("stats: the disenchant counter is not incremented", SRC + "stats/StatsCache.java",
             "if (type == OperationType.DISENCHANT) totalDisenchants.increment();",
             "if (type == OperationType.DISENCHANT) { }", 1, "StatsE2E"),
