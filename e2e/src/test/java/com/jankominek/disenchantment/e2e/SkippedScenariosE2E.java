@@ -13,8 +13,10 @@ class SkippedScenariosE2E {
     @Test
     @Disabled("grindstone tick-fallback refresh on drags (commit 5460349): the fallback and its InventoryDragEvent listener are "
             + "registered only when the server has no PrepareGrindstoneEvent; every Paper and Folia cell has one (Paper ships "
-            + "its own since 1.16), so the code path is not reachable on any cell. A drag also needs Window.drag, which "
-            + "the pinned Proofstone lacks. Covered by GrindstoneListenerTest in core.")
+            + "its own since 1.16), so on those cells a drag into the grindstone is answered by the normal prepare-event path "
+            + "and a test would pass with or without the fallback code (a mutation of it cannot go red). Window.drag now "
+            + "exists in the pinned Proofstone; the remaining blocker is a cell with a server that has no PrepareGrindstoneEvent "
+            + "(Spigot below 1.19.4). Covered by GrindstoneListenerTest in core.")
     void grindstoneTickFallbackRefreshOnDrag() {
     }
 }

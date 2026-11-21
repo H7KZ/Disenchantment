@@ -84,9 +84,9 @@ The recipe test in `SpecialAnvilE2E` issues the reload as a player operator on p
 
 ## Proofstone source build
 
-The suite needs `Agent.logLines` (T-M11-01), `PlayerState.openWindow` (T-M11-02), `Agent.bootLogLines` (T-M11-03), `Client.placeBlock`/`breakBlock` and `Agent.blockType` (T-M11-04) and `ItemView.pdc` (T-M11-05), which are in Proofstone `develop` but not in the
+The suite needs `Agent.logLines` (T-M11-01), `PlayerState.openWindow` (T-M11-02), `Agent.bootLogLines` (T-M11-03), `Client.placeBlock`/`breakBlock` and `Agent.blockType` (T-M11-04) `ItemView.pdc` (T-M11-05) and `Window.drag` (T-M11-09, not used by a test yet, see Proofstone gaps item 2), which are in Proofstone `develop` but not in the
 Central 0.1.0 (the version string is still `0.1.0`). `proofstone.ref` in `e2e/pom.xml` and `PROOFSTONE_REF` in the workflow name the pinned
-commit (`0466587`, the merge of PR #205; it also holds T-M11-01 to T-M11-06); the workflow fails the build job when they differ. One Gradle run in a
+commit (`11df8e0`, the merge of PR #208; it also holds T-M11-01 to T-M11-09); the workflow fails the build job when they differ. One Gradle run in a
 checkout of that commit produces both inputs:
 
 ```bash
@@ -135,7 +135,7 @@ server oracle (no book, no XP charge, no Post event). Every other driver error i
 Jobs: `preflight` (EULA check) -> `build` (plugin jar via the same Spigot BuildTools cache as `ci.yml`, plus the Proofstone agent jar) ->
 `e2e` (one matrix cell each: paper@26.3, paper@1.21.11, paper@1.20.6, paper@1.20.4, paper@1.18.2, folia@26.3; `fail-fast: false`).
 Permissions are `contents: read`; third-party actions are pinned by commit SHA; stale PR runs are cancelled by a concurrency group.
-Proofstone is checked out at a pinned `develop` commit (`PROOFSTONE_REF` in the workflow, `0466587`, equal to `proofstone.ref` in the pom; tag
+Proofstone is checked out at a pinned `develop` commit (`PROOFSTONE_REF` in the workflow, `11df8e0`, equal to `proofstone.ref` in the pom; tag
 `v0.1.0` predates the class-loader fix and the new APIs, see "Proofstone source build"). The `build` job builds Proofstone from that checkout
 (agent jar and `publishToMavenLocal`) and uploads artifacts `proofstone-agent` and `proofstone-m2`. Bump the pin deliberately, in both places.
 
@@ -197,12 +197,24 @@ Agent and Maven artefacts rebuilt from `0466587` (T-M11-07: a window packet that
 
 `RefundOnWriteFailureE2E`, 3 tests per cell (2 run, 1 reported skip), one invocation each, no retries: paper@26.3 3 of 3 green, folia@26.3 3 of 3 green. Mutation M9 on paper@26.3: RED, clean code green. Evidence under `C:\pw\dis-ev-m9\`.
 
+### Proofstone pin bump to 11df8e0 (Window.drag) and the grindstone-drag decision
+
+Agent and Maven artefacts rebuilt from Proofstone `11df8e0` (PR #208). The grindstone drag scenario stays a reported skip, with the reason
+updated (see "Proofstone gaps" item 2): the drag fallback is not registered on any Paper/Folia cell, so no honest test or mutation exists.
+16 classes, 52 tests per cell (50 run, 2 reported skips). Evidence under `C:\pw\dis-ev-drag\`.
+
+- paper@26.3, three separate invocations: **3 of 3 green**.
+- folia@26.3, three separate invocations: **2 of 3 green**. Run 2 is red: `EraseModeE2E.eraseDestroysTheEnchantmentsAndSpendsOneCatalyst`,
+  `EraseModeE2E.java:54` (`anvil.cursor().is("diamond_sword")` was false right after `awaitSlot(0, isEmpty)`; the client cursor read raced the
+  result take). Not retried, not weakened, open: not yet diagnosed whether it is the plugin, the test's cursor read or the agent.
+  Bundle: `C:\pw\dis-ev-dragolia263-run2-bundle`.
+
 ## Proofstone gaps
 
 Scenarios the suite keeps as reasoned skips (`SkippedScenariosE2E`) or checks more weakly than it should, and the Proofstone
 API each one needs. Nothing is faked in the meantime.
 
-Closed by the pinned Proofstone (`0466587`): `Agent.logLines()` / `logLines(Pattern, Duration)` (T-M11-01, `SpecialAnvilE2E` checks the
+Closed by the pinned Proofstone (`11df8e0`): `Agent.logLines()` / `logLines(Pattern, Duration)` (T-M11-01, `SpecialAnvilE2E` checks the
 reload for WARN, exceptions and stack frames), `PlayerState.openWindow` (T-M11-02, `BedrockMenuE2E`), `Agent.bootLogLines()` (T-M11-03,
 `NmsModuleE2E`), `Client.placeBlock` / `breakBlock` with `Agent.blockType` (T-M11-04, `SpecialAnvilPlacementE2E`) and `ItemView.pdc`
 (T-M11-05: the `disenchantment:special_anvil` byte is asserted in `SpecialAnvilE2E` and `SpecialAnvilPlacementE2E`). The chunk-PDC mark
@@ -210,10 +222,12 @@ itself is still read only by its effect (`MARKED` mode), because no API reads a 
 
 1. **Click-through on a server-side window**: `PlayerState.openWindow` is a read-only server view and `Window` is still the client's, so the
    Bedrock menu's confirm and cancel flow is not driven; only its server-side contents are asserted.
-2. **`Window.drag(List<Integer> slots, DragMode mode)`**: an inventory drag across slots (left, right, middle button), answered by
-   the server. Needed for the grindstone drag refresh (commit 5460349). The tick fallback and its drag listener are registered
-   only on servers without a `PrepareGrindstoneEvent`, and every Paper/Folia cell has one, so that path also needs a server
-   without it; `GrindstoneListenerTest` covers it in core.
+2. **A cell without `PrepareGrindstoneEvent`** (was: `Window.drag`, closed by T-M11-09 in the pinned Proofstone, `11df8e0`). The grindstone
+   drag refresh (commit 5460349) is a tick fallback with its own `InventoryDragEvent` listener, registered only on servers without a
+   `PrepareGrindstoneEvent`; every Paper/Folia cell has one (Paper ships its own since 1.16). On those cells a drag into the grindstone
+   is handled by the normal prepare-event path, so a drag test would be green with or without the fallback and no mutation of the
+   fallback could turn it red. It stays a reported skip (`SkippedScenariosE2E`); it needs a Spigot-below-1.19.4 cell. `GrindstoneListenerTest`
+   covers the fallback in core.
 3. **A fault-injection hook for write failures**: No-go in Proofstone (ADR-0002 keeps fault injection out of the agent; the spike found no
    event on the plugin's inventory writes). Closed on this side by the hooks-plugin injection (`RefundOnWriteFailureE2E`, see "Write-failure
    injection"): the refund is covered; only the strict levels-and-items assertion is a reported skip, because of a plugin finding.
