@@ -4,7 +4,7 @@
 #   It is mapped to an environment variable only; it is never written to a file. Unset: the run skips with a notice.
 # - No auto-retry anywhere. A red cell stays red. The optional `repeat` run is a flake REPORT, not a retry.
 # - Proofstone is pinned to a commit of its develop branch (PROOFSTONE_REF, equal to proofstone.ref in e2e/pom.xml) that holds
-#   the event-probe class-loader fix (PR #190), Agent.logLines (T-M11-01), PlayerState.openWindow (T-M11-02), Agent.bootLogLines (T-M11-03), Client.placeBlock/breakBlock and Agent.blockType (T-M11-04) and ItemView.pdc (T-M11-05), and the mcpl client-inventory fix (T-M11-06). Tag v0.1.0
+#   the event-probe class-loader fix (PR #190), Agent.logLines (T-M11-01), PlayerState.openWindow (T-M11-02), Agent.bootLogLines (T-M11-03), Client.placeBlock/breakBlock and Agent.blockType (T-M11-04) and ItemView.pdc (T-M11-05), and the mcpl client-inventory fixes (T-M11-06, T-M11-07). Tag v0.1.0
 #   predates all of them, so the build job builds Proofstone from that checkout (agent jar + publishToMavenLocal) and the e2e
 #   jobs consume the result: the agent jar and the Maven artefacts (artifact proofstone-m2). Bump PROOFSTONE_REF on purpose.
 name: e2e
@@ -49,8 +49,8 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 env:
-  # Proofstone develop at 4f2920d (merge of PR #203, T-M11-05; it also holds T-M11-01 to T-M11-04 and T-M11-06). Keep equal to proofstone.ref in e2e/pom.xml.
-  PROOFSTONE_REF: 4f2920de1c033d0fa2ea4960d7e2ab5d941b68be
+  # Proofstone develop at 0466587 (merge of PR #205, T-M11-07; it also holds T-M11-01 to T-M11-06). Keep equal to proofstone.ref in e2e/pom.xml.
+  PROOFSTONE_REF: 0466587bb5e8183b417ba0676e2addcdfc4c1ec2
 
 jobs:
   preflight:

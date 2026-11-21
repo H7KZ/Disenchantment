@@ -58,7 +58,7 @@ The recipe test in `SpecialAnvilE2E` issues the reload as a player operator on p
 
 The suite needs `Agent.logLines` (T-M11-01), `PlayerState.openWindow` (T-M11-02), `Agent.bootLogLines` (T-M11-03), `Client.placeBlock`/`breakBlock` and `Agent.blockType` (T-M11-04) and `ItemView.pdc` (T-M11-05), which are in Proofstone `develop` but not in the
 Central 0.1.0 (the version string is still `0.1.0`). `proofstone.ref` in `e2e/pom.xml` and `PROOFSTONE_REF` in the workflow name the pinned
-commit (`4f2920d`, the merge of PR #203; it also holds T-M11-01 to T-M11-04 and T-M11-06); the workflow fails the build job when they differ. One Gradle run in a
+commit (`0466587`, the merge of PR #205; it also holds T-M11-01 to T-M11-06); the workflow fails the build job when they differ. One Gradle run in a
 checkout of that commit produces both inputs:
 
 ```bash
@@ -107,7 +107,7 @@ server oracle (no book, no XP charge, no Post event). Every other driver error i
 Jobs: `preflight` (EULA check) -> `build` (plugin jar via the same Spigot BuildTools cache as `ci.yml`, plus the Proofstone agent jar) ->
 `e2e` (one matrix cell each: paper@26.3, paper@1.21.11, paper@1.20.6, paper@1.20.4, paper@1.18.2, folia@26.3; `fail-fast: false`).
 Permissions are `contents: read`; third-party actions are pinned by commit SHA; stale PR runs are cancelled by a concurrency group.
-Proofstone is checked out at a pinned `develop` commit (`PROOFSTONE_REF` in the workflow, `4f2920d`, equal to `proofstone.ref` in the pom; tag
+Proofstone is checked out at a pinned `develop` commit (`PROOFSTONE_REF` in the workflow, `0466587`, equal to `proofstone.ref` in the pom; tag
 `v0.1.0` predates the class-loader fix and the new APIs, see "Proofstone source build"). The `build` job builds Proofstone from that checkout
 (agent jar and `publishToMavenLocal`) and uploads artifacts `proofstone-agent` and `proofstone-m2`. Bump the pin deliberately, in both places.
 
@@ -157,12 +157,20 @@ Agent and Maven artefacts built from `4f2920d`. 16 classes, 50 tests per cell (4
 - `SpecialAnvilPlacementE2E` and the PDC assertions ran on paper@26.3, paper@1.21.11 and folia@26.3 only. `ItemView.pdc` is verified by Proofstone on 1.18.2 and 26.3; on 1.20.4 and 1.20.6 the `SpecialAnvilE2E` PDC assertion is not yet proven, CI will show it.
 - Test bugs found and fixed on the way (all in the new test, before the counted runs): a held sword instead of the anvil, a drop that drifted out of pickup range, a teleport onto the placement spot, and `item replace entity` doing nothing on Folia (the pickaxe is now given with `player.give`).
 
+### Folia client-inventory fix (Proofstone develop 0466587)
+
+Agent and Maven artefacts rebuilt from `0466587` (T-M11-07: a window packet that arrives after the client closed the window is handed to window 0 instead of being dropped, the cause of the Folia `DISAGREE ... present in the inventory` flake). 16 classes, 50 tests per cell (48 run, 2 reported skips). Evidence under `C:\pw\dis-ev-apis3\`.
+
+- folia@26.3, five separate invocations: **5 of 5 green** (previous state at `4f2920d`: 1 of 3).
+- paper@26.3, three separate invocations: 3 of 3 green. paper@1.21.11, one invocation: green.
+- No retry inside any run. Five clean folia invocations lower the flake rate but do not prove it gone.
+
 ## Proofstone gaps
 
 Scenarios the suite keeps as reasoned skips (`SkippedScenariosE2E`) or checks more weakly than it should, and the Proofstone
 API each one needs. Nothing is faked in the meantime.
 
-Closed by the pinned Proofstone (`4f2920d`): `Agent.logLines()` / `logLines(Pattern, Duration)` (T-M11-01, `SpecialAnvilE2E` checks the
+Closed by the pinned Proofstone (`0466587`): `Agent.logLines()` / `logLines(Pattern, Duration)` (T-M11-01, `SpecialAnvilE2E` checks the
 reload for WARN, exceptions and stack frames), `PlayerState.openWindow` (T-M11-02, `BedrockMenuE2E`), `Agent.bootLogLines()` (T-M11-03,
 `NmsModuleE2E`), `Client.placeBlock` / `breakBlock` with `Agent.blockType` (T-M11-04, `SpecialAnvilPlacementE2E`) and `ItemView.pdc`
 (T-M11-05: the `disenchantment:special_anvil` byte is asserted in `SpecialAnvilE2E` and `SpecialAnvilPlacementE2E`). The chunk-PDC mark
