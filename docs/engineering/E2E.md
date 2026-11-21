@@ -216,6 +216,16 @@ updated (see "Proofstone gaps" item 2): the drag fallback is not registered on a
   result take). Not retried, not weakened, open: not yet diagnosed whether it is the plugin, the test's cursor read or the agent.
   Bundle: `C:\pw\dis-ev-dragolia263-run2-bundle`.
 
+### Client cursor await (Proofstone develop f5957cc, Window.awaitCursor)
+
+Every client cursor read after a click now uses `awaitCursor` (see "Reading the client window"); pin bumped from `11df8e0` to `f5957cc` (PR #209), agent and Maven artefacts rebuilt. 16 classes, 52 tests per cell (50 run, 2 reported skips), one invocation per run, no retries, no sleeps, no timeout changes:
+
+- folia@26.3, five separate invocations: **5 of 5 green** (the cell that raced before, see the EraseModeE2E failure on folia).
+- paper@26.3, three separate invocations: **3 of 3 green**.
+- paper@1.21.11, one invocation: **1 of 1 green**.
+
+Evidence under `C:\pw\dis-ev-cursor\`.
+
 ## Proofstone gaps
 
 Scenarios the suite keeps as reasoned skips (`SkippedScenariosE2E`) or checks more weakly than it should, and the Proofstone
