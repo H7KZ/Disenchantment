@@ -278,4 +278,57 @@ class SettleOrderingTest extends DisenchantmentTestBase {
     void givenLaterWriteFails_whenSettleErase_thenSlotsCursorAndMoneyAreRestored() {
         failAfterAllWrites(AnvilOperations.Kind.ERASE, sword(), shard(), sword(), true);
     }
+
+    @Test
+    void givenSnapshotCannotBeTaken_whenWriteFails_thenPaymentIsStillRefunded() {
+        enableEraseEconomy();
+        Economy economy = EconomyTestSupport.install();
+        try {
+            PlayerMock player = server.addPlayer("TestPlayer");
+            player.setLevel(20);
+            AnvilInventory anvil = Mockito.mock(AnvilInventory.class);
+            Mockito.when(anvil.getSize()).thenReturn(3);
+            Mockito.when(anvil.getItem(Mockito.anyInt())).thenThrow(new IllegalStateException("cannot read slots"));
+            ItemStack source = sword();
+            List<IPluginEnchantment> erasable = EraseUtils.getErasableEnchantments(source, shard());
+
+            assertThrows(AnvilOperations.WriteFailedException.class, () -> AnvilOperations.settle(AnvilOperations.Kind.ERASE, player,
+                    source, shard(), source, erasable, 12, anvil, (first, delivered) -> {
+                        throw new IllegalStateException("slot write failed");
+                    }));
+
+            assertEquals(20, player.getLevel(), "levels refunded");
+            Mockito.verify(economy, Mockito.times(1)).depositPlayer(Mockito.any(OfflinePlayer.class), eq(75.0));
+        } finally {
+            EconomyTestSupport.uninstall();
+        }
+    }
+
+    @Test
+    void givenRestoreStepThrows_whenWriteFails_thenRefundedOnceAndOriginalFailureIsTheCause() {
+        enableEraseEconomy();
+        Economy economy = EconomyTestSupport.install();
+        try {
+            PlayerMock player = server.addPlayer("TestPlayer");
+            player.setLevel(20);
+            AnvilInventory anvil = statefulAnvil(sword(), shard(), sword());
+            ItemStack source = sword();
+            List<IPluginEnchantment> erasable = EraseUtils.getErasableEnchantments(source, shard());
+            IllegalStateException original = new IllegalStateException("the original write failure");
+
+            AnvilOperations.WriteFailedException thrown = assertThrows(AnvilOperations.WriteFailedException.class,
+                    () -> AnvilOperations.settle(AnvilOperations.Kind.ERASE, player, source, shard(), source, erasable, 12, anvil,
+                            (first, delivered) -> {
+                                // From here every slot write (the rollback's too) fails.
+                                Mockito.doThrow(new IllegalStateException("restore failure")).when(anvil).setItem(Mockito.anyInt(), Mockito.any());
+                                throw original;
+                            }));
+
+            assertSame(original, thrown.getCause(), "the original failure is the one reported");
+            assertEquals(20, player.getLevel(), "levels refunded");
+            Mockito.verify(economy, Mockito.times(1)).depositPlayer(Mockito.any(OfflinePlayer.class), eq(75.0));
+        } finally {
+            EconomyTestSupport.uninstall();
+        }
+    }
 }

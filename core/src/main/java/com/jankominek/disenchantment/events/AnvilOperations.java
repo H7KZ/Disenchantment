@@ -29,6 +29,7 @@ import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.inventory.AnvilInventory;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
@@ -443,21 +444,35 @@ public final class AnvilOperations {
 
     /**
      * Restores what the {@link Applier} (or the grindstone click) may have written: anvil/grindstone slots 0-2, the cursor and the pending blank-book
-     * removal. Taken before the first write; best effort (a failing restore is logged, never thrown).
+     * removal. Taken before the first write; best effort: neither taking the snapshot nor a failing restore step ever throws (both are logged), so the refund after a failed write always happens.
      */
     static Runnable snapshotWrites(Player p, Inventory anvil) {
-        if (anvil == null || anvil.getSize() < 3) return () -> {
-        };
+        if (anvil == null) return NO_RESTORE;
 
         ItemStack[] slots = new ItemStack[3];
-        for (int i = 0; i < 3; i++) {
-            ItemStack item = anvil.getItem(i);
-            slots[i] = item == null ? null : item.clone();
+        ItemStack cursor;
+        try {
+            if (anvil.getSize() < 3) return NO_RESTORE;
+            for (int i = 0; i < 3; i++) {
+                ItemStack item = anvil.getItem(i);
+                slots[i] = item == null ? null : item.clone();
+            }
+            cursor = p.getItemOnCursor().clone();
+        } catch (RuntimeException | LinkageError e) {
+            // Called after the payment was taken: it must never throw, or the player would be charged and not refunded.
+            Disenchantment.logger.warning("Could not snapshot the slots for " + p.getName() + ", a failed write cannot be rolled back: " + e);
+            return NO_RESTORE;
         }
-        ItemStack cursor = p.getItemOnCursor().clone();
 
         return () -> {
-            AnvilEventGuards.cancelPendingRemoval(anvil);
+            // Only the anvil defers a blank-book removal; the grindstone never registers one.
+            if (anvil instanceof AnvilInventory) {
+                try {
+                    AnvilEventGuards.cancelPendingRemoval(anvil);
+                } catch (RuntimeException | LinkageError e) {
+                    Disenchantment.logger.warning("Could not drop the pending removal for " + p.getName() + ": " + e);
+                }
+            }
             for (int i = 0; i < 3; i++) {
                 try {
                     anvil.setItem(i, slots[i]);
@@ -472,6 +487,9 @@ public final class AnvilOperations {
             }
         };
     }
+
+    private static final Runnable NO_RESTORE = () -> {
+    };
 
     private static void refund(Kind kind, Player p, Payment payment) {
         if (payment.xpCost() > 0) p.setLevel(payment.levelBefore());

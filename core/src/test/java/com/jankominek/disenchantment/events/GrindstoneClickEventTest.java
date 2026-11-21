@@ -980,4 +980,57 @@ class GrindstoneClickEventTest extends DisenchantmentTestBase {
             EconomyTestSupport.uninstall();
         }
     }
+
+    private void extractFailingWrite(int failingSlot, boolean restoreAlsoFails) {
+        setConfig("grindstone.enabled", true);
+        setConfig("grindstone.economy.enabled", true);
+        setConfig("grindstone.economy.cost", 30.0);
+        Economy economy = EconomyTestSupport.install();
+        try {
+            PlayerMock player = playerWithLevels(20);
+            ItemStack source = enchanted(Material.DIAMOND_SWORD, "sharpness", 5);
+            ItemStack result = someResult();
+            FakeGrindstone grindstone = new FakeGrindstone(player, source.clone(), books(2), result.clone());
+            failNextWrite(grindstone, failingSlot);
+            if (restoreAlsoFails) {
+                // the rollback writes slot 1 back: make that fail too
+                java.util.concurrent.atomic.AtomicBoolean failedOnce = new java.util.concurrent.atomic.AtomicBoolean(false);
+                Mockito.doAnswer(inv -> {
+                    int index = inv.getArgument(0);
+                    if (index == failingSlot && failedOnce.compareAndSet(false, true)) throw new IllegalStateException("write failure");
+                    if (index == SECOND && failedOnce.get()) throw new IllegalStateException("restore failure");
+                    ItemStack item = inv.getArgument(1);
+                    grindstone.slots[index] = (item == null || item.getType() == Material.AIR) ? null : item;
+                    return null;
+                }).when(grindstone.inventory).setItem(Mockito.anyInt(), Mockito.any());
+            }
+
+            InventoryClickEvent event = clickResult(player, grindstone);
+
+            assertEquals(20, player.getLevel(), "levels refunded");
+            Mockito.verify(economy, Mockito.times(1)).depositPlayer(Mockito.any(OfflinePlayer.class), Mockito.eq(30.0));
+            assertCancelled(event);
+            assertTrue(player.getItemOnCursor().getType().isAir(), "nothing on the cursor");
+            if (!restoreAlsoFails) {
+                assertRolledBack(economy, player, grindstone, event, source, books(2), result, 30.0);
+            }
+        } finally {
+            EconomyTestSupport.uninstall();
+        }
+    }
+
+    @Test
+    void givenResultSlotWriteFails_whenExtract_thenEverythingRestored() {
+        extractFailingWrite(RESULT, false);
+    }
+
+    @Test
+    void givenSecondSlotWriteFails_whenExtract_thenEverythingRestored() {
+        extractFailingWrite(SECOND, false);
+    }
+
+    @Test
+    void givenRestoreStepAlsoFails_whenExtract_thenRefundedOnceAndClickCancelled() {
+        extractFailingWrite(SOURCE, true);
+    }
 }
