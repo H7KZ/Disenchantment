@@ -3,8 +3,10 @@
 # - Needs the repository variable PROOFSTONE_ACCEPT_EULA=true (setting it is you accepting https://aka.ms/MinecraftEULA).
 #   It is mapped to an environment variable only; it is never written to a file. Unset: the run skips with a notice.
 # - No auto-retry anywhere. A red cell stays red. The optional `repeat` run is a flake REPORT, not a retry.
-# - Proofstone is pinned to a commit of its develop branch that holds the event-probe class-loader fix (PR #190) and is the
-#   agent the audit-branch acceptance runs used. Tag v0.1.0 predates that fix. Bump PROOFSTONE_REF on purpose.
+# - Proofstone is pinned to a commit of its develop branch (PROOFSTONE_REF, equal to proofstone.ref in e2e/pom.xml) that holds
+#   the event-probe class-loader fix (PR #190), Agent.logLines (T-M11-01), PlayerState.openWindow (T-M11-02), Agent.bootLogLines (T-M11-03), Client.placeBlock/breakBlock and Agent.blockType (T-M11-04) and ItemView.pdc (T-M11-05), and the mcpl client-inventory fixes (T-M11-06, T-M11-07). Tag v0.1.0
+#   predates all of them, so the build job builds Proofstone from that checkout (agent jar + publishToMavenLocal) and the e2e
+#   jobs consume the result: the agent jar and the Maven artefacts (artifact proofstone-m2). Bump PROOFSTONE_REF on purpose.
 name: e2e
 
 on:
@@ -47,8 +49,8 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 env:
-  # Proofstone develop at a5e431f (the agent the audit-branch acceptance runs used).
-  PROOFSTONE_REF: a5e431f94ad77c6e739cad9233d9a54a8da7062b
+  # Proofstone develop at 0466587 (merge of PR #205, T-M11-07; it also holds T-M11-01 to T-M11-06). Keep equal to proofstone.ref in e2e/pom.xml.
+  PROOFSTONE_REF: 0466587bb5e8183b417ba0676e2addcdfc4c1ec2
 
 jobs:
   preflight:
@@ -109,6 +111,11 @@ jobs:
             echo "::error::e2e/pom.xml disenchantment.version ($e2e) != root revision ($root)"; exit 1
           fi
           echo "PLUGIN_VERSION=$root" >> "$GITHUB_ENV"
+          pref=$(sed -n 's|.*<proofstone.ref>\(.*\)</proofstone.ref>.*|\1|p' e2e/pom.xml | head -1)
+          echo "PROOFSTONE_REF=$PROOFSTONE_REF pom=$pref"
+          if [ -z "$pref" ] || [ "$pref" != "$PROOFSTONE_REF" ]; then
+            echo "::error::e2e/pom.xml proofstone.ref ($pref) != PROOFSTONE_REF ($PROOFSTONE_REF)"; exit 1
+          fi
       # Same cache key as ci.yml and release.yml (shared Spigot BuildTools output).
       - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
@@ -141,9 +148,11 @@ jobs:
       - uses: gradle/actions/setup-gradle@8da46b539cd8fe6ab27ca75128919a18d757604c # v6.4.1
         with:
           cache-read-only: ${{ github.event_name != 'schedule' }}
-      - name: Build the Proofstone Bukkit agent jar
+      # The agent jar and the Maven artefacts (api, core, protocol, drivers-mcpl) from the SAME pinned checkout. Central's 0.1.0
+      # has neither Agent.logLines nor PlayerState.openWindow. Signing is skipped without a key (a warning, as intended).
+      - name: Build the Proofstone Bukkit agent jar and publish its artefacts to the local Maven repository
         working-directory: proofstone
-        run: ./gradlew :platforms:bukkit:agent:shadowJar --no-daemon
+        run: ./gradlew publishToMavenLocal :platforms:bukkit:agent:shadowJar --no-daemon
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: plugin-jar
@@ -154,6 +163,12 @@ jobs:
         with:
           name: proofstone-agent
           path: proofstone/platforms/bukkit/agent/build/libs/agent-all.jar
+          if-no-files-found: error
+          retention-days: 3
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: proofstone-m2
+          path: ~/.m2/repository/io/github/h7kz/proofstone
           if-no-files-found: error
           retention-days: 3
 
@@ -198,6 +213,11 @@ jobs:
         with:
           name: proofstone-agent
           path: proofstone/platforms/bukkit/agent/build/libs
+      # Downloaded after the setup-java cache restore, so these source-built artefacts replace any cached Proofstone 0.1.0.
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: proofstone-m2
+          path: ~/.m2/repository/io/github/h7kz/proofstone
       - name: Run e2e (no retry)
         run: >
           mvn -B -f e2e/pom.xml verify
@@ -252,6 +272,11 @@ jobs:
         with:
           name: proofstone-agent
           path: proofstone/platforms/bukkit/agent/build/libs
+      # Downloaded after the setup-java cache restore, so these source-built artefacts replace any cached Proofstone 0.1.0.
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: proofstone-m2
+          path: ~/.m2/repository/io/github/h7kz/proofstone
       - name: Run e2e with repeat (report, no retry)
         run: >
           mvn -B -f e2e/pom.xml verify
