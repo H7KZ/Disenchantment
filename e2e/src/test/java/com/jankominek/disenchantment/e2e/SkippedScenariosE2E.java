@@ -11,14 +11,6 @@ import org.junit.jupiter.api.Test;
 class SkippedScenariosE2E {
 
     @Test
-    @Disabled("special anvil MARKED mode with a placed special anvil, the chunk-PDC mark of SpecialAnvilStore and the drop swap "
-            + "on breaking: the mark is written only by a BlockPlaceEvent from a player placing the special item. Proofstone "
-            + "the pinned Proofstone has no client block placement or breaking (needs Client.placeBlock / Client.breakBlock). Faking the event "
-            + "from a test plugin would test the fake, not the plugin.")
-    void specialAnvilPlacementMarkAndDropSwap() {
-    }
-
-    @Test
     @Disabled("grindstone tick-fallback refresh on drags (commit 5460349): the fallback and its InventoryDragEvent listener are "
             + "registered only when the server has no PrepareGrindstoneEvent; every Paper and Folia cell has one (Paper ships "
             + "its own since 1.16), so the code path is not reachable on any cell. A drag also needs Window.drag, which "

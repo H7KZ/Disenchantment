@@ -27,6 +27,7 @@ state leaks between tests. Config patches go through `Cfg` (see "Config isolatio
 | `PreEventCancelE2E` | a third-party listener cancels `PreDisenchantEvent`, `PreShatterEvent`, `PreGrindstoneExtractEvent`: nothing delivered or charged, no Post event; the same window then completes |
 | `BedrockMenuE2E` | paper@26.3 and folia@26.3: `/disenchantment anvil` with PREFIX detection opens the chest menu, asserted from the server side with `PlayerState.openWindow` (type `chest`, title, 27 slots, button items); paired controls: fallback off, and a name without a configured prefix, each leave no window open |
 | `NmsModuleE2E` | every cell: the plugin's start-up line `NMS module: <class>`, read with `Agent.bootLogLines()`, names the module that cell's Minecraft version maps to (1.18.2 and 1.20.4 `NMS_v1_18_R1`, 1.20.6 `NMS_v1_20_R4`, 1.21.11 and 26.3 `NMS_v1_21_R5`) |
+| `SpecialAnvilPlacementE2E` | paper@26.3, paper@1.21.11, folia@26.3: a special anvil really placed by the player (`placeBlock` against stone, `blockType` as oracle): `MARKED` mode works only on an anvil placed from the special item (paired with a plain anvil at the same spot, before and after); breaking a marked anvil in survival drops the special item (name and PDC byte), a plain anvil drops plain |
 | `SkippedScenariosE2E` | reported skips, each with its reason (see "Proofstone gaps") |
 
 Cells: `paper@1.18.2`, `paper@1.20.4` (module `v1_18_R1`), `paper@1.20.6` (`v1_20_R4`), `paper@1.21.11` and `paper@26.3`
@@ -55,9 +56,9 @@ The recipe test in `SpecialAnvilE2E` issues the reload as a player operator on p
 
 ## Proofstone source build
 
-The suite needs `Agent.logLines` (T-M11-01), `PlayerState.openWindow` (T-M11-02) and `Agent.bootLogLines` (T-M11-03), which are in Proofstone `develop` but not in the
+The suite needs `Agent.logLines` (T-M11-01), `PlayerState.openWindow` (T-M11-02), `Agent.bootLogLines` (T-M11-03), `Client.placeBlock`/`breakBlock` and `Agent.blockType` (T-M11-04) and `ItemView.pdc` (T-M11-05), which are in Proofstone `develop` but not in the
 Central 0.1.0 (the version string is still `0.1.0`). `proofstone.ref` in `e2e/pom.xml` and `PROOFSTONE_REF` in the workflow name the pinned
-commit (`f97b953`, the merge of PR #201; it also holds PRs #199 and #200); the workflow fails the build job when they differ. One Gradle run in a
+commit (`4f2920d`, the merge of PR #203; it also holds T-M11-01 to T-M11-04 and T-M11-06); the workflow fails the build job when they differ. One Gradle run in a
 checkout of that commit produces both inputs:
 
 ```bash
@@ -91,7 +92,7 @@ writes a repro bundle under `e2e/build/proofstone/`. Keep `disenchantment.versio
 root `pom.xml`.
 
 **Agent requirement.** `-Dproofstone.repo` must point to the Proofstone checkout at `proofstone.ref` (it contains the event-probe
-class-loader fix, PR #190, which an older agent turns into a log-guard failure on paper@1.18.2, and the three APIs above), built as in
+class-loader fix, PR #190, which an older agent turns into a log-guard failure on paper@1.18.2, and the APIs above), built as in
 "Proofstone source build". The suite reads
 `<proofstone>/platforms/bukkit/agent/build/libs/agent-all.jar`. A control run is `-Dproofstone.controlRun=true`.
 
@@ -106,8 +107,8 @@ server oracle (no book, no XP charge, no Post event). Every other driver error i
 Jobs: `preflight` (EULA check) -> `build` (plugin jar via the same Spigot BuildTools cache as `ci.yml`, plus the Proofstone agent jar) ->
 `e2e` (one matrix cell each: paper@26.3, paper@1.21.11, paper@1.20.6, paper@1.20.4, paper@1.18.2, folia@26.3; `fail-fast: false`).
 Permissions are `contents: read`; third-party actions are pinned by commit SHA; stale PR runs are cancelled by a concurrency group.
-Proofstone is checked out at a pinned `develop` commit (`PROOFSTONE_REF` in the workflow, `f97b953`, equal to `proofstone.ref` in the pom; tag
-`v0.1.0` predates the class-loader fix and the three new APIs, see "Proofstone source build"). The `build` job builds Proofstone from that checkout
+Proofstone is checked out at a pinned `develop` commit (`PROOFSTONE_REF` in the workflow, `4f2920d`, equal to `proofstone.ref` in the pom; tag
+`v0.1.0` predates the class-loader fix and the new APIs, see "Proofstone source build"). The `build` job builds Proofstone from that checkout
 (agent jar and `publishToMavenLocal`) and uploads artifacts `proofstone-agent` and `proofstone-m2`. Bump the pin deliberately, in both places.
 
 **Set the EULA variable (once, by a repo admin).** Read <https://aka.ms/MinecraftEULA>. Setting the variable is your acceptance:
@@ -147,30 +148,34 @@ Agent rebuilt from develop `a5e431f`. 13 classes, 50 tests per cell (45 run, 5 r
 
 Agent and Maven artefacts built from `f97b953`. 15 classes, 49 tests per cell (46 run, 3 reported skips). paper@26.3, three separate invocations: 0 failures, 0 errors each. folia@26.3, one invocation: **1 failure**, `PreEventCancelE2E.aCancelledPreDisenchantEventChangesNothing` (`DISAGREE: present in the inventory ... expected present after 10 s`: after the veto is lifted the second click delivers no book on Folia). It was red the same way at the previous pin (`2f64d38`) and is not hidden or retried; it is open. Not yet diagnosed whether it is the plugin, the hooks double or the agent. A clean build of the base branch also failed to compile the support plugins (paper-api needs adventure on the compile classpath); `e2e/pom.xml` now declares adventure-api as `provided`.
 
+### Placement, PDC and inventory fix (Proofstone develop 4f2920d)
+
+Agent and Maven artefacts built from `4f2920d`. 16 classes, 50 tests per cell (48 run, 2 reported skips: the drag and the write-failure scenario). Evidence under `C:\pw\dis-ev-apis2\`.
+
+- paper@26.3, three separate invocations: 3 of 3 green. paper@1.21.11, one invocation: green.
+- folia@26.3, three separate invocations: **1 of 3 green**. Red: `RestrictionsE2E.aDeletedEnchantmentIsDestroyed` (run 1) and `DisenchantE2E.tooLittleExperienceDeliversNothingUntilThePlayerCanPay` (run 3), both `DISAGREE: present in the inventory of item matching the predicate: expected present after 10 s`, the same signature as the earlier `PreEventCancelE2E` red. The new `SpecialAnvilPlacementE2E` and `NmsModuleE2E` passed on all three folia runs. So the client-inventory flake on Folia is not fixed by T-M11-06 (it showed in different tests each time, 2 of 3 invocations here, 1 of 1 at each of the two earlier pins); the cause is still open and nothing was retried or weakened.
+- `SpecialAnvilPlacementE2E` and the PDC assertions ran on paper@26.3, paper@1.21.11 and folia@26.3 only. `ItemView.pdc` is verified by Proofstone on 1.18.2 and 26.3; on 1.20.4 and 1.20.6 the `SpecialAnvilE2E` PDC assertion is not yet proven, CI will show it.
+- Test bugs found and fixed on the way (all in the new test, before the counted runs): a held sword instead of the anvil, a drop that drifted out of pickup range, a teleport onto the placement spot, and `item replace entity` doing nothing on Folia (the pickaxe is now given with `player.give`).
+
 ## Proofstone gaps
 
 Scenarios the suite keeps as reasoned skips (`SkippedScenariosE2E`) or checks more weakly than it should, and the Proofstone
 API each one needs. Nothing is faked in the meantime.
 
-Closed by the pinned Proofstone (`f97b953`): `Agent.logLines()` / `logLines(Pattern, Duration)` (T-M11-01, used by
-`SpecialAnvilE2E` for a no-WARN, no-stack-trace check around the reload), `PlayerState.openWindow` (T-M11-02, used by `BedrockMenuE2E`)
-and `Agent.bootLogLines()` (T-M11-03, used by `NmsModuleE2E`; it starts at the agent's own enable, which is before the plugin's, so the
-start-up line is covered).
+Closed by the pinned Proofstone (`4f2920d`): `Agent.logLines()` / `logLines(Pattern, Duration)` (T-M11-01, `SpecialAnvilE2E` checks the
+reload for WARN, exceptions and stack frames), `PlayerState.openWindow` (T-M11-02, `BedrockMenuE2E`), `Agent.bootLogLines()` (T-M11-03,
+`NmsModuleE2E`), `Client.placeBlock` / `breakBlock` with `Agent.blockType` (T-M11-04, `SpecialAnvilPlacementE2E`) and `ItemView.pdc`
+(T-M11-05: the `disenchantment:special_anvil` byte is asserted in `SpecialAnvilE2E` and `SpecialAnvilPlacementE2E`). The chunk-PDC mark
+itself is still read only by its effect (`MARKED` mode), because no API reads a block's or chunk's persistent data.
 
 1. **Click-through on a server-side window**: `PlayerState.openWindow` is a read-only server view and `Window` is still the client's, so the
    Bedrock menu's confirm and cancel flow is not driven; only its server-side contents are asserted.
-2. **`Client.placeBlock(BlockPos against, Face face)`** and **`Client.breakBlock(BlockPos)`** (a real `BlockPlaceEvent` /
-   `BlockBreakEvent` from the player's held item): needed for the special anvil chunk-PDC mark (`SpecialAnvilStore`), `MARKED`
-   mode on a placed special anvil, and the drop swap on breaking.
-3. **`Window.drag(List<Integer> slots, DragMode mode)`**: an inventory drag across slots (left, right, middle button), answered by
+2. **`Window.drag(List<Integer> slots, DragMode mode)`**: an inventory drag across slots (left, right, middle button), answered by
    the server. Needed for the grindstone drag refresh (commit 5460349). The tick fallback and its drag listener are registered
    only on servers without a `PrepareGrindstoneEvent`, and every Paper/Folia cell has one, so that path also needs a server
    without it; `GrindstoneListenerTest` covers it in core.
-4. **`ItemView.pdc()` filled by the Bukkit agent**: the API field exists but the agent never reports persistent data (`pdc=null`
-   for every item). The special anvil marker is therefore identified only by its configured name and lore, not by the
-   `disenchantment:special_anvil` byte.
-5. **A fault-injection hook for write failures** (for example `Agent.failNextInventoryWrite(player)`): needed for "refund when
+3. **A fault-injection hook for write failures** (for example `Agent.failNextInventoryWrite(player)`): needed for "refund when
    writing the result fails" (commit 4352679). No installable plugin throws on demand while an item is written.
-6. **Console command output**: `Agent.command` replies are best effort, so `/disenchantment reload` is checked by its effect.
+4. **Console command output**: `Agent.command` replies are best effort, so `/disenchantment reload` is checked by its effect.
    An `Agent.reload(plugin)` that runs the plugin's declared reload hook and reports failure would let `Cfg` assert the reload took
    effect instead of relying on the behaviour that follows.

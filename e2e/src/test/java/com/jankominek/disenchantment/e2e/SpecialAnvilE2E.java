@@ -23,12 +23,12 @@ import java.util.regex.Pattern;
  * Special anvils. The gating by {@code special-anvils.mode} is tested with the two modes that need no block placement:
  * BLOCK_BELOW (setblock a lapis block under the anvil) and MARKED with an anvil that was never placed from the special item.
  * The item itself comes from {@code /disenchantment give anvil} and from the crafting recipe, and is identified by its
- * configured name and lore (the persistent-data marker is not observable with the 0.1.0 agent). The recipe test reloads through a player command: on Folia that runs on the
+ * configured name and lore and by the persistent-data byte {@code disenchantment:special_anvil} (ItemView.pdc). The recipe test
+ * reloads through a player command: on Folia that runs on the
  * player's region thread, which is the case commit e2970b6 fixed (the recipe manager belongs to the global region, so the
  * reload has to hand the registration to the global scheduler).
  *
- * <p>Not covered: marking by placing the special item (the chunk-PDC mark of {@code SpecialAnvilStore}) and the drop swap
- * on breaking. Proofstone has no client block placement or breaking (gap 3). See {@link SkippedScenariosE2E}.
+ * <p>Placing and breaking a special anvil (the chunk mark, MARKED mode on it, the drop swap) is {@link SpecialAnvilPlacementE2E}.
  */
 @Proofstone(plugins = "target/plugin-under-test/Disenchantment-*.jar")
 @Matrix(platform = Platform.PAPER, versions = {"1.18.2", "1.20.4", "1.20.6", "1.21.11", "26.3"})
@@ -123,8 +123,9 @@ class SpecialAnvilE2E {
         var special = player.awaitState("two special anvils", state -> state.inventory().values().stream()
                 .anyMatch(item -> item.is("anvil") && item.amount() == 2)).inventory().values().stream()
                 .filter(item -> item.is("anvil") && item.amount() == 2).findFirst().orElseThrow();
-        // The marker itself is not observable: the 0.1.0 agent never reports persistent data (ItemView.pdc() is null, see the
-        // Proofstone gaps in docs/engineering/E2E.md). The configured name and lore are set only by SpecialAnvilItem.create.
+        // The marker is the persistent-data byte disenchantment:special_anvil (ItemView.pdc, read from the server); the
+        // configured name and lore are set by the same SpecialAnvilItem.create.
+        assertThat(special.pdc()).containsEntry("disenchantment:special_anvil", (byte) 1);
         assertThat(special.name()).contains("Enchanter's Anvil");
         assertThat(special.lore()).hasSize(1);
         assertThat(special.lore().get(0)).contains("Place to create a disenchanting anvil");
@@ -174,6 +175,8 @@ class SpecialAnvilE2E {
             var special = player.awaitState("the crafted special anvil", state -> state.inventory().values().stream()
                     .anyMatch(item -> item.is("anvil") && item.name() != null && item.name().contains("Enchanter's Anvil")));
             assertThat(special.inventory().values()).noneMatch(item -> item.is("emerald"));
+            assertThat(special.inventory().values()).as("the crafted item carries the special anvil PDC byte").anyMatch(item ->
+                    item.is("anvil") && item.pdc() != null && Byte.valueOf((byte) 1).equals(item.pdc().get("disenchantment:special_anvil")));
             assertThat(special.inventory().values().stream().filter(item -> item.is("anvil")).count())
                     .as("the plain anvil was consumed by the recipe").isEqualTo(1);
         } finally {
