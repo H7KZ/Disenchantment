@@ -658,6 +658,14 @@ public final class AnvilEventGuards {
     }
 
     /**
+     * Drops the pending blank-book consumption of {@code inventory} without applying it (an operation whose write
+     * failed and was rolled back must not consume a book later or keep the anvil locked).
+     */
+    public static void cancelPendingRemoval(Inventory inventory) {
+        if (inventory != null) pendingRemovals.remove(inventory);
+    }
+
+    /**
      * Applies the pending blank-book consumption for {@code inventory} right now, if there is one.
      * Idempotent: the deferred task and the inventory-close listener both call it and only the first
      * does anything.

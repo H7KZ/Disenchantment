@@ -368,6 +368,55 @@ class DisenchantClickEventTest extends DisenchantmentTestBase {
                 "Mending must remain on source when removed from PreDisenchantEvent list");
     }
 
+    // -> a failed write is refunded AND the click is cancelled, or vanilla's own take would charge XP and eat the inputs
+
+    @Test
+    void givenWriteFailsAfterTheCharge_whenDisenchantClick_thenRefundedAndClickCancelled() {
+        setConfig("disenchantment.economy.enabled", true);
+        setConfig("disenchantment.economy.cost", 25.0);
+        Economy economy = EconomyTestSupport.install();
+        try {
+            PlayerMock player = server.addPlayer("TestPlayer");
+            player.setLevel(30);
+
+            InventoryClickEvent event = buildClickEvent(player, sword("sharpness", 5), new ItemStack(Material.BOOK), enchantedBook("sharpness", 5));
+            Mockito.when(lastMockAnvil.getSize()).thenReturn(3);
+            Mockito.doThrow(new IllegalStateException("write failure")).doNothing().when(lastMockAnvil).setItem(eq(0), Mockito.any());
+            DisenchantClickEvent.onEvent(event);
+
+            assertEquals(30, player.getLevel(), "levels must be refunded");
+            Mockito.verify(event).setCancelled(true);
+            assertTrue(player.getItemOnCursor().getType().isAir(), "nothing may be delivered");
+            Mockito.verify(economy).withdrawPlayer(Mockito.any(OfflinePlayer.class), eq(25.0));
+            Mockito.verify(economy).depositPlayer(Mockito.any(OfflinePlayer.class), eq(25.0));
+        } finally {
+            EconomyTestSupport.uninstall();
+        }
+    }
+
+    // -> a failure AFTER the items were delivered (a Post listener) is not a write failure: items stay delivered, click not cancelled
+
+    @Test
+    void givenPostListenerThrows_whenDisenchantClick_thenItemsStayDeliveredAndClickNotCancelled() {
+        PlayerMock player = server.addPlayer("TestPlayer");
+        player.setLevel(30);
+        AtomicReference<Boolean> called = new AtomicReference<>(false);
+        server.getPluginManager().registerEvents(new Listener() {
+            @EventHandler
+            public void on(PostDisenchantEvent e) {
+                called.set(true);
+                throw new IllegalStateException("post listener failure");
+            }
+        }, plugin);
+
+        InventoryClickEvent event = buildClickEvent(player, sword("sharpness", 5), new ItemStack(Material.BOOK), enchantedBook("sharpness", 5));
+        DisenchantClickEvent.onEvent(event);
+
+        assertTrue(called.get(), "the Post listener must have run (the items were already delivered)");
+        assertFalse(player.getItemOnCursor().getType().isAir(), "the book was delivered");
+        Mockito.verify(event, Mockito.never()).setCancelled(true);
+    }
+
     // -> maintenance: the click on the (nulled) result slot of a genuine operation tells the player
 
     @Test

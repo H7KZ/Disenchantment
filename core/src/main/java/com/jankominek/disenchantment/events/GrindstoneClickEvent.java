@@ -352,6 +352,7 @@ public class GrindstoneClickEvent {
 
         if (allFailed) p.sendMessage(I18n.getPrefix() + " " + I18n.Messages.enchantmentsFailedToTransfer());
 
+        Runnable restore = AnvilOperations.snapshotWrites(p, inventory);
         try {
             // Result first so the intermediate recomputes triggered by the next writes never see a stale result.
             inventory.setItem(SLOT_RESULT, null);
@@ -359,6 +360,7 @@ public class GrindstoneClickEvent {
             inventory.setItem(SLOT_SOURCE, finalFirst);
             p.setItemOnCursor(delivered);
         } catch (RuntimeException | LinkageError ex) {
+            restore.run();
             refund(p, GrindstoneEvent.extractEconomy(), payment);
             throw ex;
         }
@@ -429,12 +431,14 @@ public class GrindstoneClickEvent {
             return;
         }
 
+        Runnable restore = AnvilOperations.snapshotWrites(p, inventory);
         try {
             inventory.setItem(SLOT_RESULT, null);
             inventory.setItem(SLOT_SECOND, null);
             inventory.setItem(SLOT_SOURCE, finalFirst);
             p.setItemOnCursor(delivered);
         } catch (RuntimeException | LinkageError ex) {
+            restore.run();
             refund(p, GrindstoneEvent.transferEconomy(), payment);
             throw ex;
         }

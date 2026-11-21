@@ -393,6 +393,32 @@ part: write the slots and hand over the result), the cooldown, the `Post*` event
 
 If the `Applier` throws, the XP and the money are given back (`refund`: levels restored, `AnvilEventGuards.refundEconomy` deposits;
 a no-op in creative or with the economy off) and the exception propagates to the handler's `DiagnosticUtils.throwReport`.
+Before the first write `settle` snapshots anvil slots 0-2 and the cursor (`AnvilOperations.snapshotWrites`, only when it is given the anvil
+inventory). If the `Applier` throws, `settle` rolls back **everything the write may have changed**: slots 0-2 and the cursor go back to the
+snapshot, the pending blank-book removal is dropped (`AnvilEventGuards.cancelPendingRemoval`, otherwise it would lock the anvil and consume
+a book later), the levels and the money are refunded, and a `WriteFailedException` (cause: the original failure) propagates. Restoring is
+best effort: a failing restore is logged and never masks the failure.
+
+`DisenchantClickEvent`, `ShatterClickEvent` and `EraseClickEvent` cancel the click on `WriteFailedException`, and only on it: an uncancelled
+click would let vanilla run its own take after the rollback (its XP charge, the inputs consumed, the result on the cursor). A failure
+after the items were delivered (cooldown, sound, particles, a `Post*` listener) is not a write failure: the payment is kept, the items
+stay delivered and the click is not cancelled, because cancelling then would leave the result in the slot next to the already-stripped
+source. A failure while building (before any charge) propagates as is and is also not cancelled by these handlers.
+
+**Grindstone.** `GrindstoneClickEvent` (extract and transfer) takes the same snapshot (`snapshotWrites` on the three grindstone slots and
+the cursor) around its four writes and, on a failure, restores it and refunds before rethrowing; the click is already cancelled by
+`passesClickGuards` before it writes. Covered by unit tests that fail the source write after the second slot was written.
+
+**Known limitation: Bedrock menu.** `BedrockOperation.confirm` passes no inventory to `settle`, so there is no snapshot: a failure while
+the menu writes (`BedrockAnvilGUI.confirm`: the item and second slot, then `giveOrDrop`) refunds the levels and the money but does not
+restore a slot already written or take back an item already given. This is the same as before this change, and it has no click to cancel.
+
+**Verification limits.** Unit tests cover the rollback. That a cancelled `InventoryClickEvent` stops vanilla's own take on every
+supported version (1.18 to 26.x) is only proven on paper@26.3 and folia@26.3, by the e2e `RefundOnWriteFailureE2E`. That test is **not part
+of this change**: it lives in Disenchantment PR #85 (branch `test/proofstone-e2e-write-failure`, https://github.com/H7KZ/Disenchantment/pull/85),
+where its strict test is still `@Disabled` until this fix merges. It was run locally against this fix's jar with `@Disabled` removed;
+the e2e does not exercise the grindstone or erase paths. No other version was run.
+
 `Outcome(status, delivered, newFirst, xpCost, economyCost)` reports the result;
 `DONE`, `CANCELLED` (anvil handlers cancel the click), `IGNORED`.
 
