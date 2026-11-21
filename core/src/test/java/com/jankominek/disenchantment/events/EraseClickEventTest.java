@@ -656,4 +656,20 @@ class EraseClickEventTest extends DisenchantmentTestBase {
         assertNothingChanged(player, 20);
         assertNull(player.nextMessage());
     }
+
+    // -> a failed write is refunded AND the click is cancelled, or vanilla's own take would run
+
+    @Test
+    void givenWriteFailsAfterTheCharge_whenEraseClick_thenRefundedAndClickCancelled() {
+        PlayerMock player = server.addPlayer("TestPlayer");
+        player.setLevel(30);
+
+        InventoryClickEvent event = click(player, sword("sharpness", 5), shard(1), 12);
+        Mockito.doThrow(new IllegalStateException("write failure")).when(lastAnvil).setItem(eq(0), Mockito.any());
+        EraseClickEvent.onEvent(event);
+
+        assertEquals(30, player.getLevel(), "levels must be refunded");
+        Mockito.verify(event, Mockito.atLeastOnce()).setCancelled(true);
+        assertTrue(player.getItemOnCursor().getType().isAir(), "nothing may be delivered");
+    }
 }

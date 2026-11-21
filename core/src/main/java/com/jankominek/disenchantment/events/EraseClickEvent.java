@@ -163,16 +163,24 @@ public class EraseClickEvent {
         // Manual-result pattern: cancel and write the slots and the cursor synchronously. Everything from the
         // Pre event on (economy, XP, the delivered item, cooldown, Post event, sound, particles) is shared
         // with the Bedrock GUI; only the slot writes below are specific to the anvil.
-        AnvilOperations.Outcome outcome = AnvilOperations.settle(AnvilOperations.Kind.ERASE, p, firstItem, secondItem, result,
-                enchantments, repairCost, anvilInventory, (newFirst, delivered) -> {
-                    e.setCancelled(true);
+        AnvilOperations.Outcome outcome;
+        try {
+            outcome = AnvilOperations.settle(AnvilOperations.Kind.ERASE, p, firstItem, secondItem, result,
+                    enchantments, repairCost, anvilInventory, (newFirst, delivered) -> {
+                        e.setCancelled(true);
 
-                    anvilInventory.setItem(0, null);
-                    anvilInventory.setItem(1, AnvilOperations.consumeCatalyst(secondItem));
-                    anvilInventory.setItem(2, null);
+                        anvilInventory.setItem(0, null);
+                        anvilInventory.setItem(1, AnvilOperations.consumeCatalyst(secondItem));
+                        anvilInventory.setItem(2, null);
 
-                    p.setItemOnCursor(delivered);
-                });
+                        p.setItemOnCursor(delivered);
+                    });
+        } catch (RuntimeException | LinkageError ex) {
+            // The payment was refunded and nothing was delivered. The click must stay ours and cancelled:
+            // unhandled, vanilla would run its own take (its XP charge, the inputs consumed, the result on the cursor).
+            e.setCancelled(true);
+            throw ex;
+        }
 
         if (outcome.status() == AnvilOperations.Status.CANCELLED) {
             e.setCancelled(true);

@@ -141,6 +141,22 @@ class ShatterClickEventTest extends DisenchantmentTestBase {
                 "Delivered book must carry the raw source level (4), not the clamped result-slot level (3) — issue #76");
     }
 
+    // -> a failed write is refunded AND the click is cancelled, or vanilla's own take would charge XP and eat the inputs
+
+    @Test
+    void givenWriteFailsAfterTheCharge_whenShatterClick_thenRefundedAndClickCancelled() {
+        PlayerMock player = server.addPlayer("TestPlayer");
+        player.setLevel(30);
+
+        InventoryClickEvent event = buildClickEvent(player, enchantedBook("sharpness", "5", "unbreaking", "3"), new ItemStack(Material.BOOK), enchantedBook("sharpness", "5"));
+        Mockito.doThrow(new IllegalStateException("write failure")).when(lastMockAnvil).setItem(eq(0), Mockito.any());
+        ShatterClickEvent.onEvent(event);
+
+        assertEquals(30, player.getLevel(), "levels must be refunded");
+        Mockito.verify(event).setCancelled(true);
+        assertTrue(player.getItemOnCursor().getType().isAir(), "nothing may be delivered");
+    }
+
     // -> maintenance: the click on the (nulled) result slot of a genuine operation tells the player
 
     @Test

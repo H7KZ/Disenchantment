@@ -393,6 +393,9 @@ part: write the slots and hand over the result), the cooldown, the `Post*` event
 
 If the `Applier` throws, the XP and the money are given back (`refund`: levels restored, `AnvilEventGuards.refundEconomy` deposits;
 a no-op in creative or with the economy off) and the exception propagates to the handler's `DiagnosticUtils.throwReport`.
+`DisenchantClickEvent`, `ShatterClickEvent` and `EraseClickEvent` catch it around `settle`, cancel the click and rethrow: an uncancelled
+click would let vanilla run its own take after the refund (its XP charge, the inputs consumed, the result on the cursor). The grindstone
+click is already cancelled by `passesClickGuards` before it writes.
 `Outcome(status, delivered, newFirst, xpCost, economyCost)` reports the result;
 `DONE`, `CANCELLED` (anvil handlers cancel the click), `IGNORED`.
 

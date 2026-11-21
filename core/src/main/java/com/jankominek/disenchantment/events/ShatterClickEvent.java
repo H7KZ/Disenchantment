@@ -159,12 +159,20 @@ public class ShatterClickEvent {
         // particles) is shared with the Bedrock GUI; only the slot writes below are specific to the anvil.
         if (!(result.getItemMeta() instanceof EnchantmentStorageMeta)) return;
 
-        AnvilOperations.Outcome outcome = AnvilOperations.settle(AnvilOperations.Kind.SHATTER, p, firstItem, secondItem, result,
-                enchantments, repairCost, anvilInventory, (newFirst, delivered) -> {
-                    anvilInventory.setItem(0, newFirst);
-                    AnvilEventGuards.scheduleSecondItemRemoval(p, anvilInventory, secondItem, e);
-                    p.setItemOnCursor(delivered);
-                });
+        AnvilOperations.Outcome outcome;
+        try {
+            outcome = AnvilOperations.settle(AnvilOperations.Kind.SHATTER, p, firstItem, secondItem, result,
+                    enchantments, repairCost, anvilInventory, (newFirst, delivered) -> {
+                        anvilInventory.setItem(0, newFirst);
+                        AnvilEventGuards.scheduleSecondItemRemoval(p, anvilInventory, secondItem, e);
+                        p.setItemOnCursor(delivered);
+                    });
+        } catch (RuntimeException | LinkageError ex) {
+            // The payment was refunded and nothing was delivered. The click must stay ours and cancelled:
+            // unhandled, vanilla would run its own take (its XP charge, the inputs consumed, the result on the cursor).
+            e.setCancelled(true);
+            throw ex;
+        }
 
         if (outcome.status() == AnvilOperations.Status.CANCELLED) {
             e.setCancelled(true);
