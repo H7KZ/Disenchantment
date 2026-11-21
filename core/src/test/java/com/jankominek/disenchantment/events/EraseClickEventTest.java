@@ -657,19 +657,24 @@ class EraseClickEventTest extends DisenchantmentTestBase {
         assertNull(player.nextMessage());
     }
 
-    // -> a failed write is refunded AND the click is cancelled, or vanilla's own take would run
+    // -> a failed LATER write (slot 2, after slots 0 and 1 were already written) is rolled back and the click cancelled
 
     @Test
-    void givenWriteFailsAfterTheCharge_whenEraseClick_thenRefundedAndClickCancelled() {
+    void givenSlot2WriteFailsAfterTheCharge_whenEraseClick_thenSlotsRestoredRefundedAndClickCancelled() {
         PlayerMock player = server.addPlayer("TestPlayer");
         player.setLevel(30);
 
-        InventoryClickEvent event = click(player, sword("sharpness", 5), shard(1), 12);
-        Mockito.doThrow(new IllegalStateException("write failure")).when(lastAnvil).setItem(eq(0), Mockito.any());
+        ItemStack source = sword("sharpness", 5);
+        InventoryClickEvent event = click(player, source, shard(1), 12);
+        Mockito.when(lastAnvil.getSize()).thenReturn(3);
+        Mockito.doThrow(new IllegalStateException("write failure")).doNothing().when(lastAnvil).setItem(eq(2), Mockito.isNull());
         EraseClickEvent.onEvent(event);
 
         assertEquals(30, player.getLevel(), "levels must be refunded");
         Mockito.verify(event, Mockito.atLeastOnce()).setCancelled(true);
         assertTrue(player.getItemOnCursor().getType().isAir(), "nothing may be delivered");
+        // slots 0 and 1 were already emptied/consumed; the rollback writes the originals back
+        Mockito.verify(lastAnvil).setItem(eq(0), Mockito.argThat(item -> item != null && item.isSimilar(source)));
+        Mockito.verify(lastAnvil).setItem(eq(1), Mockito.argThat(item -> item != null && item.getType() == Material.ECHO_SHARD));
     }
 }

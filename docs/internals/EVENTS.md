@@ -393,9 +393,22 @@ part: write the slots and hand over the result), the cooldown, the `Post*` event
 
 If the `Applier` throws, the XP and the money are given back (`refund`: levels restored, `AnvilEventGuards.refundEconomy` deposits;
 a no-op in creative or with the economy off) and the exception propagates to the handler's `DiagnosticUtils.throwReport`.
-`DisenchantClickEvent`, `ShatterClickEvent` and `EraseClickEvent` catch it around `settle`, cancel the click and rethrow: an uncancelled
-click would let vanilla run its own take after the refund (its XP charge, the inputs consumed, the result on the cursor). The grindstone
-click is already cancelled by `passesClickGuards` before it writes.
+Before the first write `settle` snapshots anvil slots 0-2 and the cursor (only when it is given the anvil inventory; the Bedrock menu
+passes `null` and writes its own GUI). If the `Applier` throws, `settle` rolls back **everything the write may have changed**: slots 0-2 and
+the cursor go back to the snapshot, the pending blank-book removal is dropped (`AnvilEventGuards.cancelPendingRemoval`, otherwise it
+would lock the anvil and consume a book later), the levels and the money are refunded, and a `WriteFailedException` (cause: the original
+failure) propagates. Restoring is best effort: a failing restore is logged and never masks the failure.
+
+`DisenchantClickEvent`, `ShatterClickEvent` and `EraseClickEvent` cancel the click on `WriteFailedException`, and only on it: an uncancelled
+click would let vanilla run its own take after the rollback (its XP charge, the inputs consumed, the result on the cursor). A failure
+after the items were delivered (cooldown, sound, particles, a `Post*` listener) is not a write failure: the payment is kept, the items
+stay delivered and the click is not cancelled, because cancelling then would leave the result in the slot next to the already-stripped
+source. A failure while building (before any charge) propagates as is and is also not cancelled by these handlers. The grindstone click
+is already cancelled by `passesClickGuards` before it writes.
+
+Verification limit: that a cancelled `InventoryClickEvent` stops vanilla's own take on every supported version (1.18 to 26.x) is only
+proven on paper@26.3 and folia@26.3, by the e2e `RefundOnWriteFailureE2E`. No other version was run.
+
 `Outcome(status, delivered, newFirst, xpCost, economyCost)` reports the result;
 `DONE`, `CANCELLED` (anvil handlers cancel the click), `IGNORED`.
 

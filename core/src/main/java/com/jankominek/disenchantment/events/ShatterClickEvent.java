@@ -167,9 +167,10 @@ public class ShatterClickEvent {
                         AnvilEventGuards.scheduleSecondItemRemoval(p, anvilInventory, secondItem, e);
                         p.setItemOnCursor(delivered);
                     });
-        } catch (RuntimeException | LinkageError ex) {
-            // The payment was refunded and nothing was delivered. The click must stay ours and cancelled:
-            // unhandled, vanilla would run its own take (its XP charge, the inputs consumed, the result on the cursor).
+        } catch (AnvilOperations.WriteFailedException ex) {
+            // The write failed and was rolled back (slots restored, payment refunded). The click must stay ours and
+            // cancelled: unhandled, vanilla would run its own take (its XP charge, the inputs consumed, the result
+            // on the cursor). Any other failure (e.g. a Post listener, after the items were delivered) is not cancelled.
             e.setCancelled(true);
             throw ex;
         }

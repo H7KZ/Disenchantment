@@ -376,12 +376,36 @@ class DisenchantClickEventTest extends DisenchantmentTestBase {
         player.setLevel(30);
 
         InventoryClickEvent event = buildClickEvent(player, sword("sharpness", 5), new ItemStack(Material.BOOK), enchantedBook("sharpness", 5));
-        Mockito.doThrow(new IllegalStateException("write failure")).when(lastMockAnvil).setItem(eq(0), Mockito.any());
+        Mockito.when(lastMockAnvil.getSize()).thenReturn(3);
+        Mockito.doThrow(new IllegalStateException("write failure")).doNothing().when(lastMockAnvil).setItem(eq(0), Mockito.any());
         DisenchantClickEvent.onEvent(event);
 
         assertEquals(30, player.getLevel(), "levels must be refunded");
         Mockito.verify(event).setCancelled(true);
         assertTrue(player.getItemOnCursor().getType().isAir(), "nothing may be delivered");
+    }
+
+    // -> a failure AFTER the items were delivered (a Post listener) is not a write failure: items stay delivered, click not cancelled
+
+    @Test
+    void givenPostListenerThrows_whenDisenchantClick_thenItemsStayDeliveredAndClickNotCancelled() {
+        PlayerMock player = server.addPlayer("TestPlayer");
+        player.setLevel(30);
+        AtomicReference<Boolean> called = new AtomicReference<>(false);
+        server.getPluginManager().registerEvents(new Listener() {
+            @EventHandler
+            public void on(PostDisenchantEvent e) {
+                called.set(true);
+                throw new IllegalStateException("post listener failure");
+            }
+        }, plugin);
+
+        InventoryClickEvent event = buildClickEvent(player, sword("sharpness", 5), new ItemStack(Material.BOOK), enchantedBook("sharpness", 5));
+        DisenchantClickEvent.onEvent(event);
+
+        assertTrue(called.get(), "the Post listener must have run (the items were already delivered)");
+        assertFalse(player.getItemOnCursor().getType().isAir(), "the book was delivered");
+        Mockito.verify(event, Mockito.never()).setCancelled(true);
     }
 
     // -> maintenance: the click on the (nulled) result slot of a genuine operation tells the player

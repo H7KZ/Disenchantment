@@ -149,7 +149,8 @@ class ShatterClickEventTest extends DisenchantmentTestBase {
         player.setLevel(30);
 
         InventoryClickEvent event = buildClickEvent(player, enchantedBook("sharpness", "5", "unbreaking", "3"), new ItemStack(Material.BOOK), enchantedBook("sharpness", "5"));
-        Mockito.doThrow(new IllegalStateException("write failure")).when(lastMockAnvil).setItem(eq(0), Mockito.any());
+        Mockito.when(lastMockAnvil.getSize()).thenReturn(3);
+        Mockito.doThrow(new IllegalStateException("write failure")).doNothing().when(lastMockAnvil).setItem(eq(0), Mockito.any());
         ShatterClickEvent.onEvent(event);
 
         assertEquals(30, player.getLevel(), "levels must be refunded");
