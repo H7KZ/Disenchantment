@@ -1,5 +1,6 @@
 package com.jankominek.disenchantment.events;
 
+import com.jankominek.disenchantment.Disenchantment;
 import com.jankominek.disenchantment.config.Config;
 import com.jankominek.disenchantment.config.I18n;
 import com.jankominek.disenchantment.events.api.PostDisenchantEvent;
@@ -307,7 +308,7 @@ public final class AnvilOperations {
     /**
      * Writes the physical outcome of a settled operation. Called by {@link #settle} after every abortable
      * precondition has passed, the delivered items are fully built and the player has been charged. If it
-     * throws, the payment is refunded and the exception propagates.
+     * throws, the slots are restored, the payment is refunded and a {@link WriteFailedException} propagates.
      */
     @FunctionalInterface
     public interface Applier {
@@ -427,6 +428,49 @@ public final class AnvilOperations {
         AnvilEventGuards.clearBypassCost(p);
 
         return new Payment(economyCost, creative ? 0 : repairCost, levelBefore);
+    }
+
+    /**
+     * Thrown by {@link #settle} when writing the result failed. By then the payment is refunded and the anvil slots,
+     * the cursor and the pending book removal are back as they were; the click handlers cancel the click on this (and
+     * only this) failure, so vanilla's own take cannot run on top. The original failure is the cause.
+     */
+    public static final class WriteFailedException extends RuntimeException {
+        public WriteFailedException(Throwable cause) {
+            super("Writing the operation result failed; the payment and the slots were restored", cause);
+        }
+    }
+
+    /**
+     * Restores what the {@link Applier} may have written: anvil slots 0-2, the cursor and the pending blank-book
+     * removal. Taken before the first write; best effort (a failing restore is logged, never thrown).
+     */
+    private static Runnable snapshotWrites(Player p, Inventory anvil) {
+        if (anvil == null || anvil.getSize() < 3) return () -> {
+        };
+
+        ItemStack[] slots = new ItemStack[3];
+        for (int i = 0; i < 3; i++) {
+            ItemStack item = anvil.getItem(i);
+            slots[i] = item == null ? null : item.clone();
+        }
+        ItemStack cursor = p.getItemOnCursor().clone();
+
+        return () -> {
+            AnvilEventGuards.cancelPendingRemoval(anvil);
+            for (int i = 0; i < 3; i++) {
+                try {
+                    anvil.setItem(i, slots[i]);
+                } catch (RuntimeException | LinkageError e) {
+                    Disenchantment.logger.warning("Could not restore anvil slot " + i + " for " + p.getName() + ": " + e);
+                }
+            }
+            try {
+                p.setItemOnCursor(cursor);
+            } catch (RuntimeException | LinkageError e) {
+                Disenchantment.logger.warning("Could not restore the cursor for " + p.getName() + ": " + e);
+            }
+        };
     }
 
     private static void refund(Kind kind, Player p, Payment payment) {
@@ -595,11 +639,13 @@ public final class AnvilOperations {
             DiagnosticUtils.debug(cat, "Click: every enchantment failed its chance roll → plain book delivered");
         }
 
+        Runnable restore = snapshotWrites(p, effects);
         try {
             applier.apply(finalFirstItem, delivered);
         } catch (RuntimeException | LinkageError e) {
+            restore.run();
             refund(kind, p, payment);
-            throw e;
+            throw new WriteFailedException(e);
         }
 
         boolean creative = p.getGameMode() == GameMode.CREATIVE;
@@ -644,11 +690,13 @@ public final class AnvilOperations {
         if (payment == null) return Outcome.of(Status.CANCELLED);
         DiagnosticUtils.debug("ERASE", () -> "Click: xp → " + payment.levelBefore() + " - " + repairCost);
 
+        Runnable restore = snapshotWrites(p, effects);
         try {
             applier.apply(null, delivered);
         } catch (RuntimeException | LinkageError e) {
+            restore.run();
             refund(Kind.ERASE, p, payment);
-            throw e;
+            throw new WriteFailedException(e);
         }
 
         boolean creative = p.getGameMode() == GameMode.CREATIVE;

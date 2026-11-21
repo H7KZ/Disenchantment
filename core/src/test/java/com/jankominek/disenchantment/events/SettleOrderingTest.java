@@ -8,6 +8,7 @@ import net.milkbowl.vault.economy.Economy;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.inventory.AnvilInventory;
 import org.bukkit.inventory.ItemStack;
 import org.junit.jupiter.api.Test;
 import org.mockbukkit.mockbukkit.entity.PlayerMock;
@@ -93,7 +94,7 @@ class SettleOrderingTest extends DisenchantmentTestBase {
             ItemStack source = sword();
             List<IPluginEnchantment> erasable = EraseUtils.getErasableEnchantments(source, shard());
 
-            assertThrows(IllegalStateException.class, () -> AnvilOperations.settle(AnvilOperations.Kind.ERASE, player,
+            assertThrows(AnvilOperations.WriteFailedException.class, () -> AnvilOperations.settle(AnvilOperations.Kind.ERASE, player,
                     source, shard(), source, erasable, 12, null, (first, delivered) -> {
                         throw new IllegalStateException("slot write failed");
                     }));
@@ -116,7 +117,7 @@ class SettleOrderingTest extends DisenchantmentTestBase {
         ItemStack result = AnvilOperations.buildBook(prepared);
         List<IPluginEnchantment> atClick = AnvilOperations.collect(AnvilOperations.Kind.DISENCHANT, player, source, book, false);
 
-        assertThrows(IllegalStateException.class, () -> AnvilOperations.settle(AnvilOperations.Kind.DISENCHANT, player,
+        assertThrows(AnvilOperations.WriteFailedException.class, () -> AnvilOperations.settle(AnvilOperations.Kind.DISENCHANT, player,
                 source, book, result, atClick, 7, null, (first, delivered) -> {
                     throw new IllegalStateException("slot write failed");
                 }));
@@ -180,7 +181,7 @@ class SettleOrderingTest extends DisenchantmentTestBase {
             ItemStack source = sword();
             List<IPluginEnchantment> erasable = EraseUtils.getErasableEnchantments(source, shard());
 
-            assertThrows(IllegalStateException.class, () -> AnvilOperations.settle(AnvilOperations.Kind.ERASE, player,
+            assertThrows(AnvilOperations.WriteFailedException.class, () -> AnvilOperations.settle(AnvilOperations.Kind.ERASE, player,
                     source, shard(), source, erasable, 12, null, (first, delivered) -> {
                         throw new IllegalStateException("slot write failed");
                     }));
@@ -189,5 +190,92 @@ class SettleOrderingTest extends DisenchantmentTestBase {
         } finally {
             EconomyTestSupport.uninstall();
         }
+    }
+
+    // -> a failed write restores the three input slots, the cursor and the pending removal, not only the payment
+
+    /** An anvil whose slots 0-2 live in an array, so a restore is observable. */
+    private static AnvilInventory statefulAnvil(ItemStack... slots) {
+        ItemStack[] backing = new ItemStack[3];
+        for (int i = 0; i < slots.length; i++) backing[i] = slots[i];
+        AnvilInventory anvil = Mockito.mock(AnvilInventory.class);
+        Mockito.when(anvil.getSize()).thenReturn(3);
+        Mockito.when(anvil.getItem(Mockito.anyInt())).thenAnswer(inv -> backing[inv.<Integer>getArgument(0)]);
+        Mockito.doAnswer(inv -> {
+            backing[inv.<Integer>getArgument(0)] = inv.getArgument(1);
+            return null;
+        }).when(anvil).setItem(Mockito.anyInt(), Mockito.any());
+        return anvil;
+    }
+
+    private static void assertSlot(ItemStack expected, ItemStack actual, String what) {
+        if (expected == null) assertTrue(actual == null || actual.getType().isAir(), what + " must be empty");
+        else assertTrue(actual != null && expected.isSimilar(actual) && expected.getAmount() == actual.getAmount(), what + " must be as before");
+    }
+
+    private void failAfterAllWrites(AnvilOperations.Kind kind, ItemStack source, ItemStack second, ItemStack result, boolean erase) {
+        enableEraseEconomy();
+        Economy economy = EconomyTestSupport.install();
+        try {
+            PlayerMock player = server.addPlayer("TestPlayer");
+            player.setLevel(20);
+            ItemStack sourceBefore = source.clone();
+            ItemStack secondBefore = second.clone();
+            ItemStack resultBefore = result.clone();
+            AnvilInventory anvil = statefulAnvil(source.clone(), second.clone(), result.clone());
+            List<IPluginEnchantment> atClick = AnvilOperations.collect(kind, player, source, second, false);
+
+            assertThrows(AnvilOperations.WriteFailedException.class, () -> AnvilOperations.settle(kind, player,
+                    source, second, result, atClick, 7, anvil, (first, delivered) -> {
+                        if (erase) {
+                            anvil.setItem(0, null);
+                            anvil.setItem(1, AnvilOperations.consumeCatalyst(second));
+                            anvil.setItem(2, null);
+                        } else {
+                            anvil.setItem(0, first);
+                            AnvilEventGuards.scheduleSecondItemRemoval(player, anvil, second, null);
+                        }
+                        player.setItemOnCursor(delivered);
+                        throw new IllegalStateException("the last write failed");
+                    }));
+
+            assertSlot(sourceBefore, anvil.getItem(0), "slot 0");
+            assertSlot(secondBefore, anvil.getItem(1), "slot 1");
+            assertSlot(resultBefore, anvil.getItem(2), "slot 2");
+            assertTrue(player.getItemOnCursor().getType().isAir(), "nothing on the cursor");
+            assertFalse(AnvilEventGuards.isOperationPending(anvil), "no stale pending removal may lock the anvil");
+            assertEquals(20, player.getLevel(), "levels refunded");
+            if (kind == AnvilOperations.Kind.ERASE) {
+                Mockito.verify(economy).withdrawPlayer(Mockito.any(OfflinePlayer.class), eq(75.0));
+                Mockito.verify(economy).depositPlayer(Mockito.any(OfflinePlayer.class), eq(75.0));
+            }
+        } finally {
+            EconomyTestSupport.uninstall();
+        }
+    }
+
+    @Test
+    void givenLaterWriteFails_whenSettleDisenchant_thenSlotsCursorAndPendingAreRestored() {
+        ItemStack source = sword();
+        ItemStack book = new ItemStack(Material.BOOK);
+        PlayerMock prep = server.addPlayer("Prep");
+        ItemStack result = AnvilOperations.buildBook(AnvilOperations.collect(AnvilOperations.Kind.DISENCHANT, prep, source, book, true));
+        failAfterAllWrites(AnvilOperations.Kind.DISENCHANT, source, book, result, false);
+    }
+
+    @Test
+    void givenLaterWriteFails_whenSettleShatter_thenSlotsCursorAndPendingAreRestored() {
+        ItemStack source = new ItemStack(Material.ENCHANTED_BOOK);
+        com.jankominek.disenchantment.utils.EnchantmentUtils.addStoredEnchantment(source, enchantment("sharpness"), 5);
+        com.jankominek.disenchantment.utils.EnchantmentUtils.addStoredEnchantment(source, enchantment("unbreaking"), 3);
+        ItemStack book = new ItemStack(Material.BOOK);
+        PlayerMock prep = server.addPlayer("Prep");
+        ItemStack result = AnvilOperations.buildBook(AnvilOperations.collect(AnvilOperations.Kind.SHATTER, prep, source, book, true));
+        failAfterAllWrites(AnvilOperations.Kind.SHATTER, source, book, result, false);
+    }
+
+    @Test
+    void givenLaterWriteFails_whenSettleErase_thenSlotsCursorAndMoneyAreRestored() {
+        failAfterAllWrites(AnvilOperations.Kind.ERASE, sword(), shard(), sword(), true);
     }
 }
