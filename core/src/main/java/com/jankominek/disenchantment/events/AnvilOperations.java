@@ -442,10 +442,10 @@ public final class AnvilOperations {
     }
 
     /**
-     * Restores what the {@link Applier} may have written: anvil slots 0-2, the cursor and the pending blank-book
+     * Restores what the {@link Applier} (or the grindstone click) may have written: anvil/grindstone slots 0-2, the cursor and the pending blank-book
      * removal. Taken before the first write; best effort (a failing restore is logged, never thrown).
      */
-    private static Runnable snapshotWrites(Player p, Inventory anvil) {
+    static Runnable snapshotWrites(Player p, Inventory anvil) {
         if (anvil == null || anvil.getSize() < 3) return () -> {
         };
 

@@ -905,4 +905,79 @@ class GrindstoneClickEventTest extends DisenchantmentTestBase {
             EconomyTestSupport.uninstall();
         }
     }
+
+    // ====================================================================================================
+    // A failed write is rolled back: slots, cursor, levels and money exactly as before
+
+    /** Makes the next write to {@code slot} throw once, then behave like the fake again. */
+    private static void failNextWrite(FakeGrindstone grindstone, int slot) {
+        java.util.concurrent.atomic.AtomicBoolean failed = new java.util.concurrent.atomic.AtomicBoolean(false);
+        Mockito.doAnswer(inv -> {
+            int index = inv.getArgument(0);
+            if (index == slot && failed.compareAndSet(false, true)) throw new IllegalStateException("write failure");
+            ItemStack item = inv.getArgument(1);
+            grindstone.slots[index] = (item == null || item.getType() == Material.AIR) ? null : item;
+            return null;
+        }).when(grindstone.inventory).setItem(Mockito.anyInt(), Mockito.any());
+    }
+
+    private static void assertRestored(ItemStack expected, ItemStack actual, String what) {
+        if (expected == null) assertNull(actual, what + " must be empty");
+        else assertTrue(actual != null && expected.isSimilar(actual) && expected.getAmount() == actual.getAmount(), what + " must be as before");
+    }
+
+    private void assertRolledBack(Economy economy, PlayerMock player, FakeGrindstone grindstone, InventoryClickEvent event,
+                                  ItemStack source, ItemStack second, ItemStack result, double money) {
+        assertTrue(player.getItemOnCursor().getType().isAir(), "nothing on the cursor");
+        assertRestored(source, grindstone.slot(SOURCE), "slot 0");
+        assertRestored(second, grindstone.slot(SECOND), "slot 1");
+        assertRestored(result, grindstone.slot(RESULT), "slot 2");
+        assertEquals(20, player.getLevel(), "levels refunded");
+        Mockito.verify(economy).withdrawPlayer(Mockito.any(OfflinePlayer.class), Mockito.eq(money));
+        Mockito.verify(economy).depositPlayer(Mockito.any(OfflinePlayer.class), Mockito.eq(money));
+        assertCancelled(event);
+    }
+
+    @Test
+    void givenSourceWriteFailsAfterSecondWritten_whenExtract_thenEverythingRestored() {
+        setConfig("grindstone.enabled", true);
+        setConfig("grindstone.economy.enabled", true);
+        setConfig("grindstone.economy.cost", 30.0);
+        Economy economy = EconomyTestSupport.install();
+        try {
+            PlayerMock player = playerWithLevels(20);
+            ItemStack source = enchanted(Material.DIAMOND_SWORD, "sharpness", 5);
+            ItemStack result = someResult();
+            FakeGrindstone grindstone = new FakeGrindstone(player, source.clone(), books(2), result.clone());
+            failNextWrite(grindstone, SOURCE);
+
+            InventoryClickEvent event = clickResult(player, grindstone);
+
+            assertRolledBack(economy, player, grindstone, event, source, books(2), result, 30.0);
+        } finally {
+            EconomyTestSupport.uninstall();
+        }
+    }
+
+    @Test
+    void givenSourceWriteFailsAfterSecondWritten_whenTransfer_thenEverythingRestored() {
+        setConfig("grindstone.transfer.enabled", true);
+        flatTransferCost(4);
+        setConfig("grindstone.transfer.economy.enabled", true);
+        setConfig("grindstone.transfer.economy.cost", 30.0);
+        Economy economy = EconomyTestSupport.install();
+        try {
+            PlayerMock player = playerWithLevels(20);
+            ItemStack source = enchanted(Material.DIAMOND_PICKAXE, "efficiency", 5);
+            ItemStack target = new ItemStack(Material.IRON_SHOVEL);
+            FakeGrindstone grindstone = new FakeGrindstone(player, source.clone(), target.clone(), target.clone());
+            failNextWrite(grindstone, SOURCE);
+
+            InventoryClickEvent event = clickResult(player, grindstone);
+
+            assertRolledBack(economy, player, grindstone, event, source, target, target, 30.0);
+        } finally {
+            EconomyTestSupport.uninstall();
+        }
+    }
 }

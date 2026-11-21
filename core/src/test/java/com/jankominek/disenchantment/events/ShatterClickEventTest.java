@@ -145,17 +145,26 @@ class ShatterClickEventTest extends DisenchantmentTestBase {
 
     @Test
     void givenWriteFailsAfterTheCharge_whenShatterClick_thenRefundedAndClickCancelled() {
-        PlayerMock player = server.addPlayer("TestPlayer");
-        player.setLevel(30);
+        setConfig("shatterment.economy.enabled", true);
+        setConfig("shatterment.economy.cost", 25.0);
+        Economy economy = EconomyTestSupport.install();
+        try {
+            PlayerMock player = server.addPlayer("TestPlayer");
+            player.setLevel(30);
 
-        InventoryClickEvent event = buildClickEvent(player, enchantedBook("sharpness", "5", "unbreaking", "3"), new ItemStack(Material.BOOK), enchantedBook("sharpness", "5"));
-        Mockito.when(lastMockAnvil.getSize()).thenReturn(3);
-        Mockito.doThrow(new IllegalStateException("write failure")).doNothing().when(lastMockAnvil).setItem(eq(0), Mockito.any());
-        ShatterClickEvent.onEvent(event);
+            InventoryClickEvent event = buildClickEvent(player, enchantedBook("sharpness", "5", "unbreaking", "3"), new ItemStack(Material.BOOK), enchantedBook("sharpness", "5"));
+            Mockito.when(lastMockAnvil.getSize()).thenReturn(3);
+            Mockito.doThrow(new IllegalStateException("write failure")).doNothing().when(lastMockAnvil).setItem(eq(0), Mockito.any());
+            ShatterClickEvent.onEvent(event);
 
-        assertEquals(30, player.getLevel(), "levels must be refunded");
-        Mockito.verify(event).setCancelled(true);
-        assertTrue(player.getItemOnCursor().getType().isAir(), "nothing may be delivered");
+            assertEquals(30, player.getLevel(), "levels must be refunded");
+            Mockito.verify(event).setCancelled(true);
+            assertTrue(player.getItemOnCursor().getType().isAir(), "nothing may be delivered");
+            Mockito.verify(economy).withdrawPlayer(Mockito.any(OfflinePlayer.class), eq(25.0));
+            Mockito.verify(economy).depositPlayer(Mockito.any(OfflinePlayer.class), eq(25.0));
+        } finally {
+            EconomyTestSupport.uninstall();
+        }
     }
 
     // -> maintenance: the click on the (nulled) result slot of a genuine operation tells the player
