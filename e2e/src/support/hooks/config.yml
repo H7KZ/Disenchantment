@@ -1,0 +1,10 @@
+# Live switches and counters of the e2e hooks plugin (a test sets them with patchConfig and reads them with config()).
+cancel:
+  PreDisenchantEvent: false
+failWrite:
+  PreDisenchantEvent: false
+observed:
+  armed: 0
+  thrown: 0
+  swallowedReports: 0
+  swallowedSaveNotices: 0

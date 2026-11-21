@@ -28,6 +28,7 @@ state leaks between tests. Config patches go through `Cfg` (see "Config isolatio
 | `BedrockMenuE2E` | paper@26.3 and folia@26.3: `/disenchantment anvil` with PREFIX detection opens the chest menu, asserted from the server side with `PlayerState.openWindow` (type `chest`, title, 27 slots, button items); paired controls: fallback off, and a name without a configured prefix, each leave no window open |
 | `NmsModuleE2E` | every cell: the plugin's start-up line `NMS module: <class>`, read with `Agent.bootLogLines()`, names the module that cell's Minecraft version maps to (1.18.2 and 1.20.4 `NMS_v1_18_R1`, 1.20.6 `NMS_v1_20_R4`, 1.21.11 and 26.3 `NMS_v1_21_R5`) |
 | `SpecialAnvilPlacementE2E` | paper@26.3, paper@1.21.11, folia@26.3: a special anvil really placed by the player (`placeBlock` against stone, `blockType` as oracle): `MARKED` mode works only on an anvil placed from the special item (paired with a plain anvil at the same spot, before and after); breaking a marked anvil in survival drops the special item (name and PDC byte), a plain anvil drops plain |
+| `RefundOnWriteFailureE2E` | paper@26.3, folia@26.3: the refund when writing the result fails (commit 4352679). The hooks plugin makes the plugin's anvil write throw after the charge (see "Test support plugins"); the money is refunded, no Post event, the injection is proven by the hooks counters; control: with the failure off the same window charges once. The levels-and-items test is a reported skip: it found a bug (see "Write-failure injection") |
 | `SkippedScenariosE2E` | reported skips, each with its reason (see "Proofstone gaps") |
 
 Cells: `paper@1.18.2`, `paper@1.20.4` (module `v1_18_R1`), `paper@1.20.6` (`v1_20_R4`), `paper@1.21.11` and `paper@26.3`
@@ -44,7 +45,34 @@ snakeyaml or adventure on the test classpath breaks the Proofstone runner) into 
   Balances live in its config at `balances.<lowercase player name>`, so a test seeds a balance with `patchConfig` and reads the
   server's balance with `config(...)`: money is a server oracle. It is a double, not the real Vault.
 - **`DisenchantmentE2eHooks`** (`PreEventCancelE2E`): a listener written like an API consumer. It resolves the `Pre*Event` classes
-  through Disenchantment's class loader and cancels one while `cancel.<EventName>` is true in its live config.
+  through Disenchantment's class loader and cancels one while `cancel.<EventName>` is true in its live config. It can also make the
+  plugin's next result write fail while `failWrite.PreDisenchantEvent` is true (`RefundOnWriteFailureE2E`, see "Write-failure injection").
+  Its `config.yml` holds the switches and the `observed.*` counters (a test zeroes the counters first).
+
+Compile rules of the hooks plugin (Java 17, `e2e/src/main`): `release 17` against paper-api 1.18.2 only (no API newer than 1.18.2, no
+Java 18+ library methods such as `List.getFirst`, no pattern-matching switch); adventure-api is `provided` compile-only and no library is
+shaded (an old snakeyaml or adventure on the runtime classpath breaks the Proofstone runner); no compile dependency on Disenchantment or
+on net.minecraft (event classes via Disenchantment's class loader, server internals only by reflection); no mapped or obfuscated names
+(CraftBukkit's public `getInventory()`, fields found by type: the `NonNullList` by its simple name, the `java.util.List` by type), so the same
+code runs on every cell; plugin.yml has `folia-supported: true`, and the injection runs on the thread that fired the event.
+
+## Write-failure injection
+
+Proofstone's ADR-0002 forbids the agent from injecting faults, and its spike found no event on the plugin's `setItem` or `setItemOnCursor`
+writes, so there is no generic API (No-go). The supported workaround is the hooks plugin, written like an API consumer. From a
+`PreDisenchantEvent` listener (fired before the charge and before the write) it swaps the `java.util.List` inside the anvil input
+container's `NonNullList` for one whose next `set(...)` throws once and then restores the original list. The plugin writes slot 0 first, so
+the write fails after the payment and the refund path runs. The final field is written with `setAccessible`; no Java 26 final-field
+warning appeared on paper@26.3 or folia@26.3, and the Folia thread is the player's region thread for both the event and the write, so no
+thread issue arose. The plugin reports the exception through its crash report (a SEVERE record plus a "Crash report saved to" line),
+which Proofstone's log guard would read as an unexpected error; the hooks plugin drops exactly that pair from the plugin's logger and
+counts it, and every test asserts the counts (armed 1, thrown 1, 1 report, 1 notice), so the expected failure is proven, not hidden.
+
+**Finding (not fixed here, production code untouched).** After the refund the plugin's click handler rethrows into `onEvent`, which
+reports and returns without cancelling the click, so vanilla then completes the take: the player pays vanilla's XP (30 to 17), the sword is
+consumed and the book lands on the cursor, with the money refunded. `aFailedWriteLeavesTheLevelsAndTheItemsAsTheyWere` asserts the
+strict outcome (levels unchanged, sword and blank book intact, no book) and was red on both cells (`C:\pw\dis-ev-m9\explore2-paper*`,
+`explore2-folia*`); it is `@Disabled` with that reason so the suite stays green, assertions unchanged.
 
 ## Config isolation
 
@@ -165,6 +193,10 @@ Agent and Maven artefacts rebuilt from `0466587` (T-M11-07: a window packet that
 - paper@26.3, three separate invocations: 3 of 3 green. paper@1.21.11, one invocation: green.
 - No retry inside any run. Five clean folia invocations lower the flake rate but do not prove it gone.
 
+### Write-failure injection acceptance (Proofstone develop 0466587)
+
+`RefundOnWriteFailureE2E`, 3 tests per cell (2 run, 1 reported skip), one invocation each, no retries: paper@26.3 3 of 3 green, folia@26.3 3 of 3 green. Mutation M9 on paper@26.3: RED, clean code green. Evidence under `C:\pw\dis-ev-m9\`.
+
 ## Proofstone gaps
 
 Scenarios the suite keeps as reasoned skips (`SkippedScenariosE2E`) or checks more weakly than it should, and the Proofstone
@@ -182,8 +214,9 @@ itself is still read only by its effect (`MARKED` mode), because no API reads a 
    the server. Needed for the grindstone drag refresh (commit 5460349). The tick fallback and its drag listener are registered
    only on servers without a `PrepareGrindstoneEvent`, and every Paper/Folia cell has one, so that path also needs a server
    without it; `GrindstoneListenerTest` covers it in core.
-3. **A fault-injection hook for write failures** (for example `Agent.failNextInventoryWrite(player)`): needed for "refund when
-   writing the result fails" (commit 4352679). No installable plugin throws on demand while an item is written.
+3. **A fault-injection hook for write failures**: No-go in Proofstone (ADR-0002 keeps fault injection out of the agent; the spike found no
+   event on the plugin's inventory writes). Closed on this side by the hooks-plugin injection (`RefundOnWriteFailureE2E`, see "Write-failure
+   injection"): the refund is covered; only the strict levels-and-items assertion is a reported skip, because of a plugin finding.
 4. **Console command output**: `Agent.command` replies are best effort, so `/disenchantment reload` is checked by its effect.
    An `Agent.reload(plugin)` that runs the plugin's declared reload hook and reports failure would let `Cfg` assert the reload took
    effect instead of relying on the behaviour that follows.
@@ -207,11 +240,13 @@ always cleans. Evidence (logs, failsafe XML, repro bundles, `results.tsv`): `C:\
 | M6 | per-world disable ignored (`AnvilEventGuards.isWorldBlocked`) | DisabledWorldE2E | 1 / 1 | RED | aDisabledWorldGivesTheVanillaResult |
 | M7 | erase keeps the enchantments (`EraseUtils.buildResult`) | EraseModeE2E | 4 / 2 | RED | eraseDestroys..., eraseCurses... |
 | M8 | `MARKED` mode treats an unmarked anvil as special (`AnvilEventGuards.isSpecialBlock`) | SpecialAnvilE2E, SpecialAnvilPlacementE2E | 6 / 2 | RED | markedModeRefusesAnUnmarkedAnvil..., markedModeWorksOnlyOnAnAnvilPlacedFromTheSpecialItem |
-| M9 | no money refund when writing the result fails (`AnvilOperations.refund`) | EconomyE2E, SkippedScenariosE2E | 7 / 0 | **GREEN** | none: hole |
+| M9 | no money refund when writing the result fails (`AnvilOperations.refund`) | RefundOnWriteFailureE2E | 3 / 1 (1 skipped) | RED | aFailedWriteRefundsTheMoney (balance 75.0, expected 100.0); the control and the clean code stay green. Was GREEN (hole) before the hooks-plugin injection |
 | M10 | stats: disenchant counter not incremented (`StatsCache.record`) | StatsE2E | 2 / 1 | RED | anAnvilDisenchantDoesNotTouchTheGrindstoneCounters |
 | M11 | grindstone transfer copies instead of moves (`GrindstoneOps.stripFromSource`) | GrindstoneE2E | 6 / 4 | RED | extract strips item, transfer moves, unsafe clicks, too little XP |
 
 ### GREEN holes
+
+None left for M1 to M11 (M9 closed by `RefundOnWriteFailureE2E`, results above; evidence `C:\pw\dis-ev-m9\mutation\M9`). The old M9 note is kept for history:
 
 - **M9, refund on a failed write.** Known gap 3 under "Proofstone gaps": `SkippedScenariosE2E` skips it, so the mutation is invisible. Not
   cheap to close with an e2e test today: it needs a fault-injection hook (for example `Agent.failNextInventoryWrite(player)`) or a test plugin

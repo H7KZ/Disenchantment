@@ -29,9 +29,7 @@ import java.util.Map;
  * server oracle, not something the client can see. Each test seeds its own player's balance (names are unique per test);
  * the double's config is restored by Proofstone after every test (it re-reads its live config on each call).
  *
- * <p>Not covered here: the refund when writing the result fails (commit 4352679). It needs an adapter that throws while the
- * result is written; no installable plugin does that on demand, so it stays a unit test (GrindstoneClickEventTest). See
- * {@link SkippedScenariosE2E}.
+ * <p>The refund when writing the result fails (commit 4352679) is in {@link RefundOnWriteFailureE2E}.
  */
 @Proofstone(plugins = {"target/support-jars/*-vault.jar", "target/plugin-under-test/Disenchantment-*.jar"})
 @Matrix(platform = Platform.PAPER, versions = {"1.18.2", "1.20.4", "1.20.6", "1.21.11", "26.3"})
