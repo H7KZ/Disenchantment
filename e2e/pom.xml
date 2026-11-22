@@ -35,7 +35,7 @@
 
         <!-- The plugin version under test: keep equal to <revision> in the root pom.xml. The jar is
              ../target/Disenchantment-${disenchantment.version}.jar, written by a root `mvn package`. -->
-        <disenchantment.version>6.5.12</disenchantment.version>
+        <disenchantment.version>6.6.0</disenchantment.version>
 
         <!-- A Proofstone checkout: it holds versions.yml (the cell pins) and the agent jar (a plugin, not a library;
              Gradle builds it there). Pass it as -Dproofstone.repo=<path>; there is deliberately no default. -->
