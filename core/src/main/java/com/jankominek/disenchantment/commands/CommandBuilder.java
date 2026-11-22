@@ -31,13 +31,20 @@ public record CommandBuilder(String name, PermissionGroupType permission, String
      * @return true after execution or error handling
      */
     public boolean execute(CommandSender sender, String[] args) {
-        if (!permission.hasPermission(sender)) {
+        // feedback=false: the prefixed denial below is the only message sent.
+        if (!permission.hasPermission(sender, false)) {
             sender.sendMessage(I18n.getPrefix() + " " + I18n.Messages.requiresPermission());
             return true;
         }
 
         if (this.args.length == 0 || !requireArgs) {
             executor.execute(sender, args);
+            return true;
+        }
+
+        // No argument supplied (e.g. "/disenchantment maintenance"): show the accepted values instead of failing.
+        if (args.length < 2) {
+            sender.sendMessage(I18n.getPrefix() + " " + I18n.Messages.invalidArgument() + " §7[" + String.join("/", this.args) + "]");
             return true;
         }
 

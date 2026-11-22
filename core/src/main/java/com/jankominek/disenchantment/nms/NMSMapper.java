@@ -1,6 +1,7 @@
 package com.jankominek.disenchantment.nms;
 
 import com.jankominek.disenchantment.utils.DiagnosticUtils;
+import org.bukkit.Bukkit;
 
 import java.util.logging.Level;
 
@@ -26,6 +27,11 @@ public class NMSMapper {
         try {
             MinecraftVersion version = MinecraftVersion.getServerVersion();
             String nmsVersion = version.getNmsVersion();
+
+            if (version == MinecraftVersion.INCOMPATIBLE) {
+                logger.warning("Unsupported server version (Bukkit.getVersion(): " + Bukkit.getVersion()
+                        + ", Bukkit.getBukkitVersion(): " + Bukkit.getBukkitVersion() + "). Include these strings when reporting this.");
+            }
 
             DiagnosticUtils.debug("NMS", "Resolved MinecraftVersion: " + version.name() + " → nmsVersion=" + nmsVersion);
 

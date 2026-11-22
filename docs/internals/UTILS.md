@@ -58,7 +58,9 @@ Total cost for all enchantments:
     - If an override exists: `totalCost += overrides.get(key)`. **Does not advance multiplier.**
     - Otherwise: `totalCost += level * currentMultiplier`. Then `multiplier += baseMultiplier` (accumulating
       multiplier).
-6. Returns `(int) Math.round(totalCost)`.
+6. Applies `max-cost` and the player cost multiplier, then **clamps the result to `>= 0`** — a negative `base`,
+   `multiply`, override or multiplier can never pay the player levels. `economyCostForEnchantments` clamps likewise.
+7. Returns `(int) Math.round(totalCost)`.
 
 **Example:** base=1, multiplier=1, enchantments=[Sharpness V, Looting III]
 
@@ -86,7 +88,7 @@ Logs `[DEBUG][CATEGORY] msg` at INFO level to the plugin logger, but only when `
 `DEBUG`. Safe to call before config is loaded (silently no-ops if `Disenchantment.config == null`).
 
 Categories used throughout the codebase: `DISENCHANT`, `SHATTER`, `NMS`, `ECONOMY`, `ADAPTER`, `STARTUP`, `CONFIG`,
-`GUI`, `UPDATE`.
+`GUI`, `UPDATE`, `GRINDSTONE`.
 
 ### `isDebugEnabled()`
 
@@ -160,6 +162,14 @@ public static EconomyResponse withdraw(Player player, double amount)
 Withdraws `amount` from the player's balance. Returns Vault's `EconomyResponse`.
 
 ```java
+public static void setProvider(Economy provider)
+```
+
+Test seam: injects a provider directly (bypassing the Vault service lookup). `null` unhooks. Tests use
+`utils/EconomyTestSupport` (Mockito `Economy` whose `has`/`withdrawPlayer` succeed) and `EconomyUtils.reset()` in a
+`finally`.
+
+```java
 public static String format(double amount)
 ```
 
@@ -192,7 +202,8 @@ Vanilla overload (no plugin). Validates:
 
 - Both items non-null and non-air.
 - First item is NOT an enchanted book (disenchanting a book onto a book is not allowed).
-- Second item IS a plain `BOOK`.
+- Second item IS a plain `BOOK` — `EventUtils.isBlankBook`: a book with a display name, lore, custom model data or any
+  persistent-data key (another plugin's special book) is rejected.
 - First item's material is not in the disabled materials list.
 - Second item has no enchantments (must be blank).
 - No enchantment on the first item has state `DISABLE` (if any do, the entire operation is blocked).
@@ -217,6 +228,25 @@ public static List<IPluginEnchantment> findEnchantmentsToDelete(List<IPluginEnch
 Filters the provided list to only those with state `DELETE` in `Config.Disenchantment.getEnchantmentStates()`. These are
 removed from the source item but not added to the result book.
 
+### Shared helpers
+
+```java
+public static boolean isBlankBook(ItemStack item)
+```
+
+`true` only for a `Material.BOOK` without display name, lore, custom model data or persistent-data keys.
+
+```java
+public static List<IPluginEnchantment> findTransferredEnchantments(
+    List<IPluginEnchantment> collected, ItemStack resultBook,
+    List<ISupportedPlugin> activatedPlugins, World world)
+public static List<IPluginEnchantment> retainByKey(List<IPluginEnchantment> enchantments, List<IPluginEnchantment> reference)
+```
+
+`findTransferredEnchantments` returns the entries of `collected` whose (namespace-normalized, lower-case) key is present
+on the result book — vanilla stored enchants plus every adapter's `getItemEnchantments(resultBook, world)`. It is the set
+the economy charge and the Prepare cost display agree on. `retainByKey` filters a list by another list's keys.
+
 ### `EventUtils.Shatterment`
 
 ```java
@@ -227,7 +257,7 @@ public static List<IPluginEnchantment> getShattermentEnchantments(
 Validates:
 
 - First item IS `ENCHANTED_BOOK`.
-- Second item IS a plain `BOOK` (blank).
+- Second item IS a plain `BOOK` (blank, `EventUtils.isBlankBook`).
 - Book has at least 2 enchantments (shatter requires multi-enchant book).
 - No enchantment has state `DISABLE`.
 
@@ -249,6 +279,49 @@ Same as disenchantment variant but reads from `Config.Shatterment.getEnchantment
 
 ---
 
+## `EraseUtils`
+
+`utils/EraseUtils.java` - pure logic of erase mode.
+
+| Method                                                             | Description                                                                                                                                         |
+|--------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------|
+| `parseCatalysts(List<String>)`                                     | `Material.matchMaterial` each entry; unknown names and `BOOK` / `ENCHANTED_BOOK` / air are skipped with a warning.                                  |
+| `getCatalysts()`                                                   | Parsed `erase.catalysts`, cached per raw list (warnings are logged once). `clearCache()` resets it.                                                 |
+| `isActive()`                                                       | `erase.enabled` and at least one usable catalyst.                                                                                                   |
+| `isCatalyst(ItemStack)`                                            | Material match only.                                                                                                                                |
+| `getErasableEnchantments(first, second[, isPrepare[, plugin, world]])` | Empty unless the second item is a catalyst, the first is not a book or a stack and its material is not restricted (disenchantment materials, `bypass.material` honoured). A `DISABLE` state refuses everything; `KEEP` and (unless `erase.erase-curses`) curses are filtered out; `DELETE` is erased. |
+| `isCurse(IPluginEnchantment)`                                      | Key ends in `_curse`, or (vanilla keys) `Enchantment#isCursed()` in a try/catch.                                                                    |
+| `buildResult(first, toErase)`                                      | Clone of `first` with `removeFromItem` applied for each enchantment (works for adapter enchantments too).                                           |
+
+---
+
+## `FeedbackUtils`
+
+`utils/FeedbackUtils.java` - refusal feedback. `tryAcquireMessageSlot` / `sendRefusalMessage` implement the 1 s per-player
+debounce (a `ConcurrentHashMap<UUID, Long>`, injectable clock via `setClock` for tests, cleared on quit by
+`AnvilSessionListener`). `refuse`, `refuseNotEnoughXp` and `playFailureSound` are described in
+[EVENTS.md - Feedback hooks](EVENTS.md#feedback-hooks).
+
+---
+
+## `ParticleUtils`
+
+`utils/ParticleUtils.java` - `resolve(List<String>)` maps configured names to `Particle` constants through
+`Particle.class.getField(name)` (so a future enum -> interface change cannot throw `IncompatibleClassChangeError`),
+keeps only particles with `getDataType() == Void.class`, de-duplicates, caches per list and logs one warning when nothing
+resolves. `spawn(...)` sends them to the player (`PLAYER`) or the world (`WORLD`); `anvilEffectLocation` is the
+anvil block's centre top (`+0.5, +1, +0.5`) or one block above the player for a virtual anvil. `playSuccess` /
+`playErase` read the `feedback.particles.*` config.
+
+---
+
+## `PreviewLore`
+
+`utils/PreviewLore.java` - `append(item, lines)` adds lines to the lore and records the count in the item's PDC
+(`disenchantment:preview_lines`, `INTEGER`); `strip(item)` removes exactly that many trailing lines and the key (lore
+becomes `null` when empty), idempotent; `previewLines(...)` builds the "Transfers" and "Cost" lines.
+
+---
 ## `SchedulerUtils`
 
 `utils/SchedulerUtils.java`
@@ -264,7 +337,9 @@ are used.
 public static boolean isFolia()
 ```
 
-Returns `IS_FOLIA` — determined at class load via `Class.forName("io.papermc.paper.threadedregions.RegionizedServer")`.
+Returns `IS_FOLIA` — determined once at class load by `detectFolia()`, which requires both
+`Class.forName("io.papermc.paper.threadedregions.RegionizedServer")` and `Bukkit.getGlobalRegionScheduler()` to exist.
+This is the single shared Folia check for the plugin.
 
 ### Methods
 
@@ -280,6 +355,13 @@ public static void runForEntityLater(Plugin plugin, Entity entity, Runnable task
 
 Runs `task` after `delayTicks` on the entity's owning region thread or main thread. Used for the 2-tick deferred
 second-item removal.
+
+```java
+public static void runForLocationLater(Plugin plugin, Location location, Runnable task, long delayTicks)
+```
+
+Runs `task` after `delayTicks` (minimum 1) on the region thread owning `location` (Folia `RegionScheduler`) or the main
+thread (Bukkit). Use it for block and chunk work (special anvil mark pruning), not the entity scheduler.
 
 ```java
 public static void runGlobal(Plugin plugin, Runnable task)
@@ -376,11 +458,19 @@ public UpdateChecker(int resourceId)
 // Constructor. resourceId = Disenchantment.spigotmcId = 110741.
 
 public void getVersion(Consumer<String> consumer)
-// Opens an HTTP connection to SpigotMC API and passes the latest version string to consumer.
+// Fetches the latest version string over HttpURLConnection (5 s connect + read timeout, HTTP 200 required)
+// and passes it to consumer only if it matches the version pattern (so Cloudflare/HTML pages are ignored).
 // Non-blocking when called from an async context.
 
+public static boolean isVersion(String text)        // "6.5.12", "v6.5", "6.5.12-SNAPSHOT" -> true; HTML/garbage -> false
+public static boolean isNewer(String local, String remote)
+// Numeric, segment-wise comparison; "v" prefix and "-qualifier" ignored; missing segments = 0.
+// true only if remote > local, so a newer local dev build is never reported as outdated.
+
 public Runnable runnableUpdateTask(String version)
-// Returns a Runnable that calls getVersion() and logs a warning if a newer version is available.
+// Returns a Runnable that, if Config.isUpdateCheckerEnabled() (config key `update-checker`, read on EVERY run so
+// /disenchantment reload applies it), calls getVersion() and logs an info line when isNewer(version, latest).
+// When disabled it returns immediately without any network access.
 
 public Object run(Plugin plugin, String version)
 // Schedules runnableUpdateTask() as a repeating async timer:
@@ -398,8 +488,11 @@ public Object run(Plugin plugin, String version)
 Integrates with the bStats metrics service (https://bstats.org). Initialized in `enable()` with:
 
 ```java
-new BStatsMetrics(plugin, bstatsId);  // bstatsId = 19058
+metrics = new BStatsMetrics(plugin, bstatsId);  // bstatsId = 19058
 ```
+
+The instance is kept in a field on `Disenchantment`; `shutdown()` is called in `disable()` and before it is re-created in
+`reload()` so the old submitter does not keep running.
 
 Sends anonymous usage statistics (server version, plugin version, Java version, OS) to bStats. Players can opt out via
 the global bStats config at `plugins/bStats/config.yml`. No personal data is collected.

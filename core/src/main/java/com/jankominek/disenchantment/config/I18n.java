@@ -180,6 +180,13 @@ public class I18n {
         }
 
         /**
+         * Returns the localized "specify a number that is zero or greater" prompt.
+         */
+        public static String specifyNonNegativeDouble() {
+            return I18n.translateColors(localeConfig.getString(I18nKeys.MESSAGES_SPECIFY_NON_NEGATIVE_DOUBLE.getKey(), "&cPlease specify a number that is zero or greater!&r"));
+        }
+
+        /**
          * Returns the localized "repair cost is disabled" message.
          */
         public static String repairCostIsDisabled() {
@@ -381,6 +388,27 @@ public class I18n {
         }
 
         /**
+         * Returns the localized message confirming the configuration was reloaded.
+         */
+        public static String configReloaded() {
+            return I18n.translateColors(
+                    localeConfig.getString(I18nKeys.MESSAGES_CONFIG_RELOADED.getKey(), "&aConfig reloaded.&r")
+            );
+        }
+
+        /**
+         * Returns the localized message shown when a reload is refused because config.yml has a syntax error.
+         *
+         * @param error the parser error message to substitute
+         */
+        public static String reloadFailed(String error) {
+            return I18n.translateColors(
+                    localeConfig.getString(I18nKeys.MESSAGES_RELOAD_FAILED.getKey(), "&cconfig.yml has a syntax error and was not loaded; the running settings are unchanged: &f{error}&r")
+                            .replace("{error}", error)
+            );
+        }
+
+        /**
          * Returns the localized warning that some enchantments may not transfer due to chance settings.
          */
         public static String someEnchantmentsMayNotTransfer() {
@@ -460,6 +488,391 @@ public class I18n {
          */
         public static String economyChargeMessageIsDisabled() {
             return I18n.translateColors(localeConfig.getString(I18nKeys.MESSAGES_ECONOMY_CHARGE_MESSAGE_IS_DISABLED.getKey()));
+        }
+
+        // ------------------------------------------------------------------------------------------
+        // Anvil event feedback messages (audit fixes)
+
+        /**
+         * Returns the localized message shown when the economy provider rejected the withdrawal.
+         */
+        public static String economyWithdrawFailed() {
+            return I18n.translateColors(localeConfig.getString(I18nKeys.MESSAGES_ECONOMY_WITHDRAW_FAILED.getKey(),
+                    "&cThe payment could not be processed. You have not been charged.&r"));
+        }
+
+        /**
+         * Returns the localized message shown when the player lacks the experience levels for an operation.
+         *
+         * @param levels the value substituted for {levels}
+         */
+        public static String notEnoughLevels(String levels) {
+            return I18n.translateColors(
+                    localeConfig.getString(I18nKeys.MESSAGES_NOT_ENOUGH_LEVELS.getKey(), "&cYou need &f{levels} &clevels to do that.&r")
+                            .replace("{levels}", levels)
+            );
+        }
+
+        /**
+         * Returns the localized message shown when every enchantment failed its chance roll and a plain book was delivered.
+         */
+        public static String enchantmentsFailedToTransfer() {
+            return I18n.translateColors(localeConfig.getString(I18nKeys.MESSAGES_ENCHANTMENTS_FAILED_TO_TRANSFER.getKey(),
+                    "&cThe enchantments failed to transfer. You received a plain book instead.&r"));
+        }
+
+        /**
+         * Returns the localized hint shown when a non-standard click (shift-click, number key, ...) on the result slot was blocked.
+         */
+        public static String useNormalClick() {
+            return I18n.translateColors(localeConfig.getString(I18nKeys.MESSAGES_USE_NORMAL_CLICK.getKey(),
+                    "&cTake the result with a normal left or right click.&r"));
+        }
+
+        /**
+         * Returns the localized preview-lore line listing the enchantments a result book transfers.
+         *
+         * @param enchantments the value substituted for {enchantments}
+         */
+        public static String previewTransfers(String enchantments) {
+            return I18n.translateColors(
+                    localeConfig.getString(I18nKeys.MESSAGES_PREVIEW_TRANSFERS.getKey(), "&7Transfers: &f{enchantments}&r")
+                            .replace("{enchantments}", enchantments)
+            );
+        }
+
+        /**
+         * Returns the localized preview-lore line showing an experience-level cost.
+         *
+         * @param levels the value substituted for {levels}
+         */
+        public static String previewCostLevels(String levels) {
+            return I18n.translateColors(
+                    localeConfig.getString(I18nKeys.MESSAGES_PREVIEW_COST_LEVELS.getKey(), "&7Cost: &f{levels} levels&r")
+                            .replace("{levels}", levels)
+            );
+        }
+
+        /**
+         * Returns the localized preview-lore line showing an experience-level and a money cost.
+         *
+         * @param levels the value substituted for {levels}
+         * @param money  the formatted amount substituted for {money}
+         */
+        public static String previewCostLevelsMoney(String levels, String money) {
+            return I18n.translateColors(
+                    localeConfig.getString(I18nKeys.MESSAGES_PREVIEW_COST_LEVELS_MONEY.getKey(), "&7Cost: &f{levels} levels &7+ &f{money}&r")
+                            .replace("{levels}", levels)
+                            .replace("{money}", money)
+            );
+        }
+
+        /**
+         * Returns the localized preview-lore line showing a money-only cost.
+         *
+         * @param money the formatted amount substituted for {money}
+         */
+        public static String previewCostMoney(String money) {
+            return I18n.translateColors(
+                    localeConfig.getString(I18nKeys.MESSAGES_PREVIEW_COST_MONEY.getKey(), "&7Cost: &f{money}&r")
+                            .replace("{money}", money)
+            );
+        }
+
+        /**
+         * Returns the localized hint shown when an anvil operation was refused because the anvil is not a special anvil.
+         */
+        public static String specialAnvilRequired() {
+            return I18n.translateColors(localeConfig.getString(I18nKeys.MESSAGES_SPECIAL_ANVIL_REQUIRED.getKey(),
+                    "&7This only works at a special anvil.&r"));
+        }
+
+        /**
+         * Returns the localized usage line of the give anvil command.
+         */
+        public static String giveAnvilUsage() {
+            return I18n.translateColors(localeConfig.getString(I18nKeys.MESSAGES_GIVE_ANVIL_USAGE.getKey(),
+                    "&cUsage: /disenchantment give anvil <player> [amount]&r"));
+        }
+
+        /**
+         * Returns the localized message shown when the give command target is not online.
+         *
+         * @param player the value substituted for {player}
+         */
+        public static String givePlayerNotFound(String player) {
+            return I18n.translateColors(localeConfig.getString(I18nKeys.MESSAGES_GIVE_PLAYER_NOT_FOUND.getKey(),
+                    "&cPlayer {player} is not online!&r").replace("{player}", player));
+        }
+
+        /**
+         * Returns the localized message shown when the give command amount is out of range.
+         *
+         * @param max the value substituted for {max}
+         */
+        public static String giveAmountInvalid(String max) {
+            return I18n.translateColors(localeConfig.getString(I18nKeys.MESSAGES_GIVE_AMOUNT_INVALID.getKey(),
+                    "&cThe amount must be a whole number between 1 and {max}!&r").replace("{max}", max));
+        }
+
+        /**
+         * Returns the localized confirmation sent to the sender after giving special anvils.
+         *
+         * @param amount the value substituted for {amount}
+         * @param player the value substituted for {player}
+         */
+        public static String giveAnvilGiven(String amount, String player) {
+            return I18n.translateColors(localeConfig.getString(I18nKeys.MESSAGES_GIVE_ANVIL_GIVEN.getKey(),
+                            "&aGave &f{amount}x &aspecial anvil to &f{player}&a.&r")
+                    .replace("{amount}", amount).replace("{player}", player));
+        }
+
+        /**
+         * Returns the localized notice sent to the receiver of special anvils.
+         *
+         * @param amount the value substituted for {amount}
+         */
+        public static String giveAnvilReceived(String amount) {
+            return I18n.translateColors(localeConfig.getString(I18nKeys.MESSAGES_GIVE_ANVIL_RECEIVED.getKey(),
+                    "&7You received &f{amount}x &7special anvil.&r").replace("{amount}", amount));
+        }
+
+        /**
+         * Returns the localized action bar text showing the experience cost of a grindstone operation.
+         *
+         * @param levels the value substituted for {levels}
+         */
+        public static String grindstoneCost(String levels) {
+            return I18n.translateColors(
+                    localeConfig.getString(I18nKeys.MESSAGES_GRINDSTONE_COST.getKey(), "&7Cost: &f{levels} &7levels&r")
+                            .replace("{levels}", levels)
+            );
+        }
+
+        /**
+         * Returns the localized action bar text showing the experience and economy cost of a grindstone operation.
+         *
+         * @param levels the value substituted for {levels}
+         * @param cost   the value substituted for {cost}
+         */
+        public static String grindstoneCostEconomy(String levels, String cost) {
+            return I18n.translateColors(
+                    localeConfig.getString(I18nKeys.MESSAGES_GRINDSTONE_COST_ECONOMY.getKey(), "&7Cost: &f{levels} &7levels &8+ &f{cost}&r")
+                            .replace("{levels}", levels)
+                            .replace("{cost}", cost)
+            );
+        }
+
+        // ------------------------------------------------------------------------------------------
+        // Bedrock fallback
+
+        /**
+         * Returns the localized Bedrock anvil text {@code unavailable}.
+         */
+        public static String bedrockUnavailable() {
+            return I18n.translateColors(localeConfig.getString(I18nKeys.MESSAGES_BEDROCK_UNAVAILABLE.getKey(), "&cThe Bedrock anvil is not available on this server.&r"));
+        }
+
+        /**
+         * Returns the localized Bedrock anvil text {@code only}.
+         */
+        public static String bedrockOnly() {
+            return I18n.translateColors(localeConfig.getString(I18nKeys.MESSAGES_BEDROCK_ONLY.getKey(), "&cThe Bedrock anvil is only available to Bedrock players.&r"));
+        }
+
+        /**
+         * Returns the localized Bedrock anvil text {@code players-only}.
+         */
+        public static String bedrockPlayersOnly() {
+            return I18n.translateColors(localeConfig.getString(I18nKeys.MESSAGES_BEDROCK_PLAYERS_ONLY.getKey(), "&cOnly players can use this command.&r"));
+        }
+
+        /**
+         * Returns the localized Bedrock anvil text {@code title}.
+         */
+        public static String bedrockTitle() {
+            return I18n.translateColors(localeConfig.getString(I18nKeys.MESSAGES_BEDROCK_TITLE.getKey(), "&7&lDisenchantment anvil&r"));
+        }
+
+        /**
+         * Returns the localized Bedrock anvil text {@code item-label}.
+         */
+        public static String bedrockItemLabel() {
+            return I18n.translateColors(localeConfig.getString(I18nKeys.MESSAGES_BEDROCK_ITEM_LABEL.getKey(), "&f&lItem&r"));
+        }
+
+        /**
+         * Returns the localized lines of the Bedrock anvil text {@code item-label-lore}.
+         */
+        public static List<String> bedrockItemLabelLore() {
+            List<String> lines = localeConfig.getStringList(I18nKeys.MESSAGES_BEDROCK_ITEM_LABEL_LORE.getKey());
+            if (lines.isEmpty()) lines = List.of("&7Tap an item in your inventory", "&7to put it here. Tap here to take it back.");
+            return lines.stream().map(I18n::translateColors).toList();
+        }
+
+        /**
+         * Returns the localized Bedrock anvil text {@code second-label}.
+         */
+        public static String bedrockSecondLabel() {
+            return I18n.translateColors(localeConfig.getString(I18nKeys.MESSAGES_BEDROCK_SECOND_LABEL.getKey(), "&f&lBlank book / catalyst&r"));
+        }
+
+        /**
+         * Returns the localized lines of the Bedrock anvil text {@code second-label-lore}.
+         */
+        public static List<String> bedrockSecondLabelLore() {
+            List<String> lines = localeConfig.getStringList(I18nKeys.MESSAGES_BEDROCK_SECOND_LABEL_LORE.getKey());
+            if (lines.isEmpty()) lines = List.of("&7Tap a plain book (disenchant, split)", "&7or a catalyst (erase) in your inventory.");
+            return lines.stream().map(I18n::translateColors).toList();
+        }
+
+        /**
+         * Returns the localized Bedrock anvil text {@code result-label}.
+         */
+        public static String bedrockResultLabel() {
+            return I18n.translateColors(localeConfig.getString(I18nKeys.MESSAGES_BEDROCK_RESULT_LABEL.getKey(), "&f&lResult&r"));
+        }
+
+        /**
+         * Returns the localized lines of the Bedrock anvil text {@code result-empty}.
+         */
+        public static List<String> bedrockResultEmpty() {
+            List<String> lines = localeConfig.getStringList(I18nKeys.MESSAGES_BEDROCK_RESULT_EMPTY.getKey());
+            if (lines.isEmpty()) lines = List.of("&7Nothing to preview yet.");
+            return lines.stream().map(I18n::translateColors).toList();
+        }
+
+        /**
+         * Returns the localized Bedrock anvil text {@code mode-none}.
+         */
+        public static String bedrockModeNone() {
+            return I18n.translateColors(localeConfig.getString(I18nKeys.MESSAGES_BEDROCK_MODE_NONE.getKey(), "&7Mode: &fnone&r"));
+        }
+
+        /**
+         * Returns the localized Bedrock anvil text {@code mode-disenchant}.
+         */
+        public static String bedrockModeDisenchant() {
+            return I18n.translateColors(localeConfig.getString(I18nKeys.MESSAGES_BEDROCK_MODE_DISENCHANT.getKey(), "&7Mode: &fDisenchant&r"));
+        }
+
+        /**
+         * Returns the localized Bedrock anvil text {@code mode-shatter}.
+         */
+        public static String bedrockModeShatter() {
+            return I18n.translateColors(localeConfig.getString(I18nKeys.MESSAGES_BEDROCK_MODE_SHATTER.getKey(), "&7Mode: &fSplit book&r"));
+        }
+
+        /**
+         * Returns the localized Bedrock anvil text {@code mode-erase}.
+         */
+        public static String bedrockModeErase() {
+            return I18n.translateColors(localeConfig.getString(I18nKeys.MESSAGES_BEDROCK_MODE_ERASE.getKey(), "&7Mode: &fErase&r"));
+        }
+
+        /**
+         * Returns the localized Bedrock anvil text {@code status-waiting}.
+         */
+        public static String bedrockStatusWaiting() {
+            return I18n.translateColors(localeConfig.getString(I18nKeys.MESSAGES_BEDROCK_STATUS_WAITING.getKey(), "&7Put an item and a blank book (or a catalyst) in.&r"));
+        }
+
+        /**
+         * Returns the localized Bedrock anvil text {@code status-ready}.
+         */
+        public static String bedrockStatusReady() {
+            return I18n.translateColors(localeConfig.getString(I18nKeys.MESSAGES_BEDROCK_STATUS_READY.getKey(), "&aReady. Tap Confirm.&r"));
+        }
+
+        /**
+         * Returns the localized Bedrock anvil text {@code status-nothing}.
+         */
+        public static String bedrockStatusNothing() {
+            return I18n.translateColors(localeConfig.getString(I18nKeys.MESSAGES_BEDROCK_STATUS_NOTHING.getKey(), "&cNothing can be done with these items.&r"));
+        }
+
+        /**
+         * Returns the localized Bedrock anvil text {@code status-disabled}.
+         */
+        public static String bedrockStatusDisabled() {
+            return I18n.translateColors(localeConfig.getString(I18nKeys.MESSAGES_BEDROCK_STATUS_DISABLED.getKey(), "&cThis is disabled here.&r"));
+        }
+
+        /**
+         * Returns the localized Bedrock anvil text {@code status-cooldown}.
+         */
+        public static String bedrockStatusCooldown() {
+            return I18n.translateColors(localeConfig.getString(I18nKeys.MESSAGES_BEDROCK_STATUS_COOLDOWN.getKey(), "&cYou are on cooldown.&r"));
+        }
+
+        /**
+         * Returns the localized Bedrock anvil text {@code status-permission}.
+         */
+        public static String bedrockStatusPermission() {
+            return I18n.translateColors(localeConfig.getString(I18nKeys.MESSAGES_BEDROCK_STATUS_PERMISSION.getKey(), "&cYou may not do this.&r"));
+        }
+
+        /**
+         * Returns the localized Bedrock anvil text {@code status-expensive}.
+         */
+        public static String bedrockStatusExpensive() {
+            return I18n.translateColors(localeConfig.getString(I18nKeys.MESSAGES_BEDROCK_STATUS_EXPENSIVE.getKey(), "&cToo expensive!&r"));
+        }
+
+        /**
+         * Returns the localized Bedrock anvil text {@code status-special}.
+         */
+        public static String bedrockStatusSpecial() {
+            return I18n.translateColors(localeConfig.getString(I18nKeys.MESSAGES_BEDROCK_STATUS_SPECIAL.getKey(), "&cStay close to a special anvil.&r"));
+        }
+
+        /**
+         * Returns the localized Bedrock anvil text {@code confirm}.
+         */
+        public static String bedrockConfirm() {
+            return I18n.translateColors(localeConfig.getString(I18nKeys.MESSAGES_BEDROCK_CONFIRM.getKey(), "&a&lConfirm&r"));
+        }
+
+        /**
+         * Returns the localized lines of the Bedrock anvil text {@code confirm-lore}.
+         */
+        public static List<String> bedrockConfirmLore() {
+            List<String> lines = localeConfig.getStringList(I18nKeys.MESSAGES_BEDROCK_CONFIRM_LORE.getKey());
+            if (lines.isEmpty()) lines = List.of("&7Tap to do it and pay the cost.");
+            return lines.stream().map(I18n::translateColors).toList();
+        }
+
+        /**
+         * Returns the localized Bedrock anvil text {@code cancel}.
+         */
+        public static String bedrockCancel() {
+            return I18n.translateColors(localeConfig.getString(I18nKeys.MESSAGES_BEDROCK_CANCEL.getKey(), "&c&lCancel&r"));
+        }
+
+        /**
+         * Returns the localized lines of the Bedrock anvil text {@code cancel-lore}.
+         */
+        public static List<String> bedrockCancelLore() {
+            List<String> lines = localeConfig.getStringList(I18nKeys.MESSAGES_BEDROCK_CANCEL_LORE.getKey());
+            if (lines.isEmpty()) lines = List.of("&7Close and take your items back.");
+            return lines.stream().map(I18n::translateColors).toList();
+        }
+
+        /**
+         * Returns the localized Bedrock anvil text {@code erases}.
+         *
+         * @param enchantments the value substituted for {enchantments}
+         */
+        public static String bedrockErases(String enchantments) {
+            return I18n.translateColors(localeConfig.getString(I18nKeys.MESSAGES_BEDROCK_ERASES.getKey(), "&7Erases: &f{enchantments}&r")
+                    .replace("{enchantments}", enchantments));
+        }
+
+        /**
+         * Returns the localized Bedrock anvil text {@code items-dropped}.
+         */
+        public static String bedrockItemsDropped() {
+            return I18n.translateColors(localeConfig.getString(I18nKeys.MESSAGES_BEDROCK_ITEMS_DROPPED.getKey(), "&7Your inventory is full, some items were dropped at your feet.&r"));
         }
     }
 

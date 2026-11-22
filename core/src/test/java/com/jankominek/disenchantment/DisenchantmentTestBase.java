@@ -23,7 +23,6 @@ import org.mockbukkit.mockbukkit.entity.PlayerMock;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.List;
@@ -155,16 +154,7 @@ public abstract class DisenchantmentTestBase {
     // -> internal
 
     private void clearEnchantmentStateCaches() {
-        try {
-            Field disenchantCache = Config.Disenchantment.class.getDeclaredField("ENCHANTMENT_STATES_CACHE");
-            disenchantCache.setAccessible(true);
-            disenchantCache.set(null, null);
-
-            Field shatterCache = Config.Shatterment.class.getDeclaredField("ENCHANTMENT_STATES_CACHE");
-            shatterCache.setAccessible(true);
-            shatterCache.set(null, null);
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            throw new RuntimeException("Failed to clear enchantment state caches", e);
-        }
+        // Clears every Config cache (states, chances, repair/economy cost overrides).
+        Config.invalidateCaches();
     }
 }

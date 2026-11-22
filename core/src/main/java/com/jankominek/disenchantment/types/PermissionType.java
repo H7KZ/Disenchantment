@@ -18,6 +18,7 @@ public enum PermissionType {
     ANVIL_ALL("disenchantment.anvil.all"),
     ANVIL_DISENCHANT("disenchantment.anvil.disenchant"),
     ANVIL_SHATTER("disenchantment.anvil.shatter"),
+    ANVIL_ERASE("disenchantment.anvil.erase"),
 
     COMMAND_USE("disenchantment.command.use"),
     COMMAND_ALL("disenchantment.command.all"),
@@ -59,6 +60,13 @@ public enum PermissionType {
     GUI_SHATTER_REPAIR("disenchantment.gui.shatter.repair"),
     GUI_SHATTER_SOUND("disenchantment.gui.shatter.sound"),
     GUI_SHATTER_ECONOMY("disenchantment.gui.shatter.economy"),
+
+    ANVIL_SPECIAL("disenchantment.anvil.special"),
+    COMMAND_GIVE("disenchantment.command.give"),
+    COMMAND_ANVIL("disenchantment.command.anvil"),
+    GRINDSTONE_ALL("disenchantment.grindstone.all"),
+    GRINDSTONE_EXTRACT("disenchantment.grindstone.extract"),
+    GRINDSTONE_TRANSFER("disenchantment.grindstone.transfer"),
 
 
     /**

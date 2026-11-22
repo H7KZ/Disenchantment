@@ -70,6 +70,7 @@ public class Stats {
             s.sendMessage("§7§lStats — " + playerName);
             s.sendMessage("§7Disenchants: §f" + ps.disenchants());
             s.sendMessage("§7Shatters:    §f" + ps.shatters());
+            s.sendMessage("§7Grindstone:  §f" + ps.grindstones());
             s.sendMessage("§7XP spent:    §f" + ps.xpSpent());
             s.sendMessage("§7Money spent: §f" + ps.moneySpent());
             s.sendMessage("§7Last op:     §f" + ISO.format(ps.lastOperation()));
@@ -79,6 +80,8 @@ public class Stats {
         s.sendMessage("§7§lServer Stats");
         s.sendMessage("§7Disenchants: §f" + cache.getTotalDisenchants());
         s.sendMessage("§7Shatters:    §f" + cache.getTotalShatters());
+        s.sendMessage("§7Grind extract: §f" + cache.getTotalGrindExtracts());
+        s.sendMessage("§7Grind transfer: §f" + cache.getTotalGrindTransfers());
         s.sendMessage("§7XP spent:    §f" + cache.getTotalXpSpent());
         s.sendMessage("§7Money spent: §f" + cache.getTotalMoneySpent());
         s.sendMessage("§7Top enchant: §f" + cache.getTopEnchantment());

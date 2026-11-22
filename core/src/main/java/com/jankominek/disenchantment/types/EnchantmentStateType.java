@@ -34,7 +34,9 @@ public enum EnchantmentStateType {
      * @return the matching state, or {@code null} if no match is found
      */
     public static EnchantmentStateType getStateByName(String name) {
-        return switch (name.toLowerCase()) {
+        if (name == null) return null;
+
+        return switch (name.trim().toLowerCase(java.util.Locale.ROOT)) {
             case "enable" -> ENABLE;
             case "keep" -> KEEP;
             case "delete" -> DELETE;

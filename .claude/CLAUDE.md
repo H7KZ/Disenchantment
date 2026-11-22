@@ -88,6 +88,8 @@ Third-party JARs are stored in each module's `libs/` directory and referenced as
 
 ```
 Disenchantment.java          Main plugin class (extends JavaPlugin)
+anvils/                      Special anvils: SpecialAnvilStore (chunk-PDC marks), SpecialAnvilItem,
+                             SpecialAnvilListener (lifecycle), SpecialAnvilRecipe
 commands/                    Command framework (register, builder, completer, implementations)
   impl/                      Individual command handlers (Help, Toggle, Status, GUI, Diagnostic, etc.)
 config/                      Config reading/writing, i18n, migration system

@@ -1,5 +1,5 @@
 # ↓ DO NOT EDIT THESE VALUES ↓
-migration: 12
+migration: 13
 locales: [ "cs", "en" ]
 # ↑ DO NOT EDIT THESE VALUES ↑
 # ----------------------------------------------------------------------------------------
@@ -9,6 +9,10 @@ locales: [ "cs", "en" ]
 
 enabled: true
 
+# Periodically (every 8 hours) ask SpigotMC for the latest version and log a message when a newer one exists.
+# Set to false to disable all outgoing update checks.
+update-checker: true
+
 locale: "en"
 
 event-priorities:
@@ -16,6 +20,10 @@ event-priorities:
   disenchant: HIGHEST
   shatter-click: HIGHEST
   shatter: HIGHEST
+  erase-click: HIGHEST
+  erase: HIGHEST
+  grindstone: HIGHEST
+  grindstone-click: HIGHEST
 
 # ----------------------------------------------------------------------------------------
 
@@ -26,6 +34,8 @@ logging:
   save-reports: true
   # Set to true to record every disenchant/shatter to plugins/Disenchantment/stats.db
   operations: false
+  # Delete stats.db operation records older than N days on startup. 0 = keep forever.
+  operations-retention-days: 0
   # Discord webhook URL — if set, crash reports are POSTed asynchronously. Leave empty to disable.
   discord-webhook: ""
 
@@ -122,3 +132,169 @@ shatterment:
     cost: 100.0
     show-cost: true
     charge-message: true
+
+# ----------------------------------------------------------------------------------------
+
+# Player feedback for anvil operations.
+feedback:
+  # Particles spawned at the anvil when a disenchant/shatter (or erase) succeeds.
+  # Names are tried in order; names the server does not know are skipped, so a current and a legacy
+  # name can be listed together. Only particles without extra data (no dust/block/item) are used.
+  particles:
+    enabled: true
+    types: [ ENCHANT, ENCHANTMENT_TABLE ]
+    # Particles used by erase mode.
+    erase-types: [ SMOKE, SMOKE_NORMAL ]
+    count: 30
+    spread: 0.4
+    # PLAYER = only the player sees them | WORLD = everyone nearby sees them.
+    scope: PLAYER
+  # Played to the player when taking the result is refused (not enough levels or money, cooldown, ...).
+  # "sound" is a vanilla sound key such as "entity.villager.no".
+  failure-sound:
+    enabled: true
+    sound: "entity.villager.no"
+    volume: 1.0
+    pitch: 1.0
+  # Tell the player how many levels they are missing (at most once per second).
+  not-enough-xp-message: true
+  # List what transfers and what it costs in the lore of the result book while it sits in the anvil.
+  preview-lore: true
+# ----------------------------------------------------------------------------------------
+
+# Erase mode: an enchanted item in the first anvil slot and a catalyst in the second yield the same item
+# without its erasable enchantments, and no book. Disabled by default.
+# Worlds, materials and enchantment states are shared with disenchantment:
+# KEEP = never erased | DISABLE = the item cannot be erased at all | DELETE (and ENABLE) = erased.
+erase:
+  enabled: false
+  # Materials accepted in the second slot. Entries are parsed with Material.matchMaterial (a "minecraft:"
+  # prefix is accepted); unknown names are skipped with a warning. BOOK, ENCHANTED_BOOK and AIR are rejected
+  # (disenchantment and shatterment own those). An empty or fully invalid list disables erase mode.
+  # ECHO_SHARD needs Minecraft 1.19+; on 1.18 use for example AMETHYST_SHARD.
+  catalysts: [ ECHO_SHARD ]
+  # Use up one catalyst per erase.
+  consume-catalyst: true
+  # Also erase curses (Curse of Binding / Vanishing). By default they stay on the item.
+  erase-curses: false
+  anvil:
+    sound:
+      enabled: true
+      volume: 1.0
+      pitch: 1.0
+    repair:
+      reset: false
+      cost: true
+      base: 10
+      multiply: 0.25
+      enchantment-costs: { }
+      max-cost: -1
+    # When true, an XP cost >= 40 no longer shows the vanilla "Too Expensive!" screen.
+    bypass-too-expensive: false
+  economy:
+    enabled: false
+    cost: 100.0
+    show-cost: true
+    charge-message: true
+
+# Restrict disenchanting / shattering to designated ("special") anvils. Vanilla anvil use
+# (repair, rename, combine) is never affected.
+special-anvils:
+  # ALL          = every anvil works (default, same as before this option existed)
+  # MARKED       = only anvils placed from the special anvil item work
+  #                (give one with "/disenchantment give anvil <player> [amount]")
+  # BLOCK_BELOW  = only anvils standing directly on the block-below material work
+  mode: ALL
+  block-below: LAPIS_BLOCK
+  # Anvils opened without a world position (Player#openAnvil, other plugins' menus).
+  allow-virtual-anvils: false
+  # A broken special anvil drops the special item instead of a plain anvil.
+  drop-special-item: true
+  # Tell players that the anvil they use is not a special anvil (at most once every few seconds).
+  hint-message: false
+  # Look of the special anvil item. '&' colour codes are supported.
+  item:
+    name: "&dEnchanter's Anvil"
+    lore:
+      - "&7Place to create a disenchanting anvil"
+  # Optional crafting recipe. "ANVIL" in the ingredients stands for any anvil damage state.
+  recipe:
+    enabled: false
+    shape:
+      - "EEE"
+      - "EAE"
+      - "EEE"
+    ingredients:
+      E: EMERALD
+      A: ANVIL
+
+# ----------------------------------------------------------------------------------------
+
+# Grindstone mode. Worlds, materials, enchantment states and enchantment chances are shared with the
+# "disenchantment" section; costs, economy and sound are configured here.
+#
+# EXTRACT: put ONE enchanted item in the top grindstone slot and a plain BOOK in the bottom slot to move
+# the enchantments onto the book. The item stays, minus those enchantments. The vanilla grindstone refuses
+# a plain book, so the plugin places it for you when you click the bottom slot (or shift-click the book).
+# Needs a server that has PrepareGrindstoneEvent (Spigot 1.19.4+); on older servers a tick-based fallback is used.
+grindstone:
+  enabled: false
+  # Curses stay on the item unless this is true (vanilla grindstone behaviour).
+  curses: false
+  repair:
+    reset: false
+    cost: true
+    base: 10
+    multiply: 0.25
+    enchantment-costs: { }
+    max-cost: -1
+  sound:
+    enabled: true
+    volume: 1.0
+    pitch: 1.0
+  economy:
+    enabled: false
+    cost: 100.0
+    show-cost: true
+    charge-message: true
+  # TRANSFER: top slot = enchanted source item, bottom slot = a DIFFERENT kind of item (not a book).
+  # Compatible enchantments move to the target; the source loses exactly the ones that moved.
+  # Two items of the same kind are a vanilla repair and are never touched.
+  transfer:
+    enabled: false
+    # false = levels above the enchantment's vanilla maximum are lowered to the maximum.
+    allow-over-max: false
+    # Safety cap on how many enchantments one transfer may move.
+    max-enchantments: 16
+    repair:
+      reset: false
+      cost: true
+      base: 15
+      multiply: 0.25
+      enchantment-costs: { }
+      max-cost: -1
+    economy:
+      enabled: false
+      cost: 100.0
+      show-cost: true
+      charge-message: true
+
+# ----------------------------------------------------------------------------------------
+
+# Bedrock fallback. Geyser cannot show custom anvil results to Bedrock clients, so disenchanting, splitting
+# books and erasing do not work in the real anvil for them. With this enabled, "/disenchantment anvil" (or
+# "/disenchant anvil") opens a chest menu that does the same: tap an item in your inventory to put it in, tap
+# "Confirm" to do it. Java players are not affected unless allow-java-players is true.
+# With special-anvils.mode other than ALL the player must look at a special anvil within 5 blocks that they may use
+# (claim/region plugins are asked). In ALL mode the command works anywhere, like a virtual anvil.
+bedrock:
+  fallback-enabled: false
+  # false = only players detected as Bedrock players (see detect) may open the menu.
+  allow-java-players: false
+  # Tried in this order, the first hit wins. FLOODGATE and GEYSER ask the plugin API if it is installed.
+  # UUID: Floodgate-style UUID (starts with 16 zeros), useful when Floodgate only runs on the proxy.
+  # PREFIX: the player name starts with one of the prefixes below.
+  detect: [ FLOODGATE, GEYSER, UUID, PREFIX ]
+  prefixes: [ ".", "*" ]
+  # A Bedrock player who sneaks and right-clicks an anvil gets the menu; a normal tap opens the vanilla anvil.
+  open-on-sneak-click: false

@@ -149,4 +149,84 @@ class AnvilCostUtilsTest extends DisenchantmentTestBase {
         double cost = AnvilCostUtils.economyCostForEnchantments(List.of(mendingI, sharpnessV), 100.0, overrides);
         assertEquals(600.0, cost); // 500 (mending override) + 100 (flat, for sharpness which has no override)
     }
+
+    // ----------------------------------------------------------------------------------------------------
+    // Negative config values must never pay the player
+
+    @Test
+    void givenNegativeBaseAndMultiplier_whenCountCost_thenClampedToZero() {
+        setConfig("disenchantment.anvil.repair.base", -50);
+        setConfig("disenchantment.anvil.repair.multiply", -2.0);
+        IPluginEnchantment sharpnessV = EnchantmentUtils.remapEnchantment(enchantment("sharpness"), 5);
+        assertEquals(0, AnvilCostUtils.countAnvilCost(List.of(sharpnessV), AnvilEventType.DISENCHANTMENT));
+    }
+
+    @Test
+    void givenNegativeBase_shatterment_whenCountCost_thenClampedToZero() {
+        setConfig("shatterment.anvil.repair.base", -100);
+        IPluginEnchantment sharpnessV = EnchantmentUtils.remapEnchantment(enchantment("sharpness"), 5);
+        assertEquals(0, AnvilCostUtils.countAnvilCost(List.of(sharpnessV), AnvilEventType.SHATTERMENT));
+    }
+
+    @Test
+    void givenNegativeOverride_whenCountCost_thenClampedToZero() {
+        setConfig("disenchantment.anvil.repair.base", 0);
+        setConfig("disenchantment.anvil.repair.enchantment-costs.sharpness", -9);
+        IPluginEnchantment sharpnessV = EnchantmentUtils.remapEnchantment(enchantment("sharpness"), 5);
+        assertEquals(0, AnvilCostUtils.countAnvilCost(List.of(sharpnessV), AnvilEventType.DISENCHANTMENT));
+    }
+
+    @Test
+    void givenNegativeFlatEconomyCost_whenEconomyCost_thenClampedToZero() {
+        IPluginEnchantment sharpnessV = EnchantmentUtils.remapEnchantment(enchantment("sharpness"), 5);
+        assertEquals(0.0, AnvilCostUtils.economyCostForEnchantments(List.of(sharpnessV), -100.0, Map.of()));
+        assertEquals(0.0, AnvilCostUtils.economyCostForEnchantments(List.of(sharpnessV), -100.0, Map.of("mending", 5.0)));
+        assertEquals(0.0, AnvilCostUtils.economyCostForEnchantments(List.of(sharpnessV), 100.0, Map.of("sharpness", -500.0)));
+    }
+
+    @Test
+    void givenOverridesAndEmptyEnchantmentList_whenEconomyCost_thenFlatCostCharged() {
+        double cost = AnvilCostUtils.economyCostForEnchantments(java.util.List.of(), 100.0, java.util.Map.of("sharpness", 5.0));
+
+        assertEquals(100.0, cost, 0.0001, "An operation with nothing to price must not be free");
+    }
+    // -> grindstone cost blocks
+
+    @Test
+    void givenGrindstoneExtract_whenCountCost_thenUsesGrindstoneRepairBlock() {
+        setConfig("grindstone.repair.base", 4.0);
+        setConfig("grindstone.repair.multiply", 1.0);
+        IPluginEnchantment sharpnessV = EnchantmentUtils.remapEnchantment(enchantment("sharpness"), 5);
+
+        assertEquals(9, AnvilCostUtils.countAnvilCost(List.of(sharpnessV), AnvilEventType.GRINDSTONE_EXTRACT));
+        assertEquals(11, AnvilCostUtils.countAnvilCost(List.of(sharpnessV), AnvilEventType.DISENCHANTMENT),
+                "The anvil block is independent of the grindstone block");
+    }
+
+    @Test
+    void givenGrindstoneTransfer_whenCountCost_thenDefaultBaseIsHigher() {
+        IPluginEnchantment sharpnessV = EnchantmentUtils.remapEnchantment(enchantment("sharpness"), 5);
+
+        // base=15, multiplier=0.25: 15 + 5 * 0.25 = 16.25 -> 16
+        assertEquals(16, AnvilCostUtils.countAnvilCost(List.of(sharpnessV), AnvilEventType.GRINDSTONE_TRANSFER));
+    }
+
+    @Test
+    void givenGrindstoneCostDisabledOrCapped_whenCountCost_thenRespected() {
+        IPluginEnchantment sharpnessV = EnchantmentUtils.remapEnchantment(enchantment("sharpness"), 5);
+
+        setConfig("grindstone.repair.cost", false);
+        assertEquals(0, AnvilCostUtils.countAnvilCost(List.of(sharpnessV), AnvilEventType.GRINDSTONE_EXTRACT));
+
+        setConfig("grindstone.transfer.repair.max-cost", 5);
+        assertEquals(5, AnvilCostUtils.countAnvilCost(List.of(sharpnessV), AnvilEventType.GRINDSTONE_TRANSFER));
+    }
+
+    @Test
+    void givenGrindstoneEnchantmentOverride_whenCountCost_thenFixedCostUsed() {
+        setConfig("grindstone.repair.enchantment-costs.mending", 30);
+        IPluginEnchantment mending = EnchantmentUtils.remapEnchantment(enchantment("mending"), 1);
+
+        assertEquals(40, AnvilCostUtils.countAnvilCost(List.of(mending), AnvilEventType.GRINDSTONE_EXTRACT));
+    }
 }

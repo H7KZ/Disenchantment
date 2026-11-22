@@ -17,11 +17,17 @@ the result you want.
 - [Make disenchanting free (XP-wise)](#make-disenchanting-free-xp-wise)
 - [Adjust costs per enchantment](#adjust-costs-per-enchantment)
 - [Disable only shattering, keep disenchanting](#disable-only-shattering-keep-disenchanting)
+- [Erase enchantments from an item](#erase-enchantments-from-an-item)
+- [Tune the feedback (particles, sounds, preview)](#tune-the-feedback-particles-sounds-preview)
+- [Let players extract enchantments on the grindstone](#let-players-extract-enchantments-on-the-grindstone)
+- [Let players transfer enchantments between items on the grindstone](#let-players-transfer-enchantments-between-items-on-the-grindstone)
 - [Fix event priority conflicts with other plugins](#fix-event-priority-conflicts-with-other-plugins)
 - [Grant or revoke permissions with LuckPerms](#grant-or-revoke-permissions-with-luckperms)
+- [Let Bedrock players use the anvil (Geyser)](#let-bedrock-players-use-the-anvil-geyser)
 - [Open and use the in-game GUI](#open-and-use-the-in-game-gui)
 - [Generate a diagnostic report for a bug report](#generate-a-diagnostic-report-for-a-bug-report)
 - [Reload the config without restarting](#reload-the-config-without-restarting)
+- [Restrict disenchanting to special anvils](#restrict-disenchanting-to-special-anvils)
 
 ---
 
@@ -342,6 +348,90 @@ Or via command:
 
 ---
 
+## Erase enchantments from an item
+
+Erase mode throws enchantments away without making a book - useful for resetting an item before re-enchanting it. It is
+off by default.
+
+1. Enable it in `config.yml` and reload:
+
+   ```yaml
+   erase:
+     enabled: true
+     catalysts: [ ECHO_SHARD ]   # on 1.18 use AMETHYST_SHARD
+   ```
+
+   ```
+   /disenchantment reload
+   ```
+
+2. In an anvil, put the **enchanted item** in the first slot (one item, not a stack) and **one catalyst** (an echo shard
+   by default) in the second slot.
+3. The result is the same item without its enchantments. Take it with a normal left or right click. It costs levels
+   (`erase.anvil.repair`), uses up one catalyst and empties the first slot.
+
+Good to know:
+
+- Curses (Binding, Vanishing) stay on the item unless `erase.erase-curses: true`.
+- `KEEP` enchantments stay, a `DISABLE` enchantment stops the erase entirely, `DELETE` enchantments are erased - the
+  states, disabled worlds and materials are the same as for disenchanting
+  (see [Block a specific enchantment](#block-a-specific-enchantment-from-being-disenchanted)).
+- Books are never catalysts. To pull enchantments *onto* a book use disenchanting instead.
+- The new name typed into the anvil's rename field is ignored by erase.
+- Permission: `disenchantment.anvil.erase` (default for everyone).
+
+---
+
+## Tune the feedback (particles, sounds, preview)
+
+Everything is under `feedback:` in `config.yml` (see [CONFIG.md - Feedback](CONFIG.md#feedback)).
+
+- **Different particle:** `feedback.particles.types: [ HAPPY_VILLAGER, VILLAGER_HAPPY ]` - list the current name first and
+  the legacy name second; the one your server knows is used.
+- **Everyone sees the particles:** `feedback.particles.scope: WORLD`.
+- **Quieter refusals:** `feedback.failure-sound.enabled: false`, and `feedback.not-enough-xp-message: false` to hide the
+  "you need N levels" message.
+- **Hide the lore preview** on the result book: `feedback.preview-lore: false`.
+
+---
+
+## Let players extract enchantments on the grindstone
+
+Grindstone extraction is off by default. Enable it in `config.yml` and reload:
+
+```yaml
+grindstone:
+  enabled: true
+```
+
+```
+/disenchantment reload
+```
+
+Players put the enchanted item in the top slot, then click the bottom slot with a plain book on the cursor (or
+shift-click a book) and take the enchanted book from the result slot. It costs levels
+(`grindstone.repair`), keeps curses on the item and respects the `disenchantment` worlds, materials and enchantment
+states. See [Grindstone Settings](CONFIG.md#grindstone-settings).
+
+To make it cost money instead of (or on top of) levels, set `grindstone.repair.cost: false` and/or
+`grindstone.economy.enabled: true`.
+
+---
+
+## Let players transfer enchantments between items on the grindstone
+
+```yaml
+grindstone:
+  transfer:
+    enabled: true
+```
+
+Players put the enchanted source item in the top slot and a **different kind** of item in the bottom slot (for example a
+pickaxe and a shovel). The result is the bottom item with every enchantment it can take; the source goes back to the top
+slot without the enchantments that moved. To forbid it for some players, deny `disenchantment.grindstone.transfer`.
+
+---
+
 ## Fix event priority conflicts with other plugins
 
 If another plugin (such as UberEnchants, CMI, or other anvil-modifying plugins) conflicts with Disenchantment, you may
@@ -419,6 +509,30 @@ Anvil usage permissions default to `true` for all players. Admin command permiss
 ```
 
 > See [PERMISSIONS.md](PERMISSIONS.md) for the complete list of every permission node and its default.
+
+---
+
+## Let Bedrock players use the anvil (Geyser)
+
+Bedrock clients connected through Geyser cannot see the plugin's anvil results, so give them a chest menu instead.
+
+1. In `config.yml` set:
+
+   ```yaml
+   bedrock:
+     fallback-enabled: true
+   ```
+
+   and run `/disenchantment reload`. Install Floodgate if you can; it is the most reliable way to recognise Bedrock
+   players. Without it the `UUID` and `PREFIX` methods are used.
+2. Tell Bedrock players to run `/disenchant anvil`. Optional: set `bedrock.open-on-sneak-click: true` so that
+   crouch-tapping an anvil opens the menu while a normal tap still opens the vanilla anvil (repair, rename).
+3. In the menu: tap an enchanted item in your inventory, then a blank book (or an erase catalyst), check the preview and tap
+   **Confirm**. Tap an item in the menu to take it back, **Cancel** or close the menu to get everything back.
+
+Players need the usual `disenchantment.anvil.disenchant` / `.shatter` / `.erase` permissions. If you use
+[special anvils](#restrict-disenchanting-to-special-anvils) the command only works while looking at one within 5 blocks that the player may use.
+See [Bedrock Fallback](CONFIG.md#bedrock-fallback) for every option.
 
 ---
 
@@ -501,3 +615,33 @@ economy Vault hook — if you are enabling economy for the first time on a serve
 restart is required.
 
 > **Permission required:** `disenchantment.command.reload` (default: `op`).
+
+---
+
+## Restrict disenchanting to special anvils
+
+Make only designated anvils disenchant and shatter, e.g. one "enchanter's anvil" in a shop or spawn building. Normal
+anvils keep repairing and renaming as usual.
+
+**Option 1: marked anvils (`MARKED`).** Players place a special anvil item; only anvils placed from it work.
+
+1. In `config.yml` set `special-anvils.mode: MARKED`, then `/disenchantment reload`.
+2. Hand out the item: `/disenchantment give anvil <player> [amount]` (needs `disenchantment.command.give`).
+   Or enable `special-anvils.recipe.enabled: true` so players can craft it (default: 8 emeralds around an anvil).
+3. The player places the anvil. Breaking it drops the special item again (`drop-special-item`).
+
+Anvils that were already in the world are not special; replace them with the special item.
+
+**Option 2: block below (`BLOCK_BELOW`).** No item needed, and it works on anvils that already exist.
+
+1. Set `special-anvils.mode: BLOCK_BELOW` and `special-anvils.block-below: LAPIS_BLOCK`, then reload.
+2. Put an anvil directly on a lapis block. Any anvil standing on a lapis block is special; players who can build can
+   make their own, so use `MARKED` if admins alone should control this.
+
+**Tips**
+
+- `hint-message: true` tells players why nothing happens at a normal anvil.
+- `allow-virtual-anvils` decides whether anvils opened without a world position (commands or menus from other plugins)
+  count as special. Default `false`, so they do not work in `MARKED` / `BLOCK_BELOW` mode.
+- Set `mode: ALL` to return to the default where every anvil works. Marks are kept while the mode is `ALL`.
+- Check the active mode with `/disenchantment status`.

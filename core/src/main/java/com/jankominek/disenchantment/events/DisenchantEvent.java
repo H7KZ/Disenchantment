@@ -9,6 +9,7 @@ import com.jankominek.disenchantment.utils.AnvilCostUtils;
 import com.jankominek.disenchantment.utils.DiagnosticUtils;
 import com.jankominek.disenchantment.utils.EconomyUtils;
 import com.jankominek.disenchantment.utils.EventUtils;
+import com.jankominek.disenchantment.utils.PreviewLore;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
@@ -39,28 +40,6 @@ public class DisenchantEvent {
         }
     }
 
-    private static final AnvilEventGuards.EconomyConfig ECONOMY_CONFIG = new AnvilEventGuards.EconomyConfig() {
-        @Override
-        public boolean isEnabled() {
-            return Config.Disenchantment.Economy.isEnabled();
-        }
-
-        @Override
-        public double getCost() {
-            return Config.Disenchantment.Economy.getCost();
-        }
-
-        @Override
-        public boolean isChargeMessageEnabled() {
-            return Config.Disenchantment.Economy.isChargeMessageEnabled();
-        }
-
-        @Override
-        public boolean isShowCostEnabled() {
-            return Config.Disenchantment.Economy.isShowCostEnabled();
-        }
-    };
-
     private static void handler(Event event) {
         if (!(event instanceof PrepareAnvilEvent e)) return;
 
@@ -71,13 +50,13 @@ public class DisenchantEvent {
 
         if (!Config.isPluginEnabled() || !Config.Disenchantment.isEnabled()) return;
 
-        if (AnvilEventGuards.isMaintenanceBlocked(p)) {
-            e.setResult(null);
-            return;
-        }
-
         if (AnvilEventGuards.isWorldBlocked(p, Config.Disenchantment.isWorldRestricted(p.getWorld())))
             return;
+
+        // Not a special anvil: leave the event untouched so vanilla behaves as without the plugin.
+        // The collection below only runs when a hint may be due (it needs to know it is a genuine operation).
+        boolean anvilAllowed = AnvilEventGuards.isAnvilAllowed(e.getInventory(), p);
+        if (!anvilAllowed && !Config.SpecialAnvils.isHintMessageEnabled()) return;
 
         DiagnosticUtils.debug("DISENCHANT", () -> "PrepareAnvil: player=" + p.getName() + ", world=" + p.getWorld().getName());
 
@@ -87,14 +66,16 @@ public class DisenchantEvent {
         DiagnosticUtils.debug("DISENCHANT", () -> "PrepareAnvil: slot0=" + (firstItem != null ? firstItem.getType() : "null")
                 + ", slot1=" + (secondItem != null ? secondItem.getType() : "null"));
 
-        List<IPluginEnchantment> pluginEnchantments = AnvilEventGuards.collectEnchantments(
-                firstItem, secondItem, true,
-                EventUtils.Disenchantment::getDisenchantedEnchantments,
-                EventUtils.Disenchantment::getDisenchantedEnchantments,
-                p.getWorld(), p);
+        List<IPluginEnchantment> pluginEnchantments = AnvilOperations.collect(AnvilOperations.Kind.DISENCHANT, p, firstItem, secondItem, true);
 
         if (pluginEnchantments.isEmpty()) {
             DiagnosticUtils.debug("DISENCHANT", "PrepareAnvil: no eligible enchantments → exit");
+            return;
+        }
+
+        if (!anvilAllowed) {
+            DiagnosticUtils.debug("DISENCHANT", "PrepareAnvil: not a special anvil → exit");
+            AnvilEventGuards.sendSpecialAnvilHint(p);
             return;
         }
 
@@ -103,8 +84,17 @@ public class DisenchantEvent {
             DiagnosticUtils.debug("DISENCHANT", "PrepareAnvil: enchantments=[" + names + "] (" + pluginEnchantments.size() + " total)");
         }
 
-        if (AnvilEventGuards.isOnCooldown(p)) {
-            DiagnosticUtils.debug("DISENCHANT", "PrepareAnvil: player on cooldown → CANCELLED");
+        // Only a genuine plugin operation is blocked by maintenance mode — vanilla anvil use
+        // (repair/rename/combine) must keep working. No message here: PrepareAnvilEvent fires on
+        // every keystroke, the click handler informs the player.
+        if (AnvilEventGuards.isMaintenanceActiveFor(p)) {
+            DiagnosticUtils.debug("DISENCHANT", "PrepareAnvil: maintenance active → result cleared");
+            e.setResult(null);
+            return;
+        }
+
+        if (AnvilEventGuards.isOnCooldownQuiet(p)) {
+            DiagnosticUtils.debug("DISENCHANT", "PrepareAnvil: player on cooldown → result cleared (no message, the click path informs)");
             e.setResult(null);
             return;
         }
@@ -117,24 +107,19 @@ public class DisenchantEvent {
         // ----------------------------------------------------------------------------------------------------
         // Disenchantment plugins
 
-        ItemStack book = new ItemStack(Material.ENCHANTED_BOOK);
-
-        for (IPluginEnchantment pluginEnchantment : pluginEnchantments) {
-            book = pluginEnchantment.addToBook(book);
-        }
+        ItemStack book = AnvilOperations.buildBook(pluginEnchantments);
 
         boolean anyChanceBelowOne = pluginEnchantments.stream()
                 .anyMatch(ench -> Config.Disenchantment.getEnchantmentChance(ench.getKey()) < 1.0);
 
-        if (anyChanceBelowOne) {
-            var meta = book.getItemMeta();
-            if (meta != null) {
-                java.util.List<String> lore = meta.hasLore() && meta.getLore() != null ? new java.util.ArrayList<>(meta.getLore()) : new java.util.ArrayList<String>();
-                lore.add(I18n.Messages.someEnchantmentsMayNotTransfer());
-                meta.setLore(lore);
-                book.setItemMeta(meta);
-            }
-        }
+        double economyCost = AnvilOperations.economyCost(AnvilOperations.Kind.DISENCHANT, pluginEnchantments);
+
+        // Everything appended here is marked as preview lore and stripped again when the player takes the
+        // book (DisenchantClickEvent) — the chance warning must not stay on the book permanently.
+        List<String> previewLines = PreviewLore.previewLines(p, pluginEnchantments, AnvilEventType.DISENCHANTMENT,
+                Config.Disenchantment.Economy.isEnabled(), Config.Disenchantment.Economy.isShowCostEnabled(), economyCost);
+        if (anyChanceBelowOne) previewLines.add(I18n.Messages.someEnchantmentsMayNotTransfer());
+        book = PreviewLore.append(book, previewLines);
 
         // Disenchantment plugins
         // ----------------------------------------------------------------------------------------------------
@@ -149,9 +134,6 @@ public class DisenchantEvent {
                 + ", show-cost=" + Config.Disenchantment.Economy.isShowCostEnabled()
                 + ", gameMode=" + p.getGameMode());
 
-        double economyCost = AnvilCostUtils.economyCostForEnchantments(
-                pluginEnchantments, Config.Disenchantment.Economy.getCost(), Config.Disenchantment.Anvil.Repair.getEnchantmentEconomyCosts());
-
-        AnvilEventGuards.showEconomyActionBarCost(p, ECONOMY_CONFIG, economyCost);
+        AnvilEventGuards.showEconomyActionBarCost(p, AnvilOperations.Kind.DISENCHANT.economy(), economyCost);
     }
 }

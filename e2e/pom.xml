@@ -1,0 +1,308 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Disenchantment real-server e2e suite on Proofstone (card T-M6-05).
+
+  A standalone project, NOT a module of the root reactor: a root package build, the core test run and every other
+  existing flow never see it, and nothing here needs Docker or the network unless you run it on purpose (docs/engineering/E2E.md).
+  It tests the plugin jar the root build writes to ../target. Every version is pinned (no ranges, no latest).
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.jankominek</groupId>
+    <artifactId>disenchantment-e2e</artifactId>
+    <version>0.0.0-e2e</version>
+    <packaging>jar</packaging>
+    <name>Disenchantment e2e (Proofstone)</name>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <!-- The mcpl driver is Java 21 (Proofstone ADR-0004). -->
+        <maven.compiler.release>21</maven.compiler.release>
+
+        <!-- Proofstone is consumed from a SOURCE build, not from Central. The Proofstone version string is still 0.1.0, but the
+             Central 0.1.0 predates Agent.logLines (T-M11-01), PlayerState.openWindow (T-M11-02), Agent.bootLogLines (T-M11-03), Client.placeBlock/breakBlock and Agent.blockType (T-M11-04) and ItemView.pdc (T-M11-05), and the mcpl client-inventory fixes (T-M11-06, T-M11-07), which the tests use. Build the
+             checkout at proofstone.ref and run `./gradlew publishToMavenLocal :platforms:bukkit:agent:shadowJar` there first
+             (docs/engineering/E2E.md, "Proofstone source build"); the artefacts then come from the local Maven repository
+             (no <repository> below serves them). A stale Central 0.1.0 in ~/.m2 fails to compile the tests (loud, never silent).
+             Keep proofstone.ref equal to PROOFSTONE_REF in .github/workflows/e2e.yml (the workflow checks it). -->
+        <proofstone.version>0.1.0</proofstone.version>
+        <proofstone.ref>f5957cc22fa44dc8797e76201e951fffd64fb12a</proofstone.ref>
+        <junit.version>5.14.4</junit.version>
+        <assertj.version>3.27.7</assertj.version>
+
+        <!-- The plugin version under test: keep equal to <revision> in the root pom.xml. The jar is
+             ../target/Disenchantment-${disenchantment.version}.jar, written by a root `mvn package`. -->
+        <disenchantment.version>6.5.12</disenchantment.version>
+
+        <!-- A Proofstone checkout: it holds versions.yml (the cell pins) and the agent jar (a plugin, not a library;
+             Gradle builds it there). Pass it as -Dproofstone.repo=<path>; there is deliberately no default. -->
+        <proofstone.repo>UNSET-pass--Dproofstone.repo=path-to-a-Proofstone-checkout</proofstone.repo>
+
+        <maven-compiler-plugin.version>3.13.0</maven-compiler-plugin.version>
+        <maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>
+        <maven-failsafe-plugin.version>3.5.3</maven-failsafe-plugin.version>
+    </properties>
+
+    <repositories>
+        <!-- Maven Central first (the other three are proxies or mirrors). The Proofstone artefacts are not here: they are built from source. -->
+        <repository>
+            <id>central</id>
+            <url>https://repo.maven.apache.org/maven2</url>
+        </repository>
+        <!-- MCProtocolLib is published only here (Proofstone ADR-0004). Needed by proofstone-drivers-mcpl at test time. -->
+        <repository>
+            <id>opencollab</id>
+            <url>https://repo.opencollab.dev/main/</url>
+        </repository>
+        <!-- VaultAPI (compile-only, for the economy test double in src/main). -->
+        <repository>
+            <id>jitpack</id>
+            <url>https://jitpack.io</url>
+        </repository>
+        <repository>
+            <id>papermc</id>
+            <url>https://repo.papermc.io/repository/maven-public/</url>
+        </repository>
+    </repositories>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.junit</groupId>
+                <artifactId>junit-bom</artifactId>
+                <version>${junit.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <dependencies>
+        <!-- Compile-only: the two test-support plugins in src/main (economy double, Pre-event hook). The 1.18.2 API keeps
+             them loadable on every cell's server. -->
+        <dependency>
+            <groupId>io.papermc.paper</groupId>
+            <artifactId>paper-api</artifactId>
+            <version>1.18.2-R0.1-SNAPSHOT</version>
+            <scope>provided</scope>
+            <exclusions>
+                <!-- No transitive libraries on the test classpath: an old snakeyaml or adventure there breaks the Proofstone
+                     runner and its MCProtocolLib client. The two support plugins need only the Bukkit classes. -->
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <!-- Compile-only: paper-api's Server and Player extend adventure's Audience types, so javac needs those classes to compile
+             the support plugins (a clean build failed without it). Provided scope is on the test classpath too, and the version
+             must be the one MCProtocolLib (the Proofstone driver) brings, because Maven would otherwise pick this one over it and
+             an older adventure breaks the driver (NoClassDefFoundError: net.kyori.adventure.text.Component with the old paper one). -->
+        <dependency>
+            <groupId>net.kyori</groupId>
+            <artifactId>adventure-api</artifactId>
+            <version>5.2.0</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.MilkBowl</groupId>
+            <artifactId>VaultAPI</artifactId>
+            <version>1.7.1</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.github.h7kz.proofstone</groupId>
+            <artifactId>proofstone-api</artifactId>
+            <version>${proofstone.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.github.h7kz.proofstone</groupId>
+            <artifactId>proofstone-core</artifactId>
+            <version>${proofstone.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.github.h7kz.proofstone</groupId>
+            <artifactId>proofstone-drivers-mcpl</artifactId>
+            <version>${proofstone.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.platform</groupId>
+            <artifactId>junit-platform-launcher</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
+            <version>${assertj.version}</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${maven-compiler-plugin.version}</version>
+                <executions>
+                    <!-- The support plugins also load on the Java 17 servers (paper 1.18.2); the tests are Java 21. -->
+                    <execution>
+                        <id>default-compile</id>
+                        <configuration>
+                            <release>17</release>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>3.8.1</version>
+                <executions>
+                    <execution>
+                        <id>unpack-vaultapi</id>
+                        <phase>process-classes</phase>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>com.github.MilkBowl</groupId>
+                                    <artifactId>VaultAPI</artifactId>
+                                    <version>1.7.1</version>
+                                    <outputDirectory>${project.build.directory}/support/vault</outputDirectory>
+                                    <excludes>plugin.yml,META-INF/**</excludes>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>${maven-resources-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>stage-support-vault</id>
+                        <phase>process-classes</phase>
+                        <goals><goal>copy-resources</goal></goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/support/vault</outputDirectory>
+                            <resources>
+                                <resource><directory>${project.basedir}/src/support/vault</directory></resource>
+                                <resource>
+                                    <directory>${project.build.outputDirectory}</directory>
+                                    <includes><include>**/support/vault/**</include></includes>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>stage-support-hooks</id>
+                        <phase>process-classes</phase>
+                        <goals><goal>copy-resources</goal></goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/support/hooks</outputDirectory>
+                            <resources>
+                                <resource><directory>${project.basedir}/src/support/hooks</directory></resource>
+                                <resource>
+                                    <directory>${project.build.outputDirectory}</directory>
+                                    <includes><include>**/support/hooks/**</include></includes>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                    <!-- Copy exactly the plugin jar under test (not original-*.jar) to a fixed path the tests glob. A missing
+                         jar makes the @Proofstone glob fail loudly ("exactly one match"), never skip. -->
+                    <execution>
+                        <id>copy-plugin-under-test</id>
+                        <phase>process-test-resources</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/plugin-under-test</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${project.basedir}/../target</directory>
+                                    <includes>
+                                        <include>Disenchantment-${disenchantment.version}.jar</include>
+                                    </includes>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.4.2</version>
+                <executions>
+                    <!-- No default jar: only the two support plugins, written to target/support-jars for the @Proofstone globs. -->
+                    <execution>
+                        <id>default-jar</id>
+                        <phase>none</phase>
+                    </execution>
+                    <execution>
+                        <id>support-vault</id>
+                        <phase>process-test-resources</phase>
+                        <goals><goal>jar</goal></goals>
+                        <configuration>
+                            <classesDirectory>${project.build.directory}/support/vault</classesDirectory>
+                            <outputDirectory>${project.build.directory}/support-jars</outputDirectory>
+                            <classifier>vault</classifier>
+                            <archive><addMavenDescriptor>false</addMavenDescriptor></archive>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>support-hooks</id>
+                        <phase>process-test-resources</phase>
+                        <goals><goal>jar</goal></goals>
+                        <configuration>
+                            <classesDirectory>${project.build.directory}/support/hooks</classesDirectory>
+                            <outputDirectory>${project.build.directory}/support-jars</outputDirectory>
+                            <classifier>hooks</classifier>
+                            <archive><addMavenDescriptor>false</addMavenDescriptor></archive>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <version>${maven-failsafe-plugin.version}</version>
+                <configuration>
+                    <includes>
+                        <include>**/*E2E.java</include>
+                    </includes>
+                    <systemPropertyVariables>
+                        <proofstone.repoRoot>${proofstone.repo}</proofstone.repoRoot>
+                        <proofstone.agentJar>${proofstone.repo}/platforms/bukkit/agent/build/libs/agent-all.jar</proofstone.agentJar>
+                    </systemPropertyVariables>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>integration-test</goal>
+                            <goal>verify</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>

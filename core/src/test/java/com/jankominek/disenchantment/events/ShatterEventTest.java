@@ -1,5 +1,6 @@
 package com.jankominek.disenchantment.events;
 
+import com.jankominek.disenchantment.Disenchantment;
 import com.jankominek.disenchantment.DisenchantmentTestBase;
 import com.jankominek.disenchantment.utils.EnchantmentUtils;
 import org.bukkit.Material;
@@ -255,6 +256,37 @@ class ShatterEventTest extends DisenchantmentTestBase {
         assertFalse(meta.hasStoredEnchant(enchantment("sharpness")), "KEEP enchant must not appear in split-off book");
     }
 
+    // -> KEEP leaves one splittable enchantment: it splits off, KEEP stays on the source
+
+    @Test
+    void givenTwoEnchantmentsWithOneKEEP_whenPrepareAnvil_thenSplittableEnchantInResult() {
+        setShatterEnchantmentStates(List.of("sharpness:keep"));
+        PlayerMock player = server.addPlayer("TestPlayer");
+        PrepareAnvilEvent event = buildEvent(player, enchantedBook("sharpness", "mending"), new ItemStack(Material.BOOK));
+
+        ShatterEvent.onEvent(event);
+
+        ItemStack result = event.getResult();
+        assertNotNull(result, "The non-KEEP enchantment must be splittable");
+        EnchantmentStorageMeta meta = (EnchantmentStorageMeta) result.getItemMeta();
+        assertNotNull(meta);
+        assertTrue(meta.hasStoredEnchant(enchantment("mending")), "Result must carry the splittable enchantment");
+        assertFalse(meta.hasStoredEnchant(enchantment("sharpness")), "KEEP enchantment must stay on the source");
+    }
+
+    // -> DELETE leaves one splittable enchantment and nothing stays on the source: no result
+
+    @Test
+    void givenTwoEnchantmentsWithOneDELETE_whenPrepareAnvil_thenNoResult() {
+        setShatterEnchantmentStates(List.of("sharpness:delete"));
+        PlayerMock player = server.addPlayer("TestPlayer");
+        PrepareAnvilEvent event = buildEvent(player, enchantedBook("sharpness", "mending"), new ItemStack(Material.BOOK));
+
+        ShatterEvent.onEvent(event);
+
+        assertNull(event.getResult(), "Splitting must not produce an empty result book");
+    }
+
     // -> permission check
 
     @Test
@@ -267,5 +299,127 @@ class ShatterEventTest extends DisenchantmentTestBase {
         ShatterEvent.onEvent(event);
 
         assertNull(event.getResult());
+    }
+
+    // -> maintenance mode only blocks genuine plugin operations, and never messages from Prepare
+
+    @Test
+    void givenMaintenance_whenPrepareGenuineShatter_thenResultClearedWithoutMessage() {
+        Disenchantment.maintenanceEnabled = true;
+        try {
+            PlayerMock player = server.addPlayer("TestPlayer");
+            PrepareAnvilEvent event = buildEvent(player, enchantedBook("sharpness", "mending"), new ItemStack(Material.BOOK));
+
+            ShatterEvent.onEvent(event);
+
+            Mockito.verify(event).setResult(null);
+            assertNull(player.nextMessage(), "PrepareAnvilEvent fires per keystroke — it must not message the player");
+        } finally {
+            Disenchantment.maintenanceEnabled = false;
+        }
+    }
+
+    @Test
+    void givenMaintenance_whenPrepareVanillaAnvilUse_thenResultUntouched() {
+        Disenchantment.maintenanceEnabled = true;
+        try {
+            PlayerMock player = server.addPlayer("TestPlayer");
+            PrepareAnvilEvent event = buildEvent(player, enchantedBook("sharpness", "mending"), new ItemStack(Material.DIAMOND));
+
+            ShatterEvent.onEvent(event);
+
+            Mockito.verify(event, Mockito.never()).setResult(Mockito.any());
+            assertNull(player.nextMessage());
+        } finally {
+            Disenchantment.maintenanceEnabled = false;
+        }
+    }
+
+    // -> the chosen subset must be stable while the anvil inputs are unchanged (rename keystrokes re-fire Prepare)
+
+    private String selectedKeys(PrepareAnvilEvent event) {
+        EnchantmentStorageMeta meta = (EnchantmentStorageMeta) Objects.requireNonNull(event.getResult()).getItemMeta();
+        return Objects.requireNonNull(meta).getStoredEnchants().keySet().stream()
+                .map(e -> e.getKey().getKey()).sorted().collect(java.util.stream.Collectors.joining(","));
+    }
+
+    @Test
+    void givenUnchangedInputs_whenPrepareFiresRepeatedly_thenSameSubsetEveryTime() {
+        PlayerMock player = server.addPlayer("TestPlayer");
+        ItemStack source = enchantedBook("sharpness", "mending", "efficiency", "unbreaking", "looting", "fortune");
+
+        String first = null;
+        for (int i = 0; i < 25; i++) {
+            PrepareAnvilEvent event = buildEvent(player, source.clone(), new ItemStack(Material.BOOK));
+            ShatterEvent.onEvent(event);
+            String selected = selectedKeys(event);
+            if (first == null) first = selected;
+            assertEquals(first, selected, "Re-firing Prepare with unchanged inputs must not re-roll the subset");
+        }
+    }
+
+    @Test
+    void givenInputsChangeBetweenPrepares_whenPrepareFires_thenSubsetIsRolledAgain() {
+        PlayerMock player = server.addPlayer("TestPlayer");
+        ItemStack source = enchantedBook("sharpness", "mending", "efficiency", "unbreaking", "looting", "fortune");
+
+        java.util.Set<String> seen = new java.util.HashSet<>();
+        for (int i = 0; i < 40; i++) {
+            // Taking the blank book out and putting it back changes the inputs in between.
+            ShatterEvent.onEvent(buildEvent(player, source.clone(), null));
+            PrepareAnvilEvent event = buildEvent(player, source.clone(), new ItemStack(Material.BOOK));
+            ShatterEvent.onEvent(event);
+            seen.add(selectedKeys(event));
+        }
+        assertTrue(seen.size() > 1, "Changed inputs must invalidate the cache and re-roll (6 candidates, 40 rolls)");
+    }
+
+    @Test
+    void givenBlankBookAmountChanges_whenPrepareFires_thenCachedSubsetDropped() {
+        PlayerMock player = server.addPlayer("TestPlayer");
+        ItemStack source = enchantedBook("sharpness", "mending", "efficiency", "unbreaking", "looting", "fortune");
+
+        java.util.Set<String> seen = new java.util.HashSet<>();
+        for (int i = 0; i < 40; i++) {
+            ShatterEvent.onEvent(buildEvent(player, source.clone(), new ItemStack(Material.BOOK, 1)));
+            PrepareAnvilEvent event = buildEvent(player, source.clone(), new ItemStack(Material.BOOK, 2));
+            ShatterEvent.onEvent(event);
+            seen.add(selectedKeys(event));
+        }
+        assertTrue(seen.size() > 1, "A different blank-book amount is a different input");
+    }
+
+    @Test
+    void givenOperationCompleted_whenSelectionCleared_thenNextPrepareRollsAgain() {
+        PlayerMock player = server.addPlayer("TestPlayer");
+        ItemStack source = enchantedBook("sharpness", "mending", "efficiency", "unbreaking", "looting", "fortune");
+
+        java.util.Set<String> seen = new java.util.HashSet<>();
+        for (int i = 0; i < 40; i++) {
+            PrepareAnvilEvent event = buildEvent(player, source.clone(), new ItemStack(Material.BOOK));
+            ShatterEvent.onEvent(event);
+            seen.add(selectedKeys(event));
+            ShatterEvent.clearSelection(player);
+        }
+        assertTrue(seen.size() > 1, "clearSelection (operation completed) must force a fresh roll");
+    }
+
+    // -> cooldown: Prepare only clears the result, it must not spam the cooldown message
+
+    @Test
+    void givenPlayerOnCooldown_whenPrepareFiresRepeatedly_thenResultClearedWithoutMessage() {
+        setConfig("disenchantment.cooldown.seconds", 30);
+        PlayerMock player = server.addPlayer("TestPlayer");
+        com.jankominek.disenchantment.utils.CooldownManager.recordOperation(player);
+        try {
+            for (int i = 0; i < 3; i++) {
+                PrepareAnvilEvent event = buildEvent(player, enchantedBook("sharpness", "mending"), new ItemStack(Material.BOOK));
+                ShatterEvent.onEvent(event);
+                Mockito.verify(event).setResult(null);
+            }
+            assertNull(player.nextMessage(), "PrepareAnvilEvent must not message the cooldown");
+        } finally {
+            com.jankominek.disenchantment.utils.CooldownManager.reset();
+        }
     }
 }

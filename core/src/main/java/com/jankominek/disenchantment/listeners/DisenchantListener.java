@@ -23,7 +23,7 @@ public class DisenchantListener implements EventExecutor {
 
     /**
      * Creates a new listener and registers it for {@link PrepareAnvilEvent}
-     * at the specified priority.
+     * at the specified priority, and registers the shared {@link AnvilSessionListener}.
      *
      * @param priority the Bukkit event priority to register with
      */
@@ -36,6 +36,11 @@ public class DisenchantListener implements EventExecutor {
                 plugin,
                 false
         );
+
+        // Shared per-anvil-session bookkeeping (pending blank-book removal lock, bypass-cost cleanup).
+        // Registered here, exactly once per (re)registration of the anvil listeners, because the
+        // shatter listener constructors run alongside this one and must not duplicate it.
+        getServer().getPluginManager().registerEvents(new AnvilSessionListener(), plugin);
     }
 
     /**

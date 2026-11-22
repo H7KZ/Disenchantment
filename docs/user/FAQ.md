@@ -9,6 +9,8 @@ Common issues and questions about Disenchantment.
 - [Why can't non-op players use the plugin?](#why-cant-non-op-players-use-the-plugin)
 - [The anvil shows a result but nothing happens when I click](#the-anvil-shows-a-result-but-nothing-happens-when-i-click)
 - [The book I get has no enchantments / is blank](#the-book-i-get-has-no-enchantments--is-blank)
+- [I got a plain book instead of an enchanted book](#i-got-a-plain-book-instead-of-an-enchanted-book)
+- [The blank book is not accepted](#the-blank-book-is-not-accepted)
 - [Disenchanting removes the enchantment but doesn't give a book](#disenchanting-removes-the-enchantment-but-doesnt-give-a-book)
 - [I want to disable only the shattering feature, not disenchanting](#i-want-to-disable-only-the-shattering-feature-not-disenchanting)
 - [Does the plugin work with custom enchantments from other plugins?](#does-the-plugin-work-with-custom-enchantments-from-other-plugins)
@@ -20,9 +22,15 @@ Common issues and questions about Disenchantment.
 - [Why isn't Disenchantment working with EcoEnchants?](#why-isnt-disenchantment-working-with-ecoenchants)
 - [Why aren't UberEnchants working with Disenchantment?](#why-arent-uberenchants-working-with-disenchantment)
 - [I'm using GeyserMC and there are issues.](#im-using-geysermc-and-there-are-issues-is-this-a-known-problem)
+- [Bedrock players see nothing in the anvil (Geyser)](#bedrock-players-see-nothing-in-the-anvil-geyser)
+- [How much exactly is charged when `enchantment-costs` economy overrides are set?](#how-much-exactly-is-charged-when-enchantment-costs-economy-overrides-are-set)
 - [Economy is enabled but players aren't being charged.](#economy-is-enabled-but-players-arent-being-charged)
 - [Do I need Vault for the plugin to work?](#do-i-need-vault-for-the-plugin-to-work)
 - [Does Disenchantment support Minecraft 26.1.x?](#does-disenchantment-support-minecraft-261x)
+- [Nothing happens at some anvils: special anvils](#nothing-happens-at-some-anvils-special-anvils)
+- [The grindstone does not accept my book](#the-grindstone-does-not-accept-my-book)
+- [Do players get XP back on the grindstone?](#do-players-get-xp-back-on-the-grindstone)
+- [Grindstone transfer does nothing](#grindstone-transfer-does-nothing)
 
 ---
 
@@ -51,12 +59,23 @@ See [PERMISSIONS.md](PERMISSIONS.md#anvil-usage) for the full list of anvil perm
 The result appeared in the output slot, which means the plugin recognised the operation as valid. If nothing happens
 when the player clicks, the most common causes are:
 
-1. **Not enough XP levels.** The anvil shows a cost — if the player does not have that many levels, the click is
-   silently rejected (same as vanilla anvil behaviour).
+1. **Not enough XP levels.** The click is rejected and the player is told how many levels they need. With
+   `anvil.bypass-too-expensive` enabled this is the *real* cost, not the cheap 1 level shown in the anvil. Without the
+   bypass an operation costing 40 or more levels is refused with "Too expensive!" (except in creative), like vanilla.
+   The grindstone has no such limit; use `max-cost` there.
 2. **Economy cost not met.** If economy is enabled and the player cannot afford the currency cost, the operation is
-   cancelled and they receive an insufficient-funds message. Check the action bar for the cost display.
+   cancelled and they receive an insufficient-funds message. Check the action bar for the cost display. If the
+   economy plugin refuses the withdrawal (for example a bank limit) the operation is cancelled as well, nothing is
+   consumed, and the player is told the payment could not be processed.
 3. **Permission denied.** The player's permission plugin may have set `disenchantment.anvil.disenchant` or
    `disenchantment.anvil.shatter` to `false`. Check with your permission plugin.
+4. **Cooldown or maintenance mode.** The player is told when they must wait (cooldown) or that the plugin is under
+   maintenance. These messages are sent when the result is *clicked*, not while the anvil is being set up. Maintenance
+   mode only blocks Disenchantment operations; normal anvil repair and renaming keep working.
+5. **Shift-click, number-key or other special clicks.** The result must be taken with a normal left or right click.
+   Other click types are blocked (they could duplicate the book) and the player gets a hint saying so.
+6. **Two clicks in the same instant.** While an operation is still consuming its blank book (about 2 ticks), further
+   clicks on that anvil are ignored.
 
 ---
 
@@ -77,6 +96,23 @@ If you see `keep` or `delete` for the enchantments you expect to receive, change
 The difference between `keep` and `delete` from the player's perspective is identical — neither transfers the
 enchantment to the book. See [CONFIG.md — Enchantment States](CONFIG.md#feature-toggle-and-restrictions) for the full
 explanation.
+
+---
+
+### I got a plain book instead of an enchanted book
+
+Every enchantment on the operation failed its success-chance roll (`enchantment-chances`), so there was nothing to put on
+the book. The player receives a plain book and a message that the enchantments failed to transfer. The enchantments were
+still removed from the source. Raise the chance in config (`disenchantment.enchantment-chances.<enchantment>`) if this is too
+harsh.
+
+---
+
+### The blank book is not accepted
+
+Only a plain, unmodified `BOOK` works as the blank book. A book that another plugin has tagged — a custom display name,
+lore, custom model data, or any persistent-data tag — is rejected so quest items, vouchers and similar books cannot be
+consumed by accident.
 
 ---
 
@@ -206,6 +242,31 @@ proxy layer and cannot be worked around on the server side.
 
 ---
 
+### Bedrock players see nothing in the anvil (Geyser)
+
+This is a Geyser limitation: Bedrock clients cannot display anvil results the server invents (see
+[Geyser's limitations](https://geysermc.org/wiki/geyser/current-limitations)), so disenchanting, splitting and erasing
+look broken for them even though the plugin computed the result. It cannot be fixed on the server side of the anvil.
+Use the built-in workaround instead: set `bedrock.fallback-enabled: true`, reload, and tell Bedrock players to run
+`/disenchant anvil`. They put items in by tapping them in their inventory and tap Confirm. Details and options (sneak-tap
+an anvil, detection methods, letting Java players use it too) are in [Bedrock Fallback](CONFIG.md#bedrock-fallback); a
+step-by-step is in the [how-to](HOW_TO.md#let-bedrock-players-use-the-anvil-geyser).
+
+Common reasons the command says no: the fallback is disabled; the player is not recognised as a Bedrock player (install
+Floodgate, or make sure `detect` includes `UUID`/`PREFIX` matching how your proxy names them, or set
+`allow-java-players: true`); `special-anvils.mode` is not `ALL` and the player is not looking at a special anvil within 5 blocks (or a claim/region plugin
+forbids using it).
+
+---
+
+### How much exactly is charged when `enchantment-costs` economy overrides are set?
+
+Exactly what the action bar displayed: the enchantments that are really transferred to the result book. For
+disenchanting, enchantments in the `delete` state are destroyed but not charged for. For shattering, only the enchantments
+that were randomly chosen for this split are charged — not every enchantment on the source book.
+
+---
+
 ### Economy is enabled but players aren't being charged.
 
 Check the following in order:
@@ -257,3 +318,46 @@ Disenchantment release first, then file a bug report with the output of `/disenc
 No — the operation only runs on a **single** source item (stack size 1). Every enchantable item in vanilla is
 unstackable, so this never affects normal play. It only matters if another plugin makes enchanted items stackable: in
 that case a stacked source produces no anvil result. Split the stack to one item to disenchant or shatter it.
+
+---
+
+### Nothing happens at some anvils: special anvils
+
+If `special-anvils.mode` is `MARKED` or `BLOCK_BELOW`, only designated anvils disenchant and shatter; every other anvil
+still repairs and renames normally. Check `/disenchantment status` for the mode and see
+[Restrict disenchanting to special anvils](HOW_TO.md#restrict-disenchanting-to-special-anvils). Common causes:
+
+- The anvil was placed before the mode was switched on (in `MARKED` mode only anvils placed from the special item
+  count; place a new one with `/disenchantment give anvil <player>`).
+- The player lacks `disenchantment.anvil.special`, so the item was placed as a normal anvil.
+- The anvil was placed with `/setblock`, WorldEdit or a schematic: marks are not copied. Use `BLOCK_BELOW` for
+  built structures.
+- The anvil is opened virtually (a command or another plugin's menu): set `allow-virtual-anvils: true` if that is wanted.
+
+Turn on `special-anvils.hint-message` to tell players when this is the reason. A falling special anvil keeps its mark
+when it lands, best effort: if a different plugin changes the falling block, the mark can be lost.
+
+### The grindstone does not accept my book
+
+Enable `grindstone.enabled: true` first. The vanilla grindstone only accepts damageable or enchanted items in its slots, so
+a plain book is refused; the plugin places it for you when the **top slot already holds an enchanted item** with something
+extractable (not just curses) and you click the bottom slot with the book on the cursor or shift-click the book. Check
+that the player has `disenchantment.grindstone.extract`, the world is not disabled in `disenchantment.worlds`, and the
+book has no custom name, lore or data (a "tagged" book is never used). Number-key swaps and dragging are not intercepted.
+
+---
+
+### Do players get XP back on the grindstone?
+
+Not for plugin operations. Vanilla refunds experience orbs when you take a grindstone result; extraction and transfer take
+over the result click, so they **cost** levels (`grindstone.repair`, `grindstone.transfer.repair`) instead. Normal
+grindstone use is unchanged and still refunds XP.
+
+---
+
+### Grindstone transfer does nothing
+
+Transfer needs `grindstone.transfer.enabled: true`, an enchanted item in the **top** slot and a **different** material in
+the bottom slot (two items of the same kind are a vanilla repair; books use extraction). Only enchantments the target can
+take and that conflict with nothing on it move, and an enchantment the target already has at the same or a higher level
+is skipped, so a result can be empty. Run with `logging.level: DEBUG` to see the reason (`GRINDSTONE` lines).

@@ -1,6 +1,8 @@
 package com.jankominek.disenchantment.stats;
 
+import com.jankominek.disenchantment.config.Config;
 import com.jankominek.disenchantment.utils.BStatsMetrics;
+import com.jankominek.disenchantment.utils.SchedulerUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -11,6 +13,7 @@ import java.sql.SQLException;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static com.jankominek.disenchantment.Disenchantment.plugin;
@@ -44,10 +47,24 @@ public class StatsManager {
 
             // Boot load runs on writeExecutor (same thread as inserts) to avoid concurrent Connection use.
             // Listener registers after cache init so no boot-window records are overwritten.
+            // The callback hops to the global region thread via SchedulerUtils (Bukkit.getScheduler() throws on Folia).
+            StatsManager manager = instance;
+
+            // Queued on the writer executor ahead of the boot load, so the cache never counts
+            // records that are about to be pruned. No-op when retention is 0 (keep forever).
+            db.pruneAsync(Config.getOperationsRetentionDays());
+
             db.loadBootDataAsync(
-                    bd -> Bukkit.getScheduler().runTask(plugin, () -> {
-                        c.initialize(bd);
-                        Bukkit.getPluginManager().registerEvents(new StatsListener(instance), plugin);
+                    bd -> SchedulerUtils.runGlobal(plugin, () -> {
+                        try {
+                            // Skip if shut down / replaced (e.g. reload) while the boot load was in flight.
+                            if (instance != manager) return;
+                            c.initialize(bd);
+                            Bukkit.getPluginManager().registerEvents(new StatsListener(manager), plugin);
+                        } catch (Exception ex) {
+                            Logger.getLogger("Disenchantment").log(Level.SEVERE,
+                                    "StatsManager failed to apply boot data; stats disabled until reload", ex);
+                        }
                     }),
                     e -> Logger.getLogger("Disenchantment").warning("StatsManager boot load failed: " + e.getMessage())
             );
@@ -87,7 +104,15 @@ public class StatsManager {
      */
     public void record(OperationType type, Player player, ItemStack resultBook,
                        String itemMaterial, int xpCost, double economyCost) {
-        List<String> enchKeys = StatsListener.extractEnchantmentKeys(resultBook);
+        record(type, player, StatsListener.extractEnchantmentKeys(resultBook), itemMaterial, xpCost, economyCost);
+    }
+
+    /**
+     * Records one operation whose enchantment keys were determined by the caller (e.g. an
+     * item-to-item transfer, where the result is not a book).
+     */
+    public void record(OperationType type, Player player, List<String> enchKeys,
+                       String itemMaterial, int xpCost, double economyCost) {
         Instant now = Instant.now();
 
         cache.record(type, enchKeys, player.getUniqueId(), player.getName(),
@@ -104,6 +129,16 @@ public class StatsManager {
                 xpCost,
                 economyCost
         ));
+    }
+
+    /**
+     * Schedules deletion of operation records older than {@code days} days on the DB writer thread.
+     * No-op when {@code days <= 0}. Cached totals are not adjusted; they reflect the DB again on the next boot.
+     *
+     * @param days maximum record age in days
+     */
+    public void pruneAsync(int days) {
+        database.pruneAsync(days);
     }
 
     private static void registerCharts(BStatsMetrics metrics) {

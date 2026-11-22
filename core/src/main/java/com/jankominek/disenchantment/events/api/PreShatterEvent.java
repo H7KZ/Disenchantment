@@ -38,7 +38,8 @@ public class PreShatterEvent extends Event implements Cancellable {
     /**
      * @param player       the player performing the shattering
      * @param sourceItem   a snapshot of the enchanted book in anvil slot 0
-     * @param enchantments all enchantments on the source book (split candidate chosen internally)
+     * @param enchantments the enchantments being split off onto the result book (the chosen subset,
+     *                     plus any DELETE-state enchantments destroyed on the source)
      */
     public PreShatterEvent(Player player, ItemStack sourceItem, List<IPluginEnchantment> enchantments) {
         this.player = player;
@@ -61,8 +62,10 @@ public class PreShatterEvent extends Event implements Cancellable {
     }
 
     /**
-     * @return the enchantments on the source book that are eligible for splitting;
-     * removing entries from this list prevents those enchantments from being removed
+     * @return the enchantments being split off onto the result book — the subset chosen for this
+     * operation, not every enchantment on the source book (DELETE-state enchantments that will be
+     * destroyed on the source are listed too); removing entries from this list prevents those
+     * enchantments from being removed. The economy charge only covers the split-off subset.
      */
     public List<IPluginEnchantment> getEnchantments() {
         return enchantments;

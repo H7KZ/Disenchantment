@@ -4,6 +4,7 @@ import com.jankominek.disenchantment.commands.CommandBuilder;
 import com.jankominek.disenchantment.config.Config;
 import com.jankominek.disenchantment.config.I18n;
 import com.jankominek.disenchantment.types.PermissionGroupType;
+import com.jankominek.disenchantment.utils.InputUtils;
 import org.bukkit.command.CommandSender;
 
 import java.util.ArrayList;
@@ -94,12 +95,11 @@ public class ShatterEconomy {
                 break;
             }
             case "cost": {
-                try {
-                    Config.Shatterment.Economy.setCost(Double.parseDouble(args[2]));
+                Double value = InputUtils.parseOrReport(s, args[2], true);
+                if (value != null) {
+                    Config.Shatterment.Economy.setCost(value);
 
                     s.sendMessage(I18n.Messages.economyCostIsSet(String.valueOf(Config.Shatterment.Economy.getCost())));
-                } catch (NumberFormatException e) {
-                    s.sendMessage(I18n.Messages.specifyValidDouble());
                 }
 
                 break;

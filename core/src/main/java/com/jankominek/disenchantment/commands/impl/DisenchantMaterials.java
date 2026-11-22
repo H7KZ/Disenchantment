@@ -2,6 +2,7 @@ package com.jankominek.disenchantment.commands.impl;
 
 import com.jankominek.disenchantment.commands.CommandBuilder;
 import com.jankominek.disenchantment.config.Config;
+import com.jankominek.disenchantment.config.ConfigValues;
 import com.jankominek.disenchantment.config.I18n;
 import com.jankominek.disenchantment.types.PermissionGroupType;
 import com.jankominek.disenchantment.types.RestrictionMode;
@@ -73,11 +74,14 @@ public class DisenchantMaterials {
             return;
         }
 
-        Material material = Material.getMaterial(args[1].toUpperCase());
+        Material material = ConfigValues.matchMaterial(args[1]);
 
         // Guard against an unknown material name — otherwise a null slips into the list and
         // setDisabledMaterials() NPEs on Material::name (assertions are off in production).
-        if (material == null) return;
+        if (material == null) {
+            s.sendMessage(I18n.Messages.invalidArgument());
+            return;
+        }
 
         if (materials.contains(material)) {
             materials.remove(material);

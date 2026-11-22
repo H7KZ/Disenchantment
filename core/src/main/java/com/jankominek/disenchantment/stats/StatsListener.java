@@ -1,6 +1,8 @@
 package com.jankominek.disenchantment.stats;
 
 import com.jankominek.disenchantment.events.api.PostDisenchantEvent;
+import com.jankominek.disenchantment.events.api.PostGrindstoneExtractEvent;
+import com.jankominek.disenchantment.events.api.PostGrindstoneTransferEvent;
 import com.jankominek.disenchantment.events.api.PostShatterEvent;
 import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
@@ -57,6 +59,47 @@ public class StatsListener implements Listener {
                 event.getPlayer(),
                 event.getResultBook(),
                 Material.ENCHANTED_BOOK.name(),
+                event.getXpCost(),
+                event.getEconomyCost()
+        );
+    }
+
+    /**
+     * Records a completed grindstone extraction from a {@link PostGrindstoneExtractEvent}.
+     *
+     * @param event the post-extract event
+     */
+    @EventHandler
+    public void onPostGrindstoneExtract(PostGrindstoneExtractEvent event) {
+        manager.record(
+                OperationType.GRIND_EXTRACT,
+                event.getPlayer(),
+                event.getResultBook(),
+                event.getModifiedSourceItem().getType().name(),
+                event.getXpCost(),
+                event.getEconomyCost()
+        );
+    }
+
+    /**
+     * Records a completed grindstone transfer from a {@link PostGrindstoneTransferEvent}. The recorded
+     * keys are the enchantments that moved, not everything the target now carries.
+     *
+     * @param event the post-transfer event
+     */
+    @EventHandler
+    public void onPostGrindstoneTransfer(PostGrindstoneTransferEvent event) {
+        List<String> moved = event.getEnchantments().stream().map(e -> e.getKey().toLowerCase()).toList();
+        List<String> keys = new ArrayList<>();
+        event.getResultItem().getEnchantments().keySet().forEach(ench -> {
+            if (moved.contains(ench.getKey().getKey().toLowerCase())) keys.add(ench.getKey().toString());
+        });
+
+        manager.record(
+                OperationType.GRIND_TRANSFER,
+                event.getPlayer(),
+                keys,
+                event.getResultItem().getType().name(),
                 event.getXpCost(),
                 event.getEconomyCost()
         );

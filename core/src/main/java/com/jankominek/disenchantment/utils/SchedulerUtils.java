@@ -1,6 +1,7 @@
 package com.jankominek.disenchantment.utils;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.plugin.Plugin;
 
@@ -21,6 +22,8 @@ public class SchedulerUtils {
     private static Method getGlobalRegionScheduler;
     private static Method getAsyncScheduler;
     private static Method entityGetScheduler;
+    private static Method getRegionScheduler;
+    private static Method regionRunDelayed;
 
     // Execution Methods
     private static Method globalRun;
@@ -34,41 +37,62 @@ public class SchedulerUtils {
     private static Method asyncCancelTasks;
 
     static {
-        boolean folia;
-        try {
-            Class.forName("io.papermc.paper.threadedregions.RegionizedServer");
-            folia = true;
+        boolean folia = detectFolia();
 
-            // Classes
-            Class<?> globalSchedulerClass = Class.forName("io.papermc.paper.threadedregions.scheduler.GlobalRegionScheduler");
-            Class<?> asyncSchedulerClass = Class.forName("io.papermc.paper.threadedregions.scheduler.AsyncScheduler");
-            Class<?> entitySchedulerClass = Class.forName("io.papermc.paper.threadedregions.scheduler.EntityScheduler");
-            Class<?> scheduledTaskClass = Class.forName("io.papermc.paper.threadedregions.scheduler.ScheduledTask");
+        if (folia) {
+            try {
+                // Classes
+                Class<?> globalSchedulerClass = Class.forName("io.papermc.paper.threadedregions.scheduler.GlobalRegionScheduler");
+                Class<?> asyncSchedulerClass = Class.forName("io.papermc.paper.threadedregions.scheduler.AsyncScheduler");
+                Class<?> entitySchedulerClass = Class.forName("io.papermc.paper.threadedregions.scheduler.EntityScheduler");
+                Class<?> scheduledTaskClass = Class.forName("io.papermc.paper.threadedregions.scheduler.ScheduledTask");
 
-            // Getters
-            getGlobalRegionScheduler = Bukkit.class.getMethod("getGlobalRegionScheduler");
-            getAsyncScheduler = Bukkit.class.getMethod("getAsyncScheduler");
-            entityGetScheduler = Entity.class.getMethod("getScheduler");
+                // Getters
+                getGlobalRegionScheduler = Bukkit.class.getMethod("getGlobalRegionScheduler");
+                getAsyncScheduler = Bukkit.class.getMethod("getAsyncScheduler");
+                entityGetScheduler = Entity.class.getMethod("getScheduler");
+                getRegionScheduler = Bukkit.class.getMethod("getRegionScheduler");
+                Class<?> regionSchedulerClass = Class.forName("io.papermc.paper.threadedregions.scheduler.RegionScheduler");
+                regionRunDelayed = regionSchedulerClass.getMethod("runDelayed", Plugin.class, Location.class, Consumer.class, long.class);
 
-            // Runners
-            globalRun = globalSchedulerClass.getMethod("run", Plugin.class, Consumer.class);
-            entityRun = entitySchedulerClass.getMethod("run", Plugin.class, Consumer.class, Runnable.class);
-            entityRunDelayed = entitySchedulerClass.getMethod("runDelayed", Plugin.class, Consumer.class, Runnable.class, long.class);
-            asyncRunAtFixedRate = asyncSchedulerClass.getMethod("runAtFixedRate", Plugin.class, Consumer.class, long.class, long.class, java.util.concurrent.TimeUnit.class);
+                // Runners
+                globalRun = globalSchedulerClass.getMethod("run", Plugin.class, Consumer.class);
+                entityRun = entitySchedulerClass.getMethod("run", Plugin.class, Consumer.class, Runnable.class);
+                entityRunDelayed = entitySchedulerClass.getMethod("runDelayed", Plugin.class, Consumer.class, Runnable.class, long.class);
+                asyncRunAtFixedRate = asyncSchedulerClass.getMethod("runAtFixedRate", Plugin.class, Consumer.class, long.class, long.class, java.util.concurrent.TimeUnit.class);
 
-            // Cancellers
-            taskCancel = scheduledTaskClass.getMethod("cancel");
-            globalCancelTasks = globalSchedulerClass.getMethod("cancelTasks", Plugin.class);
-            asyncCancelTasks = asyncSchedulerClass.getMethod("cancelTasks", Plugin.class);
-        } catch (Exception e) {
-            folia = false;
+                // Cancellers
+                taskCancel = scheduledTaskClass.getMethod("cancel");
+                globalCancelTasks = globalSchedulerClass.getMethod("cancelTasks", Plugin.class);
+                asyncCancelTasks = asyncSchedulerClass.getMethod("cancelTasks", Plugin.class);
+            } catch (Exception e) {
+                folia = false;
+            }
         }
 
         IS_FOLIA = folia;
     }
 
     /**
-     * Returns whether this server is running Folia (detected at class load time via reflection).
+     * Detects Folia by requiring both Folia's {@code RegionizedServer} class and the
+     * {@code Bukkit.getGlobalRegionScheduler()} accessor. Any failure means Folia is not present.
+     *
+     * @return {@code true} if this server runs Folia
+     */
+    private static boolean detectFolia() {
+        try {
+            Class.forName("io.papermc.paper.threadedregions.RegionizedServer");
+            Bukkit.class.getMethod("getGlobalRegionScheduler");
+
+            return true;
+        } catch (Throwable t) {
+            return false;
+        }
+    }
+
+    /**
+     * Returns whether this server is running Folia. The result is detected once at class load time
+     * and cached; this is the single shared Folia check for the plugin.
      *
      * @return {@code true} if Folia's regionized scheduler is available
      */
@@ -140,6 +164,30 @@ public class SchedulerUtils {
             }
         } else {
             Bukkit.getScheduler().runTaskLater(plugin, task, delayTicks);
+        }
+    }
+
+    /**
+     * Runs a delayed task on the region thread owning the location (Folia) or the main server thread
+     * (Spigot). Use this, not the entity scheduler, for block and chunk work.
+     *
+     * @param plugin     the owning plugin
+     * @param location   the location whose region thread to run on
+     * @param task       the task to execute
+     * @param delayTicks the delay in ticks before execution (at least 1)
+     */
+    public static void runForLocationLater(Plugin plugin, Location location, Runnable task, long delayTicks) {
+        long delay = Math.max(1L, delayTicks);
+
+        if (IS_FOLIA) {
+            try {
+                Object scheduler = getRegionScheduler.invoke(Bukkit.getServer());
+                regionRunDelayed.invoke(scheduler, plugin, location, (Consumer<Object>) (t) -> task.run(), delay);
+            } catch (Exception e) {
+                logger.warning("[SCHEDULER] runForLocationLater (Folia) failed: " + e.getMessage());
+            }
+        } else {
+            Bukkit.getScheduler().runTaskLater(plugin, task, delay);
         }
     }
 

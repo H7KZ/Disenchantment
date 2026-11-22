@@ -47,9 +47,27 @@ argument.
 Config.invalidateCaches();
 ```
 
-Nulls `Config.Disenchantment.ENCHANTMENT_STATES_CACHE` and `Config.Shatterment.ENCHANTMENT_STATES_CACHE`. Called by
-`ConfigUtils.setupConfig()` after a reload. Enchantment states are parsed from a `List<String>` and cached as a
-`HashMap<String, EnchantmentStateType>`; this method clears that cache so the next read re-parses from the updated YAML.
+Nulls every cache on both `Config.Disenchantment` and `Config.Shatterment`: `ENCHANTMENT_STATES_CACHE`,
+`ENCHANTMENT_CHANCES_CACHE`, `REPAIR_COSTS_CACHE` (`getEnchantmentCosts`) and `REPAIR_ECONOMY_COSTS_CACHE`
+(`getEnchantmentEconomyCosts`). Called by `ConfigUtils.setupConfig()` after a reload. These values are read on every
+`PrepareAnvilEvent`, so they are parsed once and cached (chances/costs as **unmodifiable** maps); the next read after
+invalidation re-parses from the updated YAML.
+
+Setters that write a cached key must null or refresh the matching cache themselves (`setEnchantmentChance` nulls it,
+`setEnchantmentStates` replaces it). Anything that edits those keys without a setter (tests, `config.set`) must call
+`Config.invalidateCaches()`; `DisenchantmentTestBase.setConfig` does.
+
+`Config.isReadOnly()` / `setReadOnly(boolean)`: when true all saves are suppressed (see `ConfigUtils.setupConfig()`).
+
+Other accessors added with migration 13: `Config.isUpdateCheckerEnabled()` (`update-checker`, default `true`) and
+`Config.getOperationsRetentionDays()` / `Config.Logging.getOperationsRetentionDays()` (`logging.operations-retention-days`,
+default `0` = keep forever, negatives read as `0`).
+
+`Config.Grindstone` (appended at the end of `Config.java`) holds the grindstone settings: `isEnabled()`, `isCursesEnabled()`,
+`getPrepareEventPriority()` / `getClickEventPriority()`, nested `Sound`, `Repair`, `Economy` and `Transfer`
+(`isEnabled()`, `isAllowOverMax()`, `getMaxEnchantments()`, own `Repair` and `Economy`). Values are read straight from the
+config on every call (no caches, so `invalidateCaches()` needs no entry). The `grindstone:` section and the
+`grindstone`/`grindstone-click` event priorities are part of migration 13 (unreleased, so no separate step).
 
 ---
 
@@ -67,6 +85,13 @@ Config
 ├── Logging (static inner class)
 │   ├── getLevel()                → LogLevelType
 │   └── isSaveReportsEnabled()    → boolean
+├── SpecialAnvils (static inner class, read-only accessors, no setters/caches)
+│   ├── getMode()                 → SpecialAnvilMode (unknown → ALL)
+│   ├── getBlockBelow()           → Material (unknown / non-block → LAPIS_BLOCK)
+│   ├── isAllowVirtualAnvils() / isDropSpecialItem() / isHintMessageEnabled()
+│   ├── getItemName() / getItemLore()   → raw strings with '&' codes
+│   ├── isRecipeEnabled() / getRecipeShape() / getRecipeIngredients()
+│   └── validate()                → startup warnings (logged by Disenchantment.enable()/reload())
 ├── Disenchantment (static inner class)
 │   ├── isEnabled() / setEnabled(boolean)
 │   ├── getDisabledWorlds() / setDisabledWorlds(List<World>)
@@ -97,6 +122,8 @@ Config
     └── Anvil (static inner class)    [same shape as Disenchantment.Anvil]
 ```
 
+Two further read-only sections sit at the end of `Config`: `Config.Feedback` (`Particles`, `FailureSound`, `isNotEnoughXpMessageEnabled()`, `isPreviewLoreEnabled()`) and `Config.Erase` (`isEnabled()`, `getCatalysts()`, `isConsumeCatalyst()`, `isEraseCurses()`, the two event priorities, and `Economy` / `Anvil.Sound` / `Anvil.Repair` shaped like the disenchantment ones). They have no setters and no caches - every accessor reads the live config with a default, so a config without the section (and a migrated one) behaves like the template.
+
 All setters return `boolean` — `true` if the persisted value equals the requested value (a sanity check). Most callers
 ignore the return value.
 
@@ -115,6 +142,8 @@ Key groups:
 | `EVENT_PRIORITIES_*` | `EVENT_PRIORITIES_DISENCHANT`                               | `event-priorities.` |
 | `DISENCHANTMENT_*`   | `DISENCHANTMENT_ENABLED`, `DISENCHANTMENT_REPAIR_COST_BASE` | `disenchantment.`   |
 | `SHATTERMENT_*`      | `SHATTERMENT_ENABLED`, `SHATTERMENT_SPLIT_COUNT`            | `shatterment.`      |
+| `FEEDBACK_*`        | `FEEDBACK_PARTICLES_TYPES`, `FEEDBACK_PREVIEW_LORE`           | `feedback.`         |
+| `ERASE_*`           | `ERASE_ENABLED`, `ERASE_CATALYSTS`                           | `erase.`            |
 
 Each constant has `getKey()` returning the dot-path string.
 
@@ -185,20 +214,48 @@ Each constant has `getKey()`.
 
 `utils/ConfigUtils.java`
 
-### `setupConfig()`
+### `setupConfig()` → `boolean`
+
+Returns `true` if the on-disk config was loaded, `false` if the bundled defaults are in use (parse failure). Callers
+(`Disenchantment.enable()/reload()`) ignore the return value; they only need the side effects below.
 
 1. `plugin.saveDefaultConfig()` — extracts `config.yml` from JAR if not present.
-2. Loads the existing `config.yml` from disk as `oldConfig`.
+2. **Strict load** — `new YamlConfiguration().load(file)`. (`YamlConfiguration.loadConfiguration(File)` swallows
+   parse errors into an empty config, which used to be migrated and saved over the user's file.)
+   - **On `InvalidConfigurationException`/`IOException`:** log `SEVERE` with the parser message, copy the file to
+     `config.yml.broken-<yyyyMMdd-HHmmss>`, **do not save**, then after `plugin.reloadConfig()` overwrite the in-memory
+     config with the bundled defaults and call `Config.setReadOnly(true)`.
 3. Loads the bundled `config.yml` from the JAR as `newConfig` (the template).
-4. Calls `ConfigMigrations.apply(plugin, oldConfig, newConfig)` — returns the migrated config.
-5. Saves the migrated config back to `config.yml`.
-6. Calls `plugin.reloadConfig()` and `Config.invalidateCaches()`.
+4. `applyAndSave`: `ConfigMigrations.apply(plugin, oldConfig, newConfig)`. If it throws, the file is left untouched.
+   If `oldVersion >= newVersion` nothing is rewritten. Otherwise `config.yml` is copied to `config.yml.bak`
+   (`REPLACE_EXISTING`) **before** the migrated config is saved; if the backup fails the save is skipped.
+5. Calls `plugin.reloadConfig()`, `Config.setReadOnly(!loaded)`, `Config.invalidateCaches()`. Validation runs later, in
+   `Disenchantment.enable()/reload()` (see [ConfigValidator](#configvalidator)).
+
+### `validateConfigFile()` → `String`
+
+Strict parse of `config.yml` with no side effects; returns `null` when it is valid (or missing), otherwise the parser
+message. `Reload.execute` calls it first and refuses to reload on an error, so a running server keeps its current
+settings instead of dropping to defaults.
+
+### Read-only mode (`Config.isReadOnly()`)
+
+While `readOnly` is true, `Config.save()` and `Config.commitBatch()` skip `plugin.saveConfig()`. This guarantees
+commands/GUI edits cannot overwrite a broken file. It is recomputed on every `setupConfig()`.
 
 ### `setupLocaleConfigs()`
 
-Iterates `Config.getLocales()` (the `locales` list in config.yml). For each locale code, checks if
-`plugins/Disenchantment/locales/<locale>.yml` already exists. If it does, skips (preserving custom translations). If
-not, calls `plugin.saveResource(...)` to extract from the JAR.
+Iterates `Config.getLocales()` (the `locales` list in config.yml). For each locale code:
+
+- file missing → `plugin.saveResource(...)` extracts it from the JAR;
+- file present → `mergeMissingLocaleKeys(locale, file)`: loads the user's file strictly (a parse error is logged and the
+  file left alone), adds every leaf key present in the bundled `locales/<locale>.yml` but absent from the user's file,
+  and saves only if something was added. User values are never changed. Locale files carry no comments, so rewriting
+  them loses nothing.
+
+`Disenchantment` loads `localeConfig` from the (now merged) file, so new keys are visible without any `I18n` change.
+Keep `en.yml` and `cs.yml` key sets identical — `LocaleMergeTest.bundledLocalesDefineTheSameKeys` enforces it. A custom
+locale that is not in the `locales` list is not merged.
 
 ---
 
@@ -240,6 +297,71 @@ Each migration step returns the updated `FileConfiguration`. Typically it copies
 | 7    | `Migration7` | Adds new keys                                                           |
 | 8    | `Migration8` | Adds new keys                                                           |
 | 9    | `Migration9` | Adds economy keys (`disenchantment.economy.*`, `shatterment.economy.*`) |
+| 10   | `Migration10` | Adds `enchantment-chances` and `anvil.repair.max-cost`                 |
+| 11   | `Migration11` | Adds `cost-multiplier.luckperms` and `cooldown.*`                      |
+| 12   | `Migration12` | Moves flat `disabled-worlds`/`disabled-materials` into `worlds`/`materials` `{mode, list}` |
+| 13   | `Migration13` | Adds `update-checker: true`, `logging.operations-retention-days: 0`, the `feedback` section (defaults on) and the `erase` section (`enabled: false`) plus `event-priorities.erase` / `erase-click`. Copies **leaf** keys only, so the template's new defaults inside existing sections (`logging`) survive |
+
+Each step needs both a `MigrationN` class and a full-default `migrations/N.yml` template; `ConfigMigrations.apply`
+saves the template of the *last* step, so every `migrations/N.yml` must contain every key of that version. The migrated
+file is only written (after a `config.yml.bak` backup) when `oldVersion < newVersion`.
+
+---
+
+## Total getters and validation
+
+Every `Config` getter is **total**: it never throws and never returns a value that would break a caller, for any YAML
+input. Two classes make that uniform:
+
+| Class                      | Role                                                                                                                                                                                                                                                                                                       |
+|----------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `config/ConfigSpec.java`   | Table of every scalar option: kind (`BOOLEAN`, `DECIMAL`, `INTEGER`, `ENUM`, `STRING`), default, min/max, pattern. `resolve(raw)` returns the effective value, `problem(raw)` explains what was wrong.                                                                                                      |
+| `config/ConfigValues.java` | Lenient parsers. `bool/decimal/integer/enumeration/string(ConfigKeys)` read a scalar through its spec. `parseEnchantmentStates`, `parseChances`, `parseXpCosts`, `parseEconomyCosts`, `parseGroups`, `parseMaterials`, `parseSplitCount` handle structured options; they take an optional `problems` list (getters pass `null`, the validator passes a list). |
+
+Because the getters and the validator call the same code, a warning always describes what the plugin actually does.
+
+Rules the parsers follow:
+
+- Numbers: any `Number`, or a numeric string (`","` accepted as decimal separator). NaN/Infinity are rejected, results
+  are clamped to the spec range. A non-number yields the default, never `0`.
+- Booleans: real booleans or the strings `true`/`false` (any case); anything else yields the default.
+- Enums: trimmed, `Locale.ROOT` upper-casing, `-`/space read as `_`; unknown yields the default.
+- `enchantments-states`: `key:state`, `ns:key:state` (namespace dropped) or the YAML mistake `- key: state`. Entries with
+  no/unknown state are skipped; keys are lower-cased. `EnchantmentStateType.getStateByName` is null-safe.
+- `enchantment-chances` / `enchantment-costs`: unusable entries are **skipped** (a skipped chance means "always
+  succeeds", a skipped cost means "use the formula"); keys are lower-cased, so `AnvilCostUtils` lower-cases the lookup key.
+- `split-count`: number, `{min, max}` (a missing bound mirrors the other), or a string `"2-5"`/`"2..5"`/`"2 to 5"`;
+  reversed ranges are swapped; clamped to 1-`MAX_SPLIT_COUNT` (255).
+- Material names go through `ConfigValues.matchMaterial` (`Material.matchMaterial` plus a case-insensitive
+  `minecraft:` prefix; legacy materials rejected). `disenchant:materials` uses the same method.
+- `setDisabledWorlds` / `setDisabledMaterials` merge back stored names that do not currently resolve
+  (`ConfigValues.keepUnresolved`), so editing a list never drops hand-written entries.
+- `setVolume` / `setPitch` store the clamped value.
+
+### ConfigValidator
+
+`config/ConfigValidator.java` collects `ConfigIssue(path, message)` records and never modifies the file.
+
+- `validateAndLog()` is called from `Disenchantment.enable()` and `Disenchantment.reload()` right after the plugin
+  adapters are activated (so loaded worlds are visible). It logs one `Config: <path>: <message>` warning per issue plus a
+  `Config: N problems found, see above.` summary, and stores the result for `getLastIssues()`.
+- `validate(FileConfiguration, FileConfiguration template)` is the pure, testable core.
+- Checks: every `ConfigSpec` (`spec.problem`); unknown/misspelt keys against the bundled `config.yml` (empty template
+  sections such as `enchantment-chances: { }` are user-defined maps and are not recursed; "did you mean" uses edit
+  distance); restriction `mode`/`list` shape; `ALLOWLIST` with an empty list (this replaced the
+  `Config.validateRestrictions()` call in `setupConfig`; the old method remains but is no longer invoked); `erase.catalysts`
+  (unknown / BOOK / air / none usable), `special-anvils.block-below` and the recipe (`SpecialAnvilRecipe.validate()`, only while
+  enabled), particle lists with no resolvable name (`ParticleUtils.exists`), costs of erase and grindstone; unknown
+  materials; worlds not currently loaded (only when at least one world is loaded); enchantment keys in states / chances /
+  costs / groups; malformed state entries; split-count; locale file availability; webhook shape.
+- Enchantment keys are checked against `Registry.ENCHANTMENT`. Plugin adapters do not expose their key lists, so a bare
+  non-vanilla key gets a soft warning ("ignore if it comes from a custom enchantment plugin") and keys in another
+  namespace are accepted. `foreignNamespaceKeys` remembers `ns:key:state` entries because the state parser drops the namespace.
+- Single reporter: the ad-hoc startup warnings of the erase / special-anvils / feedback features were removed
+  (`EraseUtils.validateConfig` and its parse warnings, `Config.SpecialAnvils.validate()`, the `ParticleUtils.resolve` and
+  `SpecialAnvilRecipe.build` warnings). The validator is the only place a config problem is logged, so each is reported once.
+- Exposure: `Reload` prints the problem count to the sender, `DiagnosticUtils.buildReport` adds a `Config Problems` block.
+- Tests: `ConfigTotalityTest` (junk input against every getter), `ConfigValidatorTest`, `ConfigValidationWiringTest`.
 
 ---
 
@@ -249,12 +371,15 @@ Each migration step returns the updated `FileConfiguration`. Typically it copies
    ```java
    MY_NEW_KEY("disenchantment.my-new-key"),
    ```
-2. Add a getter (and optional setter) to the appropriate inner class in `Config.java`:
+2. Register it in the `ConfigSpec` static block (`bool(ConfigKeys.MY_NEW_KEY, false);`, or `decimal`/`integer`/
+   `enumeration`/`string` with default and range). Then add a getter (and optional setter) to the appropriate inner
+   class in `Config.java` that reads through `ConfigValues` so the value is always valid:
    ```java
    public static boolean isMyNewKeyEnabled() {
-       return config.getBoolean(ConfigKeys.MY_NEW_KEY.getKey(), false);
+       return ConfigValues.bool(ConfigKeys.MY_NEW_KEY);
    }
    ```
+   Never call `config.getBoolean/getInt/getDouble` directly: they return `0`/`false` for wrong types and let NaN through.
 3. Add the default value to `core/src/main/resources/config.yml`.
 4. Bump the `migration` counter in `config.yml` and create `migrations/<N>.yml` that copies existing keys into the new
    template.

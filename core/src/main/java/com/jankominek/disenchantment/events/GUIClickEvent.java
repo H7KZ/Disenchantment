@@ -9,6 +9,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.inventory.InventoryHolder;
 
 /**
@@ -16,6 +17,12 @@ import org.bukkit.inventory.InventoryHolder;
  * Checks the clicked inventory holder type and delegates to the matching
  * GUI implementation (navigation, repair, sound, worlds, materials, or enchantments)
  * after verifying the player's permissions.
+ *
+ * <p>While one of the plugin GUIs is the open (top) inventory, <b>every</b> click and drag in that
+ * view is cancelled at this router level first &mdash; this covers shift-clicks from the player's
+ * inventory, double-click collect-to-cursor, number-key swaps, clicks on empty slots, drags and
+ * permission-denied clicks. Clicks on the GUI inventory itself are then dispatched to the GUI's
+ * item handlers.</p>
  */
 public class GUIClickEvent implements Listener {
     /**
@@ -33,10 +40,56 @@ public class GUIClickEvent implements Listener {
         }
     }
 
+    /**
+     * Cancels any drag that happens while a plugin GUI is the open (top) inventory.
+     * Drags that only touch the player's own inventory are cancelled too, which is strict but
+     * harmless: no legitimate interaction with these GUIs involves dragging.
+     *
+     * @param event the inventory drag event
+     */
+    @EventHandler(priority = EventPriority.NORMAL)
+    public void onEvent(InventoryDragEvent event) {
+        try {
+            // getInventory() is the top inventory; avoids InventoryView (class vs. interface across MC versions)
+            if (isPluginGui(event.getInventory().getHolder())) event.setCancelled(true);
+        } catch (Exception e) {
+            DiagnosticUtils.throwReport(e);
+        }
+    }
+
+    private static boolean isPluginGui(InventoryHolder holder) {
+        return holder instanceof NavigationGUI
+                || holder instanceof RepairGUI
+                || holder instanceof SoundGUI
+                || holder instanceof WorldsGUI
+                || holder instanceof MaterialsGUI
+                || holder instanceof EnchantmentsGUI
+                || holder instanceof EconomyGUI
+                || holder instanceof SplitCountGUI
+                || holder instanceof StatsGUI
+                || holder instanceof BedrockAnvilGUI;
+    }
+
     private void handler(InventoryClickEvent e) {
+        // Cancel first, for every click (top or bottom inventory, any click type) while our GUI is open.
+        // Individual GUI item handlers may only rely on this; none re-enable the event.
+        boolean preCancelled = e.isCancelled();
+        if (isPluginGui(e.getInventory().getHolder())) e.setCancelled(true);
+
+        // An earlier veto (a freeze/protection plugin) wins: the GUI actions edit the config or, for the Bedrock
+        // anvil menu, charge the player and move items by hand.
+        if (preCancelled) return;
+
         if (e.getClickedInventory() == null) return;
 
         if (!(e.getWhoClicked() instanceof Player p)) return;
+
+        // The Bedrock anvil menu works with clicks in the player's own inventory too (tapping an item puts it in),
+        // so it gets the event whichever half of the window was clicked.
+        if (e.getInventory().getHolder() instanceof BedrockAnvilGUI bedrockAnvilGUI) {
+            bedrockAnvilGUI.onInventoryClick(e);
+            return;
+        }
 
         InventoryHolder clickedHolder = e.getClickedInventory().getHolder();
 

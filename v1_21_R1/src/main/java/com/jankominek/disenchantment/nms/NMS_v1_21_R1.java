@@ -19,6 +19,7 @@ import org.bukkit.profile.PlayerTextures;
 import java.net.URI;
 import java.net.URL;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.jankominek.disenchantment.Disenchantment.logger;
 import static org.bukkit.Bukkit.getServer;
@@ -79,6 +80,24 @@ public class NMS_v1_21_R1 implements NMS {
         };
     }
 
+    private static final AtomicBoolean unsupportedViewWarned = new AtomicBoolean(false);
+
+    /**
+     * Logs a single warning the first time the inventory view is not an {@link AnvilView}. Plugins such as
+     * Geyser can substitute custom view types, in which case repair cost handling is skipped; later occurrences
+     * are swallowed silently.
+     *
+     * @param inventoryView the unexpected inventory view
+     * @param e             the {@link ClassCastException} raised by the cast
+     */
+    private static void warnUnsupportedView(InventoryView inventoryView, ClassCastException e) {
+        if (unsupportedViewWarned.compareAndSet(false, true)) {
+            logger.warning("Anvil view of type " + inventoryView.getClass().getName() + " is not an AnvilView; "
+                    + "repair cost handling skipped. This can be caused by Geyser or other plugins using custom view types. "
+                    + "Further occurrences are not logged. (" + e.getMessage() + ")");
+        }
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -89,6 +108,8 @@ public class NMS_v1_21_R1 implements NMS {
 
             return anvilView.getRepairCost();
         } catch (ClassCastException e) {
+            warnUnsupportedView(inventoryView, e);
+
             return 0;
         }
     }
@@ -113,7 +134,8 @@ public class NMS_v1_21_R1 implements NMS {
             AnvilView anvilView = (AnvilView) inventoryView;
 
             anvilView.setRepairCost(repairCost);
-        } catch (ClassCastException ignored) {
+        } catch (ClassCastException e) {
+            warnUnsupportedView(inventoryView, e);
         }
     }
 

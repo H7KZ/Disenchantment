@@ -60,6 +60,16 @@ public class EconomyUtils {
     }
 
     /**
+     * Injects an economy provider directly, bypassing the Vault service lookup. Intended for
+     * tests (and any bootstrap that already holds a provider); pass {@code null} to unhook.
+     *
+     * @param provider the economy provider to use, or {@code null} to clear it
+     */
+    public static void setProvider(Economy provider) {
+        economy = provider;
+    }
+
+    /**
      * Returns whether a Vault economy provider is currently available.
      *
      * @return {@code true} if economy operations can be performed
@@ -92,6 +102,20 @@ public class EconomyUtils {
         EconomyResponse response = economy.withdrawPlayer(player, amount);
         String detail = response.errorMessage != null && !response.errorMessage.isEmpty() ? " (" + response.errorMessage + ")" : "";
         DiagnosticUtils.debug("ECONOMY", "withdraw(" + player.getName() + ", " + amount + ") → " + response.type.name() + detail);
+        return response;
+    }
+
+    /**
+     * Deposits the given amount into the player's economy balance. Used to hand a payment back when the operation
+     * it paid for could not be delivered.
+     *
+     * @param player the player to pay back
+     * @param amount the amount to deposit
+     * @return the {@link EconomyResponse} from the economy plugin
+     */
+    public static EconomyResponse deposit(Player player, double amount) {
+        EconomyResponse response = economy.depositPlayer(player, amount);
+        DiagnosticUtils.debug("ECONOMY", "deposit(" + player.getName() + ", " + amount + ") → " + (response != null ? response.type.name() : "null"));
         return response;
     }
 

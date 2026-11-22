@@ -82,7 +82,9 @@ public class ItemBuilder {
     public ItemBuilder setGlow(boolean glow) {
         if (glow) {
             this.addEnchantment(Enchantment.KNOCKBACK, 1);
-            this.addItemFlag(ItemFlag.HIDE_ENCHANTS);
+
+            ItemFlag hideEnchants = resolveItemFlag("HIDE_ENCHANTS");
+            if (hideEnchants != null) this.addItemFlag(hideEnchants);
         } else {
             ItemMeta meta = this.getItemMeta();
 
@@ -241,6 +243,22 @@ public class ItemBuilder {
 
         return this;
 
+    }
+
+    /**
+     * Resolves an {@link ItemFlag} constant by name. Flags are looked up reflectively so that a
+     * constant renamed or removed in a newer Minecraft API is skipped instead of failing the GUI
+     * with a linkage error.
+     *
+     * @param name the constant name, e.g. {@code "HIDE_ENCHANTS"}
+     * @return the matching flag, or {@code null} if the constant is missing on this server
+     */
+    static ItemFlag resolveItemFlag(String name) {
+        try {
+            return (ItemFlag) ItemFlag.class.getField(name).get(null);
+        } catch (Exception | LinkageError e) {
+            return null;
+        }
     }
 
     /**
