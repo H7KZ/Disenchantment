@@ -28,7 +28,7 @@ state leaks between tests. Config patches go through `Cfg` (see "Config isolatio
 | `BedrockMenuE2E` | paper@26.3 and folia@26.3: `/disenchantment anvil` with PREFIX detection opens the chest menu, asserted from the server side with `PlayerState.openWindow` (type `chest`, title, 27 slots, button items); paired controls: fallback off, and a name without a configured prefix, each leave no window open |
 | `NmsModuleE2E` | every cell: the plugin's start-up line `NMS module: <class>`, read with `Agent.bootLogLines()`, names the module that cell's Minecraft version maps to (1.18.2 and 1.20.4 `NMS_v1_18_R1`, 1.20.6 `NMS_v1_20_R4`, 1.21.11 and 26.3 `NMS_v1_21_R5`) |
 | `SpecialAnvilPlacementE2E` | paper@26.3, paper@1.21.11, folia@26.3: a special anvil really placed by the player (`placeBlock` against stone, `blockType` as oracle): `MARKED` mode works only on an anvil placed from the special item (paired with a plain anvil at the same spot, before and after); breaking a marked anvil in survival drops the special item (name and PDC byte), a plain anvil drops plain |
-| `RefundOnWriteFailureE2E` | paper@26.3, folia@26.3: the refund when writing the result fails (commit 4352679). The hooks plugin makes the plugin's anvil write throw after the charge (see "Test support plugins"); the money is refunded, no Post event, the injection is proven by the hooks counters; control: with the failure off the same window charges once. The levels-and-items test is a reported skip: it found a bug (see "Write-failure injection") |
+| `RefundOnWriteFailureE2E` | paper@26.3, folia@26.3: the refund when writing the result fails (commit 4352679). The hooks plugin makes the plugin's anvil write throw after the charge (see "Test support plugins"); the money is refunded, no Post event, the injection is proven by the hooks counters; control: with the failure off the same window charges once. The levels-and-items test (`aFailedWriteLeavesTheLevelsAndTheItemsAsTheyWere`) found a plugin bug, fixed by PR #88, and is enabled (see "Write-failure injection") |
 | `SkippedScenariosE2E` | reported skips, each with its reason (see "Proofstone gaps") |
 
 Cells: `paper@1.18.2`, `paper@1.20.4` (module `v1_18_R1`), `paper@1.20.6` (`v1_20_R4`), `paper@1.21.11` and `paper@26.3`
@@ -68,11 +68,12 @@ thread issue arose. The plugin reports the exception through its crash report (a
 which Proofstone's log guard would read as an unexpected error; the hooks plugin drops exactly that pair from the plugin's logger and
 counts it, and every test asserts the counts (armed 1, thrown 1, 1 report, 1 notice), so the expected failure is proven, not hidden.
 
-**Finding (not fixed here, production code untouched).** After the refund the plugin's click handler rethrows into `onEvent`, which
-reports and returns without cancelling the click, so vanilla then completes the take: the player pays vanilla's XP (30 to 17), the sword is
-consumed and the book lands on the cursor, with the money refunded. `aFailedWriteLeavesTheLevelsAndTheItemsAsTheyWere` asserts the
-strict outcome (levels unchanged, sword and blank book intact, no book) and was red on both cells (`C:\pw\dis-ev-m9\explore2-paper*`,
-`explore2-folia*`); it is `@Disabled` with that reason so the suite stays green, assertions unchanged.
+**Finding (fixed by PR #88).** After the refund the plugin's click handler rethrew into `onEvent`, which reported and returned without
+cancelling the click, so vanilla then completed the take: the player paid vanilla's XP (30 to 17), the sword was consumed and the book
+landed on the cursor, with the money refunded. `aFailedWriteLeavesTheLevelsAndTheItemsAsTheyWere` asserts the strict outcome (levels
+unchanged, sword and blank book intact, no book) and was red on both cells before the fix (`C:\pw\dis-ev-m9\explore2-paper*`,
+`explore2-folia*`). PR #88 (roll back partial writes, cancel only on write failure) fixed it; the test was re-enabled with its assertions
+unchanged (results under "Write-failure fix").
 
 ## Config isolation
 
@@ -226,6 +227,23 @@ Every client cursor read after a click now uses `awaitCursor` (see "Reading the 
 
 Evidence under `C:\pw\dis-ev-cursor\`.
 
+### Write-failure fix (PR #88 merged, strict test re-enabled)
+
+`origin/fix/audit-findings` (PR #88: roll back partial writes, cancel only on write failure) merged into this branch and
+`aFailedWriteLeavesTheLevelsAndTheItemsAsTheyWere` re-enabled with its assertions unchanged. Pin `f5957cc`, plugin jar built from the merged tip
+(contains `AnvilOperations$WriteFailedException`). 16 classes, 52 tests per cell (51 run, 1 reported skip: the drag). One invocation per run, no
+retries, no sleeps, no timeout changes. Evidence under `C:\pw\dis-ev-final\`.
+
+- paper@26.3, three separate invocations: **3 of 3 green** (the strict test passes, 0 failures, 0 errors).
+- folia@26.3, five separate invocations: **0 of 5 green, inconclusive (host fault)**. Run 1: one failure, `UnsafeResultClickE2E.unsafeShatterResultClicksDeliverNothing`,
+  only the log guard (851 records, all `FoliaWatchdogThread` "tick region has not responded" dumps stuck in vanilla `NbtIo.writeCompressed` disk writes); the strict
+  test passed in that run. Run 2: all 52 skipped, `Docker is not available` (not a pass). Runs 3 to 5: server start timeouts
+  (`Failed to download mojang_26.3.jar ... Connection timed out`), conformance-client join stalls and more watchdog dumps. The Docker/WSL host was degraded
+  (disk I/O stalls, container network outage); runs 3 and 4 took over an hour against ~12 minutes normally. No `WriteFailedException`, snapshot or restore message in any red log.
+- paper@1.21.11, one invocation: **red, same host fault** (13 errors: `curl exited 28` timeouts, `RefundOnWriteFailureE2E` errored at server start, not at an assertion).
+
+The folia and 1.21.11 acceptance has to be repeated on a healthy host; it is not claimed green here.
+
 ## Proofstone gaps
 
 Scenarios the suite keeps as reasoned skips (`SkippedScenariosE2E`) or checks more weakly than it should, and the Proofstone
@@ -247,7 +265,7 @@ itself is still read only by its effect (`MARKED` mode), because no API reads a 
    covers the fallback in core.
 3. **A fault-injection hook for write failures**: No-go in Proofstone (ADR-0002 keeps fault injection out of the agent; the spike found no
    event on the plugin's inventory writes). Closed on this side by the hooks-plugin injection (`RefundOnWriteFailureE2E`, see "Write-failure
-   injection"): the refund is covered; only the strict levels-and-items assertion is a reported skip, because of a plugin finding.
+   injection"): the refund and the strict levels-and-items outcome (plugin bug fixed by PR #88) are covered.
 4. **Console command output**: `Agent.command` replies are best effort, so `/disenchantment reload` is checked by its effect.
    An `Agent.reload(plugin)` that runs the plugin's declared reload hook and reports failure would let `Cfg` assert the reload took
    effect instead of relying on the behaviour that follows.
@@ -271,7 +289,7 @@ always cleans. Evidence (logs, failsafe XML, repro bundles, `results.tsv`): `C:\
 | M6 | per-world disable ignored (`AnvilEventGuards.isWorldBlocked`) | DisabledWorldE2E | 1 / 1 | RED | aDisabledWorldGivesTheVanillaResult |
 | M7 | erase keeps the enchantments (`EraseUtils.buildResult`) | EraseModeE2E | 4 / 2 | RED | eraseDestroys..., eraseCurses... |
 | M8 | `MARKED` mode treats an unmarked anvil as special (`AnvilEventGuards.isSpecialBlock`) | SpecialAnvilE2E, SpecialAnvilPlacementE2E | 6 / 2 | RED | markedModeRefusesAnUnmarkedAnvil..., markedModeWorksOnlyOnAnAnvilPlacedFromTheSpecialItem |
-| M9 | no money refund when writing the result fails (`AnvilOperations.refund`) | RefundOnWriteFailureE2E | 3 / 1 (1 skipped) | RED | aFailedWriteRefundsTheMoney (balance 75.0, expected 100.0); the control and the clean code stay green. Was GREEN (hole) before the hooks-plugin injection |
+| M9 | no money refund when writing the result fails (`AnvilOperations.refund`) | RefundOnWriteFailureE2E | 3 / 1 (1 skipped, then) | RED | aFailedWriteRefundsTheMoney (balance 75.0, expected 100.0); the control and the clean code stay green. Was GREEN (hole) before the hooks-plugin injection |
 | M10 | stats: disenchant counter not incremented (`StatsCache.record`) | StatsE2E | 2 / 1 | RED | anAnvilDisenchantDoesNotTouchTheGrindstoneCounters |
 | M11 | grindstone transfer copies instead of moves (`GrindstoneOps.stripFromSource`) | GrindstoneE2E | 6 / 4 | RED | extract strips item, transfer moves, unsafe clicks, too little XP |
 
