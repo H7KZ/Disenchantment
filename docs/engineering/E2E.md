@@ -35,6 +35,8 @@ Cells: `paper@1.18.2`, `paper@1.20.4` (module `v1_18_R1`), `paper@1.20.6` (`v1_2
 (`v1_21_R5`, 26.x through the `LATEST` fallback), `folia@26.3`. Proofstone's `versions.yml` has no Paper row for 1.21 to 1.21.4
 (`v1_21_R1`) or 1.21.5 to 1.21.7 (`v1_21_R4`), so those two modules have no cell.
 
+**Known cell limits.** The survival-break scenario of `SpecialAnvilPlacementE2E` (`breakingAMarkedAnvilDropsTheSpecialItem`) makes the break instant with the block-break-speed attribute: `minecraft:block_break_speed` from 1.21.2 (and 26.x), `minecraft:player.block_break_speed` on 1.20.5 to 1.21.1, none on 1.18.2 and 1.20.4. The test picks the id from `Cell.version()` (`Agent.command`'s reply is best effort and must not be asserted on) and, where there is none, is a reported JUnit skip (`Assumptions`), never a pass. The plugin's behaviour for breaking a marked anvil in survival is therefore covered only on cells that have the attribute; the creative-mode placement scenarios run on every cell the class is run on.
+
 ## Test support plugins
 
 Two small plugins are built from `e2e/src/main` (Java 17, compiled against the Paper 1.18.2 API with no transitive libraries: an old
@@ -243,6 +245,18 @@ retries, no sleeps, no timeout changes. Evidence under `C:\pw\dis-ev-final\`.
 - paper@1.21.11, one invocation: **red, same host fault** (13 errors: `curl exited 28` timeouts, `RefundOnWriteFailureE2E` errored at server start, not at an assertion).
 
 The folia and 1.21.11 acceptance has to be repeated on a healthy host; it is not claimed green here.
+
+### Old cells: break-speed attribute (pin f5957cc)
+
+Quiet-host acceptance had paper@1.20.6, paper@1.20.4 and paper@1.18.2 red on `breakingAMarkedAnvilDropsTheSpecialItem` (`the anvil was broken`): `minecraft:block_break_speed` does not exist before 1.21.2. The test now uses `minecraft:player.block_break_speed` on 1.20.5 to 1.21.1 and skips with `Assumptions` on 1.18.2 and 1.20.4. Full suite, 52 tests, one invocation per run, no retries, evidence `C:\pw\dis-ev-oldcells\`:
+
+| cell | runs | result | skips |
+|---|---|---|---|
+| paper@1.20.6 | 2 | 2 of 2 green (0 failures, 0 errors) | the grindstone drag only (the break scenario runs and passes) |
+| paper@1.20.4 | 1 | green | the grindstone drag, the survival-break scenario (no attribute) |
+| paper@1.18.2 | 1 | green | the grindstone drag, the survival-break scenario (no attribute) |
+
+The earlier paper@1.18.2 agent event-class red (`Loaded class ... PostDisenchantEvent ... not a depend or softdepend`) did not recur. The earlier paper@1.20.6 `JoinTimeout` at `CONFIGURATION_STALLED` in `EconomyE2E` (Proofstone join-stall flake class) did not reproduce in 2 runs; it is open, nothing changed for it.
 
 ## Proofstone gaps
 

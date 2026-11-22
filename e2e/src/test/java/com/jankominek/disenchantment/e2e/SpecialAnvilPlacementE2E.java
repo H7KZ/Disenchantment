@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import io.github.h7kz.proofstone.api.Agent;
 import io.github.h7kz.proofstone.api.BlockPos;
 import io.github.h7kz.proofstone.api.CellTest;
+import io.github.h7kz.proofstone.api.Cell;
 import io.github.h7kz.proofstone.api.Client;
 import io.github.h7kz.proofstone.api.Face;
 import io.github.h7kz.proofstone.api.Item;
@@ -15,6 +16,7 @@ import io.github.h7kz.proofstone.api.PlayerHandle;
 import io.github.h7kz.proofstone.api.Proofstone;
 import io.github.h7kz.proofstone.api.Window;
 import java.util.Map;
+import org.junit.jupiter.api.Assumptions;
 
 /**
  * Special anvils that a player really places and breaks ({@code Client.placeBlock} / {@code breakBlock}, Proofstone T-M11-04): the
@@ -34,6 +36,26 @@ class SpecialAnvilPlacementE2E {
     /** Plain stone at (0,64,1); the anvil lands on it at (0,65,1), next to the player. */
     private static final BlockPos BASE = new BlockPos(0, 64, 1);
     private static final BlockPos PLACED = new BlockPos(0, 65, 1);
+
+    /**
+     * The block-break-speed attribute id of the cell's Minecraft version, or {@code null} when it has none. Added in 1.20.5 as
+     * {@code minecraft:player.block_break_speed}, renamed to {@code minecraft:block_break_speed} in 1.21.2 (26.x keeps that id).
+     * 1.18.2 and 1.20.4 have no such attribute, so a survival break there never completes in test time. The cell version is the
+     * only handle: {@code Agent.command}'s reply is best effort and must not be asserted on.
+     */
+    static String breakSpeedAttribute(Cell cell) {
+        String[] parts = cell.version().split("\\.");
+        int major = Integer.parseInt(parts[0]);
+        if (major != 1) {
+            return "minecraft:block_break_speed"; // 26.x and later
+        }
+        int minor = Integer.parseInt(parts[1]);
+        int patch = parts.length > 2 ? Integer.parseInt(parts[2]) : 0;
+        if (minor > 21 || (minor == 21 && patch >= 2)) {
+            return "minecraft:block_break_speed";
+        }
+        return minor > 20 || (minor == 20 && patch >= 5) ? "minecraft:player.block_break_speed" : null;
+    }
 
     private static PlayerHandle standByTheBase(Agent agent, Client client) {
         PlayerHandle player = Fixture.standNextTo(agent, client, "minecraft:stone");
@@ -128,10 +150,13 @@ class SpecialAnvilPlacementE2E {
      * only for a pickaxe), so the break completes at once; the player stands next to the block and picks the drop up.
      */
     @CellTest
-    void breakingAMarkedAnvilDropsTheSpecialItem(Agent agent, Client client) {
+    void breakingAMarkedAnvilDropsTheSpecialItem(Cell cell, Agent agent, Client client) {
+        String breakSpeed = breakSpeedAttribute(cell);
+        Assumptions.assumeTrue(breakSpeed != null, "Minecraft " + cell.version() + " has no block-break-speed attribute (added in 1.20.5), "
+                + "so a survival break cannot be made instant; the drop swap is covered on the cells that have it");
         PlayerHandle player = standByTheBase(agent, client);
         agent.command("gamemode survival " + client.name());
-        agent.command("attribute " + client.name() + " minecraft:block_break_speed base set 1000000");
+        agent.command("attribute " + client.name() + " " + breakSpeed + " base set 1000000");
 
         player.give(Item.of("anvil"));
         placeHeldAnvil(agent, client);
