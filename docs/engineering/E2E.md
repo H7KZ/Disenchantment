@@ -187,3 +187,44 @@ itself is still read only by its effect (`MARKED` mode), because no API reads a 
 4. **Console command output**: `Agent.command` replies are best effort, so `/disenchantment reload` is checked by its effect.
    An `Agent.reload(plugin)` that runs the plugin's declared reload hook and reports failure would let `Cfg` assert the reload took
    effect instead of relying on the behaviour that follows.
+
+## Mutation control checks
+
+Proof that the suite goes red on bugs a real regression would resemble. `e2e/mutation-check.py` applies ONE production-code mutation to a
+scratch worktree, runs `clean package`, runs only the e2e classes that should notice it on `paper@26.3` (one invocation per mutation, under
+`dockerlock.sh`, Proofstone `0466587`), records the verdict and reverts the file with `git checkout`. RED = a targeted test failed
+(good); GREEN = the suite missed the mutation (a coverage hole). No mutation is ever committed; this branch holds only the script and this
+section. A first attempt without `clean` reused a stale shaded jar (the mutation was not in the jar, so M1 read GREEN wrongly); the script now
+always cleans. Evidence (logs, failsafe XML, repro bundles, `results.tsv`): `C:\pw\dis-ev-mutation\<id>\`.
+
+| Id | Mutation (file) | Classes run | Tests / failed | Result | Failing tests |
+|---|---|---|---|---|---|
+| M1 | disenchant XP cost drops the base: `totalCost = 0` (`AnvilCostUtils`) | CostFormulaE2E, DisenchantE2E | 9 / 4 | RED | CostFormulaE2E default13, base7/mult1, base4/mult.5, per-enchantment override |
+| M2 | disenchant leaves the enchantments on the source (`AnvilOperations` removal skipped) | DisenchantE2E | 2 / 2 | RED | disenchantMovesEnchants..., tooLittleExperience... |
+| M3 | shatter does not remove the split enchantment from the source book (same line) | ShatterE2E | 1 / 1 | RED | shatterSplitsOneEnchantmentOffTheBook |
+| M4 | economy withdraw skipped, balance check kept (`AnvilEventGuards.processEconomyCost`, shared by all three operations) | EconomyE2E | 5 / 4 | RED | disenchant, shatter, grindstone-extract charges, insufficientFunds |
+| M5 | `PreDisenchantEvent` cancel ignored (`AnvilOperations.settleBook`) | PreEventCancelE2E | 3 / 1 | RED | aCancelledPreDisenchantEventChangesNothing (shatter and grindstone tests stay green, correctly) |
+| M6 | per-world disable ignored (`AnvilEventGuards.isWorldBlocked`) | DisabledWorldE2E | 1 / 1 | RED | aDisabledWorldGivesTheVanillaResult |
+| M7 | erase keeps the enchantments (`EraseUtils.buildResult`) | EraseModeE2E | 4 / 2 | RED | eraseDestroys..., eraseCurses... |
+| M8 | `MARKED` mode treats an unmarked anvil as special (`AnvilEventGuards.isSpecialBlock`) | SpecialAnvilE2E, SpecialAnvilPlacementE2E | 6 / 2 | RED | markedModeRefusesAnUnmarkedAnvil..., markedModeWorksOnlyOnAnAnvilPlacedFromTheSpecialItem |
+| M9 | no money refund when writing the result fails (`AnvilOperations.refund`) | EconomyE2E, SkippedScenariosE2E | 7 / 0 | **GREEN** | none: hole |
+| M10 | stats: disenchant counter not incremented (`StatsCache.record`) | StatsE2E | 2 / 1 | RED | anAnvilDisenchantDoesNotTouchTheGrindstoneCounters |
+| M11 | grindstone transfer copies instead of moves (`GrindstoneOps.stripFromSource`) | GrindstoneE2E | 6 / 4 | RED | extract strips item, transfer moves, unsafe clicks, too little XP |
+
+### GREEN holes
+
+- **M9, refund on a failed write.** Known gap 3 under "Proofstone gaps": `SkippedScenariosE2E` skips it, so the mutation is invisible. Not
+  cheap to close with an e2e test today: it needs a fault-injection hook (for example `Agent.failNextInventoryWrite(player)`) or a test plugin
+  that makes the item write throw on demand. Proposed test once the hook exists: with economy on and a balance of 100, force the write of
+  the disenchant result to fail, click, then assert the server balance is back to 100, the player's levels are unchanged and no
+  `PostDisenchantEvent` fired. `DisenchantClickListener`-level unit coverage of the refund in `core` is the interim guard.
+- Observation, not a hole: M10 is caught by one test only (the one that reads the counters after an anvil disenchant), and M5 only by the
+  disenchant test by design. A dedicated "an anvil disenchant moves the Disenchants counter by one" assertion would make M10 fail in a test
+  named for it.
+
+Run it (scratch worktree only):
+
+```bash
+BASH_EXE="C:/Program Files/Git/usr/bin/bash.exe" MVN=<mvn> JAVA_HOME=<jdk21> PROOFSTONE_REPO=<proofstone> \
+PROOFSTONE_LOCK=<proofstone>/scripts/dockerlock.sh PROOFSTONE_ACCEPT_EULA=true python e2e/mutation-check.py all <evidence-dir>
+```
