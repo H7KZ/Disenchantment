@@ -10,7 +10,9 @@ import io.github.h7kz.proofstone.api.ItemView;
 import io.github.h7kz.proofstone.api.PlayerHandle;
 import io.github.h7kz.proofstone.api.Position;
 import io.github.h7kz.proofstone.api.Window;
+import java.time.Duration;
 import java.util.List;
+import java.util.regex.Pattern;
 
 /** Shared setup for the Disenchantment suite. Not a test class (no E2E suffix). */
 final class Fixture {
@@ -26,6 +28,20 @@ final class Fixture {
     static final String PRE_DISENCHANT = "com.jankominek.disenchantment.events.api.PreDisenchantEvent";
 
     private Fixture() {
+    }
+
+    private static final Pattern PROBLEM_LINE = Pattern.compile(
+            "^(WARN|WARNING|ERROR|SEVERE|FATAL)\\b|Exception|Caused by:|\\bat [\\w.$/]+\\([^)]*\\)");
+
+    /**
+     * Waits for the server to log a line that matches {@code done} (logged after the operation under test, because a log read
+     * is a snapshot and not a barrier), then asserts that no line logged since the test started is a WARN or worse, an
+     * exception or a stack-trace frame. Uses {@code Agent.logLines} (Proofstone T-M11-01).
+     */
+    static void assertNothingProblematicLogged(Agent agent, Pattern done) {
+        assertThat(agent.logLines(done, Duration.ofSeconds(10))).as("the line that ends the operation").isNotEmpty();
+        assertThat(agent.logLines()).as("server log lines since the test started").isNotEmpty()
+                .noneMatch(line -> PROBLEM_LINE.matcher(line).find());
     }
 
     /** Joins the world at a spot with ground, an anvil in reach and an empty inventory. */
