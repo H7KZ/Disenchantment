@@ -1,0 +1,6 @@
+name: Vault
+version: 1.7.3-e2e
+main: com.jankominek.disenchantment.e2e.support.vault.E2eVault
+api-version: "1.18"
+folia-supported: true
+description: Test double of the Vault plugin for the Disenchantment e2e suite. Not the real Vault. Bundles the VaultAPI classes and one in-memory economy whose balances live in this plugin's config (balances.<lowercase player name>), so Proofstone's config oracle can read and seed them.

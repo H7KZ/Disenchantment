@@ -14,6 +14,7 @@ codebase. If you are a server admin looking for configuration or usage help, see
 | [SETUP.md](SETUP.md)                           | Developer environment setup — JDK, Maven, Spigot BuildTools, IDE configuration                    |
 | [CONTRIBUTING.md](CONTRIBUTING.md)             | Contribution guide — reporting issues, code style, PR process, adding custom enchantment adapters |
 | [TESTING.md](TESTING.md)                       | Test structure, how to run tests, what is tested, and how to write new tests                      |
+| [E2E.md](E2E.md)                               | Real-server e2e suite on Proofstone (`e2e/`): scenarios, cells, how to run it                     |
 | [ADDING_NEW_VERSION.md](ADDING_NEW_VERSION.md) | Step-by-step guide for adding support for a new Minecraft version                                 |
 
 ## Quick orientation
