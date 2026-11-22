@@ -57,8 +57,8 @@ class ShatterE2E {
                 split.keySet().forEach(expectedRest::remove);
                 ItemView rest = anvil.awaitSlot(0, item -> item.is("enchanted_book") && item.storedEnchants().size() == 2);
                 assertThat(rest.storedEnchants()).isEqualTo(expectedRest);
-                assertThat(anvil.cursor().is("enchanted_book")).isTrue();
-                assertThat(anvil.cursor().storedEnchants()).isEqualTo(split);
+                ItemView delivered = anvil.awaitCursor(item -> item.is("enchanted_book") && item.storedEnchants().equals(split));
+                assertThat(delivered.storedEnchants()).isEqualTo(split);
                 anvil.click(Fixture.firstFreePlayerSlot(anvil), Click.LEFT);
             }
 

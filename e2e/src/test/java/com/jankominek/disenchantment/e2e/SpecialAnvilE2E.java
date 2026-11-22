@@ -169,7 +169,7 @@ class SpecialAnvilE2E {
                 ItemView crafted = table.awaitSlot(0, item -> item.is("anvil"));
                 assertThat(crafted.name()).contains("Enchanter's Anvil");
                 table.click(0, Click.LEFT);
-                assertThat(table.cursor().is("anvil")).isTrue();
+                table.awaitCursor(item -> item.is("anvil"));
                 table.click(Fixture.firstFreePlayerSlot(table), Click.LEFT);
             }
             var special = player.awaitState("the crafted special anvil", state -> state.inventory().values().stream()

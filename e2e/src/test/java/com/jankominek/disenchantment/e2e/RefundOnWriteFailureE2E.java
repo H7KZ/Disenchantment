@@ -19,7 +19,6 @@ import io.github.h7kz.proofstone.api.PluginHandle;
 import io.github.h7kz.proofstone.api.Proofstone;
 import io.github.h7kz.proofstone.api.Window;
 import java.util.Map;
-import org.junit.jupiter.api.Disabled;
 
 /**
  * The refund when writing the result fails (commit 4352679). Disenchantment charges the economy and the XP and only then
@@ -106,16 +105,11 @@ class RefundOnWriteFailureE2E {
     }
 
     /**
-     * Levels and items: after the failed write nothing may have been taken from the player. FINDING, red on the clean code on
-     * paper@26.3 and folia@26.3 (evidence and numbers in docs/engineering/E2E.md): the plugin refunds, but its click handler
-     * rethrows into {@code onEvent}, which reports the error and returns without cancelling the click, so vanilla then
-     * completes the take of the result slot: it charges its own XP (level 30 to 17), consumes the sword and puts the book on
-     * the cursor. Disabled so the suite stays green; the assertions are not weakened. Remove the annotation when the click
-     * is cancelled after a refunded failure.
+     * Levels and items: after the failed write nothing may have been taken from the player. This was a finding (the click was
+     * not cancelled after the refund, so vanilla charged its own XP and consumed the sword); fixed by PR #88, which rolls back
+     * partial writes and cancels the click on a write failure. The assertions are unchanged.
      */
     @CellTest
-    @Disabled("FINDING: after a refunded write failure the click is not cancelled, so vanilla's own take charges XP and consumes "
-            + "the sword (level 30 -> 17, sword gone, book on the cursor). The strict assertions are red on the clean code.")
     void aFailedWriteLeavesTheLevelsAndTheItemsAsTheyWere(Agent agent, Client client) {
         PlayerHandle player = swordPlayer(agent, client);
         PluginHandle hooks = hooks(agent);
