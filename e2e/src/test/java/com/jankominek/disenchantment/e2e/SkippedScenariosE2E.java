@@ -17,11 +17,4 @@ class SkippedScenariosE2E {
             + "the pinned Proofstone lacks. Covered by GrindstoneListenerTest in core.")
     void grindstoneTickFallbackRefreshOnDrag() {
     }
-
-    @Test
-    @Disabled("refund when writing the result fails (commit 4352679): needs an enchantment adapter that throws while the result "
-            + "is written, on demand. No installable plugin does, and the e2e hooks plugin cannot reach inside the write. "
-            + "Covered by GrindstoneClickEventTest and AnvilOperations tests in core.")
-    void refundWhenTheWriteFails() {
-    }
 }
