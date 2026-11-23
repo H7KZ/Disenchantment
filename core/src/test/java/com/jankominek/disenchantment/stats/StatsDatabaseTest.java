@@ -167,9 +167,15 @@ class StatsDatabaseTest {
         try {
             assertTrue(failed.await(10, java.util.concurrent.TimeUnit.SECONDS), "open failure should be reported");
             assertEquals("Disenchantment-Stats-Writer", thread.get());
-            // writes after a failed open are dropped without throwing
+            // later tasks after a failed open are dropped silently (the open failure was the only report)
+            java.util.concurrent.atomic.AtomicBoolean loaded = new java.util.concurrent.atomic.AtomicBoolean();
+            bad.pruneAsync(30);
+            bad.loadBootDataAsync(b -> loaded.set(true), e -> loaded.set(true));
+            assertEquals(0, bad.pruneOlderThan(30));
             bad.insertAsync(new OperationRecord(1L, UUID.randomUUID(), "Steve", "w",
                     OperationType.DISENCHANT, "SWORD", "minecraft:sharpness", 1, 0.0));
+            bad.close(); // drains the writer
+            assertFalse(loaded.get(), "boot load must not run against a database that failed to open");
         } finally {
             bad.close();
         }

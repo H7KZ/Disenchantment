@@ -11,6 +11,7 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class StatsManagerTest extends DisenchantmentTestBase {
@@ -45,5 +46,19 @@ class StatsManagerTest extends DisenchantmentTestBase {
         assertTrue(HandlerList.getRegisteredListeners(plugin).stream()
                         .anyMatch(l -> l.getListener() instanceof StatsListener),
                 "StatsListener should be registered after boot data applied");
+    }
+
+    @Test
+    void init_failedOpenDisablesStatsSoReloadCanRetry() throws Exception {
+        File missing = new File(dataFolder, "does/not/exist");
+
+        StatsManager.init(missing, null);
+
+        long deadline = System.currentTimeMillis() + 10_000;
+        while (StatsManager.getInstance() != null && System.currentTimeMillis() < deadline) {
+            Thread.sleep(20);
+            server.getScheduler().performOneTick();
+        }
+        assertNull(StatsManager.getInstance(), "a failed open must leave stats disabled, not half-initialised");
     }
 }

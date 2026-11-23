@@ -41,8 +41,15 @@ public class StatsManager {
         if (instance != null) return;
         // Opens the SQLite file and creates the schema on the writer thread, not here: init runs on the
         // global region thread (enable and /disenchantment reload) and a slow disk must not stall the tick.
-        StatsDatabase db = StatsDatabase.openAsync(dataFolder,
-                e -> Logger.getLogger("Disenchantment").warning("StatsManager init failed, stats disabled: " + e.getMessage()));
+        StatsDatabase db = StatsDatabase.openAsync(dataFolder, e -> {
+            Logger.getLogger("Disenchantment").warning("StatsManager init failed, stats disabled: " + e.getMessage());
+            // Back on the global thread: drop the half-initialised instance so getInstance() is null (stats disabled)
+            // and a later reload retries the open.
+            SchedulerUtils.runGlobal(plugin, () -> {
+                StatsManager m = instance;
+                if (m != null && m.database.isOpenFailed()) shutdown();
+            });
+        });
         StatsCache c = new StatsCache();
         instance = new StatsManager(db, c);
 

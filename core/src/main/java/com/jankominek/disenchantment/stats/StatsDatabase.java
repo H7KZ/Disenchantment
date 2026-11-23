@@ -19,6 +19,8 @@ public class StatsDatabase {
     private volatile Connection connection;
     /** True once an asynchronous open failed; later writes are dropped silently (the failure was logged once). */
     private volatile boolean openFailed;
+    /** Set by {@link #close()} when it gave up waiting, so an open still in flight closes its own connection instead of leaking it. */
+    private volatile boolean closed;
     // ponytail: single-threaded executor serialises writes — avoids SQLite locking
     private final ExecutorService writeExecutor = Executors.newSingleThreadExecutor(r -> {
         Thread t = new Thread(r, "Disenchantment-Stats-Writer");
@@ -65,7 +67,27 @@ public class StatsDatabase {
     private void open(String jdbcUrl) throws SQLException {
         Connection c = DriverManager.getConnection(jdbcUrl);
         connection = c;
-        createSchema();
+        if (closed) {
+            // close() gave up waiting while this open was still running
+            connection = null;
+            c.close();
+            return;
+        }
+        try {
+            createSchema();
+        } catch (SQLException e) {
+            connection = null;
+            try {
+                c.close();
+            } catch (SQLException ignored) {
+            }
+            throw e;
+        }
+    }
+
+    /** True when the asynchronous open failed (already logged by the caller's error callback). */
+    public boolean isOpenFailed() {
+        return openFailed;
     }
 
     private Connection connection() throws SQLException {
@@ -201,6 +223,7 @@ public class StatsDatabase {
      */
     public void loadBootDataAsync(Consumer<BootData> onLoaded, Consumer<SQLException> onError) {
         writeExecutor.submit(() -> {
+            if (openFailed) return;
             try {
                 onLoaded.accept(loadBootData());
             } catch (SQLException e) {
@@ -222,7 +245,7 @@ public class StatsDatabase {
      * @return number of deleted rows, or 0 on failure / when disabled
      */
     public int pruneOlderThan(int days) {
-        if (days <= 0) return 0;
+        if (days <= 0 || openFailed) return 0;
         try {
             return writeExecutor.submit(() -> pruneSync(days)).get();
         } catch (InterruptedException e) {
@@ -244,6 +267,7 @@ public class StatsDatabase {
         if (days <= 0) return;
         try {
             writeExecutor.execute(() -> {
+                if (openFailed) return;
                 try {
                     int removed = pruneSync(days);
                     if (removed > 0) {
@@ -272,7 +296,8 @@ public class StatsDatabase {
     public void close() {
         writeExecutor.shutdown();
         try {
-            writeExecutor.awaitTermination(5, TimeUnit.SECONDS);
+            // Queued work (including a still-pending open) drains first; only a timeout abandons it.
+            if (!writeExecutor.awaitTermination(5, TimeUnit.SECONDS)) closed = true;
         } catch (InterruptedException ignored) {
             Thread.currentThread().interrupt();
         }
