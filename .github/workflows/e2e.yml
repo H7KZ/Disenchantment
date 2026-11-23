@@ -53,9 +53,33 @@ env:
   PROOFSTONE_REF: f5957cc22fa44dc8797e76201e951fffd64fb12a
 
 jobs:
+  runner:
+    name: Pick runner
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    outputs:
+      labels: ${{ steps.pick.outputs.labels }}
+    steps:
+      - id: pick
+        env:
+          GH_TOKEN: ${{ secrets.RUNNER_TOKEN }}
+          IS_FORK: ${{ github.event.pull_request.head.repo.fork == true }}
+        run: |
+          # self-hosted if an idle runner is online (and not a fork PR), else GitHub-hosted
+          labels='["ubuntu-latest"]'
+          if [ -n "$GH_TOKEN" ] && [ "$IS_FORK" != "true" ]; then
+            n=$(gh api "repos/$GITHUB_REPOSITORY/actions/runners?per_page=100"               --jq '[.runners[] | select(.status == "online" and .busy == false and ([.labels[].name] | index("self-hosted")))] | length' 2>/dev/null || echo 0)
+            if [ "${n:-0}" -gt 0 ]; then
+              labels='["self-hosted","Linux","X64","hetzner"]'
+            fi
+          fi
+          echo "labels=$labels" >> "$GITHUB_OUTPUT"
+          echo "Runner: $labels"
+
   preflight:
     name: Preflight
-    runs-on: ubuntu-latest
+    needs: runner
+    runs-on: ${{ fromJSON(needs.runner.outputs.labels) }}
     timeout-minutes: 5
     outputs:
       ok: ${{ steps.eula.outputs.ok }}
@@ -81,9 +105,9 @@ jobs:
 
   build:
     name: Build plugin and agent
-    needs: preflight
+    needs: [runner, preflight]
     if: needs.preflight.outputs.ok == 'true'
-    runs-on: ubuntu-latest
+    runs-on: ${{ fromJSON(needs.runner.outputs.labels) }}
     timeout-minutes: 60
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -174,9 +198,9 @@ jobs:
 
   e2e:
     name: e2e ${{ matrix.cell }}
-    needs: [preflight, build]
+    needs: [runner, preflight, build]
     if: needs.preflight.outputs.ok == 'true' && inputs.repeat == ''
-    runs-on: ubuntu-latest
+    runs-on: ${{ fromJSON(needs.runner.outputs.labels) }}
     timeout-minutes: 45
     strategy:
       fail-fast: false
@@ -242,9 +266,9 @@ jobs:
   # repeats. Nothing here retries a failed test; a red or FLAKY result fails this job on purpose.
   flake-report:
     name: flake report ${{ inputs.repeat-cell }} x${{ inputs.repeat }}
-    needs: [preflight, build]
+    needs: [runner, preflight, build]
     if: needs.preflight.outputs.ok == 'true' && inputs.repeat != ''
-    runs-on: ubuntu-latest
+    runs-on: ${{ fromJSON(needs.runner.outputs.labels) }}
     timeout-minutes: 120
     env:
       PROOFSTONE_ACCEPT_EULA: ${{ vars.PROOFSTONE_ACCEPT_EULA }}
