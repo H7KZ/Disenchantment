@@ -9,7 +9,6 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
-import java.sql.SQLException;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
@@ -40,40 +39,45 @@ public class StatsManager {
      */
     public static void init(File dataFolder, BStatsMetrics metrics) {
         if (instance != null) return;
-        try {
-            StatsDatabase db = new StatsDatabase(dataFolder);
-            StatsCache c = new StatsCache();
-            instance = new StatsManager(db, c);
-
-            // Boot load runs on writeExecutor (same thread as inserts) to avoid concurrent Connection use.
-            // Listener registers after cache init so no boot-window records are overwritten.
-            // The callback hops to the global region thread via SchedulerUtils (Bukkit.getScheduler() throws on Folia).
-            StatsManager manager = instance;
-
-            // Queued on the writer executor ahead of the boot load, so the cache never counts
-            // records that are about to be pruned. No-op when retention is 0 (keep forever).
-            db.pruneAsync(Config.getOperationsRetentionDays());
-
-            db.loadBootDataAsync(
-                    bd -> SchedulerUtils.runGlobal(plugin, () -> {
-                        try {
-                            // Skip if shut down / replaced (e.g. reload) while the boot load was in flight.
-                            if (instance != manager) return;
-                            c.initialize(bd);
-                            Bukkit.getPluginManager().registerEvents(new StatsListener(manager), plugin);
-                        } catch (Exception ex) {
-                            Logger.getLogger("Disenchantment").log(Level.SEVERE,
-                                    "StatsManager failed to apply boot data; stats disabled until reload", ex);
-                        }
-                    }),
-                    e -> Logger.getLogger("Disenchantment").warning("StatsManager boot load failed: " + e.getMessage())
-            );
-
-            if (metrics != null) registerCharts(metrics);
-
-        } catch (SQLException e) {
+        // Opens the SQLite file and creates the schema on the writer thread, not here: init runs on the
+        // global region thread (enable and /disenchantment reload) and a slow disk must not stall the tick.
+        StatsDatabase db = StatsDatabase.openAsync(dataFolder, e -> {
             Logger.getLogger("Disenchantment").warning("StatsManager init failed, stats disabled: " + e.getMessage());
-        }
+            // Back on the global thread: drop the half-initialised instance so getInstance() is null (stats disabled)
+            // and a later reload retries the open.
+            SchedulerUtils.runGlobal(plugin, () -> {
+                StatsManager m = instance;
+                if (m != null && m.database.isOpenFailed()) shutdown();
+            });
+        });
+        StatsCache c = new StatsCache();
+        instance = new StatsManager(db, c);
+
+        // Boot load runs on writeExecutor (same thread as inserts) to avoid concurrent Connection use.
+        // Listener registers after cache init so no boot-window records are overwritten.
+        // The callback hops to the global region thread via SchedulerUtils (Bukkit.getScheduler() throws on Folia).
+        StatsManager manager = instance;
+
+        // Queued on the writer executor ahead of the boot load, so the cache never counts
+        // records that are about to be pruned. No-op when retention is 0 (keep forever).
+        db.pruneAsync(Config.getOperationsRetentionDays());
+
+        db.loadBootDataAsync(
+                bd -> SchedulerUtils.runGlobal(plugin, () -> {
+                    try {
+                        // Skip if shut down / replaced (e.g. reload) while the boot load was in flight.
+                        if (instance != manager) return;
+                        c.initialize(bd);
+                        Bukkit.getPluginManager().registerEvents(new StatsListener(manager), plugin);
+                    } catch (Exception ex) {
+                        Logger.getLogger("Disenchantment").log(Level.SEVERE,
+                                "StatsManager failed to apply boot data; stats disabled until reload", ex);
+                    }
+                }),
+                e -> Logger.getLogger("Disenchantment").warning("StatsManager boot load failed: " + e.getMessage())
+        );
+
+        if (metrics != null) registerCharts(metrics);
     }
 
     /**

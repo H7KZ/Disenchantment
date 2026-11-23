@@ -153,6 +153,10 @@ long-running async tasks to `tasks` so they are cancelled on shutdown.
 `StatsManager` is a nullable singleton (`getInstance()` is `null` when `logging.operations: false`). `StatsCache` is the
 in-memory read path; `StatsDatabase` is the SQLite store, written through a single-thread executor.
 
+- **Open**: `StatsManager.init` uses `StatsDatabase.openAsync`, which returns at once; opening `stats.db` and creating the schema are the
+  first task on the writer thread, never on the global region thread (a slow disk must not stall a Folia tick during enable or
+  `/disenchantment reload`, issue #90). A failed open is logged once and later writes are dropped. The blocking
+  `StatsDatabase(File)`/`(String)` constructors remain for tests.
 - **Boot**: `StatsManager.init` loads aggregates on the DB writer thread, then applies them to the cache and registers
   `StatsListener` through `SchedulerUtils.runGlobal` (global region thread on Folia, main thread on Spigot). Never use
   `Bukkit.getScheduler()` here — it throws `UnsupportedOperationException` on Folia. Failures in the callback are logged
