@@ -16,7 +16,9 @@ import java.util.logging.Logger;
  */
 public class StatsDatabase {
 
-    private final Connection connection;
+    private volatile Connection connection;
+    /** True once an asynchronous open failed; later writes are dropped silently (the failure was logged once). */
+    private volatile boolean openFailed;
     // ponytail: single-threaded executor serialises writes — avoids SQLite locking
     private final ExecutorService writeExecutor = Executors.newSingleThreadExecutor(r -> {
         Thread t = new Thread(r, "Disenchantment-Stats-Writer");
@@ -35,12 +37,45 @@ public class StatsDatabase {
      * Package-private for tests — accepts any JDBC URL (e.g. "jdbc:sqlite::memory:").
      */
     StatsDatabase(String jdbcUrl) throws SQLException {
-        connection = DriverManager.getConnection(jdbcUrl);
+        open(jdbcUrl);
+    }
+
+    private StatsDatabase() {
+    }
+
+    /**
+     * Production factory. Returns immediately: opening the SQLite file and creating the schema run as the first task
+     * on the writer thread, never on the caller (a region/tick thread on Folia, where a slow disk would stall the tick).
+     * Every later task on the writer queues behind the open. A failed open is logged once and later writes are dropped.
+     */
+    public static StatsDatabase openAsync(java.io.File dataFolder, Consumer<SQLException> onError) {
+        String url = "jdbc:sqlite:" + new java.io.File(dataFolder, "stats.db").getAbsolutePath();
+        StatsDatabase db = new StatsDatabase();
+        db.writeExecutor.execute(() -> {
+            try {
+                db.open(url);
+            } catch (SQLException e) {
+                db.openFailed = true;
+                onError.accept(e);
+            }
+        });
+        return db;
+    }
+
+    private void open(String jdbcUrl) throws SQLException {
+        Connection c = DriverManager.getConnection(jdbcUrl);
+        connection = c;
         createSchema();
     }
 
+    private Connection connection() throws SQLException {
+        Connection c = connection;
+        if (c == null) throw new SQLException("stats database is not open");
+        return c;
+    }
+
     private void createSchema() throws SQLException {
-        try (Statement stmt = connection.createStatement()) {
+        try (Statement stmt = connection().createStatement()) {
             stmt.execute("""
                     CREATE TABLE IF NOT EXISTS operations (
                         id              INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -69,6 +104,7 @@ public class StatsDatabase {
      */
     public void insertAsync(OperationRecord r) {
         writeExecutor.execute(() -> {
+            if (openFailed) return;
             try {
                 insertSync(r);
             } catch (SQLException e) {
@@ -81,7 +117,7 @@ public class StatsDatabase {
      * Synchronous insert — used by tests and the async executor.
      */
     void insertSync(OperationRecord r) throws SQLException {
-        try (PreparedStatement ps = connection.prepareStatement(
+        try (PreparedStatement ps = connection().prepareStatement(
                 "INSERT INTO operations (timestamp,player_uuid,player_name,world,operation_type,item_material,enchantment_keys,xp_cost,economy_cost) VALUES (?,?,?,?,?,?,?,?,?)")) {
             ps.setLong(1, r.timestamp());
             ps.setString(2, r.playerUuid().toString());
@@ -106,7 +142,7 @@ public class StatsDatabase {
         Map<UUID, BootData.PlayerBootStats> playerStats = new HashMap<>();
 
         // Server-wide totals: COUNT + SUM per operation_type
-        try (Statement st = connection.createStatement();
+        try (Statement st = connection().createStatement();
              ResultSet rs = st.executeQuery(
                      "SELECT operation_type, COUNT(*), SUM(xp_cost), SUM(economy_cost) FROM operations GROUP BY operation_type")) {
             while (rs.next()) {
@@ -124,7 +160,7 @@ public class StatsDatabase {
         }
 
         // Per-player stats
-        try (Statement st = connection.createStatement();
+        try (Statement st = connection().createStatement();
              ResultSet rs = st.executeQuery(
                      """
                              SELECT player_uuid, player_name,
@@ -144,7 +180,7 @@ public class StatsDatabase {
         }
 
         // Enchantment counts — aggregate comma-separated keys in Java
-        try (Statement st = connection.createStatement();
+        try (Statement st = connection().createStatement();
              ResultSet rs = st.executeQuery("SELECT enchantment_keys FROM operations")) {
             while (rs.next()) {
                 String keys = rs.getString(1);
@@ -224,7 +260,7 @@ public class StatsDatabase {
 
     private int pruneSync(int days) throws SQLException {
         long cutoff = java.time.Instant.now().getEpochSecond() - days * 86_400L;
-        try (PreparedStatement ps = connection.prepareStatement("DELETE FROM operations WHERE timestamp < ?")) {
+        try (PreparedStatement ps = connection().prepareStatement("DELETE FROM operations WHERE timestamp < ?")) {
             ps.setLong(1, cutoff);
             return ps.executeUpdate();
         }
@@ -241,7 +277,8 @@ public class StatsDatabase {
             Thread.currentThread().interrupt();
         }
         try {
-            connection.close();
+            Connection c = connection;
+            if (c != null) c.close();
         } catch (SQLException ignored) {
         }
     }

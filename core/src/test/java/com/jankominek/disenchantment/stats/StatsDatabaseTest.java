@@ -19,6 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 class StatsDatabaseTest {
 
@@ -150,6 +151,42 @@ class StatsDatabaseTest {
              ResultSet rs = st.executeQuery("SELECT COUNT(*) FROM operations")) {
             assertTrue(rs.next());
             assertEquals(0, rs.getInt(1));
+        }
+    }
+
+    @Test
+    void openAsync_failureIsReportedFromWriterThreadNotCaller(@TempDir File dir) throws Exception {
+        File missing = new File(dir, "does/not/exist");
+        java.util.concurrent.atomic.AtomicReference<String> thread = new java.util.concurrent.atomic.AtomicReference<>();
+        java.util.concurrent.CountDownLatch failed = new java.util.concurrent.CountDownLatch(1);
+
+        StatsDatabase bad = StatsDatabase.openAsync(missing, e -> {
+            thread.set(Thread.currentThread().getName());
+            failed.countDown();
+        }); // must neither throw nor block the caller
+        try {
+            assertTrue(failed.await(10, java.util.concurrent.TimeUnit.SECONDS), "open failure should be reported");
+            assertEquals("Disenchantment-Stats-Writer", thread.get());
+            // writes after a failed open are dropped without throwing
+            bad.insertAsync(new OperationRecord(1L, UUID.randomUUID(), "Steve", "w",
+                    OperationType.DISENCHANT, "SWORD", "minecraft:sharpness", 1, 0.0));
+        } finally {
+            bad.close();
+        }
+    }
+
+    @Test
+    void openAsync_createsSchemaOnWriterAndQueuesWritesBehindIt(@TempDir File dir) throws Exception {
+        StatsDatabase file = StatsDatabase.openAsync(dir, e -> fail("open failed: " + e.getMessage()));
+        file.insertAsync(new OperationRecord(1L, UUID.randomUUID(), "Steve", "w",
+                OperationType.DISENCHANT, "SWORD", "minecraft:sharpness", 1, 0.0));
+        file.close(); // drains the writer executor
+
+        try (Connection c = DriverManager.getConnection("jdbc:sqlite:" + new File(dir, "stats.db").getAbsolutePath());
+             Statement st = c.createStatement();
+             ResultSet rs = st.executeQuery("SELECT COUNT(*) FROM operations")) {
+            assertTrue(rs.next());
+            assertEquals(1, rs.getInt(1));
         }
     }
 
