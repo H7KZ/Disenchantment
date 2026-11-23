@@ -17,7 +17,7 @@ import java.util.Map;
  * The expected module of each Minecraft version is {@code MinecraftVersion}'s mapping, written out here as literals.
  */
 @Proofstone(plugins = "target/plugin-under-test/Disenchantment-*.jar")
-@Matrix(platform = Platform.PAPER, versions = {"1.18.2", "1.20.4", "1.20.6", "1.21.11", "26.3"})
+@Matrix(platform = Platform.PAPER, versions = {"1.18.2", "1.20.4", "1.20.6", "1.21.4", "1.21.7", "1.21.11", "26.3"})
 @Matrix(platform = Platform.FOLIA, versions = {"26.3"})
 class NmsModuleE2E {
 
@@ -25,6 +25,8 @@ class NmsModuleE2E {
             "1.18.2", "NMS_v1_18_R1",
             "1.20.4", "NMS_v1_18_R1",
             "1.20.6", "NMS_v1_20_R4",
+            "1.21.4", "NMS_v1_21_R1",
+            "1.21.7", "NMS_v1_21_R4",
             "1.21.11", "NMS_v1_21_R5",
             "26.3", "NMS_v1_21_R5");
 

@@ -36,6 +36,8 @@ on:
         options:
           - paper@26.3
           - paper@1.21.11
+          - paper@1.21.7
+          - paper@1.21.4
           - paper@1.20.6
           - paper@1.20.4
           - paper@1.18.2
@@ -219,6 +221,8 @@ jobs:
         cell:
           - paper@26.3
           - paper@1.21.11
+          - paper@1.21.7
+          - paper@1.21.4
           - paper@1.20.6
           - paper@1.20.4
           - paper@1.18.2

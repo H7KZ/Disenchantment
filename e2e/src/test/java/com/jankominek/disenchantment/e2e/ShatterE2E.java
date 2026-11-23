@@ -22,7 +22,7 @@ import java.util.Map;
 
 /** Shattering (book splitting): a multi-enchantment book and a blank book give one enchantment on a new book. */
 @Proofstone(plugins = "target/plugin-under-test/Disenchantment-*.jar")
-@Matrix(platform = Platform.PAPER, versions = {"1.18.2", "1.20.4", "1.20.6", "1.21.11", "26.3"})
+@Matrix(platform = Platform.PAPER, versions = {"1.18.2", "1.20.4", "1.20.6", "1.21.4", "1.21.7", "1.21.11", "26.3"})
 @Matrix(platform = Platform.FOLIA, versions = {"26.3"})
 class ShatterE2E {
 

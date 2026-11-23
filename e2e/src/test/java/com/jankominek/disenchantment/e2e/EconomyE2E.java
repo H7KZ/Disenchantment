@@ -32,7 +32,7 @@ import java.util.Map;
  * <p>The refund when writing the result fails (commit 4352679) is in {@link RefundOnWriteFailureE2E}.
  */
 @Proofstone(plugins = {"target/support-jars/*-vault.jar", "target/plugin-under-test/Disenchantment-*.jar"})
-@Matrix(platform = Platform.PAPER, versions = {"1.18.2", "1.20.4", "1.20.6", "1.21.11", "26.3"})
+@Matrix(platform = Platform.PAPER, versions = {"1.18.2", "1.20.4", "1.20.6", "1.21.4", "1.21.7", "1.21.11", "26.3"})
 @Matrix(platform = Platform.FOLIA, versions = {"26.3"})
 class EconomyE2E {
 
