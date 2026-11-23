@@ -63,11 +63,20 @@ class SpecialAnvilPlacementE2E {
         return player;
     }
 
-    private static boolean offersABook(Client client) {
+    /**
+     * The result slot is filled by a packet that can arrive after the move of the second input is confirmed (a 4 s red on
+     * paper@1.20.6 under host load read slot 2 first). So an expected book is awaited; an absent one is read at once, because
+     * nothing can be awaited for it.
+     */
+    private static void assertBookOffered(Client client, boolean expected, String why) {
         try (Window anvil = client.openBlock(PLACED)) {
             anvil.moveFromInventory(item -> item.is("diamond_sword"), 0);
             anvil.moveFromInventory(item -> item.is("book"), 1);
-            return !anvil.slot(2).isEmpty() && anvil.slot(2).is("enchanted_book");
+            if (expected) {
+                anvil.awaitSlot(2, item -> item.is("enchanted_book"));
+            } else {
+                assertThat(anvil.slot(2).isEmpty()).as(why).isTrue();
+            }
         }
     }
 
@@ -129,17 +138,17 @@ class SpecialAnvilPlacementE2E {
         try (Cfg ignored = Cfg.with(agent, Map.of("special-anvils.mode", "MARKED"))) {
             loadPlainAnvil(agent, client, player);
             placeHeldAnvil(agent, client);
-            assertThat(offersABook(client)).as("plain anvil placed in MARKED mode").isFalse();
+            assertBookOffered(client, false, "plain anvil placed in MARKED mode");
             breakPlaced(agent, client);
 
             loadSpecialAnvil(agent, client, player);
             placeHeldAnvil(agent, client);
-            assertThat(offersABook(client)).as("special anvil placed in MARKED mode").isTrue();
+            assertBookOffered(client, true, "special anvil placed in MARKED mode");
             breakPlaced(agent, client);
 
             loadPlainAnvil(agent, client, player);
             placeHeldAnvil(agent, client);
-            assertThat(offersABook(client)).as("plain anvil placed after the special one was broken").isFalse();
+            assertBookOffered(client, false, "plain anvil placed after the special one was broken");
             breakPlaced(agent, client);
         }
     }
