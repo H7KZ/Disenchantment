@@ -210,7 +210,8 @@ jobs:
     name: e2e ${{ matrix.cell }}
     needs: [runner, preflight, build]
     if: needs.preflight.outputs.ok == 'true' && inputs.repeat == ''
-    runs-on: ${{ fromJSON(needs.runner.outputs.labels) }}
+    # Real-server cells need Docker and more CPU than the self-hosted runners give: on 2026-11-24 they hung to the 45 min timeout.
+    runs-on: ubuntu-latest
     timeout-minutes: 45
     strategy:
       fail-fast: false
@@ -288,7 +289,8 @@ jobs:
     name: flake report ${{ inputs.repeat-cell }} x${{ inputs.repeat }}
     needs: [runner, preflight, build]
     if: needs.preflight.outputs.ok == 'true' && inputs.repeat != ''
-    runs-on: ${{ fromJSON(needs.runner.outputs.labels) }}
+    # Real-server cells need Docker and more CPU than the self-hosted runners give: on 2026-11-24 they hung to the 45 min timeout.
+    runs-on: ubuntu-latest
     timeout-minutes: 120
     env:
       PROOFSTONE_ACCEPT_EULA: ${{ vars.PROOFSTONE_ACCEPT_EULA }}
