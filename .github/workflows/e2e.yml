@@ -109,7 +109,8 @@ jobs:
     name: Build plugin and agent
     needs: [runner, preflight]
     if: needs.preflight.outputs.ok == 'true'
-    runs-on: ${{ fromJSON(needs.runner.outputs.labels) }}
+    # Hosted: BuildTools hangs on the self-hosted runners (2026-11-24).
+    runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1

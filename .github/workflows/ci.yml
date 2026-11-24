@@ -39,8 +39,8 @@ jobs:
 
   build:
     name: Verify
-    needs: runner
-    runs-on: ${{ fromJSON(needs.runner.outputs.labels) }}
+    # Hosted: Spigot BuildTools hung/died on the self-hosted 2 vCPU runners (2026-11-24, runs 45362480026, 45384800781).
+    runs-on: ubuntu-latest
 
     # contents:read to check out; pull-requests:write so the PR build link can be
     # posted as a sticky comment. Fork PRs run with a read-only token and no secrets,
