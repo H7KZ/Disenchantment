@@ -132,6 +132,16 @@ jobs:
       # Runs validate -> compile -> test -> package -> verify.
       # Catches compilation errors and any bound verify-phase plugins
       # (e.g. Checkstyle, PMD) without publishing anything.
+      # The self-hosted runners ship no Maven (GitHub-hosted ones do); install the pinned release only when it is missing.
+      - name: Ensure Maven
+        run: |
+          if ! command -v mvn >/dev/null 2>&1; then
+            v=3.9.9
+            curl -fsSL -o "$RUNNER_TEMP/maven.tgz" "https://archive.apache.org/dist/maven/maven-3/$v/binaries/apache-maven-$v-bin.tar.gz"
+            echo "a555254d6b53d267965a3404ecb14e53c3827c09c3b94b5678835887ab404556bfaf78dcfe03ba76fa2508649dca8531c74bca4d5846513522404d48e8c4ac8b  $RUNNER_TEMP/maven.tgz" | sha512sum -c -
+            tar -xzf "$RUNNER_TEMP/maven.tgz" -C "$RUNNER_TEMP"
+            echo "$RUNNER_TEMP/apache-maven-$v/bin" >> "$GITHUB_PATH"
+          fi
       - name: Verify
         run: mvn clean verify -B -Drevision=${{ steps.ver.outputs.VERSION }}
 
@@ -159,6 +169,8 @@ jobs:
           VERSION: ${{ steps.ver.outputs.VERSION }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         run: |
+          # Convenience comment, not a gate: the self-hosted runners ship no gh.
+          if ! command -v gh >/dev/null 2>&1; then echo "::notice::gh missing on this runner, build comment skipped"; exit 0; fi
           MARKER="<!-- pr-build-comment -->"
           {
             echo "$MARKER"
