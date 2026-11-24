@@ -320,6 +320,15 @@ None left for M1 to M11 (M9 closed by `RefundOnWriteFailureE2E`, results above; 
   disenchant test by design. A dedicated "an anvil disenchant moves the Disenchants counter by one" assertion would make M10 fail in a test
   named for it.
 
+### Result-slot race (hosted paper@1.20.6)
+
+The first hosted run (45191523643) had paper@1.20.6 red on `SpecialAnvilPlacementE2E.markedModeWorksOnlyOnAnAnvilPlacedFromTheSpecialItem`
+("special anvil placed in MARKED mode" expected true). The driver transcript shows the window closed before the result packet for slot 2
+arrived: the test read the slot right after the second move was confirmed. The plugin was fine. An expected book is now awaited
+(`awaitSlot`); an absent one is still read at once, since nothing can be awaited for it (it can only falsely pass). Three unfixed local
+runs of paper@1.20.6 were green (52 tests, 0 failures, 1 skip), so the race needs host load. Fixed code, paper@1.20.6 and paper@26.3, one
+invocation: 103 tests, 0 failures, 0 errors, 1 reported skip. Evidence `C:\pw\dis-ev-1206\`.
+
 Run it (scratch worktree only):
 
 ```bash
