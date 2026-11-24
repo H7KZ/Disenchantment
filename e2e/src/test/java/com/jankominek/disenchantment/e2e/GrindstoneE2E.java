@@ -29,7 +29,7 @@ import java.util.Map;
  * operations is read from the client window, from the server's inventory, cursor and XP, and from the Post event.
  */
 @Proofstone(plugins = "target/plugin-under-test/Disenchantment-*.jar")
-@Matrix(platform = Platform.PAPER, versions = {"1.18.2", "1.20.4", "1.20.6", "1.21.11", "26.3"})
+@Matrix(platform = Platform.PAPER, versions = {"1.18.2", "1.20.4", "1.20.6", "1.21.4", "1.21.7", "1.21.11", "26.3"})
 @Matrix(platform = Platform.FOLIA, versions = {"26.3"})
 class GrindstoneE2E {
 

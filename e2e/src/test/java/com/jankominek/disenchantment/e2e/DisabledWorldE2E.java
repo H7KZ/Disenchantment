@@ -27,7 +27,7 @@ import java.util.Map;
  * test on the same server. The test reverts the live values itself in a {@code finally}.
  */
 @Proofstone(plugins = "target/plugin-under-test/Disenchantment-*.jar")
-@Matrix(platform = Platform.PAPER, versions = {"1.18.2", "1.20.4", "1.20.6", "1.21.11", "26.3"})
+@Matrix(platform = Platform.PAPER, versions = {"1.18.2", "1.20.4", "1.20.6", "1.21.4", "1.21.7", "1.21.11", "26.3"})
 @Matrix(platform = Platform.FOLIA, versions = {"26.3"})
 class DisabledWorldE2E {
 

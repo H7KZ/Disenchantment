@@ -29,7 +29,7 @@ import java.util.function.Predicate;
  * Per-world disabling is in {@link DisabledWorldE2E} (own server, same reason: the patch must not leak).
  */
 @Proofstone(plugins = "target/plugin-under-test/Disenchantment-*.jar")
-@Matrix(platform = Platform.PAPER, versions = {"1.18.2", "1.20.4", "1.20.6", "1.21.11", "26.3"})
+@Matrix(platform = Platform.PAPER, versions = {"1.18.2", "1.20.4", "1.20.6", "1.21.4", "1.21.7", "1.21.11", "26.3"})
 @Matrix(platform = Platform.FOLIA, versions = {"26.3"})
 class RestrictionsE2E {
 

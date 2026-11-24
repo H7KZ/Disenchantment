@@ -31,7 +31,7 @@ import java.util.regex.Pattern;
  * <p>Placing and breaking a special anvil (the chunk mark, MARKED mode on it, the drop swap) is {@link SpecialAnvilPlacementE2E}.
  */
 @Proofstone(plugins = "target/plugin-under-test/Disenchantment-*.jar")
-@Matrix(platform = Platform.PAPER, versions = {"1.18.2", "1.20.4", "1.20.6", "1.21.11", "26.3"})
+@Matrix(platform = Platform.PAPER, versions = {"1.18.2", "1.20.4", "1.20.6", "1.21.4", "1.21.7", "1.21.11", "26.3"})
 @Matrix(platform = Platform.FOLIA, versions = {"26.3"})
 class SpecialAnvilE2E {
 
