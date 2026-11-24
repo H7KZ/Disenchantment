@@ -329,6 +329,13 @@ arrived: the test read the slot right after the second move was confirmed. The p
 runs of paper@1.20.6 were green (52 tests, 0 failures, 1 skip), so the race needs host load. Fixed code, paper@1.20.6 and paper@26.3, one
 invocation: 103 tests, 0 failures, 0 errors, 1 reported skip. Evidence `C:\pw\dis-ev-1206\`.
 
+### Cells paper@1.21.4 and paper@1.21.7 (pin 7a684e9)
+
+Both are added to every `@Matrix`, to the `NmsModuleE2E` map (1.21.4 `NMS_v1_21_R1`, 1.21.7 `NMS_v1_21_R4`, the two modules that had no cell) and to the workflow cell lists.
+Local evidence, 3 separate invocations each, 52 tests, 1 reported skip: paper@1.21.4 3 of 3 clean; paper@1.21.7 2 of 3 clean, the third a
+`CONFIGURATION_STALLED` join stall in `RestrictionsE2E` (harness join-stall class, kept as a finding, not retried). Proofstone keeps both rows
+`experimental` (ADR-0015 needs a per-row conformance run). Evidence under `C:\pw\dis-ev-rows\`. Mutation check, all 11 mutations: RED (`C:\pw\dis-ev-mut\`).
+
 Run it (scratch worktree only):
 
 ```bash
