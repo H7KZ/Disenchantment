@@ -52,7 +52,7 @@ concurrency:
 
 env:
   # Proofstone develop at f5957cc (merge of PR #209, T-M11-11 Window.awaitCursor; it also holds T-M11-01 to T-M11-09). Keep equal to proofstone.ref in e2e/pom.xml.
-  PROOFSTONE_REF: f5957cc22fa44dc8797e76201e951fffd64fb12a
+  PROOFSTONE_REF: 7a684e9d97a0e1f5602cb7ea4f921ab6ba04f864
 
 jobs:
   runner:
