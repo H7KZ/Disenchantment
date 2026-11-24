@@ -169,6 +169,8 @@ jobs:
           VERSION: ${{ steps.ver.outputs.VERSION }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         run: |
+          # Convenience comment, not a gate: the self-hosted runners ship no gh.
+          if ! command -v gh >/dev/null 2>&1; then echo "::notice::gh missing on this runner, build comment skipped"; exit 0; fi
           MARKER="<!-- pr-build-comment -->"
           {
             echo "$MARKER"
