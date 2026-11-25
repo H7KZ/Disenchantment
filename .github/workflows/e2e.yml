@@ -51,8 +51,8 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 env:
-  # Proofstone develop at 677b6d2 (merge of PR #218, T-M12-04: patchConfig restore keeps the plugin config object). Keep equal to proofstone.ref in e2e/pom.xml.
-  PROOFSTONE_REF: 677b6d2694a2e3960164f9952c6cd3cc6837da69
+  # Proofstone develop at d073d4c (merge of PR #225; holds T-M12-01, -03, -04, -06, -07, -12, -13). Keep equal to proofstone.ref in e2e/pom.xml.
+  PROOFSTONE_REF: d073d4c11232449bea8fc729d1b3aaf1783303fc
 
 jobs:
   runner:
