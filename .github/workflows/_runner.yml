@@ -1,0 +1,60 @@
+name: Runner (reusable)
+run-name: Pick runner
+
+# Chooses where the calling workflow's jobs run: the repo's self-hosted runner when it is online and idle,
+# otherwise a GitHub-hosted runner. Output `labels` is a JSON array for `runs-on: ${{ fromJSON(...) }}`.
+#
+# Caller:
+#   runner:
+#     uses: ./.github/workflows/_runner.yml
+#     secrets: inherit
+#   build:
+#     needs: runner
+#     runs-on: ${{ fromJSON(needs.runner.outputs.labels) }}
+#
+# RUNNER_TOKEN: fine-grained PAT, Administration: read on this repo (GITHUB_TOKEN cannot list runners).
+# Without it, on fork PRs, or on any API error the result is always GitHub-hosted (fail safe).
+# hosted-only: pin the caller to GitHub-hosted (backups, rollback and other must-run workflows).
+
+on:
+  workflow_call:
+    inputs:
+      hosted-only:
+        description: Skip the check and use a GitHub-hosted runner
+        type: boolean
+        required: false
+        default: false
+    secrets:
+      RUNNER_TOKEN:
+        required: false
+    outputs:
+      labels:
+        description: JSON array of runs-on labels
+        value: ${{ jobs.pick.outputs.labels }}
+
+permissions: {}
+
+jobs:
+  pick:
+    name: Pick runner
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    outputs:
+      labels: ${{ steps.pick.outputs.labels }}
+    steps:
+      - id: pick
+        env:
+          GH_TOKEN: ${{ secrets.RUNNER_TOKEN }}
+          HOSTED_ONLY: ${{ inputs.hosted-only }}
+          IS_FORK: ${{ github.event.pull_request.head.repo.fork == true }}
+        run: |
+          labels='["ubuntu-latest"]'
+          if [ -n "$GH_TOKEN" ] && [ "$IS_FORK" != "true" ] && [ "$HOSTED_ONLY" != "true" ]; then
+            n=$(gh api "repos/$GITHUB_REPOSITORY/actions/runners?per_page=100" \
+              --jq '[.runners[] | select(.status == "online" and .busy == false and ([.labels[].name] | index("self-hosted")))] | length' 2>/dev/null || echo 0)
+            if [ "${n:-0}" -gt 0 ]; then
+              labels='["self-hosted","Linux","X64","hetzner"]'
+            fi
+          fi
+          echo "labels=$labels" >> "$GITHUB_OUTPUT"
+          echo "Runner: $labels (hosted-only=$HOSTED_ONLY, fork=$IS_FORK)"

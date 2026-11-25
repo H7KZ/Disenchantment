@@ -16,31 +16,14 @@ on:
 jobs:
   runner:
     name: Pick runner
-    runs-on: ubuntu-latest
-    timeout-minutes: 2
-    outputs:
-      labels: ${{ steps.pick.outputs.labels }}
-    steps:
-      - id: pick
-        env:
-          GH_TOKEN: ${{ secrets.RUNNER_TOKEN }}
-          IS_FORK: ${{ github.event.pull_request.head.repo.fork == true }}
-        run: |
-          # self-hosted if an idle runner is online (and not a fork PR), else GitHub-hosted
-          labels='["ubuntu-latest"]'
-          if [ -n "$GH_TOKEN" ] && [ "$IS_FORK" != "true" ]; then
-            n=$(gh api "repos/$GITHUB_REPOSITORY/actions/runners?per_page=100"               --jq '[.runners[] | select(.status == "online" and .busy == false and ([.labels[].name] | index("self-hosted")))] | length' 2>/dev/null || echo 0)
-            if [ "${n:-0}" -gt 0 ]; then
-              labels='["self-hosted","Linux","X64","hetzner"]'
-            fi
-          fi
-          echo "labels=$labels" >> "$GITHUB_OUTPUT"
-          echo "Runner: $labels"
+    uses: ./.github/workflows/_runner.yml
+    secrets: inherit
 
   build:
+    needs: [runner]
     name: Verify
     # Hosted: Spigot BuildTools hung/died on the self-hosted 2 vCPU runners (2026-11-24, runs 45362480026, 45384800781).
-    runs-on: ubuntu-latest
+    runs-on: ${{ fromJSON(needs.runner.outputs.labels) }}
 
     # contents:read to check out; pull-requests:write so the PR build link can be
     # posted as a sticky comment. Fork PRs run with a read-only token and no secrets,

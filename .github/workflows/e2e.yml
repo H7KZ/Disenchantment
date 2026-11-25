@@ -57,30 +57,12 @@ env:
 jobs:
   runner:
     name: Pick runner
-    runs-on: ubuntu-latest
-    timeout-minutes: 2
-    outputs:
-      labels: ${{ steps.pick.outputs.labels }}
-    steps:
-      - id: pick
-        env:
-          GH_TOKEN: ${{ secrets.RUNNER_TOKEN }}
-          IS_FORK: ${{ github.event.pull_request.head.repo.fork == true }}
-        run: |
-          # self-hosted if an idle runner is online (and not a fork PR), else GitHub-hosted
-          labels='["ubuntu-latest"]'
-          if [ -n "$GH_TOKEN" ] && [ "$IS_FORK" != "true" ]; then
-            n=$(gh api "repos/$GITHUB_REPOSITORY/actions/runners?per_page=100"               --jq '[.runners[] | select(.status == "online" and .busy == false and ([.labels[].name] | index("self-hosted")))] | length' 2>/dev/null || echo 0)
-            if [ "${n:-0}" -gt 0 ]; then
-              labels='["self-hosted","Linux","X64","hetzner"]'
-            fi
-          fi
-          echo "labels=$labels" >> "$GITHUB_OUTPUT"
-          echo "Runner: $labels"
+    uses: ./.github/workflows/_runner.yml
+    secrets: inherit
 
   preflight:
     name: Preflight
-    needs: runner
+    needs: [runner]
     runs-on: ${{ fromJSON(needs.runner.outputs.labels) }}
     timeout-minutes: 5
     outputs:
@@ -110,7 +92,7 @@ jobs:
     needs: [runner, preflight]
     if: needs.preflight.outputs.ok == 'true'
     # Hosted: BuildTools hangs on the self-hosted runners (2026-11-24).
-    runs-on: ubuntu-latest
+    runs-on: ${{ fromJSON(needs.runner.outputs.labels) }}
     timeout-minutes: 60
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -216,7 +198,7 @@ jobs:
     needs: [runner, preflight, build]
     if: needs.preflight.outputs.ok == 'true' && inputs.repeat == ''
     # Real-server cells need Docker and more CPU than the self-hosted runners give: on 2026-11-24 they hung to the 45 min timeout.
-    runs-on: ubuntu-latest
+    runs-on: ${{ fromJSON(needs.runner.outputs.labels) }}
     timeout-minutes: 45
     strategy:
       fail-fast: false
@@ -297,7 +279,7 @@ jobs:
     needs: [runner, preflight, build]
     if: needs.preflight.outputs.ok == 'true' && inputs.repeat != ''
     # Real-server cells need Docker and more CPU than the self-hosted runners give: on 2026-11-24 they hung to the 45 min timeout.
-    runs-on: ubuntu-latest
+    runs-on: ${{ fromJSON(needs.runner.outputs.labels) }}
     timeout-minutes: 120
     env:
       PROOFSTONE_ACCEPT_EULA: ${{ vars.PROOFSTONE_ACCEPT_EULA }}
