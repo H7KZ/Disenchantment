@@ -95,7 +95,7 @@ while the server sends the delivered item in a `SetCursorItem` packet just after
 ## Proofstone source build
 
 The suite needs `Agent.logLines` (T-M11-01), `PlayerState.openWindow` (T-M11-02), `Agent.bootLogLines` (T-M11-03), `Client.placeBlock`/`breakBlock` and `Agent.blockType` (T-M11-04) `ItemView.pdc` (T-M11-05) `Window.drag` (T-M11-09, not used by a test yet, see Proofstone gaps item 2) and `Window.awaitCursor` (T-M11-11), which are in Proofstone `develop` but not in the
-Central 0.1.0 (the version string is still `0.1.0`). `proofstone.ref` in `e2e/pom.xml` and `PROOFSTONE_REF` in the workflow name the pinned
+Central 0.1.0 (the source build publishes Proofstone's catalog version, `0.2.0` since the release bump; `proofstone.version` in `e2e/pom.xml` is kept equal to it). `proofstone.ref` in `e2e/pom.xml` and `PROOFSTONE_REF` in the workflow name the pinned
 commit (`f5957cc`, the merge of PR #209; it also holds T-M11-01 to T-M11-11); the workflow fails the build job when they differ. One Gradle run in a
 checkout of that commit produces both inputs:
 
