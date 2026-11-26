@@ -22,14 +22,14 @@
         <!-- The mcpl driver is Java 21 (Proofstone ADR-0004). -->
         <maven.compiler.release>21</maven.compiler.release>
 
-        <!-- Proofstone is consumed from a SOURCE build, not from Central. The Proofstone version string is still 0.1.0, but the
-             Central 0.1.0 predates Agent.logLines (T-M11-01), PlayerState.openWindow (T-M11-02), Agent.bootLogLines (T-M11-03), Client.placeBlock/breakBlock and Agent.blockType (T-M11-04) and ItemView.pdc (T-M11-05), and the mcpl client-inventory fixes (T-M11-06, T-M11-07), which the tests use. Build the
+        <!-- Proofstone is consumed from a SOURCE build, not from Central. The source build publishes the version string of Proofstone's catalog
+             (0.2.0 since the 2026-11-21 release bump; keep proofstone.version equal to it), and the Central 0.1.0 predates Agent.logLines (T-M11-01), PlayerState.openWindow (T-M11-02), Agent.bootLogLines (T-M11-03), Client.placeBlock/breakBlock and Agent.blockType (T-M11-04) and ItemView.pdc (T-M11-05), and the mcpl client-inventory fixes (T-M11-06, T-M11-07), which the tests use. Build the
              checkout at proofstone.ref and run `./gradlew publishToMavenLocal :platforms:bukkit:agent:shadowJar` there first
              (docs/engineering/E2E.md, "Proofstone source build"); the artefacts then come from the local Maven repository
              (no <repository> below serves them). A stale Central 0.1.0 in ~/.m2 fails to compile the tests (loud, never silent).
              Keep proofstone.ref equal to PROOFSTONE_REF in .github/workflows/e2e.yml (the workflow checks it). -->
-        <proofstone.version>0.1.0</proofstone.version>
-        <proofstone.ref>d073d4c11232449bea8fc729d1b3aaf1783303fc</proofstone.ref>
+        <proofstone.version>0.2.0</proofstone.version>
+        <proofstone.ref>42c0732e15a3d16efe1578fc7b75fd2b2c81c0a2</proofstone.ref>
         <junit.version>5.14.4</junit.version>
         <assertj.version>3.27.7</assertj.version>
 
