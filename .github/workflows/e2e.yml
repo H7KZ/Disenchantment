@@ -58,6 +58,8 @@ jobs:
   runner:
     name: Pick runner
     uses: ./.github/workflows/_runner.yml
+    with:
+      hosted-only: true # EVIDENCE BRANCH ONLY (never merged): the self-hosted runner's pull of the ViaProxy image is refused (403)
     secrets: inherit
 
   preflight:
