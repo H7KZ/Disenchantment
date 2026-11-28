@@ -29,7 +29,7 @@
              (no <repository> below serves them). A stale Central 0.1.0 in ~/.m2 fails to compile the tests (loud, never silent).
              Keep proofstone.ref equal to PROOFSTONE_REF in .github/workflows/e2e.yml (the workflow checks it). -->
         <proofstone.version>0.2.0</proofstone.version>
-        <proofstone.ref>adc5532dcf538767cf278d94cf61072dd3accee3</proofstone.ref>
+        <proofstone.ref>f5e8f76001a91030c90a5780ea7803674530c543</proofstone.ref>
         <junit.version>5.14.4</junit.version>
         <assertj.version>3.27.7</assertj.version>
 
