@@ -52,7 +52,7 @@ concurrency:
 
 env:
   # Proofstone develop at 42c0732 (merge of PR #232; adds NetherNet and Geyser-over-NetherNet, the join-stall analysis T-M12-02, and everything of d073d4c: T-M12-01, -03, -04, -06, -07, -12, -13). Keep equal to proofstone.ref in e2e/pom.xml.
-  PROOFSTONE_REF: adc5532dcf538767cf278d94cf61072dd3accee3
+  PROOFSTONE_REF: f5e8f76001a91030c90a5780ea7803674530c543
 
 jobs:
   runner:
